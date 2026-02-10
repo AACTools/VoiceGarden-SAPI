@@ -6,6 +6,7 @@
 .DESCRIPTION
     Downloads the required SherpaOnnx static libraries for building
     NaturalVoiceSAPIAdapter. Supports x86 (32-bit), x64 (64-bit), and ARM64 builds.
+    Supports both Debug and Release configurations.
 
     Downloads from official GitHub releases at:
     https://github.com/k2-fsa/sherpa-onnx/releases/tag/v1.12.23
@@ -14,25 +15,34 @@
     Array of platforms to download. Valid values: "x64", "x86", "ARM64", "all"
     Default: "x64"
 
+.PARAMETER Configuration
+    Build configuration to download. Valid values: "Debug", "Release", "all"
+    Default: "Release"
+
+    Use "all" to download both Debug and Release for local development.
+
 .PARAMETER Force
     Force re-download even if files already exist
 
 .EXAMPLE
     .\download-sherpa-deps.ps1
-    Downloads x64 dependencies only
+    Downloads x64 Release dependencies only (for CI/CD)
 
 .EXAMPLE
-    .\download-sherpa-deps.ps1 -Platforms all
-    Downloads x86, x64, and ARM64 dependencies
+    .\download-sherpa-deps.ps1 -Platforms all -Configuration all
+    Downloads Debug and Release for all platforms (for local development)
 
 .EXAMPLE
-    .\download-sherpa-deps.ps1 -Platforms x86,x64 -Force
-    Re-downloads x86 and x64 platforms
+    .\download-sherpa-deps.ps1 -Platforms x86,x64 -Configuration Debug
+    Downloads Debug configuration for x86 and x64 only
 #>
 
 param(
     [ValidateSet("x64", "x86", "ARM64", "all")]
     [string[]]$Platforms = @("x64"),
+
+    [ValidateSet("Debug", "Release", "all")]
+    [string[]]$Configuration = @("Release"),
 
     [switch]$Force
 )
@@ -53,99 +63,127 @@ if (!(Test-Path $LibsDir)) {
 $Version = "v1.12.23"
 $GithubRelease = "https://github.com/k2-fsa/sherpa-onnx/releases/download/$Version"
 
-# Platform mappings - all use -MT-Release suffix
+# Platform mappings - all use -MT prefix
 $PlatformConfigs = @{
     "x64" = @{
-        Url = "$GithubRelease/sherpa-onnx-$Version-win-x64-static-MT-Release.tar.bz2"
-        File = "sherpa-onnx-$Version-win-x64-static-MT-Release.tar.bz2"
-        Dir = "sherpa-onnx-$Version-win-x64-static"
+        UrlTemplate = "$GithubRelease/sherpa-onnx-$Version-win-x64-static-MT-{CONFIG}.tar.bz2"
+        FileTemplate = "sherpa-onnx-$Version-win-x64-static-MT-{CONFIG}.tar.bz2"
+        DirTemplate = "sherpa-onnx-$Version-win-x64-static"
     }
     "x86" = @{
-        Url = "$GithubRelease/sherpa-onnx-$Version-win-x86-static-MT-Release.tar.bz2"
-        File = "sherpa-onnx-$Version-win-x86-static-MT-Release.tar.bz2"
-        Dir = "sherpa-onnx-$Version-win-x86-static"
+        UrlTemplate = "$GithubRelease/sherpa-onnx-$Version-win-x86-static-MT-{CONFIG}.tar.bz2"
+        FileTemplate = "sherpa-onnx-$Version-win-x86-static-MT-{CONFIG}.tar.bz2"
+        DirTemplate = "sherpa-onnx-$Version-win-x86-static"
     }
     "ARM64" = @{
-        Url = "$GithubRelease/sherpa-onnx-$Version-win-arm64-static-MT-Release.tar.bz2"
-        File = "sherpa-onnx-$Version-win-arm64-static-MT-Release.tar.bz2"
-        Dir = "sherpa-onnx-$Version-win-arm64-static"
+        UrlTemplate = "$GithubRelease/sherpa-onnx-$Version-win-arm64-static-MT-{CONFIG}.tar.bz2"
+        FileTemplate = "sherpa-onnx-$Version-win-arm64-static-MT-{CONFIG}.tar.bz2"
+        DirTemplate = "sherpa-onnx-$Version-win-arm64-static"
     }
 }
 
-# Expand "all" to all platforms
+# Expand "all" platforms
 if ($Platforms -contains "all") {
     $Platforms = @("x64", "x86", "ARM64")
+}
+
+# Expand "all" configurations
+if ($Configuration -contains "all") {
+    $Configuration = @("Debug", "Release")
 }
 
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "SherpaOnnx Dependencies Downloader" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
+Write-Host "Version: $Version" -ForegroundColor Yellow
+Write-Host "Platforms: $($Platforms -join ', ')" -ForegroundColor Yellow
+Write-Host "Configuration(s): $($Configuration -join ', ')" -ForegroundColor Yellow
 Write-Host "Downloading from: https://github.com/k2-fsa/sherpa-onnx/releases/tag/$Version" -ForegroundColor Yellow
 Write-Host ""
 
 $SuccessCount = 0
-$TotalCount = $Platforms.Count
+$TotalCount = $Platforms.Count * $Configuration.Count
 
 foreach ($Platform in $Platforms) {
     $Config = $PlatformConfigs[$Platform]
-    $DestFile = Join-Path $LibsDir $Config.File
-    $ExtractDir = Join-Path $LibsDir $Config.Dir
 
-    Write-Host "[$Platform]" -ForegroundColor Yellow
-    Write-Host "  URL: $($Config.Url)"
-    Write-Host "  File: $($Config.File)"
+    foreach ($BuildConfig in $Configuration) {
+        $Url = $Config.UrlTemplate -replace "\{CONFIG\}", $BuildConfig
+        $File = $Config.FileTemplate -replace "\{CONFIG\}", $BuildConfig
+        $Dir = $Config.DirTemplate
 
-    # Check if already downloaded
-    if ((Test-Path $DestFile) -and !$Force) {
-        $FileSize = (Get-Item $DestFile).Length / 1MB
-        Write-Host "  Status: Already exists ($([math]::Round($FileSize, 2)) MB)" -ForegroundColor Green
-        $SuccessCount++
-        continue
-    }
+        $DestFile = Join-Path $LibsDir $File
+        $ExtractDir = Join-Path $LibsDir $Dir
+        $ExtractDirWithConfig = Join-Path $LibsDir "$Dir-$BuildConfig"
 
-    # Check if already extracted
-    if ((Test-Path $ExtractDir) -and !$Force) {
-        Write-Host "  Status: Already extracted" -ForegroundColor Green
-        $SuccessCount++
-        continue
-    }
+        Write-Host "[$Platform / $BuildConfig]" -ForegroundColor Yellow
+        Write-Host "  URL: $Url"
+        Write-Host "  File: $File"
 
-    try {
-        # Download
-        Write-Host "  Downloading..." -ForegroundColor Cyan
-        $ProgressPreference = 'SilentlyContinue'
-        Invoke-WebRequest -Uri $Config.Url -OutFile $DestFile -UseBasicParsing
-
-        $DownloadedSize = (Get-Item $DestFile).Length / 1MB
-        Write-Host "  Downloaded: $([math]::Round($DownloadedSize, 2)) MB" -ForegroundColor Green
-
-        # Extract
-        Write-Host "  Extracting..." -ForegroundColor Cyan
-        tar -xjf $DestFile -C $LibsDir
-
-        # The extracted directory will have -MT-Release suffix
-        # Rename to keep directory names consistent
-        $extractedWithSuffix = Join-Path $LibsDir "$($Config.Dir)-MT-Release"
-        if (Test-Path $extractedWithSuffix) {
-            Move-Item -Path $extractedWithSuffix -Destination (Join-Path $LibsDir $Config.Dir) -Force
+        # Check if already downloaded
+        if ((Test-Path $DestFile) -and !$Force) {
+            $FileSize = (Get-Item $DestFile).Length / 1MB
+            Write-Host "  Status: Already exists ($([math]::Round($FileSize, 2)) MB)" -ForegroundColor Green
+            $SuccessCount++
+            continue
         }
 
-        Write-Host "  Status: Complete" -ForegroundColor Green
-        $SuccessCount++
-    }
-    catch {
-        Write-Host "  Error: $($_.Exception.Message)" -ForegroundColor Red
-        if (Test-Path $DestFile) {
-            Remove-Item $DestFile -Force
+        # Check if already extracted
+        if ((Test-Path $ExtractDirWithConfig) -and !$Force) {
+            Write-Host "  Status: Already extracted" -ForegroundColor Green
+            $SuccessCount++
+            continue
         }
-    }
 
-    Write-Host ""
+        try {
+            # Download
+            Write-Host "  Downloading..." -ForegroundColor Cyan
+            $ProgressPreference = 'SilentlyContinue'
+            Invoke-WebRequest -Uri $Url -OutFile $DestFile -UseBasicParsing
+
+            $DownloadedSize = (Get-Item $DestFile).Length / 1MB
+            Write-Host "  Downloaded: $([math]::Round($DownloadedSize, 2)) MB" -ForegroundColor Green
+
+            # Extract
+            Write-Host "  Extracting..." -ForegroundColor Cyan
+            tar -xjf $DestFile -C $LibsDir
+
+            # The extracted directory will have -MT-Debug or -MT-Release suffix
+            # Rename to keep directory names consistent with configuration suffix
+            $extractedWithSuffix = Join-Path $LibsDir "$Dir-MT-$BuildConfig"
+            if (Test-Path $extractedWithSuffix) {
+                Move-Item -Path $extractedWithSuffix -Destination $ExtractDirWithConfig -Force
+            }
+
+            # Create a symlink or copy for the base directory (for backward compatibility)
+            # If only one config exists, use that. Otherwise, prefer Release.
+            if ($BuildConfig -eq "Release") {
+                $BaseDir = Join-Path $LibsDir $Dir
+                if (Test-Path $BaseDir) {
+                    Remove-Item $BaseDir -Force -Recurse
+                }
+                # Create a junction (symbolic link for directories)
+                cmd /c mklink /J "$BaseDir" "$ExtractDirWithConfig" | Out-Null
+                Write-Host "  Created junction for backward compatibility" -ForegroundColor DarkGray
+            }
+
+            Write-Host "  Status: Complete" -ForegroundColor Green
+            $SuccessCount++
+        }
+        catch {
+            Write-Host "  Error: $($_.Exception.Message)" -ForegroundColor Red
+            if (Test-Path $DestFile) {
+                Remove-Item $DestFile -Force
+            }
+        }
+
+        Write-Host ""
+    }
 }
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "Summary: $SuccessCount/$TotalCount platforms completed" -ForegroundColor Cyan
+Write-Host "Summary: $SuccessCount/$TotalCount downloads completed" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 
 if ($SuccessCount -eq $TotalCount) {
