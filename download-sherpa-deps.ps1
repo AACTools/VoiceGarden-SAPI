@@ -7,6 +7,9 @@
     Downloads the required SherpaOnnx static libraries for building
     NaturalVoiceSAPIAdapter. Supports x86 (32-bit), x64 (64-bit), and ARM64 builds.
 
+    Downloads from official GitHub releases at:
+    https://github.com/k2-fsa/sherpa-onnx/releases/tag/v1.12.23
+
 .PARAMETER Platforms
     Array of platforms to download. Valid values: "x64", "x86", "ARM64", "all"
     Default: "x64"
@@ -46,25 +49,25 @@ if (!(Test-Path $LibsDir)) {
     New-Item -ItemType Directory -Path $LibsDir -Force | Out-Null
 }
 
-# SherpaOnnx version and base URL
+# SherpaOnnx version and GitHub release URL
 $Version = "v1.12.23"
-$BaseUrl = "https://sourceforge.net/projects/sherpa-onnx.mirror/files"
+$GithubRelease = "https://github.com/k2-fsa/sherpa-onnx/releases/download/$Version"
 
-# Platform mappings - x86 uses -MT-Release suffix
+# Platform mappings - all use -MT-Release suffix
 $PlatformConfigs = @{
     "x64" = @{
-        Url = "$BaseUrl/$Version/sherpa-onnx-$Version-win-x64-static.tar.bz2/download"
-        File = "sherpa-onnx-$Version-win-x64-static.tar.bz2"
+        Url = "$GithubRelease/sherpa-onnx-$Version-win-x64-static-MT-Release.tar.bz2"
+        File = "sherpa-onnx-$Version-win-x64-static-MT-Release.tar.bz2"
         Dir = "sherpa-onnx-$Version-win-x64-static"
     }
     "x86" = @{
-        Url = "$BaseUrl/$Version/sherpa-onnx-$Version-win-x86-static-MT-Release.tar.bz2/download"
+        Url = "$GithubRelease/sherpa-onnx-$Version-win-x86-static-MT-Release.tar.bz2"
         File = "sherpa-onnx-$Version-win-x86-static-MT-Release.tar.bz2"
         Dir = "sherpa-onnx-$Version-win-x86-static"
     }
     "ARM64" = @{
-        Url = "$BaseUrl/$Version/sherpa-onnx-$Version-win-arm64-static.tar.bz2/download"
-        File = "sherpa-onnx-$Version-win-arm64-static.tar.bz2"
+        Url = "$GithubRelease/sherpa-onnx-$Version-win-arm64-static-MT-Release.tar.bz2"
+        File = "sherpa-onnx-$Version-win-arm64-static-MT-Release.tar.bz2"
         Dir = "sherpa-onnx-$Version-win-arm64-static"
     }
 }
@@ -77,6 +80,8 @@ if ($Platforms -contains "all") {
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "SherpaOnnx Dependencies Downloader" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Downloading from: https://github.com/k2-fsa/sherpa-onnx/releases/tag/$Version" -ForegroundColor Yellow
 Write-Host ""
 
 $SuccessCount = 0
@@ -119,13 +124,11 @@ foreach ($Platform in $Platforms) {
         Write-Host "  Extracting..." -ForegroundColor Cyan
         tar -xjf $DestFile -C $LibsDir
 
-        # For x86, rename the extracted directory to remove -MT-Release suffix
-        # This keeps directory names consistent: sherpa-onnx-v1.12.23-win-x86-static
-        if ($Platform -eq "x86") {
-            $extractedDir = Join-Path $LibsDir "sherpa-onnx-$Version-win-x86-static-MT-Release"
-            if (Test-Path $extractedDir) {
-                Move-Item -Path $extractedDir -Destination (Join-Path $LibsDir $Config.Dir) -Force
-            }
+        # The extracted directory will have -MT-Release suffix
+        # Rename to keep directory names consistent
+        $extractedWithSuffix = Join-Path $LibsDir "$($Config.Dir)-MT-Release"
+        if (Test-Path $extractedWithSuffix) {
+            Move-Item -Path $extractedWithSuffix -Destination (Join-Path $LibsDir $Config.Dir) -Force
         }
 
         Write-Host "  Status: Complete" -ForegroundColor Green
