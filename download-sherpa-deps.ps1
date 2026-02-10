@@ -50,7 +50,7 @@ if (!(Test-Path $LibsDir)) {
 $Version = "v1.12.23"
 $BaseUrl = "https://sourceforge.net/projects/sherpa-onnx.mirror/files"
 
-# Platform mappings - fixed x86 to use correct files
+# Platform mappings - x86 uses -MT-Release suffix
 $PlatformConfigs = @{
     "x64" = @{
         Url = "$BaseUrl/$Version/sherpa-onnx-$Version-win-x64-static.tar.bz2/download"
@@ -58,8 +58,8 @@ $PlatformConfigs = @{
         Dir = "sherpa-onnx-$Version-win-x64-static"
     }
     "x86" = @{
-        Url = "$BaseUrl/$Version/sherpa-onnx-$Version-win-x86-static.tar.bz2/download"
-        File = "sherpa-onnx-$Version-win-x86-static.tar.bz2"
+        Url = "$BaseUrl/$Version/sherpa-onnx-$Version-win-x86-static-MT-Release.tar.bz2/download"
+        File = "sherpa-onnx-$Version-win-x86-static-MT-Release.tar.bz2"
         Dir = "sherpa-onnx-$Version-win-x86-static"
     }
     "ARM64" = @{
@@ -118,6 +118,15 @@ foreach ($Platform in $Platforms) {
         # Extract
         Write-Host "  Extracting..." -ForegroundColor Cyan
         tar -xjf $DestFile -C $LibsDir
+
+        # For x86, rename the extracted directory to remove -MT-Release suffix
+        # This keeps directory names consistent: sherpa-onnx-v1.12.23-win-x86-static
+        if ($Platform -eq "x86") {
+            $extractedDir = Join-Path $LibsDir "sherpa-onnx-$Version-win-x86-static-MT-Release"
+            if (Test-Path $extractedDir) {
+                Move-Item -Path $extractedDir -Destination (Join-Path $LibsDir $Config.Dir) -Force
+            }
+        }
 
         Write-Host "  Status: Complete" -ForegroundColor Green
         $SuccessCount++
