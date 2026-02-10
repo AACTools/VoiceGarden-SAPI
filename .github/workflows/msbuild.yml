@@ -18,9 +18,30 @@ env:
   BUILD_CONFIGURATION: Release
 
 jobs:
+  build-sherpa-config:
+    name: Build SherpaOnnxConfig
+    runs-on: windows-latest
+
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+
+    - name: Build SherpaOnnxConfig (self-contained, x64)
+      run: dotnet publish SherpaOnnxConfig\SherpaOnnxConfig.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o ${{github.workspace}}\sherpa-config
+
+    - name: Upload SherpaOnnxConfig artifact
+      uses: actions/upload-artifact@v6
+      with:
+        name: sherpa-onnx-config
+        path: sherpa-config/SherpaOnnxConfig.exe
+
   build-utilities:
     name: Build submodules
     runs-on: windows-latest
+    needs: build-sherpa-config
 
     permissions:
       contents: read
@@ -67,18 +88,6 @@ jobs:
         nuget restore Arm64XForwarder -SolutionDirectory .
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=ARM64EC /p:OutDir=${{github.workspace}}\out\ Arm64XForwarder
 
-    - name: Build SherpaOnnxConfig (self-contained, x64)
-      if: matrix.platform == 'x64'
-      working-directory: ${{github.workspace}}
-      run: dotnet publish SherpaOnnxConfig\SherpaOnnxConfig.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o ${{github.workspace}}\sherpa-config
-
-    - name: Upload SherpaOnnxConfig artifact
-      if: matrix.platform == 'x64'
-      uses: actions/upload-artifact@v6
-      with:
-        name: sherpa-onnx-config
-        path: sherpa-config/SherpaOnnxConfig.exe
-
     - name: Build Installer (x86 only)
       if: matrix.platform == 'x86'
       working-directory: ${{github.workspace}}
@@ -88,7 +97,7 @@ jobs:
 
     - name: Download SherpaOnnxConfig and copy to installer output
       if: matrix.platform == 'x86'
-      uses: actions/download-artifact@v7
+      uses: actions/download-artifact@v4
       with:
         name: sherpa-onnx-config
         path: ${{github.workspace}}\out\
@@ -168,7 +177,7 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    needs: [build-utilities, build-main]
+    needs: [build-sherpa-config, build-utilities, build-main]
     if: github.ref_type == 'tag'
 
     permissions:
