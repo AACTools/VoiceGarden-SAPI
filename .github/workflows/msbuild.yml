@@ -114,6 +114,13 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v6
 
+    - name: Download SherpaOnnx dependencies
+      shell: pwsh
+      run: |
+        $platform = "${{matrix.platform}}"
+        if ($platform -eq "x86") { $platform = "x86" }
+        .\download-sherpa-deps.ps1 -Platforms $platform
+
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
 

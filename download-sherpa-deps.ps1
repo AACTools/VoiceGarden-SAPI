@@ -5,10 +5,10 @@
 
 .DESCRIPTION
     Downloads the required SherpaOnnx static libraries for building
-    NaturalVoiceSAPIAdapter. Supports x86 (32-bit) and x64 (64-bit) builds.
+    NaturalVoiceSAPIAdapter. Supports x86 (32-bit), x64 (64-bit), and ARM64 builds.
 
 .PARAMETER Platforms
-    Array of platforms to download. Valid values: "x64", "x86", "all"
+    Array of platforms to download. Valid values: "x64", "x86", "ARM64", "all"
     Default: "x64"
 
 .PARAMETER Force
@@ -20,15 +20,15 @@
 
 .EXAMPLE
     .\download-sherpa-deps.ps1 -Platforms all
-    Downloads both x86 and x64 dependencies
+    Downloads x86, x64, and ARM64 dependencies
 
 .EXAMPLE
     .\download-sherpa-deps.ps1 -Platforms x86,x64 -Force
-    Re-downloads both platforms
+    Re-downloads x86 and x64 platforms
 #>
 
 param(
-    [ValidateSet("x64", "x86", "all")]
+    [ValidateSet("x64", "x86", "ARM64", "all")]
     [string[]]$Platforms = @("x64"),
 
     [switch]$Force
@@ -50,7 +50,7 @@ if (!(Test-Path $LibsDir)) {
 $Version = "v1.12.23"
 $BaseUrl = "https://sourceforge.net/projects/sherpa-onnx.mirror/files"
 
-# Platform mappings
+# Platform mappings - fixed x86 to use correct files
 $PlatformConfigs = @{
     "x64" = @{
         Url = "$BaseUrl/$Version/sherpa-onnx-$Version-win-x64-static.tar.bz2/download"
@@ -58,15 +58,20 @@ $PlatformConfigs = @{
         Dir = "sherpa-onnx-$Version-win-x64-static"
     }
     "x86" = @{
-        Url = "$BaseUrl/$Version/sherpa-onnx-$Version-win-x64-static.tar.bz2/download"
-        File = "sherpa-onnx-$Version-win-x64-static.tar.bz2"
-        Dir = "sherpa-onnx-$Version-win-x64-static"
+        Url = "$BaseUrl/$Version/sherpa-onnx-$Version-win-x86-static.tar.bz2/download"
+        File = "sherpa-onnx-$Version-win-x86-static.tar.bz2"
+        Dir = "sherpa-onnx-$Version-win-x86-static"
+    }
+    "ARM64" = @{
+        Url = "$BaseUrl/$Version/sherpa-onnx-$Version-win-arm64-static.tar.bz2/download"
+        File = "sherpa-onnx-$Version-win-arm64-static.tar.bz2"
+        Dir = "sherpa-onnx-$Version-win-arm64-static"
     }
 }
 
-# Expand "all" to both platforms
+# Expand "all" to all platforms
 if ($Platforms -contains "all") {
-    $Platforms = @("x64", "x86")
+    $Platforms = @("x64", "x86", "ARM64")
 }
 
 Write-Host "========================================" -ForegroundColor Cyan
