@@ -68,6 +68,8 @@ static void UpdateDisplay(HWND hDlg)
         key.GetDword(L"NoAzureVoices")
         || (key.GetString(L"AzureVoiceKey").empty() && key.GetString(L"AzureVoiceRegion").empty())
         ? BST_UNCHECKED : BST_CHECKED);
+    CheckDlgButton(hDlg, IDC_CHK_SHERPA_VOICES,
+        key.GetDword(L"NoSherpaVoices") ? BST_UNCHECKED : BST_CHECKED);
     SetDlgItemTextW(hDlg, IDC_LOCAL_VOICE_PATH, key.GetString(L"NarratorVoicePath").c_str());
 
     if (key.GetDword(L"EdgeVoiceAllLanguages"))
@@ -157,6 +159,7 @@ static void SaveChanges(HWND hDlg)
     key.SetDword(L"NoNarratorVoices", IsDlgButtonChecked(hDlg, IDC_CHK_NARRATOR_VOICES) == BST_UNCHECKED);
     key.SetDword(L"NoEdgeVoices", IsDlgButtonChecked(hDlg, IDC_CHK_EDGE_VOICES) == BST_UNCHECKED);
     key.SetDword(L"NoAzureVoices", IsDlgButtonChecked(hDlg, IDC_CHK_AZURE_VOICES) == BST_UNCHECKED);
+    key.SetDword(L"NoSherpaVoices", IsDlgButtonChecked(hDlg, IDC_CHK_SHERPA_VOICES) == BST_UNCHECKED);
     WCHAR path[MAX_PATH];
     GetDlgItemTextW(hDlg, IDC_LOCAL_VOICE_PATH, path, MAX_PATH);
     key.SetString(L"NarratorVoicePath", path);
@@ -212,6 +215,7 @@ INT_PTR CALLBACK MainDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
             case IDC_CHK_NARRATOR_VOICES:
             case IDC_CHK_EDGE_VOICES:
             case IDC_CHK_AZURE_VOICES:
+            case IDC_CHK_SHERPA_VOICES:
                 UpdateEnableStates(hDlg);
                 SaveChanges(hDlg);
                 break;
@@ -259,6 +263,33 @@ INT_PTR CALLBACK MainDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
                     && PathAppendW(path, L"NaturalVoiceSAPIAdapter"))
                 {
                     ShellExecuteW(hDlg, nullptr, path, nullptr, nullptr, SW_SHOWNORMAL);
+                }
+                break;
+            }
+            case IDC_SHERPA_MODEL_MANAGER:
+            {
+                // Launch SherpaOnnx Model Manager
+                WCHAR configToolPath[MAX_PATH];
+                GetModuleFileNameW(nullptr, configToolPath, MAX_PATH);
+                PathRemoveFileSpecW(configToolPath);
+                PathAppendW(configToolPath, L" SherpaOnnxConfig.exe");
+
+                // Also try the Release directory
+                if (!PathFileExistsW(configToolPath))
+                {
+                    GetModuleFileNameW(nullptr, configToolPath, MAX_PATH);
+                    PathRemoveFileSpecW(configToolPath);
+                    PathAppendW(configToolPath, L"\\..\\x64\\Release\\SherpaOnnxConfig.exe");
+                }
+
+                if (PathFileExistsW(configToolPath))
+                {
+                    ShellExecuteW(hDlg, nullptr, configToolPath, nullptr, nullptr, SW_SHOWNORMAL);
+                }
+                else
+                {
+                    MessageBoxW(hDlg, L"SherpaOnnx Model Manager not found.\n\nPlease ensure SherpaOnnxConfig.exe is in the application directory.",
+                        L"Model Manager Not Found", MB_ICONEXCLAMATION);
                 }
                 break;
             }

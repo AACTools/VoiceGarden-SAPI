@@ -365,3 +365,7 @@ FodyWeavers.xsd
 # Folder for released files
 /releasepack
 /NaturalVoiceSAPIAdapter/NaturalVoiceSAPIAdapter_i.h
+
+# SherpaOnnx dependencies (downloaded via download-sherpa-deps.ps1)
+SherpaOnnx/libs/
+*.tar.bz2

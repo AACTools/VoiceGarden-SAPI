@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ Éú³ÉµÄ°üº¬ÎÄ¼þ¡£
-// ¹© Installer.rc Ê¹ÓÃ
+// Microsoft Visual C++ ï¿½ï¿½ï¿½ÉµÄ°ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½
+// ï¿½ï¿½ Installer.rc Ê¹ï¿½ï¿½
 //
 #define IDC_MYICON                      2
 #define IDD_MAIN                        102
@@ -59,16 +59,18 @@
 #define IDC_AZURE_REGION                1031
 #define IDC_STATIC_INCLUDED_LANGUAGES   1032
 #define IDC_LANG_MULTILINGUAL           1033
+#define IDC_SHERPA_MODEL_MANAGER        1034
+#define IDC_CHK_SHERPA_VOICES           1035
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        141
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1034
+#define _APS_NEXT_CONTROL_VALUE         1036
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

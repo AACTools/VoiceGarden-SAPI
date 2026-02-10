@@ -53,6 +53,7 @@ private:
 		ErrorMode errorMode);
 	static void EnumAzureVoices(TokenMap& tokens, DWORD langFlags, const std::vector<std::wstring>& languages,
 		const std::wstring& key, const std::wstring& region, ErrorMode errorMode);
+	static void EnumSherpaVoices(TokenMap& tokens, DWORD langFlags, const std::vector<std::wstring>& languages);
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(VoiceTokenEnumerator), CVoiceTokenEnumerator)

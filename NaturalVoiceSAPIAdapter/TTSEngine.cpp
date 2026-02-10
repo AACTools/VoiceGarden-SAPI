@@ -80,7 +80,7 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
         {
             return E_INVALIDARG;
         }
-        if (!m_synthesizer && !m_restApi)
+        if (!m_synthesizer && !m_restApi && !m_sherpaOnnx)
         {
             return SPERR_UNINITIALIZED;
         }
@@ -136,7 +136,12 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
 
         std::future<void> future;
 
-        if (m_synthesizer)
+        if (m_sherpaOnnx)
+        {
+            // SherpaOnnx doesn't support SSML, strip to plain text
+            future = std::async(std::launch::async, [this]() { GenerateSherpaOnnxAudio(); });
+        }
+        else if (m_synthesizer)
         {
             future = std::async(std::launch::async, [this]() { CheckSynthesisResult(m_synthesizer->SpeakSsml(m_ssml)); });
         }
@@ -265,6 +270,10 @@ void CTTSEngine::InitVoice()
 
     RegKey key = RegOpenConfigKey();
 
+    // Try SherpaOnnx first (offline local voices)
+    if (InitSherpaOnnxVoice(pConfigKey))
+        return;
+
     if (IsWindows7OrGreater() // Azure Speech SDK requires at least Win 7
         || key.GetDword(L"ForceEnableAzureSpeechSDK"))
     {
@@ -348,6 +357,68 @@ bool CTTSEngine::InitLocalVoice(ISpDataKey* pConfigKey)
 
     LogInfo("Local voice created: {}", voiceName);
     return true;
+}
+
+bool CTTSEngine::InitSherpaOnnxVoice(ISpDataKey* pConfigKey)
+{
+    CSpDynamicString pszModelPath, pszTokens, pszDataDir, pszVoiceName;
+
+    // Check if this is a SherpaOnnx voice configuration
+    // We look for SherpaOnnxModelPath which indicates a SherpaOnnx voice
+    if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxModelPath", &pszModelPath)))
+        return false; // Not a SherpaOnnx voice
+
+    // SherpaOnnxModelPath exists, so this should be a SherpaOnnx voice
+    // Now check for required parameters
+    if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxTokens", &pszTokens)))
+    {
+        LogWarn("SherpaOnnx voice has ModelPath but missing Tokens");
+        return false;
+    }
+
+    // Optional: Data directory for espeak-ng
+    if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxDataDir", &pszDataDir)))
+        pszDataDir = L"";
+
+    // Get voice name for display
+    if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxVoiceName", &pszVoiceName)))
+        pszVoiceName = L"SherpaOnnx Voice";
+
+    try
+    {
+        // Build SherpaOnnx configuration
+        SherpaOnnx::ModelConfig config;
+        config.voiceName = WStringToUTF8(std::wstring(pszVoiceName.m_psz));
+        config.vits.model = WStringToUTF8(std::wstring(pszModelPath.m_psz));
+        config.vits.tokens = WStringToUTF8(std::wstring(pszTokens.m_psz));
+        if (pszDataDir.m_psz && *pszDataDir.m_psz)
+            config.vits.dataDir = WStringToUTF8(std::wstring(pszDataDir.m_psz));
+
+        // Create SherpaOnnx engine
+        m_sherpaOnnx = std::make_unique<SherpaOnnx::Engine>(config);
+
+        if (!m_sherpaOnnx->IsValid())
+        {
+            LogErr("Failed to initialize SherpaOnnx engine for voice: {}",
+                WStringToUTF8(std::wstring(pszVoiceName.m_psz)));
+            m_sherpaOnnx.reset();
+            return false;
+        }
+
+        m_isSherpaOnnxVoice = true;
+        m_isEdgeVoice = false; // Not an Edge voice
+
+        int sampleRate = m_sherpaOnnx->GetSampleRate();
+        LogInfo("SherpaOnnx voice created: {} (sample rate: {}Hz)",
+            WStringToUTF8(std::wstring(pszVoiceName.m_psz)), sampleRate);
+        return true;
+    }
+    catch (const std::exception& ex)
+    {
+        LogErr("SherpaOnnx initialization failed: {}", ex.what());
+        m_sherpaOnnx.reset();
+        return false;
+    }
 }
 
 bool CTTSEngine::InitCloudVoiceSynthesizer(ISpDataKey* pConfigKey)
@@ -1139,6 +1210,147 @@ bool CTTSEngine::BuildSSML(const SPVTEXTFRAG* pTextFragList)
     m_ssml.append(L"</speak>");
 
     return hasText;
+}
+
+std::wstring CTTSEngine::StripSSML(const std::wstring& ssml)
+{
+    // Simple SSML stripper - removes tags but keeps text content
+    // For production, consider using a proper XML parser
+
+    std::wstring result;
+    result.reserve(ssml.size());
+
+    bool inTag = false;
+    bool inComment = false;
+
+    for (size_t i = 0; i < ssml.size(); ++i)
+    {
+        if (inComment)
+        {
+            if (i + 2 < ssml.size() && ssml[i] == L'-' && ssml[i + 1] == L'-' && ssml[i + 2] == L'>')
+            {
+                inComment = false;
+                i += 2;
+            }
+            continue;
+        }
+
+        if (ssml[i] == L'<')
+        {
+            // Check for comment start
+            if (i + 3 < ssml.size() && ssml[i + 1] == L'!' && ssml[i + 2] == L'-' && ssml[i + 3] == L'-')
+            {
+                inComment = true;
+                i += 3;
+                continue;
+            }
+            inTag = true;
+            continue;
+        }
+
+        if (ssml[i] == L'>')
+        {
+            inTag = false;
+            continue;
+        }
+
+        if (!inTag)
+        {
+            // Decode common XML entities
+            if (ssml[i] == L'&')
+            {
+                if (ssml.substr(i, 4) == L"&lt;")
+                {
+                    result += L'<';
+                    i += 3;
+                }
+                else if (ssml.substr(i, 4) == L"&gt;")
+                {
+                    result += L'>';
+                    i += 3;
+                }
+                else if (ssml.substr(i, 5) == L"&amp;")
+                {
+                    result += L'&';
+                    i += 4;
+                }
+                else if (ssml.substr(i, 6) == L"&quot;")
+                {
+                    result += L'"';
+                    i += 5;
+                }
+                else if (ssml.substr(i, 6) == L"&apos;")
+                {
+                    result += L'\'';
+                    i += 5;
+                }
+                else
+                {
+                    result += ssml[i];
+                }
+            }
+            else
+            {
+                result += ssml[i];
+            }
+        }
+    }
+
+    // Trim whitespace
+    size_t start = result.find_first_not_of(L" \t\n\r");
+    if (start == std::wstring::npos)
+        return L"";
+
+    size_t end = result.find_last_not_of(L" \t\n\r");
+    return result.substr(start, end - start + 1);
+}
+
+void CTTSEngine::GenerateSherpaOnnxAudio()
+{
+    // SherpaOnnx doesn't support SSML, strip to plain text
+    std::string plainText = WStringToUTF8(StripSSML(m_ssml));
+
+    if (plainText.empty())
+    {
+        LogWarn("SherpaOnnx: No text to speak after SSML stripping");
+        return;
+    }
+
+    try
+    {
+        // Generate audio (SherpaOnnx returns float samples in [-1, 1])
+        std::vector<float> audio = m_sherpaOnnx->Generate(plainText, 1.0f);
+
+        if (audio.empty())
+        {
+            LogWarn("SherpaOnnx generated no audio for text: {}", plainText);
+            return;
+        }
+
+        // Convert float samples to 16-bit PCM for SAPI
+        std::vector<BYTE> pcmData;
+        pcmData.reserve(audio.size() * 2);
+
+        for (float sample : audio)
+        {
+            // Clamp and convert
+            float clamped = std::clamp(sample, -1.0f, 1.0f);
+            int16_t pcm = static_cast<int16_t>(clamped * 32767.0f);
+
+            pcmData.push_back(static_cast<BYTE>(pcm & 0xFF));
+            pcmData.push_back(static_cast<BYTE>((pcm >> 8) & 0xFF));
+        }
+
+        // Write to SAPI output site
+        OnAudioData(pcmData.data(), static_cast<uint32_t>(pcmData.size()));
+
+        LogInfo("SherpaOnnx generated {} samples ({} bytes)", audio.size(), pcmData.size());
+    }
+    catch (const std::exception& ex)
+    {
+        LogErr("SherpaOnnx generation failed: {}", ex.what());
+        throw;
+    }
 }
 
 void CTTSEngine::FinishSimulatingBookmarkEvents(ULONGLONG streamOffset)

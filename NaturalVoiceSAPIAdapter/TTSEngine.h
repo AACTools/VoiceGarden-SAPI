@@ -10,6 +10,7 @@
 #include "SapiException.h"
 #include "Mp3Decoder.h"
 
+#include "../SherpaOnnx/SherpaOnnxEngine.h"
 #include "NaturalVoiceSAPIAdapter_i.h"
 
 
@@ -121,10 +122,12 @@ private: // Member variables
 	CComPtr<ISpPhoneConverter> m_phoneConverter;
 	std::shared_ptr<SpeechSynthesizer> m_synthesizer;
 	std::unique_ptr<SpeechRestAPI> m_restApi;
+	std::unique_ptr<SherpaOnnx::Engine> m_sherpaOnnx;
 	std::future<void> m_lastCancellingFuture;
 
 	ErrorMode m_errorMode = ErrorMode::ProbeForError;
 	bool m_isEdgeVoice = false;
+	bool m_isSherpaOnnxVoice = false;
 	bool m_onlineDelayOptimization = false;
 	bool m_compensatedSilenceWritten = false;
 	std::atomic_bool m_synthesizerStarted = false;
@@ -162,6 +165,7 @@ private: // Private methods
 	void InitPhoneConverter();
 	void InitVoice();
 	bool InitLocalVoice(ISpDataKey* pConfigKey);
+	bool InitSherpaOnnxVoice(ISpDataKey* pConfigKey);
 	bool InitCloudVoiceSynthesizer(ISpDataKey* pConfigKey);
 	bool InitCloudVoiceRestAPI(ISpDataKey* pConfigKey);
 	void SetupSynthesizerEvents(ULONGLONG interests);
@@ -172,6 +176,8 @@ private: // Private methods
 	void AppendPhonemesToSsml(const SPPHONEID* pPhoneIds);
 	void AppendSAPIContextToSsml(const SPVCONTEXT& context);
 	bool BuildSSML(const SPVTEXTFRAG* pTextFragList);
+	std::wstring StripSSML(const std::wstring& ssml);
+	void GenerateSherpaOnnxAudio();
 
 	void FinishSimulatingBookmarkEvents(ULONGLONG streamOffset);
 

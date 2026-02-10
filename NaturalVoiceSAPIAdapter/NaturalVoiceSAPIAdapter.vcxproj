@@ -36,14 +36,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <YY_Thunks_File>YY_Thunks_for_WinXP.obj</YY_Thunks_File>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <YY_Thunks_File>YY_Thunks_for_WinXP.obj</YY_Thunks_File>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -51,21 +51,21 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <YY_Thunks_File>YY_Thunks_for_WinXP.obj</YY_Thunks_File>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <YY_Thunks_File>false</YY_Thunks_File>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <YY_Thunks_File>YY_Thunks_for_WinXP.obj</YY_Thunks_File>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -73,7 +73,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <YY_Thunks_File>false</YY_Thunks_File>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -154,6 +154,7 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -168,7 +169,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
@@ -177,7 +178,8 @@
       <RegisterOutput>true</RegisterOutput>
       <PerUserRedirection>false</PerUserRedirection>
       <DelayLoadDLLs>Microsoft.CognitiveServices.Speech.core.dll</DelayLoadDLLs>
-      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;RuntimeObject.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;RuntimeObject.lib;sherpa-onnx-c-api.lib;sherpa-onnx-core.lib;sherpa-onnx-cxx-api.lib;onnxruntime.lib;espeak-ng.lib;piper_phonemize.lib;kissfft-float.lib;sherpa-onnx-fst.lib;kaldi-decoder-core.lib;kaldi-native-fbank-core.lib;sherpa-onnx-fstfar.lib;sherpa-onnx-kaldifst-core.lib;ssentencepiece_core.lib;cargs.lib;ucd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
@@ -193,6 +195,7 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -208,7 +211,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
@@ -217,7 +220,8 @@
       <RegisterOutput>true</RegisterOutput>
       <PerUserRedirection>false</PerUserRedirection>
       <DelayLoadDLLs>Microsoft.CognitiveServices.Speech.core.dll</DelayLoadDLLs>
-      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;RuntimeObject.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;RuntimeObject.lib;sherpa-onnx-c-api.lib;sherpa-onnx-core.lib;sherpa-onnx-cxx-api.lib;onnxruntime.lib;espeak-ng.lib;piper_phonemize.lib;kissfft-float.lib;sherpa-onnx-fst.lib;kaldi-decoder-core.lib;kaldi-native-fbank-core.lib;sherpa-onnx-fstfar.lib;sherpa-onnx-kaldifst-core.lib;ssentencepiece_core.lib;cargs.lib;ucd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -234,6 +238,7 @@
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -249,7 +254,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
@@ -258,7 +263,8 @@
       <RegisterOutput>true</RegisterOutput>
       <PerUserRedirection>false</PerUserRedirection>
       <DelayLoadDLLs>Microsoft.CognitiveServices.Speech.core.dll</DelayLoadDLLs>
-      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;RuntimeObject.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;RuntimeObject.lib;sherpa-onnx-c-api.lib;sherpa-onnx-core.lib;sherpa-onnx-cxx-api.lib;onnxruntime.lib;espeak-ng.lib;piper_phonemize.lib;kissfft-float.lib;sherpa-onnx-fst.lib;kaldi-decoder-core.lib;kaldi-native-fbank-core.lib;sherpa-onnx-fstfar.lib;sherpa-onnx-kaldifst-core.lib;ssentencepiece_core.lib;cargs.lib;ucd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -275,6 +281,7 @@
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -290,7 +297,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
@@ -302,7 +309,8 @@
       <PerUserRedirection>false</PerUserRedirection>
       <DelayLoadDLLs>Microsoft.CognitiveServices.Speech.core.dll</DelayLoadDLLs>
       <AdditionalOptions>/PDBALTPATH:%_PDB% %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;RuntimeObject.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;RuntimeObject.lib;sherpa-onnx-c-api.lib;sherpa-onnx-core.lib;sherpa-onnx-cxx-api.lib;onnxruntime.lib;espeak-ng.lib;piper_phonemize.lib;kissfft-float.lib;sherpa-onnx-fst.lib;kaldi-decoder-core.lib;kaldi-native-fbank-core.lib;sherpa-onnx-fstfar.lib;sherpa-onnx-kaldifst-core.lib;ssentencepiece_core.lib;cargs.lib;ucd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -318,6 +326,7 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -332,7 +341,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
@@ -344,7 +353,8 @@
       <PerUserRedirection>false</PerUserRedirection>
       <DelayLoadDLLs>Microsoft.CognitiveServices.Speech.core.dll</DelayLoadDLLs>
       <AdditionalOptions>/PDBALTPATH:%_PDB% %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;RuntimeObject.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;RuntimeObject.lib;sherpa-onnx-c-api.lib;sherpa-onnx-core.lib;sherpa-onnx-cxx-api.lib;onnxruntime.lib;espeak-ng.lib;piper_phonemize.lib;kissfft-float.lib;sherpa-onnx-fst.lib;kaldi-decoder-core.lib;kaldi-native-fbank-core.lib;sherpa-onnx-fstfar.lib;sherpa-onnx-kaldifst-core.lib;ssentencepiece_core.lib;cargs.lib;ucd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
@@ -360,6 +370,7 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -375,7 +386,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
@@ -387,7 +398,8 @@
       <PerUserRedirection>false</PerUserRedirection>
       <DelayLoadDLLs>Microsoft.CognitiveServices.Speech.core.dll</DelayLoadDLLs>
       <AdditionalOptions>/PDBALTPATH:%_PDB% %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;RuntimeObject.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;RuntimeObject.lib;sherpa-onnx-c-api.lib;sherpa-onnx-core.lib;sherpa-onnx-cxx-api.lib;onnxruntime.lib;espeak-ng.lib;piper_phonemize.lib;kissfft-float.lib;sherpa-onnx-fst.lib;kaldi-decoder-core.lib;kaldi-native-fbank-core.lib;sherpa-onnx-fstfar.lib;sherpa-onnx-kaldifst-core.lib;ssentencepiece_core.lib;cargs.lib;ucd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -417,6 +429,9 @@
     <ClInclude Include="VoiceToken.h" />
     <ClInclude Include="VoiceTokenEnumerator.h" />
     <ClInclude Include="WSConnectionPool.h" />
+    <ClInclude Include="..\SherpaOnnx\SherpaOnnxEngine.h" />
+    <ClInclude Include="..\SherpaOnnx\SherpaOnnxModels.h" />
+    <ClInclude Include="..\SherpaOnnx\SherpaOnnxConfig.h" />
     <ClInclude Include="WSLogger.h" />
     <ClInclude Include="wrappers.h" />
   </ItemGroup>
@@ -475,6 +490,22 @@
     <ClCompile Include="TTSEngine.cpp" />
     <ClCompile Include="VoiceTokenEnumerator.cpp" />
     <ClCompile Include="WSConnectionPool.cpp" />
+    <ClCompile Include="..\SherpaOnnx\SherpaOnnxEngine.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\SherpaOnnx\SherpaOnnxModels.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NaturalVoiceSAPIAdapter.rc" />
