@@ -1,6 +1,8 @@
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Microsoft.Win32.SafeHandles;
 
 namespace SherpaOnnxConfig
 {
@@ -48,8 +50,9 @@ namespace SherpaOnnxConfig
                         IntPtr stdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
                         if (stdHandle != IntPtr.Zero)
                         {
-                            System.IO.FileStream fs = new System.IO.FileStream(stdHandle, System.IO.FileAccess.Write);
-                            System.IO.StreamWriter writer = new System.IO.StreamWriter(fs)
+                            var safeHandle = new SafeFileHandle(stdHandle, ownsHandle: false);
+                            FileStream fs = new FileStream(safeHandle, FileAccess.Write);
+                            StreamWriter writer = new StreamWriter(fs)
                             {
                                 AutoFlush = true
                             };

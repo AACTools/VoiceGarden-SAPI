@@ -517,7 +517,7 @@ namespace SherpaOnnxConfig
             progressBar.Value = 0;
             downloadProgressLabel!.Visible = true;
             downloadProgressLabel.Text = "Preparing download...";
-            downloadButton.Enabled = false;
+            downloadButton!.Enabled = false;
             voiceComboBox!.Enabled = false;
             languageComboBox!.Enabled = false;
 
@@ -675,17 +675,28 @@ namespace SherpaOnnxConfig
             try
             {
                 // Try to speak using SAPI5 via late binding
-                Type spVoiceType = Type.GetTypeFromProgID("SAPI.SpVoice");
+                Type? spVoiceType = Type.GetTypeFromProgID("SAPI.SpVoice");
                 if (spVoiceType == null)
                 {
                     AppendOutput("\rSAPI5 not available on this system.", Color.FromArgb(255, 200, 100));
                     return;
                 }
 
-                dynamic voiceObj = Activator.CreateInstance(spVoiceType);
+                object? voiceObjRaw = Activator.CreateInstance(spVoiceType);
+                if (voiceObjRaw == null)
+                {
+                    AppendOutput("\rFailed to create SAPI.SpVoice instance.", Color.FromArgb(255, 200, 100));
+                    return;
+                }
+                dynamic voiceObj = voiceObjRaw;
 
                 // Find the SherpaOnnx voice by name
                 var voices = voiceObj.GetVoices();
+                if (voices == null)
+                {
+                    AppendOutput("\rNo SAPI voices collection returned.", Color.FromArgb(255, 200, 100));
+                    return;
+                }
                 bool found = false;
                 for (int i = 0; i < voices.Count; i++)
                 {
@@ -777,7 +788,7 @@ namespace SherpaOnnxConfig
 
             try
             {
-                string catalogPath = FindCatalogPath();
+                string? catalogPath = FindCatalogPath();
                 if (string.IsNullOrEmpty(catalogPath))
                 {
                     Console.WriteLine("ERROR: merged_models.json not found!");
@@ -861,7 +872,7 @@ namespace SherpaOnnxConfig
             try
             {
                 // Find model in catalog
-                string catalogPath = FindCatalogPath();
+                string? catalogPath = FindCatalogPath();
                 if (string.IsNullOrEmpty(catalogPath))
                 {
                     Console.WriteLine("ERROR: merged_models.json not found!");
@@ -871,6 +882,11 @@ namespace SherpaOnnxConfig
                 string json = File.ReadAllText(catalogPath);
                 var catalog = JsonSerializer.Deserialize<SherpaModelsCatalog>(json,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (catalog == null)
+                {
+                    Console.WriteLine("ERROR: Failed to parse catalog!");
+                    return 1;
+                }
 
                 SherpaModelInfo? model = null;
                 foreach (var kvp in catalog)
