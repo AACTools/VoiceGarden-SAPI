@@ -7,10 +7,19 @@
 #include <string>
 #include <memory>
 
-// Include SherpaOnnx C API type definitions first
+// Forward declarations for SherpaOnnx C API types
 extern "C" {
-#include "sherpa-onnx/c-api/c-api.h"
-}
+
+// Forward declarations for SherpaOnnx Offline TTS types
+struct SherpaOnnxOfflineTtsVitsModelConfig;
+struct SherpaOnnxOfflineTtsMatchaModelConfig;
+struct SherpaOnnxOfflineTtsKokoroModelConfig;
+struct SherpaOnnxOfflineTtsModelConfig;
+struct SherpaOnnxOfflineTtsConfig;
+struct SherpaOnnxGeneratedAudio;
+struct SherpaOnnxOfflineTts;
+
+} // extern "C"
 
 namespace SherpaOnnx {
 namespace Dynamic {
