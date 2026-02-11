@@ -361,38 +361,149 @@ bool CTTSEngine::InitLocalVoice(ISpDataKey* pConfigKey)
 
 bool CTTSEngine::InitSherpaOnnxVoice(ISpDataKey* pConfigKey)
 {
-    CSpDynamicString pszModelPath, pszTokens, pszDataDir, pszVoiceName;
-
-    // Check if this is a SherpaOnnx voice configuration
-    // We look for SherpaOnnxModelPath which indicates a SherpaOnnx voice
-    if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxModelPath", &pszModelPath)))
-        return false; // Not a SherpaOnnx voice
-
-    // SherpaOnnxModelPath exists, so this should be a SherpaOnnx voice
-    // Now check for required parameters
-    if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxTokens", &pszTokens)))
-    {
-        LogWarn("SherpaOnnx voice has ModelPath but missing Tokens");
-        return false;
+    // Check if this is a SherpaOnnx voice configuration by checking for model type
+    CSpDynamicString pszModelType;
+    int modelTypeValue = 0;  // Default to Vits (0)
+    if (!CheckHrNotFound(pConfigKey->GetDWORD(L"SherpaOnnxModelType", (DWORD*)&modelTypeValue))) {
+        // Model type is specified
+    } else {
+        // For backward compatibility, check if SherpaOnnxModelPath exists (old style)
+        if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxModelPath", nullptr))) {
+            return false; // Not a SherpaOnnx voice
+        }
+        // Old-style config is always VITS
+        modelTypeValue = 0;
     }
 
-    // Optional: Data directory for espeak-ng
-    if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxDataDir", &pszDataDir)))
-        pszDataDir = L"";
-
-    // Get voice name for display
-    if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxVoiceName", &pszVoiceName)))
-        pszVoiceName = L"SherpaOnnx Voice";
+    SherpaOnnx::TtsModelType modelType = static_cast<SherpaOnnx::TtsModelType>(modelTypeValue);
 
     try
     {
-        // Build SherpaOnnx configuration
         SherpaOnnx::ModelConfig config;
+        config.modelType = modelType;
+        config.numThreads = 1;
+        config.debug = false;
+        config.provider = "cpu";
+
+        CSpDynamicString pszVoiceName;
+        if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxVoiceName", &pszVoiceName))) {
+            pszVoiceName = L"SherpaOnnx Voice";
+        }
         config.voiceName = WStringToUTF8(std::wstring(pszVoiceName.m_psz));
-        config.vits.model = WStringToUTF8(std::wstring(pszModelPath.m_psz));
-        config.vits.tokens = WStringToUTF8(std::wstring(pszTokens.m_psz));
-        if (pszDataDir.m_psz && *pszDataDir.m_psz)
-            config.vits.dataDir = WStringToUTF8(std::wstring(pszDataDir.m_psz));
+
+        switch (modelType) {
+            case SherpaOnnx::TtsModelType::Matcha: {
+                // Matcha: acoustic_model + vocoder + tokens
+                CSpDynamicString pszAcousticModel, pszVocoder, pszTokens, pDataDir, pLexicon, pDictDir;
+
+                if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxAcousticModel", &pszAcousticModel))) {
+                    LogWarn("SherpaOnnx Matcha voice missing AcousticModel");
+                    return false;
+                }
+                if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxVocoder", &pszVocoder))) {
+                    LogWarn("SherpaOnnx Matcha voice missing Vocoder");
+                    return false;
+                }
+                if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxTokens", &pszTokens))) {
+                    LogWarn("SherpaOnnx Matcha voice missing Tokens");
+                    return false;
+                }
+
+                config.matcha.acousticModel = WStringToUTF8(std::wstring(pszAcousticModel.m_psz));
+                config.matcha.vocoder = WStringToUTF8(std::wstring(pszVocoder.m_psz));
+                config.matcha.tokens = WStringToUTF8(std::wstring(pszTokens.m_psz));
+
+                // Optional parameters
+                CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxDataDir", &pDataDir));
+                CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxLexicon", &pLexicon));
+                CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxDictDir", &pDictDir));
+
+                if (pDataDir.m_psz && *pDataDir.m_psz)
+                    config.matcha.dataDir = WStringToUTF8(std::wstring(pDataDir.m_psz));
+                if (pLexicon.m_psz && *pLexicon.m_psz)
+                    config.matcha.lexicon = WStringToUTF8(std::wstring(pLexicon.m_psz));
+                if (pDictDir.m_psz && *pDictDir.m_psz)
+                    config.matcha.dictDir = WStringToUTF8(std::wstring(pDictDir.m_psz));
+
+                config.matcha.noiseScale = 1.0f;
+                config.matcha.lengthScale = 1.0f;
+                break;
+            }
+
+            case SherpaOnnx::TtsModelType::Kokoro: {
+                // Kokoro: model + voices + tokens
+                CSpDynamicString pszModel, pszVoices, pszTokens, pLexicon, pDataDir, pDictDir, pLang;
+
+                if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxModelPath", &pszModel))) {
+                    LogWarn("SherpaOnnx Kokoro voice missing ModelPath");
+                    return false;
+                }
+                if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxVoices", &pszVoices))) {
+                    LogWarn("SherpaOnnx Kokoro voice missing Voices");
+                    return false;
+                }
+                if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxTokens", &pszTokens))) {
+                    LogWarn("SherpaOnnx Kokoro voice missing Tokens");
+                    return false;
+                }
+
+                config.kokoro.model = WStringToUTF8(std::wstring(pszModel.m_psz));
+                config.kokoro.voices = WStringToUTF8(std::wstring(pszVoices.m_psz));
+                config.kokoro.tokens = WStringToUTF8(std::wstring(pszTokens.m_psz));
+
+                // Optional parameters
+                CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxDataDir", &pDataDir));
+                CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxLexicon", &pLexicon));
+                CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxDictDir", &pDictDir));
+                CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxLang", &pLang));
+
+                if (pDataDir.m_psz && *pDataDir.m_psz)
+                    config.kokoro.dataDir = WStringToUTF8(std::wstring(pDataDir.m_psz));
+                if (pLexicon.m_psz && *pLexicon.m_psz)
+                    config.kokoro.lexicon = WStringToUTF8(std::wstring(pLexicon.m_psz));
+                if (pDictDir.m_psz && *pDictDir.m_psz)
+                    config.kokoro.dictDir = WStringToUTF8(std::wstring(pDictDir.m_psz));
+                if (pLang.m_psz && *pLang.m_psz)
+                    config.kokoro.lang = WStringToUTF8(std::wstring(pLang.m_psz));
+
+                config.kokoro.lengthScale = 1.0f;
+                break;
+            }
+
+            default: {
+                // VITS/Piper/MMS: model + tokens
+                CSpDynamicString pszModel, pszTokens, pDataDir, pLexicon, pDictDir;
+
+                if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxModelPath", &pszModel))) {
+                    LogWarn("SherpaOnnx VITS voice missing ModelPath");
+                    return false;
+                }
+                if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxTokens", &pszTokens))) {
+                    LogWarn("SherpaOnnx VITS voice missing Tokens");
+                    return false;
+                }
+
+                config.vits.model = WStringToUTF8(std::wstring(pszModel.m_psz));
+                config.vits.tokens = WStringToUTF8(std::wstring(pszTokens.m_psz));
+
+                // Optional parameters
+                CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxDataDir", &pDataDir));
+                CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxLexicon", &pLexicon));
+                CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxDictDir", &pDictDir));
+
+                if (pDataDir.m_psz && *pDataDir.m_psz)
+                    config.vits.dataDir = WStringToUTF8(std::wstring(pDataDir.m_psz));
+                if (pLexicon.m_psz && *pLexicon.m_psz)
+                    config.vits.lexicon = WStringToUTF8(std::wstring(pLexicon.m_psz));
+                if (pDictDir.m_psz && *pDictDir.m_psz)
+                    config.vits.dictDir = WStringToUTF8(std::wstring(pDictDir.m_psz));
+
+                config.vits.noiseScale = 0.667f;
+                config.vits.noiseScaleW = 0.8f;
+                config.vits.lengthScale = 1.0f;
+                break;
+            }
+        }
 
         // Create SherpaOnnx engine
         m_sherpaOnnx = std::make_unique<SherpaOnnx::Engine>(config);
@@ -409,8 +520,10 @@ bool CTTSEngine::InitSherpaOnnxVoice(ISpDataKey* pConfigKey)
         m_isEdgeVoice = false; // Not an Edge voice
 
         int sampleRate = m_sherpaOnnx->GetSampleRate();
-        LogInfo("SherpaOnnx voice created: {} (sample rate: {}Hz)",
-            WStringToUTF8(std::wstring(pszVoiceName.m_psz)), sampleRate);
+        LogInfo("SherpaOnnx voice created: {} (model type: {}, sample rate: {}Hz)",
+            WStringToUTF8(std::wstring(pszVoiceName.m_psz)),
+            static_cast<int>(modelType),
+            sampleRate);
         return true;
     }
     catch (const std::exception& ex)

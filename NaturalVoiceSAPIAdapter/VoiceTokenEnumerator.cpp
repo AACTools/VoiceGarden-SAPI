@@ -681,7 +681,28 @@ static std::shared_ptr<DataKeyData> MakeSherpaVoiceToken(
         }
     }
 
-    std::wstring friendlyName = L"Sherpa " + displayName;
+    // Add model type prefix to display name
+    std::wstring typePrefix;
+    switch (model.modelType) {
+        case SherpaOnnx::ModelType::Matcha:
+            typePrefix = L"Matcha ";
+            break;
+        case SherpaOnnx::ModelType::Kokoro:
+            typePrefix = L"Kokoro ";
+            break;
+        case SherpaOnnx::ModelType::Piper:
+            typePrefix = L"Piper ";
+            break;
+        case SherpaOnnx::ModelType::MMS:
+            typePrefix = L"MMS ";
+            break;
+        case SherpaOnnx::ModelType::Vits:
+        default:
+            typePrefix = L"VITS ";
+            break;
+    }
+
+    std::wstring friendlyName = L"Sherpa " + typePrefix + displayName;
 
     // Create registry key name: Sherpa-model-name
     std::wstring regName = L"Sherpa-" + UTF8ToWString(model.name);
@@ -703,6 +724,7 @@ static std::shared_ptr<DataKeyData> MakeSherpaVoiceToken(
             else if (langCode == L"de") languageIds = L"0407"; // German
             else if (langCode == L"ja") languageIds = L"0411"; // Japanese
             else if (langCode == L"ko") languageIds = L"0412"; // Korean
+            else if (langCode == L"ar") languageIds = L"0401"; // Arabic
             else languageIds = L"0409"; // Default to English
         }
         else
@@ -719,6 +741,44 @@ static std::shared_ptr<DataKeyData> MakeSherpaVoiceToken(
         nameLower.find(L"boy") != std::wstring::npos)
     {
         gender = L"Male";
+    }
+
+    // Build config values based on model type
+    std::vector<std::pair<std::wstring, std::wstring>> configValues = {
+        { L"EngineType", L"Sherpa" },
+        { L"SherpaOnnxModelType", std::to_wstring(static_cast<int>(model.modelType)) },
+        { L"SampleRate", std::to_wstring(model.sampleRate) },
+        { L"SpeakerCount", std::to_wstring(model.speakerCount) },
+        { L"IsSherpaVoice", L"1" }
+    };
+
+    // Add model-type-specific paths
+    switch (model.modelType) {
+        case SherpaOnnx::ModelType::Matcha:
+            configValues.push_back({ L"SherpaOnnxAcousticModel", UTF8ToWString(model.acousticModelPath) });
+            configValues.push_back({ L"SherpaOnnxVocoder", UTF8ToWString(model.vocoderPath) });
+            configValues.push_back({ L"SherpaOnnxTokens", UTF8ToWString(model.tokensPath) });
+            if (!model.dataDir.empty()) {
+                configValues.push_back({ L"SherpaOnnxDataDir", UTF8ToWString(model.dataDir) });
+            }
+            break;
+
+        case SherpaOnnx::ModelType::Kokoro:
+            configValues.push_back({ L"SherpaOnnxModelPath", UTF8ToWString(model.modelPath) });
+            configValues.push_back({ L"SherpaOnnxVoices", UTF8ToWString(model.voicesPath) });
+            configValues.push_back({ L"SherpaOnnxTokens", UTF8ToWString(model.tokensPath) });
+            break;
+
+        case SherpaOnnx::ModelType::Vits:
+        case SherpaOnnx::ModelType::Piper:
+        case SherpaOnnx::ModelType::MMS:
+        default:
+            configValues.push_back({ L"SherpaOnnxModelPath", UTF8ToWString(model.modelPath) });
+            configValues.push_back({ L"SherpaOnnxTokens", UTF8ToWString(model.tokensPath) });
+            if (!model.dataDir.empty()) {
+                configValues.push_back({ L"SherpaOnnxDataDir", UTF8ToWString(model.dataDir) });
+            }
+            break;
     }
 
     return std::shared_ptr<DataKeyData>(new DataKeyData {
@@ -743,15 +803,7 @@ static std::shared_ptr<DataKeyData> MakeSherpaVoiceToken(
             } },
             { L"NaturalVoiceConfig", {
                 .path = regName + L"\\NaturalVoiceConfig",
-                .values = {
-                    { L"EngineType", L"Sherpa" },
-                    { L"ModelPath", UTF8ToWString(model.modelPath) },
-                    { L"TokensPath", UTF8ToWString(model.tokensPath) },
-                    { L"DataDir", UTF8ToWString(model.dataDir) },
-                    { L"SampleRate", std::to_wstring(model.sampleRate) },
-                    { L"SpeakerCount", std::to_wstring(model.speakerCount) },
-                    { L"IsSherpaVoice", L"1" }
-                }
+                .values = std::move(configValues)
             } }
         }
     });

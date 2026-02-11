@@ -37,13 +37,11 @@ std::vector<VoiceInfo> Models::DiscoverModels(
         }
 
         try {
-            // Recursively scan for model.onnx files
+            // Scan for subdirectories that might contain models
             for (const auto& entry :
-                 std::filesystem::recursive_directory_iterator(searchPath)) {
-                if (entry.is_regular_file() &&
-                    entry.path().filename() == "model.onnx") {
-                    VoiceInfo info = ParseModelDirectory(
-                        entry.path().parent_path());
+                 std::filesystem::directory_iterator(searchPath)) {
+                if (entry.is_directory()) {
+                    VoiceInfo info = ParseModelDirectory(entry.path());
                     if (ValidateModel(info)) {
                         voices.push_back(info);
                     }
@@ -60,27 +58,58 @@ std::vector<VoiceInfo> Models::DiscoverModels(
 
 bool Models::ValidateModel(const VoiceInfo& info)
 {
-    // Check if model file exists and is readable
-    if (!std::filesystem::exists(info.modelPath)) {
-        return false;
-    }
+    // Validate based on model type
+    switch (info.modelType) {
+        case ModelType::Matcha:
+            // Matcha needs: acoustic_model, vocoder, tokens
+            if (!std::filesystem::exists(info.acousticModelPath)) return false;
+            if (!std::filesystem::exists(info.vocoderPath)) return false;
+            if (!std::filesystem::exists(info.tokensPath)) return false;
+            // Check file sizes
+            try {
+                if (std::filesystem::file_size(info.acousticModelPath) < 1024 * 1024) return false;
+                if (std::filesystem::file_size(info.vocoderPath) < 1024 * 1024) return false;
+            } catch (...) {
+                return false;
+            }
+            return true;
 
-    // Check if tokens file exists
-    if (!std::filesystem::exists(info.tokensPath)) {
-        return false;
-    }
+        case ModelType::Kokoro:
+            // Kokoro needs: model, voices, tokens
+            if (!std::filesystem::exists(info.modelPath)) return false;
+            if (!std::filesystem::exists(info.voicesPath)) return false;
+            if (!std::filesystem::exists(info.tokensPath)) return false;
+            // Check file sizes
+            try {
+                if (std::filesystem::file_size(info.modelPath) < 1024 * 1024) return false;
+                if (std::filesystem::file_size(info.voicesPath) < 1024 * 1024) return false;
+            } catch (...) {
+                return false;
+            }
+            return true;
 
-    // Check file sizes (model should be substantial)
-    try {
-        auto modelSize = std::filesystem::file_size(info.modelPath);
-        if (modelSize < 1024 * 1024) {  // Less than 1MB seems suspicious
-            return false;
-        }
-    } catch (...) {
-        return false;
+        case ModelType::Vits:
+        case ModelType::Piper:
+        case ModelType::MMS:
+        default:
+            // VITS-style models need: model, tokens
+            if (!std::filesystem::exists(info.modelPath)) {
+                return false;
+            }
+            if (!std::filesystem::exists(info.tokensPath)) {
+                return false;
+            }
+            // Check file sizes (model should be substantial)
+            try {
+                auto modelSize = std::filesystem::file_size(info.modelPath);
+                if (modelSize < 1024 * 1024) {  // Less than 1MB seems suspicious
+                    return false;
+                }
+            } catch (...) {
+                return false;
+            }
+            return true;
     }
-
-    return true;
 }
 
 std::vector<std::wstring> Models::GetDefaultModelPaths()
@@ -182,13 +211,55 @@ VoiceInfo Models::ParseModelDirectory(const std::filesystem::path& modelDir)
     info.name = WideToUTF8(modelDir.filename().wstring());
     info.displayName = info.name;
     info.language = "en-US";  // Default, should be overridden
-    info.modelPath = WideToUTF8((modelDir / "model.onnx").wstring());
-    info.tokensPath = WideToUTF8((modelDir / "tokens.txt").wstring());
 
-    // Check for espeak-ng-data directory
-    std::filesystem::path dataDir = modelDir / "espeak-ng-data";
-    if (std::filesystem::exists(dataDir)) {
-        info.dataDir = WideToUTF8(dataDir.wstring());
+    // Detect model type
+    info.modelType = DetectModelType(modelDir);
+
+    // Set paths based on model type
+    switch (info.modelType) {
+        case ModelType::Matcha: {
+            // Matcha: model-steps-X.onnx + vocoder.onnx + tokens.txt
+            info.acousticModelPath = FindOnnxFile(modelDir, "model-steps");
+            info.vocoderPath = FindOnnxFile(modelDir, "vocos") + info.acousticModelPath;
+            if (info.vocoderPath.empty()) {
+                info.vocoderPath = FindOnnxFile(modelDir, "vocoder");
+            }
+            info.tokensPath = WideToUTF8((modelDir / "tokens.txt").wstring());
+
+            // Check for espeak-ng-data directory
+            std::filesystem::path dataDir = modelDir / "espeak-ng-data";
+            if (std::filesystem::exists(dataDir)) {
+                info.dataDir = WideToUTF8(dataDir.wstring());
+            }
+            break;
+        }
+
+        case ModelType::Kokoro: {
+            // Kokoro: model.onnx + voices.bin + tokens.txt
+            info.modelPath = WideToUTF8((modelDir / "model.onnx").wstring());
+            info.voicesPath = WideToUTF8((modelDir / "voices.bin").wstring());
+            info.tokensPath = WideToUTF8((modelDir / "tokens.txt").wstring());
+            break;
+        }
+
+        case ModelType::Vits:
+        case ModelType::Piper:
+        case ModelType::MMS:
+        default: {
+            // VITS-style: model.onnx + tokens.txt
+            info.modelPath = WideToUTF8((modelDir / "model.onnx").wstring());
+            info.tokensPath = WideToUTF8((modelDir / "tokens.txt").wstring());
+
+            // Check for espeak-ng-data directory (Piper models)
+            std::filesystem::path dataDir = modelDir / "espeak-ng-data";
+            if (std::filesystem::exists(dataDir)) {
+                info.dataDir = WideToUTF8(dataDir.wstring());
+                if (info.modelType == ModelType::Unknown) {
+                    info.modelType = ModelType::Piper;
+                }
+            }
+            break;
+        }
     }
 
     // Try to infer language from directory name
@@ -207,15 +278,131 @@ VoiceInfo Models::ParseModelDirectory(const std::filesystem::path& modelDir)
     } else if (info.name.find("de-") != std::string::npos ||
                info.name.find("-de-") != std::string::npos) {
         info.language = "de-DE";
+    } else if (info.name.find("ar-") != std::string::npos ||
+               info.name.find("-ar-") != std::string::npos) {
+        info.language = "ar-SA";
+    } else if (info.name.find("ja-") != std::string::npos ||
+               info.name.find("-ja-") != std::string::npos) {
+        info.language = "ja-JP";
+    } else if (info.name.find("ko-") != std::string::npos ||
+               info.name.find("-ko-") != std::string::npos) {
+        info.language = "ko-KR";
     }
 
     return info;
 }
 
+ModelType Models::DetectModelType(const std::filesystem::path& modelDir)
+{
+    // Check for Kokoro: model.onnx + voices.bin
+    if (std::filesystem::exists(modelDir / "model.onnx") &&
+        std::filesystem::exists(modelDir / "voices.bin")) {
+        return ModelType::Kokoro;
+    }
+
+    // Check for Matcha: model-steps-X.onnx + vocoder.onnx
+    bool hasModelSteps = false;
+    bool hasVocoder = false;
+    for (const auto& entry : std::filesystem::directory_iterator(modelDir)) {
+        if (entry.is_regular_file()) {
+            std::string filename = entry.path().filename().string();
+            if (filename.find("model-steps") == 0 && filename.find(".onnx") != std::string::npos) {
+                hasModelSteps = true;
+            }
+            if (filename.find("vocos") == 0 || filename.find("vocoder") == 0) {
+                if (filename.find(".onnx") != std::string::npos) {
+                    hasVocoder = true;
+                }
+            }
+        }
+    }
+    if (hasModelSteps && hasVocoder) {
+        return ModelType::Matcha;
+    }
+
+    // Check for VITS/Piper/MMS: model.onnx + tokens.txt
+    if (std::filesystem::exists(modelDir / "model.onnx") &&
+        std::filesystem::exists(modelDir / "tokens.txt")) {
+
+        // Check for espeak-ng-data to distinguish Piper
+        if (std::filesystem::exists(modelDir / "espeak-ng-data")) {
+            return ModelType::Piper;
+        }
+
+        // Check directory name for hints
+        std::string dirName = WideToUTF8(modelDir.filename().wstring());
+        if (dirName.find("piper") != std::string::npos) {
+            return ModelType::Piper;
+        }
+        if (dirName.find("mms") != std::string::npos) {
+            return ModelType::MMS;
+        }
+        if (dirName.find("vits") != std::string::npos ||
+            dirName.find("coqui") != std::string::npos) {
+            return ModelType::Vits;
+        }
+
+        // Default to VITS for unknown model.onnx + tokens.txt combinations
+        return ModelType::Vits;
+    }
+
+    return ModelType::Unknown;
+}
+
+std::string Models::FindOnnxFile(const std::filesystem::path& dir,
+                                  const std::string& pattern)
+{
+    if (!std::filesystem::exists(dir)) {
+        return "";
+    }
+
+    try {
+        for (const auto& entry : std::filesystem::directory_iterator(dir)) {
+            if (entry.is_regular_file()) {
+                std::string filename = entry.path().filename().string();
+                if (filename.find(pattern) == 0 && filename.find(".onnx") != std::string::npos) {
+                    return WideToUTF8(entry.path().wstring());
+                }
+            }
+        }
+    } catch (...) {
+        // Directory access error
+    }
+
+    return "";
+}
+
 bool Models::HasRequiredFiles(const std::filesystem::path& dir)
 {
-    return std::filesystem::exists(dir / "model.onnx") &&
-           std::filesystem::exists(dir / "tokens.txt");
+    ModelType type = DetectModelType(dir);
+
+    switch (type) {
+        case ModelType::Matcha: {
+            // Need model-steps-X.onnx, vocoder, and tokens.txt
+            std::string acousticModel = FindOnnxFile(dir, "model-steps");
+            std::string vocoder = FindOnnxFile(dir, "vocos");
+            if (vocoder.empty()) {
+                vocoder = FindOnnxFile(dir, "vocoder");
+            }
+            return !acousticModel.empty() &&
+                   !vocoder.empty() &&
+                   std::filesystem::exists(dir / "tokens.txt");
+        }
+
+        case ModelType::Kokoro:
+            // Need model.onnx, voices.bin, and tokens.txt
+            return std::filesystem::exists(dir / "model.onnx") &&
+                   std::filesystem::exists(dir / "voices.bin") &&
+                   std::filesystem::exists(dir / "tokens.txt");
+
+        case ModelType::Vits:
+        case ModelType::Piper:
+        case ModelType::MMS:
+        default:
+            // Need model.onnx and tokens.txt
+            return std::filesystem::exists(dir / "model.onnx") &&
+                   std::filesystem::exists(dir / "tokens.txt");
+    }
 }
 
 std::string Models::WideToUTF8(const std::wstring& wstr)

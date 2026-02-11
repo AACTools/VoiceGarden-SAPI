@@ -105,30 +105,86 @@ std::vector<float> Engine::ConvertGeneratedAudio(
 
 SherpaOnnxOfflineTtsConfig Engine::BuildCApiConfig()
 {
-    // Build VITS model config (must persist during SherpaOnnxCreateOfflineTts call)
-    static std::string modelStr = m_config.vits.model;
-    static std::string tokensStr = m_config.vits.tokens;
-    static std::string dataDirStr = m_config.vits.dataDir;
-    static std::string lexiconStr = m_config.vits.lexicon;
-    static std::string dictDirStr = m_config.vits.dictDir;
+    // Static strings to persist during SherpaOnnxCreateOfflineTts call
     static std::string providerStr = m_config.provider;
     static std::string ruleFstsStr = m_config.ruleFsts;
     static std::string ruleFarsStr = m_config.ruleFars;
 
-    // Build VITS model config
-    SherpaOnnxOfflineTtsVitsModelConfig vitsConfig;
-    vitsConfig.model = modelStr.c_str();
-    vitsConfig.lexicon = lexiconStr.empty() ? nullptr : lexiconStr.c_str();
-    vitsConfig.tokens = tokensStr.c_str();
-    vitsConfig.data_dir = dataDirStr.empty() ? nullptr : dataDirStr.c_str();
-    vitsConfig.dict_dir = dictDirStr.empty() ? nullptr : dictDirStr.c_str();
-    vitsConfig.noise_scale = m_config.vits.noiseScale;
-    vitsConfig.noise_scale_w = m_config.vits.noiseScaleW;
-    vitsConfig.length_scale = m_config.vits.lengthScale;
+    // Build model config based on model type
+    SherpaOnnxOfflineTtsModelConfig modelConfig = {};
 
-    // Build model config
-    SherpaOnnxOfflineTtsModelConfig modelConfig;
-    modelConfig.vits = vitsConfig;
+    switch (m_config.modelType) {
+        case TtsModelType::Matcha: {
+            // Matcha-TTS configuration
+            static std::string acousticModelStr = m_config.matcha.acousticModel;
+            static std::string vocoderStr = m_config.matcha.vocoder;
+            static std::string tokensStr = m_config.matcha.tokens;
+            static std::string lexiconStr = m_config.matcha.lexicon;
+            static std::string dataDirStr = m_config.matcha.dataDir;
+            static std::string dictDirStr = m_config.matcha.dictDir;
+
+            SherpaOnnxOfflineTtsMatchaModelConfig matchaConfig;
+            matchaConfig.acoustic_model = acousticModelStr.c_str();
+            matchaConfig.vocoder = vocoderStr.c_str();
+            matchaConfig.tokens = tokensStr.c_str();
+            matchaConfig.lexicon = lexiconStr.empty() ? nullptr : lexiconStr.c_str();
+            matchaConfig.data_dir = dataDirStr.empty() ? nullptr : dataDirStr.c_str();
+            matchaConfig.dict_dir = dictDirStr.empty() ? nullptr : dictDirStr.c_str();
+            matchaConfig.noise_scale = m_config.matcha.noiseScale;
+            matchaConfig.length_scale = m_config.matcha.lengthScale;
+
+            modelConfig.matcha = matchaConfig;
+            break;
+        }
+
+        case TtsModelType::Kokoro: {
+            // Kokoro configuration
+            static std::string modelStr = m_config.kokoro.model;
+            static std::string voicesStr = m_config.kokoro.voices;
+            static std::string tokensStr = m_config.kokoro.tokens;
+            static std::string lexiconStr = m_config.kokoro.lexicon;
+            static std::string dataDirStr = m_config.kokoro.dataDir;
+            static std::string dictDirStr = m_config.kokoro.dictDir;
+            static std::string langStr = m_config.kokoro.lang;
+
+            SherpaOnnxOfflineTtsKokoroModelConfig kokoroConfig;
+            kokoroConfig.model = modelStr.c_str();
+            kokoroConfig.voices = voicesStr.c_str();
+            kokoroConfig.tokens = tokensStr.c_str();
+            kokoroConfig.lexicon = lexiconStr.empty() ? nullptr : lexiconStr.c_str();
+            kokoroConfig.data_dir = dataDirStr.empty() ? nullptr : dataDirStr.c_str();
+            kokoroConfig.dict_dir = dictDirStr.empty() ? nullptr : dictDirStr.c_str();
+            kokoroConfig.lang = langStr.empty() ? nullptr : langStr.c_str();
+            kokoroConfig.length_scale = m_config.kokoro.lengthScale;
+
+            modelConfig.kokoro = kokoroConfig;
+            break;
+        }
+
+        case TtsModelType::Vits:
+        default: {
+            // VITS/Piper/MMS configuration
+            static std::string modelStr = m_config.vits.model;
+            static std::string tokensStr = m_config.vits.tokens;
+            static std::string dataDirStr = m_config.vits.dataDir;
+            static std::string lexiconStr = m_config.vits.lexicon;
+            static std::string dictDirStr = m_config.vits.dictDir;
+
+            SherpaOnnxOfflineTtsVitsModelConfig vitsConfig;
+            vitsConfig.model = modelStr.c_str();
+            vitsConfig.lexicon = lexiconStr.empty() ? nullptr : lexiconStr.c_str();
+            vitsConfig.tokens = tokensStr.c_str();
+            vitsConfig.data_dir = dataDirStr.empty() ? nullptr : dataDirStr.c_str();
+            vitsConfig.dict_dir = dictDirStr.empty() ? nullptr : dictDirStr.c_str();
+            vitsConfig.noise_scale = m_config.vits.noiseScale;
+            vitsConfig.noise_scale_w = m_config.vits.noiseScaleW;
+            vitsConfig.length_scale = m_config.vits.lengthScale;
+
+            modelConfig.vits = vitsConfig;
+            break;
+        }
+    }
+
     modelConfig.num_threads = m_config.numThreads;
     modelConfig.debug = m_config.debug ? 1 : 0;
     modelConfig.provider = providerStr.c_str();
