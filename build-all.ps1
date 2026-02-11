@@ -273,6 +273,9 @@ Write-Host ""
 Write-Host "Copying SherpaOnnxConfig to utilities output..." -ForegroundColor Cyan
 try {
     Copy-Item -Path "$UtilitiesOutputDir\sherpa-config\SherpaOnnxConfig.exe" -Destination $UtilitiesOutputDir -Force
+    if (Test-Path "$UtilitiesOutputDir\sherpa-config\merged_models.json") {
+        Copy-Item -Path "$UtilitiesOutputDir\sherpa-config\merged_models.json" -Destination $UtilitiesOutputDir -Force
+    }
     Write-Host "  Copied successfully" -ForegroundColor Green
 }
 catch {

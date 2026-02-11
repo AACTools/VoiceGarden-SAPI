@@ -36,6 +36,7 @@ namespace SherpaOnnxConfig
         private const string AllLanguagesOption = "All Languages";
         private static readonly Regex LanguageCodeRegex = new Regex(@"(?:^|[-_])([a-z]{2})(?:[-_][A-Za-z]{2})?(?:[-_]|$)",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private bool suppressComboEvents;
 
         // Voice list for CLI access
         public static List<VoiceInfo> AllVoices { get; private set; } = new List<VoiceInfo>();
@@ -53,9 +54,10 @@ namespace SherpaOnnxConfig
         private void InitializeComponent()
         {
             this.Text = "NaturalVoice SAPI - SherpaOnnx Model Manager";
-            this.AutoScaleMode = AutoScaleMode.Dpi;
-            this.Size = new Size(920, 860);
-            this.MinimumSize = new Size(860, 760);
+            this.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            this.AutoScaleMode = AutoScaleMode.Font;
+            this.Size = new Size(980, 900);
+            this.MinimumSize = new Size(900, 800);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.Sizable;
             this.MaximizeBox = true;
@@ -65,7 +67,7 @@ namespace SherpaOnnxConfig
             Label titleLabel = new Label
             {
                 Location = new Point(20, 15),
-                Size = new Size(860, 25),
+                Size = new Size(920, 34),
                 Text = "SherpaOnnx Offline TTS Model Manager",
                 Font = new Font("Segoe UI", 12F, FontStyle.Bold),
                 ForeColor = Color.FromArgb(0, 51, 102)
@@ -75,8 +77,8 @@ namespace SherpaOnnxConfig
             // Status label
             statusLabel = new Label
             {
-                Location = new Point(20, 45),
-                Size = new Size(860, 20),
+                Location = new Point(20, 54),
+                Size = new Size(920, 26),
                 Text = "Status: Loading voice catalog...",
                 ForeColor = Color.FromArgb(100, 100, 100)
             };
@@ -85,54 +87,61 @@ namespace SherpaOnnxConfig
             // Language selection
             Label languageLabel = new Label
             {
-                Location = new Point(20, 80),
-                Size = new Size(120, 20),
+                Location = new Point(20, 92),
+                Size = new Size(120, 28),
                 Text = "Language:",
                 Font = new Font("Segoe UI", 9F, FontStyle.Bold)
             };
 
             languageComboBox = new ComboBox
             {
-                Location = new Point(140, 78),
-                Size = new Size(200, 25),
-                DropDownStyle = ComboBoxStyle.DropDownList,
+                Location = new Point(140, 90),
+                Size = new Size(240, 30),
+                DropDownStyle = ComboBoxStyle.DropDown,
+                AutoCompleteMode = AutoCompleteMode.SuggestAppend,
+                AutoCompleteSource = AutoCompleteSource.ListItems,
                 Font = new Font("Segoe UI", 9F)
             };
             languageComboBox.Items.Add(AllLanguagesOption);
             languageComboBox.SelectedIndex = 0;
             languageComboBox.SelectedIndexChanged += LanguageComboBox_SelectedIndexChanged;
+            languageComboBox.KeyDown += LanguageComboBox_KeyDown;
+            languageComboBox.Leave += LanguageComboBox_Leave;
 
             // Voice selection
             GroupBox voiceGroup = new GroupBox
             {
-                Location = new Point(20, 115),
-                Size = new Size(860, 140),
+                Location = new Point(20, 135),
+                Size = new Size(920, 160),
                 Text = "Available SherpaOnnx Models"
             };
             voiceGroup.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
             Label voiceLabel = new Label
             {
-                Location = new Point(15, 25),
-                Size = new Size(80, 20),
+                Location = new Point(15, 32),
+                Size = new Size(80, 26),
                 Text = "Model:",
                 Font = new Font("Segoe UI", 9F, FontStyle.Bold)
             };
 
             voiceComboBox = new ComboBox
             {
-                Location = new Point(100, 23),
-                Size = new Size(745, 25),
-                DropDownStyle = ComboBoxStyle.DropDownList,
+                Location = new Point(100, 30),
+                Size = new Size(810, 30),
+                DropDownStyle = ComboBoxStyle.DropDown,
+                AutoCompleteMode = AutoCompleteMode.SuggestAppend,
+                AutoCompleteSource = AutoCompleteSource.ListItems,
                 Font = new Font("Segoe UI", 9F)
             };
             voiceComboBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             voiceComboBox.SelectedIndexChanged += VoiceComboBox_SelectedIndexChanged;
+            voiceComboBox.TextUpdate += VoiceComboBox_TextUpdate;
 
             downloadButton = new Button
             {
-                Location = new Point(15, 55),
-                Size = new Size(120, 30),
+                Location = new Point(15, 72),
+                Size = new Size(150, 34),
                 Text = "Download Model",
                 BackColor = Color.FromArgb(255, 140, 0),
                 ForeColor = Color.White,
@@ -144,8 +153,8 @@ namespace SherpaOnnxConfig
 
             Label modelInfoLabel = new Label
             {
-                Location = new Point(15, 90),
-                Size = new Size(830, 35),
+                Location = new Point(15, 114),
+                Size = new Size(895, 35),
                 Text = "Select a language and model to download. Models are cached in %LOCALAPPDATA%\\NaturalVoiceSAPIAdapter\\models\\",
                 ForeColor = Color.FromArgb(120, 120, 120),
                 Font = new Font("Segoe UI", 8F)
@@ -154,8 +163,8 @@ namespace SherpaOnnxConfig
 
             progressBar = new ProgressBar
             {
-                Location = new Point(300, 55),
-                Size = new Size(430, 20),
+                Location = new Point(300, 74),
+                Size = new Size(485, 22),
                 Style = ProgressBarStyle.Continuous,
                 Visible = false
             };
@@ -163,8 +172,8 @@ namespace SherpaOnnxConfig
 
             downloadProgressLabel = new Label
             {
-                Location = new Point(300, 78),
-                Size = new Size(545, 15),
+                Location = new Point(300, 100),
+                Size = new Size(610, 18),
                 Text = "",
                 ForeColor = Color.FromArgb(100, 100, 100),
                 Font = new Font("Segoe UI", 8F),
@@ -182,16 +191,16 @@ namespace SherpaOnnxConfig
             // Test group
             GroupBox testGroup = new GroupBox
             {
-                Location = new Point(20, 265),
-                Size = new Size(860, 115),
+                Location = new Point(20, 305),
+                Size = new Size(920, 130),
                 Text = "Test Voice (After Download)"
             };
             testGroup.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
             testTextInput = new TextBox
             {
-                Location = new Point(15, 25),
-                Size = new Size(685, 25),
+                Location = new Point(15, 34),
+                Size = new Size(745, 30),
                 Text = "The quick brown fox jumps over the lazy dog.",
                 Font = new Font("Segoe UI", 9F)
             };
@@ -199,8 +208,8 @@ namespace SherpaOnnxConfig
 
             testVoiceButton = new Button
             {
-                Location = new Point(710, 23),
-                Size = new Size(135, 30),
+                Location = new Point(770, 32),
+                Size = new Size(140, 34),
                 Text = "▶ Test",
                 BackColor = Color.FromArgb(0, 120, 215),
                 ForeColor = Color.White,
@@ -212,8 +221,8 @@ namespace SherpaOnnxConfig
 
             Label hintLabel = new Label
             {
-                Location = new Point(15, 55),
-                Size = new Size(830, 45),
+                Location = new Point(15, 70),
+                Size = new Size(895, 45),
                 Text = "Tests the selected voice using SAPI5. The voice must be downloaded and the DLL registered first.",
                 ForeColor = Color.FromArgb(120, 120, 120),
                 Font = new Font("Segoe UI", 8F)
@@ -227,16 +236,16 @@ namespace SherpaOnnxConfig
             // Actions group
             GroupBox actionsGroup = new GroupBox
             {
-                Location = new Point(20, 390),
-                Size = new Size(860, 85),
+                Location = new Point(20, 445),
+                Size = new Size(920, 100),
                 Text = "Actions"
             };
             actionsGroup.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
             openModelsFolderButton = new Button
             {
-                Location = new Point(15, 20),
-                Size = new Size(170, 30),
+                Location = new Point(15, 30),
+                Size = new Size(190, 36),
                 Text = "Open Models Folder",
                 FlatStyle = FlatStyle.Flat
             };
@@ -244,8 +253,8 @@ namespace SherpaOnnxConfig
 
             rescanModelsButton = new Button
             {
-                Location = new Point(195, 20),
-                Size = new Size(150, 30),
+                Location = new Point(215, 30),
+                Size = new Size(170, 36),
                 Text = "Rescan Models",
                 FlatStyle = FlatStyle.Flat
             };
@@ -253,8 +262,8 @@ namespace SherpaOnnxConfig
 
             Label actionsHint = new Label
             {
-                Location = new Point(15, 56),
-                Size = new Size(830, 20),
+                Location = new Point(15, 72),
+                Size = new Size(895, 22),
                 Text = "Rescan validates local models and shows per-model errors used by SAPI token registration.",
                 ForeColor = Color.FromArgb(120, 120, 120),
                 Font = new Font("Segoe UI", 8F)
@@ -268,8 +277,8 @@ namespace SherpaOnnxConfig
             // Output
             outputTextBox = new RichTextBox
             {
-                Location = new Point(20, 485),
-                Size = new Size(860, 325),
+                Location = new Point(20, 555),
+                Size = new Size(920, 295),
                 ReadOnly = true,
                 BackColor = Color.FromArgb(30, 30, 30),
                 ForeColor = Color.FromArgb(200, 200, 200),
@@ -325,7 +334,9 @@ namespace SherpaOnnxConfig
                 string[] catalogPaths = new string[]
                 {
                     Path.Combine(AppContext.BaseDirectory, "merged_models.json"),
+                    Path.Combine(AppContext.BaseDirectory, "sherpa-config", "merged_models.json"),
                     Path.Combine(Application.StartupPath, "merged_models.json"),
+                    Path.Combine(Application.StartupPath, "sherpa-config", "merged_models.json"),
                     "merged_models.json"
                 };
 
@@ -534,6 +545,7 @@ namespace SherpaOnnxConfig
             downloadProgressLabel!.Visible = true;
             downloadProgressLabel.Text = "Preparing download...";
             downloadButton!.Enabled = false;
+            downloadButton.Text = "Downloading...";
             voiceComboBox!.Enabled = false;
             languageComboBox!.Enabled = false;
 
@@ -606,6 +618,7 @@ namespace SherpaOnnxConfig
             downloadProgressLabel!.Visible = false;
             voiceComboBox!.Enabled = true;
             languageComboBox!.Enabled = true;
+            downloadButton!.Text = "Download Model";
             VoiceComboBox_SelectedIndexChanged(null, EventArgs.Empty);
         }
 
@@ -1065,7 +1078,9 @@ namespace SherpaOnnxConfig
             string[] paths = new string[]
             {
                 Path.Combine(AppContext.BaseDirectory, "merged_models.json"),
+                Path.Combine(AppContext.BaseDirectory, "sherpa-config", "merged_models.json"),
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "merged_models.json"),
+                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sherpa-config", "merged_models.json"),
                 "merged_models.json"
             };
 

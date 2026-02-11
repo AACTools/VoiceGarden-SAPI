@@ -13,6 +13,7 @@
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PublishReadyToRun>true</PublishReadyToRun>
+    <DefaultItemExcludes>$(DefaultItemExcludes);obj_pub\**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,6 +24,7 @@
   <ItemGroup>
     <Content Include="merged_models.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
 

@@ -41,7 +41,9 @@ jobs:
       uses: actions/upload-artifact@v6
       with:
         name: sherpa-onnx-config
-        path: sherpa-config/SherpaOnnxConfig.exe
+        path: |
+          sherpa-config/SherpaOnnxConfig.exe
+          sherpa-config/merged_models.json
 
   build-utilities:
     name: Build submodules
