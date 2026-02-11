@@ -459,13 +459,73 @@ namespace SherpaOnnxConfig
 
         private void LanguageComboBox_SelectedIndexChanged(object? sender, EventArgs e)
         {
+            if (suppressComboEvents)
+                return;
+
             if (languageComboBox!.SelectedItem != null)
             {
                 UpdateVoiceList(languageComboBox.SelectedItem.ToString() ?? AllLanguagesOption);
             }
         }
 
+        private void LanguageComboBox_KeyDown(object? sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                TrySelectLanguageFromText();
+                e.SuppressKeyPress = true;
+            }
+        }
+
+        private void LanguageComboBox_Leave(object? sender, EventArgs e)
+        {
+            TrySelectLanguageFromText();
+        }
+
+        private void TrySelectLanguageFromText()
+        {
+            if (languageComboBox == null)
+                return;
+
+            string query = languageComboBox.Text?.Trim() ?? string.Empty;
+            if (string.IsNullOrEmpty(query))
+            {
+                if (languageComboBox.SelectedItem == null)
+                    languageComboBox.SelectedItem = AllLanguagesOption;
+                return;
+            }
+
+            string? exact = allLanguages.FirstOrDefault(l => l.Equals(query, StringComparison.OrdinalIgnoreCase));
+            string? partial = allLanguages.FirstOrDefault(l => l.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0);
+            string? choice = exact ?? partial;
+
+            if (string.IsNullOrWhiteSpace(choice))
+            {
+                statusLabel!.Text = $"Status: No language match for '{query}'";
+                return;
+            }
+
+            suppressComboEvents = true;
+            try
+            {
+                languageComboBox.SelectedItem = choice;
+                languageComboBox.Text = choice;
+                languageComboBox.SelectionStart = languageComboBox.Text.Length;
+            }
+            finally
+            {
+                suppressComboEvents = false;
+            }
+
+            UpdateVoiceList(choice);
+        }
+
         private void UpdateVoiceList(string language)
+        {
+            UpdateVoiceList(language, null);
+        }
+
+        private void UpdateVoiceList(string language, string? voiceFilter)
         {
             voiceComboBox!.Items.Clear();
             voiceComboBox.SelectedIndex = -1;
@@ -485,6 +545,17 @@ namespace SherpaOnnxConfig
                 voicesToShow = Enumerable.Empty<VoiceInfo>();
             }
 
+            string filter = voiceFilter?.Trim() ?? string.Empty;
+            bool hasFilter = !string.IsNullOrWhiteSpace(filter);
+            if (hasFilter)
+            {
+                voicesToShow = voicesToShow.Where(v =>
+                    v.Id.Contains(filter, StringComparison.OrdinalIgnoreCase) ||
+                    v.Name.Contains(filter, StringComparison.OrdinalIgnoreCase) ||
+                    v.Language.Contains(filter, StringComparison.OrdinalIgnoreCase));
+            }
+
+            suppressComboEvents = true;
             foreach (var voice in voicesToShow.OrderBy(v => v.Name))
             {
                 bool downloaded = voice.IsDownloaded();
@@ -493,10 +564,29 @@ namespace SherpaOnnxConfig
                 voiceComboBox.Items.Add($"{voice.Id} - {voice.Name}{size} [{voice.EngineType}] {status}");
             }
 
-            if (voiceComboBox.Items.Count > 0)
+            if (voiceComboBox.Items.Count > 0 && !hasFilter)
                 voiceComboBox.SelectedIndex = 0;
+            suppressComboEvents = false;
 
             statusLabel!.Text = $"Status: {voiceComboBox.Items.Count} model(s) available";
+        }
+
+        private void VoiceComboBox_TextUpdate(object? sender, EventArgs e)
+        {
+            if (suppressComboEvents || voiceComboBox == null)
+                return;
+
+            string filter = voiceComboBox.Text?.Trim() ?? string.Empty;
+            string language = languageComboBox?.SelectedItem?.ToString() ?? AllLanguagesOption;
+            UpdateVoiceList(language, filter);
+
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                voiceComboBox.Text = filter;
+                voiceComboBox.SelectionStart = filter.Length;
+                voiceComboBox.SelectionLength = 0;
+                voiceComboBox.DroppedDown = true;
+            }
         }
 
         private void VoiceComboBox_SelectedIndexChanged(object? sender, EventArgs e)
@@ -1145,7 +1235,7 @@ namespace SherpaOnnxConfig
             if (lang == null)
                 return null;
 
-            string? languageName = lang.language_name?.Trim();
+            string? languageName = (lang.language_name ?? lang.LanguageNameAlt)?.Trim();
             if (!string.IsNullOrWhiteSpace(languageName) &&
                 !languageName.Equals("Unknown", StringComparison.OrdinalIgnoreCase) &&
                 !languageName.StartsWith("Unknown language", StringComparison.OrdinalIgnoreCase))
@@ -1153,7 +1243,7 @@ namespace SherpaOnnxConfig
                 return languageName;
             }
 
-            string? code = lang.lang_code?.Trim();
+            string? code = (lang.lang_code ?? lang.IsoCodeAlt)?.Trim();
             if (string.IsNullOrWhiteSpace(code))
                 return null;
 
@@ -1300,8 +1390,14 @@ namespace SherpaOnnxConfig
         [System.Text.Json.Serialization.JsonPropertyName("lang_code")]
         public string? lang_code { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("Iso Code")]
+        public string? IsoCodeAlt { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("language_name")]
         public string? language_name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("Language Name")]
+        public string? LanguageNameAlt { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("country")]
         public string? country { get; set; }
