@@ -8,6 +8,8 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.ComponentModel;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace SherpaOnnxConfig
 {
@@ -19,21 +21,31 @@ namespace SherpaOnnxConfig
         private Button? downloadButton;
         private Button? testVoiceButton;
         private Button? openModelsFolderButton;
+        private Button? rescanModelsButton;
         private RichTextBox? outputTextBox;
         private TextBox? testTextInput;
         private ProgressBar? progressBar;
+        private Label? downloadProgressLabel;
         private BackgroundWorker? downloadWorker;
 
         private SherpaModelsCatalog? sherpaCatalog = null;
         private static readonly string AppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        private static readonly string OpenSpeechDir = Path.Combine(AppDataPath, "OpenSpeech");
-        private static readonly string ModelsDir = Path.Combine(OpenSpeechDir, "models");
+        private static readonly string AdapterDataDir = Path.Combine(AppDataPath, "NaturalVoiceSAPIAdapter");
+        private static readonly string ModelsDir = Path.Combine(AdapterDataDir, "models");
+        private static readonly string ScanErrorsPath = Path.Combine(AdapterDataDir, "sherpa_model_scan_errors.json");
+        private const string AllLanguagesOption = "All Languages";
+        private static readonly Regex LanguageCodeRegex = new Regex(@"(?:^|[-_])([a-z]{2})(?:[-_][A-Za-z]{2})?(?:[-_]|$)",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         // Voice list for CLI access
         public static List<VoiceInfo> AllVoices { get; private set; } = new List<VoiceInfo>();
 
-        public MainForm()
+        private readonly bool autoRescanOnStartup;
+        private static List<ModelScanIssue> s_lastScanIssues = new List<ModelScanIssue>();
+
+        public MainForm(bool autoRescanOnStartup = false)
         {
+            this.autoRescanOnStartup = autoRescanOnStartup;
             InitializeComponent();
             LoadCatalogsAsync();
         }
@@ -82,7 +94,7 @@ namespace SherpaOnnxConfig
                 DropDownStyle = ComboBoxStyle.DropDownList,
                 Font = new Font("Segoe UI", 9F)
             };
-            languageComboBox.Items.Add("All Languages");
+            languageComboBox.Items.Add(AllLanguagesOption);
             languageComboBox.SelectedIndex = 0;
             languageComboBox.SelectedIndexChanged += LanguageComboBox_SelectedIndexChanged;
 
@@ -128,7 +140,7 @@ namespace SherpaOnnxConfig
             {
                 Location = new Point(15, 90),
                 Size = new Size(690, 20),
-                Text = "Select a language and model to download. Models are cached in %LOCALAPPDATA%\\OpenSpeech\\models\\",
+                Text = "Select a language and model to download. Models are cached in %LOCALAPPDATA%\\NaturalVoiceSAPIAdapter\\models\\",
                 ForeColor = Color.FromArgb(120, 120, 120),
                 Font = new Font("Segoe UI", 8F)
             };
@@ -141,11 +153,22 @@ namespace SherpaOnnxConfig
                 Visible = false
             };
 
+            downloadProgressLabel = new Label
+            {
+                Location = new Point(300, 78),
+                Size = new Size(390, 15),
+                Text = "",
+                ForeColor = Color.FromArgb(100, 100, 100),
+                Font = new Font("Segoe UI", 8F),
+                Visible = false
+            };
+
             voiceGroup.Controls.Add(voiceLabel);
             voiceGroup.Controls.Add(voiceComboBox);
             voiceGroup.Controls.Add(downloadButton);
             voiceGroup.Controls.Add(modelInfoLabel);
             voiceGroup.Controls.Add(progressBar);
+            voiceGroup.Controls.Add(downloadProgressLabel);
 
             // Test group
             GroupBox testGroup = new GroupBox
@@ -192,36 +215,46 @@ namespace SherpaOnnxConfig
             GroupBox actionsGroup = new GroupBox
             {
                 Location = new Point(20, 355),
-                Size = new Size(720, 50),
+                Size = new Size(720, 70),
                 Text = "Actions"
             };
 
             openModelsFolderButton = new Button
             {
                 Location = new Point(15, 20),
-                Size = new Size(200, 30),
+                Size = new Size(170, 30),
                 Text = "Open Models Folder",
                 FlatStyle = FlatStyle.Flat
             };
             openModelsFolderButton.Click += OpenModelsFolderButton_Click;
 
+            rescanModelsButton = new Button
+            {
+                Location = new Point(195, 20),
+                Size = new Size(150, 30),
+                Text = "Rescan Models",
+                FlatStyle = FlatStyle.Flat
+            };
+            rescanModelsButton.Click += RescanModelsButton_Click;
+
             Label actionsHint = new Label
             {
-                Location = new Point(230, 25),
-                Size = new Size(475, 25),
-                Text = "Opens the folder where downloaded models are stored. You can also manually place model files here.",
+                Location = new Point(15, 52),
+                Size = new Size(690, 15),
+                Text = "Rescan validates local models and shows per-model errors used by SAPI token registration.",
                 ForeColor = Color.FromArgb(120, 120, 120),
                 Font = new Font("Segoe UI", 8F)
             };
 
             actionsGroup.Controls.Add(openModelsFolderButton);
+            actionsGroup.Controls.Add(rescanModelsButton);
             actionsGroup.Controls.Add(actionsHint);
 
             // Output
             outputTextBox = new RichTextBox
             {
-                Location = new Point(20, 415),
-                Size = new Size(720, 280),
+                Location = new Point(20, 435),
+                Size = new Size(720, 260),
                 ReadOnly = true,
                 BackColor = Color.FromArgb(30, 30, 30),
                 ForeColor = Color.FromArgb(200, 200, 200),
@@ -233,7 +266,8 @@ namespace SherpaOnnxConfig
                        "  SherpaOnnxConfig.exe list\r\n" +
                        "  SherpaOnnxConfig.exe list --language \"English\"\r\n" +
                        "  SherpaOnnxConfig.exe download <model-id>\r\n" +
-                       "  SherpaOnnxConfig.exe downloaded\r\n\r\n"
+                       "  SherpaOnnxConfig.exe downloaded\r\n" +
+                       "  SherpaOnnxConfig.exe rescan\r\n\r\n"
             };
 
             // Background worker for downloads
@@ -252,6 +286,14 @@ namespace SherpaOnnxConfig
             this.Controls.Add(testGroup);
             this.Controls.Add(actionsGroup);
             this.Controls.Add(outputTextBox);
+
+            this.Shown += (_, _) =>
+            {
+                if (autoRescanOnStartup)
+                {
+                    PerformLocalModelRescan();
+                }
+            };
         }
 
         private HashSet<string> allLanguages = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -259,9 +301,6 @@ namespace SherpaOnnxConfig
 
         private async void LoadCatalogsAsync()
         {
-            // Debug: Write to file immediately when method is called
-            try { File.WriteAllText("sherpa_debug_start.txt", $"LoadCatalogsAsync called at {DateTime.Now}\n"); } catch { }
-
             try
             {
                 statusLabel!.Text = "Status: Loading SherpaOnnx catalog...";
@@ -277,12 +316,10 @@ namespace SherpaOnnxConfig
                 string? catalogContent = null;
                 foreach (string catalogPath in catalogPaths)
                 {
-                    try { File.AppendAllText("sherpa_debug_start.txt", $"Checking path: {catalogPath}, exists: {File.Exists(catalogPath)}\n"); } catch { }
                     if (File.Exists(catalogPath))
                     {
                         catalogContent = await File.ReadAllTextAsync(catalogPath);
                         AppendOutput($"Loaded catalog from: {catalogPath}", Color.FromArgb(100, 255, 100));
-                        try { File.AppendAllText("sherpa_debug_start.txt", $"Catalog loaded, length: {catalogContent?.Length ?? 0}\n"); } catch { }
                         break;
                     }
                 }
@@ -291,7 +328,7 @@ namespace SherpaOnnxConfig
                 {
                     AppendOutput("WARNING: merged_models.json not found. Models will need to be added manually.", Color.FromArgb(255, 200, 100));
                     statusLabel!.Text = "Status: No catalog found";
-                    languageComboBox!.Items.Add("All Languages");
+                    languageComboBox!.Items.Add(AllLanguagesOption);
                     languageComboBox.SelectedIndex = 0;
                     return;
                 }
@@ -301,47 +338,11 @@ namespace SherpaOnnxConfig
 
                 AppendOutput($"Loaded {sherpaCatalog?.Count ?? 0} SherpaOnnx models from catalog.", Color.FromArgb(100, 255, 100));
 
-                // Debug output - write to the same file
-                try { File.AppendAllText("sherpa_debug_start.txt", $"Catalog deserialized, count: {sherpaCatalog?.Count ?? 0}\n"); } catch { }
-
-                // Try to access first model with error handling
-                try
-                {
-                    if (sherpaCatalog != null && sherpaCatalog.Count > 0)
-                    {
-                        try { File.AppendAllText("sherpa_debug_start.txt", "About to call First()\n"); } catch { }
-                        var first = sherpaCatalog.First();
-                        try { File.AppendAllText("sherpa_debug_start.txt", $"First().Value: {first.Value?.id ?? "null"}\n"); } catch { }
-                        var firstModel = first.Value;
-                        try { File.AppendAllText("sherpa_debug_start.txt", $"firstModel.language is null: {firstModel.language == null}\n"); } catch { }
-                    }
-                    else
-                    {
-                        try { File.AppendAllText("sherpa_debug_start.txt", "Catalog is null or empty\n"); } catch { }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    try { File.AppendAllText("sherpa_debug_start.txt", $"Error accessing first model: {ex.Message}\n"); } catch { }
-                }
-
-                // Debug: Check first model
-                if (sherpaCatalog != null && sherpaCatalog.Count > 0)
-                {
-                    var firstModel = sherpaCatalog.First().Value;
-                    AppendOutput($"DEBUG: First model ID: {firstModel.id}", Color.FromArgb(150, 150, 255));
-                    AppendOutput($"DEBUG: First model.language is null: {firstModel.language == null}", Color.FromArgb(150, 150, 255));
-                    if (firstModel.language != null && firstModel.language.Count > 0)
-                    {
-                        AppendOutput($"DEBUG: First language name: {firstModel.language[0].language_name}", Color.FromArgb(150, 150, 255));
-                    }
-                }
-
                 // Process models into language groups
                 AllVoices.Clear();
                 voicesByLanguage.Clear();
                 allLanguages.Clear();
-                allLanguages.Add("All Languages");
+                allLanguages.Add(AllLanguagesOption);
 
                 if (sherpaCatalog != null)
                 {
@@ -353,28 +354,12 @@ namespace SherpaOnnxConfig
                         try
                         {
                             var model = kvp.Value;
-                            string langStr = "Unknown";
-
-                            // Debug: Check if language property is null
-                            if (model.language == null || model.language.Count == 0)
+                            var languageNames = GetLanguageDisplayNames(model).ToList();
+                            if (languageNames.Count == 0)
                             {
                                 skippedCount++;
                                 continue;
                             }
-
-                            // Get language name
-                            langStr = model.language[0].language_name ?? "Unknown";
-
-                            // Skip if language detection failed
-                            if (langStr == "Unknown" || langStr.StartsWith("Unknown language"))
-                            {
-                                skippedCount++;
-                                continue;
-                            }
-
-                            // Add to language set
-                            if (!allLanguages.Contains(langStr))
-                                allLanguages.Add(langStr);
 
                             // Create voice info
                             string engineType = model.id?.Contains("mms") == true ? "MMS" :
@@ -385,8 +370,8 @@ namespace SherpaOnnxConfig
                             var voice = new VoiceInfo
                             {
                                 Id = model.id ?? kvp.Key,
-                                Name = model.name ?? "Unknown",
-                                Language = langStr,
+                                Name = string.IsNullOrWhiteSpace(model.name) ? (model.id ?? kvp.Key) : model.name,
+                                Language = string.Join(", ", languageNames),
                                 EngineType = engineType,
                                 IsOffline = true,
                                 ModelUrl = model.url ?? model.url_ ?? "",
@@ -398,10 +383,14 @@ namespace SherpaOnnxConfig
 
                             AllVoices.Add(voice);
 
-                            // Group by language
-                            if (!voicesByLanguage.ContainsKey(langStr))
-                                voicesByLanguage[langStr] = new List<VoiceInfo>();
-                            voicesByLanguage[langStr].Add(voice);
+                            // Group by each declared language so multilingual models are discoverable.
+                            foreach (var languageName in languageNames)
+                            {
+                                allLanguages.Add(languageName);
+                                if (!voicesByLanguage.ContainsKey(languageName))
+                                    voicesByLanguage[languageName] = new List<VoiceInfo>();
+                                voicesByLanguage[languageName].Add(voice);
+                            }
 
                             processedCount++;
                         }
@@ -432,6 +421,7 @@ namespace SherpaOnnxConfig
                 AppendOutput($"Found {allLanguages.Count - 1} unique languages with {AllVoices.Count} models.", Color.FromArgb(100, 200, 255));
 
                 statusLabel!.Text = $"Status: Ready - {AllVoices.Count} models available";
+                ShowLastScanIssuesSummary();
             }
             catch (Exception ex)
             {
@@ -444,7 +434,7 @@ namespace SherpaOnnxConfig
         {
             if (languageComboBox!.SelectedItem != null)
             {
-                UpdateVoiceList(languageComboBox.SelectedItem.ToString() ?? "All Languages");
+                UpdateVoiceList(languageComboBox.SelectedItem.ToString() ?? AllLanguagesOption);
             }
         }
 
@@ -455,7 +445,7 @@ namespace SherpaOnnxConfig
 
             IEnumerable<VoiceInfo> voicesToShow;
 
-            if (language == "All Languages")
+            if (language == AllLanguagesOption)
             {
                 voicesToShow = AllVoices;
             }
@@ -489,6 +479,7 @@ namespace SherpaOnnxConfig
             {
                 downloadButton!.Enabled = !voice.IsDownloaded();
                 downloadButton.Text = voice.IsDownloaded() ? "Downloaded" : "Download Model";
+                downloadProgressLabel!.Visible = false;
             }
         }
 
@@ -524,6 +515,11 @@ namespace SherpaOnnxConfig
 
             progressBar!.Visible = true;
             progressBar.Value = 0;
+            downloadProgressLabel!.Visible = true;
+            downloadProgressLabel.Text = "Preparing download...";
+            downloadButton.Enabled = false;
+            voiceComboBox!.Enabled = false;
+            languageComboBox!.Enabled = false;
 
             downloadWorker.RunWorkerAsync(voice);
         }
@@ -564,7 +560,7 @@ namespace SherpaOnnxConfig
                 {
                     AppendOutput($"\r✓ Model downloaded to {modelDir}", Color.FromArgb(100, 255, 100));
                     statusLabel!.Text = $"Status: {voice.Id} downloaded";
-                    UpdateVoiceList(languageComboBox!.SelectedItem?.ToString() ?? "All Languages");
+                    UpdateVoiceList(languageComboBox!.SelectedItem?.ToString() ?? AllLanguagesOption);
                 }));
             }
             catch (Exception ex)
@@ -580,11 +576,21 @@ namespace SherpaOnnxConfig
         private void DownloadWorker_ProgressChanged(object? sender, ProgressChangedEventArgs e)
         {
             progressBar!.Value = e.ProgressPercentage;
+            if (e.UserState is string message && !string.IsNullOrWhiteSpace(message))
+            {
+                downloadProgressLabel!.Visible = true;
+                downloadProgressLabel.Text = message;
+                statusLabel!.Text = $"Status: {message}";
+            }
         }
 
         private void DownloadWorker_RunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)
         {
             progressBar!.Visible = false;
+            downloadProgressLabel!.Visible = false;
+            voiceComboBox!.Enabled = true;
+            languageComboBox!.Enabled = true;
+            VoiceComboBox_SelectedIndexChanged(null, EventArgs.Empty);
         }
 
         private void DownloadTarArchive(VoiceInfo voice, string modelDir)
@@ -593,6 +599,7 @@ namespace SherpaOnnxConfig
 
             this.Invoke((Action)(() =>
                 AppendOutput($"Downloading from {voice.ModelUrl}...", Color.FromArgb(150, 200, 255))));
+            downloadWorker!.ReportProgress(5, "Connecting to download source...");
 
             using (var client = new HttpClient())
             {
@@ -602,6 +609,7 @@ namespace SherpaOnnxConfig
 
                 long totalBytes = response.Content.Headers.ContentLength ?? 0;
                 long downloadedBytes = 0;
+                int lastReportedPercent = -1;
 
                 using (var fs = File.Create(tarFile))
                 {
@@ -614,14 +622,22 @@ namespace SherpaOnnxConfig
                         downloadedBytes += bytesRead;
                         if (totalBytes > 0)
                         {
+                            int downloadPercent = (int)((downloadedBytes * 100) / totalBytes);
                             int progress = 10 + (int)((downloadedBytes * 80) / totalBytes);
-                            downloadWorker!.ReportProgress(progress);
+                            if (downloadPercent != lastReportedPercent)
+                            {
+                                lastReportedPercent = downloadPercent;
+                                double downloadedMb = downloadedBytes / (1024.0 * 1024.0);
+                                double totalMb = totalBytes / (1024.0 * 1024.0);
+                                downloadWorker!.ReportProgress(progress,
+                                    $"Downloading {voice.Id}: {downloadedMb:F1}/{totalMb:F1} MB ({downloadPercent}%)");
+                            }
                         }
                     }
                 }
             }
 
-            downloadWorker!.ReportProgress(90);
+            downloadWorker!.ReportProgress(90, $"Extracting {voice.Id}...");
             this.Invoke((Action)(() => AppendOutput("Extracting...", Color.FromArgb(150, 200, 255))));
 
             // Extract using tar
@@ -640,6 +656,7 @@ namespace SherpaOnnxConfig
 
             // Clean up tar file
             File.Delete(tarFile);
+            downloadWorker!.ReportProgress(98, $"Finalizing {voice.Id}...");
         }
 
         private void TestVoiceButton_Click(object? sender, EventArgs e)
@@ -710,6 +727,39 @@ namespace SherpaOnnxConfig
             }
         }
 
+        private void RescanModelsButton_Click(object? sender, EventArgs e)
+        {
+            PerformLocalModelRescan();
+        }
+
+        private void PerformLocalModelRescan()
+        {
+            AppendOutput($"\r\n=== Rescanning local models in {ModelsDir} ===", Color.FromArgb(120, 200, 255));
+            var result = ScanLocalModels();
+            s_lastScanIssues = result.Issues;
+            PersistLastScanIssues(result.Issues);
+
+            if (result.TotalDirectories == 0)
+            {
+                AppendOutput("No local model directories found.", Color.FromArgb(255, 200, 100));
+                return;
+            }
+
+            AppendOutput($"Valid models: {result.ValidModels}/{result.TotalDirectories}", Color.FromArgb(100, 255, 100));
+
+            if (result.Issues.Count == 0)
+            {
+                AppendOutput("No scan errors detected.", Color.FromArgb(100, 255, 100));
+                return;
+            }
+
+            AppendOutput($"Scan errors: {result.Issues.Count}", Color.FromArgb(255, 180, 100));
+            foreach (var issue in result.Issues.OrderBy(i => i.ModelId))
+            {
+                AppendOutput($"  {issue.ModelId}: {issue.Error}", Color.FromArgb(255, 120, 120));
+            }
+        }
+
         private void AppendOutput(string text, Color color)
         {
             outputTextBox!.SelectionStart = outputTextBox.TextLength;
@@ -752,24 +802,22 @@ namespace SherpaOnnxConfig
                 foreach (var kvp in catalog)
                 {
                     var model = kvp.Value;
-                    string langStr = "Unknown";
-
-                    if (model.language != null && model.language.Count > 0)
-                    {
-                        langStr = model.language[0].language_name ?? "Unknown";
-                    }
-
-                    if (langStr == "Unknown" || langStr.StartsWith("Unknown language"))
+                    var languageNames = GetLanguageDisplayNames(model).ToList();
+                    if (languageNames.Count == 0)
                         continue;
 
-                    if (!langGroups.ContainsKey(langStr))
-                        langGroups[langStr] = new List<SherpaModelInfo>();
+                    bool includeByFilter = string.IsNullOrEmpty(languageFilter) ||
+                        languageNames.Any(lang =>
+                            lang.Equals(languageFilter, StringComparison.OrdinalIgnoreCase) ||
+                            lang.Contains(languageFilter, StringComparison.OrdinalIgnoreCase));
 
-                    // Apply language filter if specified
-                    if (string.IsNullOrEmpty(languageFilter) ||
-                        langStr.Equals(languageFilter, StringComparison.OrdinalIgnoreCase) ||
-                        langStr.Contains(languageFilter, StringComparison.OrdinalIgnoreCase))
+                    if (!includeByFilter)
+                        continue;
+
+                    foreach (var langStr in languageNames)
                     {
+                        if (!langGroups.ContainsKey(langStr))
+                            langGroups[langStr] = new List<SherpaModelInfo>();
                         langGroups[langStr].Add(model);
                     }
                 }
@@ -790,7 +838,8 @@ namespace SherpaOnnxConfig
                         bool downloaded = IsModelDownloaded(model.id ?? "");
                         string status = downloaded ? "✓ Downloaded" : "Not downloaded";
 
-                        Console.WriteLine($"  {model.id,-40} {model.name,-30} [{size}] [{status}]");
+                        string displayName = string.IsNullOrWhiteSpace(model.name) ? (model.id ?? "Unknown") : model.name;
+                        Console.WriteLine($"  {model.id,-40} {displayName,-30} [{size}] [{status}]");
                     }
                 }
 
@@ -940,6 +989,45 @@ namespace SherpaOnnxConfig
             return 0;
         }
 
+        public static int RescanModels()
+        {
+            Console.WriteLine("SherpaOnnx Model Manager - Rescan Local Models");
+            Console.WriteLine("=============================================");
+            Console.WriteLine($"Models directory: {ModelsDir}\n");
+
+            var result = ScanLocalModels();
+            s_lastScanIssues = result.Issues;
+            PersistLastScanIssues(result.Issues);
+
+            Console.WriteLine($"Model directories found: {result.TotalDirectories}");
+            Console.WriteLine($"Valid models: {result.ValidModels}");
+            Console.WriteLine($"Errors: {result.Issues.Count}\n");
+
+            foreach (var issue in result.Issues.OrderBy(i => i.ModelId))
+            {
+                Console.WriteLine($"  {issue.ModelId}: {issue.Error}");
+            }
+
+            return result.Issues.Count == 0 ? 0 : 2;
+        }
+
+        private void ShowLastScanIssuesSummary()
+        {
+            var persistedIssues = LoadPersistedScanIssues();
+            if (persistedIssues.Count == 0)
+                return;
+
+            AppendOutput($"Last scan reported {persistedIssues.Count} model issue(s). Click 'Rescan Models' for details.", Color.FromArgb(255, 200, 100));
+            foreach (var issue in persistedIssues.Take(3))
+            {
+                AppendOutput($"  {issue.ModelId}: {issue.Error}", Color.FromArgb(255, 160, 120));
+            }
+            if (persistedIssues.Count > 3)
+            {
+                AppendOutput($"  ... and {persistedIssues.Count - 3} more", Color.FromArgb(255, 160, 120));
+            }
+        }
+
         private static string? FindCatalogPath()
         {
             string[] paths = new string[]
@@ -960,7 +1048,172 @@ namespace SherpaOnnxConfig
         private static bool IsModelDownloaded(string modelId)
         {
             string modelDir = Path.Combine(ModelsDir, modelId);
-            return Directory.Exists(modelDir) && Directory.GetFiles(modelDir).Length > 0;
+            if (!Directory.Exists(modelDir))
+                return false;
+
+            try
+            {
+                return Directory.EnumerateFiles(modelDir, "*", SearchOption.AllDirectories).Any();
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static IEnumerable<string> GetLanguageDisplayNames(SherpaModelInfo model)
+        {
+            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            if (model.language != null)
+            {
+                foreach (var lang in model.language)
+                {
+                    string? resolved = ResolveLanguageName(lang);
+                    if (!string.IsNullOrWhiteSpace(resolved))
+                        names.Add(resolved);
+                }
+            }
+
+            if (names.Count > 0)
+                return names;
+
+            string modelId = model.id ?? string.Empty;
+            foreach (Match match in LanguageCodeRegex.Matches(modelId))
+            {
+                string langCode = match.Groups[1].Value.ToLowerInvariant();
+                string? inferred = ResolveLanguageName(new SherpaLanguage { lang_code = langCode });
+                if (!string.IsNullOrWhiteSpace(inferred))
+                    names.Add(inferred);
+            }
+
+            if (names.Count > 0)
+                return names;
+
+            return new[] { "Unknown" };
+        }
+
+        private static string? ResolveLanguageName(SherpaLanguage? lang)
+        {
+            if (lang == null)
+                return null;
+
+            string? languageName = lang.language_name?.Trim();
+            if (!string.IsNullOrWhiteSpace(languageName) &&
+                !languageName.Equals("Unknown", StringComparison.OrdinalIgnoreCase) &&
+                !languageName.StartsWith("Unknown language", StringComparison.OrdinalIgnoreCase))
+            {
+                return languageName;
+            }
+
+            string? code = lang.lang_code?.Trim();
+            if (string.IsNullOrWhiteSpace(code))
+                return null;
+
+            try
+            {
+                string normalized = code.ToLowerInvariant();
+                var culture = CultureInfo.GetCultures(CultureTypes.NeutralCultures)
+                    .FirstOrDefault(c => c.TwoLetterISOLanguageName.Equals(normalized, StringComparison.OrdinalIgnoreCase));
+                if (culture != null)
+                    return culture.EnglishName;
+            }
+            catch
+            {
+                // Fall through and return raw code if lookup fails.
+            }
+
+            return code.ToUpperInvariant();
+        }
+
+        private static ModelScanResult ScanLocalModels()
+        {
+            var result = new ModelScanResult();
+            Directory.CreateDirectory(ModelsDir);
+
+            foreach (string modelDir in Directory.GetDirectories(ModelsDir))
+            {
+                result.TotalDirectories++;
+                string modelId = Path.GetFileName(modelDir);
+
+                string? error = ValidateSingleLocalModel(modelDir);
+                if (string.IsNullOrEmpty(error))
+                {
+                    result.ValidModels++;
+                }
+                else
+                {
+                    result.Issues.Add(new ModelScanIssue { ModelId = modelId, Error = error });
+                }
+            }
+
+            return result;
+        }
+
+        private static void PersistLastScanIssues(List<ModelScanIssue> issues)
+        {
+            try
+            {
+                Directory.CreateDirectory(AdapterDataDir);
+                string json = JsonSerializer.Serialize(issues, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(ScanErrorsPath, json);
+            }
+            catch
+            {
+                // Best effort only.
+            }
+        }
+
+        private static List<ModelScanIssue> LoadPersistedScanIssues()
+        {
+            try
+            {
+                if (!File.Exists(ScanErrorsPath))
+                    return new List<ModelScanIssue>();
+
+                string json = File.ReadAllText(ScanErrorsPath);
+                return JsonSerializer.Deserialize<List<ModelScanIssue>>(json) ?? new List<ModelScanIssue>();
+            }
+            catch
+            {
+                return new List<ModelScanIssue>();
+            }
+        }
+
+        private static string? ValidateSingleLocalModel(string modelDir)
+        {
+            bool hasTokens = File.Exists(Path.Combine(modelDir, "tokens.txt"));
+            bool hasModel = File.Exists(Path.Combine(modelDir, "model.onnx"));
+            bool hasVoices = File.Exists(Path.Combine(modelDir, "voices.bin"));
+
+            bool hasMatchaModel = Directory.EnumerateFiles(modelDir, "model-steps*.onnx", SearchOption.TopDirectoryOnly).Any();
+            bool hasMatchaVocoder = Directory.EnumerateFiles(modelDir, "vocos*.onnx", SearchOption.TopDirectoryOnly).Any() ||
+                                   Directory.EnumerateFiles(modelDir, "vocoder*.onnx", SearchOption.TopDirectoryOnly).Any();
+
+            if (hasMatchaModel || hasMatchaVocoder)
+            {
+                if (!hasMatchaModel) return "Matcha model-steps*.onnx missing";
+                if (!hasMatchaVocoder) return "Matcha vocoder/vocos ONNX missing";
+                if (!hasTokens) return "Matcha tokens.txt missing";
+                return null;
+            }
+
+            if (hasVoices || modelDir.Contains("kokoro", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!hasModel) return "Kokoro model.onnx missing";
+                if (!hasVoices) return "Kokoro voices.bin missing";
+                if (!hasTokens) return "Kokoro tokens.txt missing";
+                return null;
+            }
+
+            if (hasModel || hasTokens)
+            {
+                if (!hasModel) return "model.onnx missing";
+                if (!hasTokens) return "tokens.txt missing";
+                return null;
+            }
+
+            return "No recognizable Sherpa model files found";
         }
     }
 
@@ -1024,8 +1277,31 @@ namespace SherpaOnnxConfig
         {
             string modelsDir = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "OpenSpeech", "models", Id);
-            return Directory.Exists(modelsDir) && Directory.GetFiles(modelsDir).Length > 0;
+                "NaturalVoiceSAPIAdapter", "models", Id);
+            if (!Directory.Exists(modelsDir))
+                return false;
+
+            try
+            {
+                return Directory.EnumerateFiles(modelsDir, "*", SearchOption.AllDirectories).Any();
+            }
+            catch
+            {
+                return false;
+            }
         }
+    }
+
+    public class ModelScanIssue
+    {
+        public string ModelId { get; set; } = "";
+        public string Error { get; set; } = "";
+    }
+
+    public class ModelScanResult
+    {
+        public int TotalDirectories { get; set; }
+        public int ValidModels { get; set; }
+        public List<ModelScanIssue> Issues { get; set; } = new List<ModelScanIssue>();
     }
 }

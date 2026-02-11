@@ -29,8 +29,10 @@ namespace SherpaOnnxConfig
         [STAThread]
         static void Main(string[] args)
         {
+            bool rescanGui = args.Length > 0 && args[0].Equals("rescan-gui", StringComparison.OrdinalIgnoreCase);
+
             // Check if running in CLI mode (no GUI arguments or explicitly --cli)
-            bool useCli = args.Length > 0 ||
+            bool useCli = (args.Length > 0 && !rescanGui) ||
                           Environment.GetEnvironmentVariable("SherpaOnnxCLI") == "1";
 
             if (useCli)
@@ -82,7 +84,7 @@ namespace SherpaOnnxConfig
                 Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new MainForm());
+                Application.Run(new MainForm(rescanGui));
             }
         }
 
@@ -135,6 +137,9 @@ namespace SherpaOnnxConfig
                 case "downloaded":
                     return MainForm.ListDownloaded();
 
+                case "rescan":
+                    return MainForm.RescanModels();
+
                 case "-h":
                 case "--help":
                 case "/?":
@@ -162,6 +167,7 @@ namespace SherpaOnnxConfig
             Console.WriteLine("  list --language <lang>   List models for specific language");
             Console.WriteLine("  download <model-id>       Download a model by ID");
             Console.WriteLine("  downloaded               List downloaded models");
+            Console.WriteLine("  rescan                   Validate local model folders and show per-model errors");
             Console.WriteLine();
             Console.WriteLine("Examples:");
             Console.WriteLine("  SherpaOnnxConfig.exe list");
@@ -173,7 +179,7 @@ namespace SherpaOnnxConfig
             Console.WriteLine("Without arguments, the GUI will launch.");
             Console.WriteLine();
             Console.WriteLine("Models are downloaded to:");
-            Console.WriteLine($"  {Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\OpenSpeech\\models\\");
+            Console.WriteLine($"  {Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\NaturalVoiceSAPIAdapter\\models\\");
         }
     }
 }

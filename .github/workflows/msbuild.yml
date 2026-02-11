@@ -32,6 +32,11 @@ jobs:
     - name: Build SherpaOnnxConfig (self-contained, x64)
       run: dotnet publish SherpaOnnxConfig\SherpaOnnxConfig.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o ${{github.workspace}}\sherpa-config
 
+    - name: Verify Sherpa integration checks
+      shell: pwsh
+      run: |
+        .\scripts\verify-sherpa-integration.ps1 -SkipBuild
+
     - name: Upload SherpaOnnxConfig artifact
       uses: actions/upload-artifact@v6
       with:

@@ -78,6 +78,12 @@ It's a modified version of the [TtsApplication in Windows-classic-samples][7], w
 
 Or, you can go to Control Panel > Speech (Windows XP), or Control Panel > Speech Recognition > Text to Speech (Windows Vista and later).
 
+## SherpaOnnx Notes
+
+- SherpaOnnx local models are loaded from `%LOCALAPPDATA%\\NaturalVoiceSAPIAdapter\\models\\`.
+- SherpaOnnx synthesis currently supports plain text only. SAPI/SSML tags are converted to plain text before offline generation.
+- Use `SherpaOnnxConfig.exe rescan` (or the **Rescan Models** button) to validate local model folders and view per-model scan errors.
+
 ## Libraries used
 - Microsoft.CognitiveServices.Speech.Extension.Embedded.TTS
 - [websocketpp](https://github.com/zaphoyd/websocketpp)

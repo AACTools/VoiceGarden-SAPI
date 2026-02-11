@@ -49,6 +49,11 @@ struct VoiceInfo {
     bool IsVits() const { return modelType == ModelType::Vits || modelType == ModelType::Piper || modelType == ModelType::MMS; }
 };
 
+struct ModelScanError {
+    std::string modelName;
+    std::string message;
+};
+
 // Model discovery and validation utilities
 class Models {
 public:
@@ -56,8 +61,13 @@ public:
     static std::vector<VoiceInfo> DiscoverModels(
         const std::vector<std::wstring>& searchPaths);
 
+    // Scan directories and return both valid voices and per-model validation errors.
+    static std::pair<std::vector<VoiceInfo>, std::vector<ModelScanError>> DiscoverModelsWithErrors(
+        const std::vector<std::wstring>& searchPaths);
+
     // Validate model files exist and are readable
     static bool ValidateModel(const VoiceInfo& info);
+    static bool ValidateModel(const VoiceInfo& info, std::string& error);
 
     // Get default model directories to search
     static std::vector<std::wstring> GetDefaultModelPaths();
@@ -86,6 +96,12 @@ private:
     // Find ONNX file matching a pattern
     static std::string FindOnnxFile(const std::filesystem::path& dir,
                                     const std::string& pattern);
+
+    // Parse / normalize locale metadata from model id/name/config.
+    static std::string NormalizeLocale(const std::string& locale);
+    static std::string InferLocaleFromName(const std::string& name);
+    static std::string BuildDisplayName(const std::string& modelName, const std::string& locale);
+    static ModelType ParseModelType(const std::string& modelType);
 };
 
 } // namespace SherpaOnnx

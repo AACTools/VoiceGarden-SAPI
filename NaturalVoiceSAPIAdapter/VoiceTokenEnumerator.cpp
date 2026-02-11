@@ -711,33 +711,43 @@ static std::shared_ptr<DataKeyData> MakeSherpaVoiceToken(
     std::wstring languageIds = LanguageIDsFromLocaleName(language);
     if (languageIds.empty())
     {
-        // Fallback: try to extract language code and convert
+        // Fallback: try the primary language subtag as a neutral locale and build
+        // the language + fallback chain dynamically via LangUtils.
+        std::wstring langCode = language;
         size_t dashPos = language.find(L'-');
         if (dashPos != std::wstring::npos)
+            langCode = language.substr(0, dashPos);
+
+        LANGID langid = LangIDFromLocaleName(langCode.c_str());
+        if (langid != 0 && langid != LOCALE_CUSTOM_UNSPECIFIED)
         {
-            std::wstring langCode = language.substr(0, dashPos);
-            // Convert common language codes to LANGID
-            if (langCode == L"en") languageIds = L"0409";      // English
-            else if (langCode == L"zh") languageIds = L"0804"; // Chinese
-            else if (langCode == L"es") languageIds = L"0C0A"; // Spanish
-            else if (langCode == L"fr") languageIds = L"040C"; // French
-            else if (langCode == L"de") languageIds = L"0407"; // German
-            else if (langCode == L"ja") languageIds = L"0411"; // Japanese
-            else if (langCode == L"ko") languageIds = L"0412"; // Korean
-            else if (langCode == L"ar") languageIds = L"0401"; // Arabic
-            else languageIds = L"0409"; // Default to English
+            languageIds = LangIDToHexLang(langid);
+            for (LANGID fallback : GetLangIDFallbacks(langid))
+            {
+                languageIds += L';';
+                languageIds += LangIDToHexLang(fallback);
+            }
         }
-        else
+
+        if (languageIds.empty())
         {
-            languageIds = L"0409"; // Default to English
+            LogWarn("Skipping Sherpa model '{}' due to unknown locale '{}'", model.name, model.language);
+            return {};
         }
     }
 
-    // Determine gender from voice name if possible
-    std::wstring gender = L"Female"; // Default
+    // Determine gender from voice name if possible. Use Neutral unless there is a strong hint.
+    std::wstring gender = L"Neutral";
     std::wstring nameLower = UTF8ToWString(model.name);
     std::transform(nameLower.begin(), nameLower.end(), nameLower.begin(), ::towlower);
-    if (nameLower.find(L"male") != std::wstring::npos ||
+    if (nameLower.find(L"female") != std::wstring::npos ||
+        nameLower.find(L"woman") != std::wstring::npos ||
+        nameLower.find(L"girl") != std::wstring::npos)
+    {
+        gender = L"Female";
+    }
+    else if (nameLower.find(L"male") != std::wstring::npos ||
+        nameLower.find(L"man") != std::wstring::npos ||
         nameLower.find(L"boy") != std::wstring::npos)
     {
         gender = L"Male";
@@ -1027,15 +1037,23 @@ void CVoiceTokenEnumerator::EnumSherpaVoices(TokenMap& tokens, DWORD langFlags, 
         std::vector<std::wstring> searchPaths = SherpaOnnx::Models::GetDefaultModelPaths();
 
         // Discover SherpaOnnx models
-        std::vector<SherpaOnnx::VoiceInfo> models = SherpaOnnx::Models::DiscoverModels(searchPaths);
+        auto [models, errors] = SherpaOnnx::Models::DiscoverModelsWithErrors(searchPaths);
 
         if (models.empty())
         {
             logger.debug("No SherpaOnnx models found");
+            for (const auto& err : errors)
+            {
+                logger.warn("Sherpa model scan issue [{}]: {}", err.modelName, err.message);
+            }
             return;
         }
 
         logger.info("Found " + std::to_string(models.size()) + " SherpaOnnx models");
+        for (const auto& err : errors)
+        {
+            logger.warn("Sherpa model scan issue [{}]: {}", err.modelName, err.message);
+        }
 
         // Process each discovered model
         for (const auto& model : models)
@@ -1056,6 +1074,10 @@ void CVoiceTokenEnumerator::EnumSherpaVoices(TokenMap& tokens, DWORD langFlags, 
                 // Use model name as the key (unique identifier)
                 tokens[model.name] = std::move(token);
                 logger.debug("Added Sherpa voice: " + model.name);
+            }
+            else
+            {
+                logger.warn("Skipped Sherpa voice due to incomplete metadata: {}", model.name);
             }
         }
     }

@@ -165,6 +165,29 @@ static void SaveChanges(HWND hDlg)
     key.SetString(L"NarratorVoicePath", path);
 }
 
+static BOOL FindSherpaConfigToolPath(WCHAR configToolPath[MAX_PATH])
+{
+    // Try 1: Same directory as installer
+    GetModuleFileNameW(nullptr, configToolPath, MAX_PATH);
+    PathRemoveFileSpecW(configToolPath);
+    PathAppendW(configToolPath, L"SherpaOnnxConfig.exe");
+    if (PathFileExistsW(configToolPath))
+        return TRUE;
+
+    // Try 2: x64\\ subdirectory (release structure)
+    GetModuleFileNameW(nullptr, configToolPath, MAX_PATH);
+    PathRemoveFileSpecW(configToolPath);
+    PathAppendW(configToolPath, L"x64\\SherpaOnnxConfig.exe");
+    if (PathFileExistsW(configToolPath))
+        return TRUE;
+
+    // Try 3: ..\\x64\\Release\\ (old CI structure)
+    GetModuleFileNameW(nullptr, configToolPath, MAX_PATH);
+    PathRemoveFileSpecW(configToolPath);
+    PathAppendW(configToolPath, L"\\..\\x64\\Release\\SherpaOnnxConfig.exe");
+    return PathFileExistsW(configToolPath);
+}
+
 INT_PTR CALLBACK MainDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     try
@@ -269,50 +292,24 @@ INT_PTR CALLBACK MainDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
             case IDC_SHERPA_MODEL_MANAGER:
             {
                 // Launch SherpaOnnx Model Manager
-                // Try multiple locations to support different installation layouts:
-                // 1. Same directory as installer (local development)
-                // 2. x64\ subdirectory (release structure)
-                // 3. ..\x64\Release\ (old CI structure)
                 WCHAR configToolPath[MAX_PATH];
-                BOOL found = FALSE;
-
-                // Try 1: Same directory as installer
-                GetModuleFileNameW(nullptr, configToolPath, MAX_PATH);
-                PathRemoveFileSpecW(configToolPath);
-                PathAppendW(configToolPath, L"SherpaOnnxConfig.exe");
-
-                if (PathFileExistsW(configToolPath))
+                if (FindSherpaConfigToolPath(configToolPath))
                 {
-                    found = TRUE;
+                    ShellExecuteW(hDlg, nullptr, configToolPath, nullptr, nullptr, SW_SHOWNORMAL);
                 }
                 else
                 {
-                    // Try 2: x64\ subdirectory (release structure)
-                    GetModuleFileNameW(nullptr, configToolPath, MAX_PATH);
-                    PathRemoveFileSpecW(configToolPath);
-                    PathAppendW(configToolPath, L"x64\\SherpaOnnxConfig.exe");
-
-                    if (PathFileExistsW(configToolPath))
-                    {
-                        found = TRUE;
-                    }
-                    else
-                    {
-                        // Try 3: ..\x64\Release\ (old structure)
-                        GetModuleFileNameW(nullptr, configToolPath, MAX_PATH);
-                        PathRemoveFileSpecW(configToolPath);
-                        PathAppendW(configToolPath, L"\\..\\x64\\Release\\SherpaOnnxConfig.exe");
-
-                        if (PathFileExistsW(configToolPath))
-                        {
-                            found = TRUE;
-                        }
-                    }
+                    MessageBoxW(hDlg, L"SherpaOnnx Model Manager not found.\n\nPlease ensure SherpaOnnxConfig.exe is in the application directory.",
+                        L"Model Manager Not Found", MB_ICONEXCLAMATION);
                 }
-
-                if (found)
+                break;
+            }
+            case IDC_SHERPA_RESCAN:
+            {
+                WCHAR configToolPath[MAX_PATH];
+                if (FindSherpaConfigToolPath(configToolPath))
                 {
-                    ShellExecuteW(hDlg, nullptr, configToolPath, nullptr, nullptr, SW_SHOWNORMAL);
+                    ShellExecuteW(hDlg, nullptr, configToolPath, L"rescan-gui", nullptr, SW_SHOWNORMAL);
                 }
                 else
                 {

@@ -61,6 +61,7 @@
 #define IDC_LANG_MULTILINGUAL           1033
 #define IDC_SHERPA_MODEL_MANAGER        1034
 #define IDC_CHK_SHERPA_VOICES           1035
+#define IDC_SHERPA_RESCAN               1036
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -70,7 +71,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        141
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1036
+#define _APS_NEXT_CONTROL_VALUE         1037
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

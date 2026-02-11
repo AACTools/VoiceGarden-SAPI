@@ -47,7 +47,9 @@ param(
 
     [switch]$SkipSherpaDeps,
 
-    [switch]$SkipSubmodules
+    [switch]$SkipSubmodules,
+
+    [switch]$SkipVerify
 )
 
 $ErrorActionPreference = "Stop"
@@ -277,6 +279,28 @@ catch {
     Write-Host "  Warning: Failed to copy SherpaOnnxConfig: $($_.Exception.Message)" -ForegroundColor Yellow
 }
 Write-Host ""
+
+# Step 8: Run verification checks
+if (!$SkipVerify) {
+    Write-Host "[Step 8/8] Running Sherpa integration verification..." -ForegroundColor Cyan
+    try {
+        & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $ScriptDir "scripts\verify-sherpa-integration.ps1") -SkipBuild
+        if ($LASTEXITCODE -ne 0) {
+            throw "Verification script failed with exit code $LASTEXITCODE"
+        }
+        Write-Host "  Verification passed" -ForegroundColor Green
+    }
+    catch {
+        $errMsg = $_.Exception.Message
+        Write-Host ("  Error: Verification failed: " + $errMsg) -ForegroundColor Red
+        exit 1
+    }
+    Write-Host ""
+}
+else {
+    Write-Host "[Step 8/8] Skipping verification (SkipVerify specified)" -ForegroundColor DarkGray
+    Write-Host ""
+}
 
 # Summary
 Write-Host "========================================" -ForegroundColor Cyan
