@@ -6,17 +6,75 @@
 #include <windows.h>
 #include <string>
 #include <memory>
+#include <cstdint>
 
-// Forward declarations for SherpaOnnx C API types
+// SherpaOnnx C API type definitions
+// These mirror the structures from sherpa-onnx/c-api/c-api.h
 extern "C" {
 
-// Forward declarations for SherpaOnnx Offline TTS types
-struct SherpaOnnxOfflineTtsVitsModelConfig;
-struct SherpaOnnxOfflineTtsMatchaModelConfig;
-struct SherpaOnnxOfflineTtsKokoroModelConfig;
-struct SherpaOnnxOfflineTtsModelConfig;
-struct SherpaOnnxOfflineTtsConfig;
-struct SherpaOnnxGeneratedAudio;
+// VITS Model Config
+struct SherpaOnnxOfflineTtsVitsModelConfig {
+    const char* model;
+    const char* lexicon;
+    const char* tokens;
+    const char* data_dir;
+    const char* dict_dir;
+    float noise_scale;
+    float noise_scale_w;
+    float length_scale;
+};
+
+// Matcha Model Config
+struct SherpaOnnxOfflineTtsMatchaModelConfig {
+    const char* acoustic_model;
+    const char* vocoder;
+    const char* tokens;
+    const char* lexicon;
+    const char* data_dir;
+    const char* dict_dir;
+    float noise_scale;
+    float length_scale;
+};
+
+// Kokoro Model Config
+struct SherpaOnnxOfflineTtsKokoroModelConfig {
+    const char* model;
+    const char* voices;
+    const char* tokens;
+    const char* lexicon;
+    const char* data_dir;
+    const char* dict_dir;
+    const char* lang;
+    float length_scale;
+};
+
+// TTS Model Config (union of all model types)
+struct SherpaOnnxOfflineTtsModelConfig {
+    SherpaOnnxOfflineTtsVitsModelConfig vits;
+    SherpaOnnxOfflineTtsMatchaModelConfig matcha;
+    SherpaOnnxOfflineTtsKokoroModelConfig kokoro;
+    int num_threads;
+    int debug;
+    const char* provider;
+};
+
+// TTS Config
+struct SherpaOnnxOfflineTtsConfig {
+    SherpaOnnxOfflineTtsModelConfig model;
+    const char* rule_fsts;
+    int max_num_sentences;
+    const char* rule_fars;
+    float silence_scale;
+};
+
+// Generated Audio
+struct SherpaOnnxGeneratedAudio {
+    const float* samples;
+    int32_t n;
+    int32_t sample_rate;
+};
+
+// Opaque TTS handle
 struct SherpaOnnxOfflineTts;
 
 } // extern "C"
