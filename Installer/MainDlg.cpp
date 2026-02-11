@@ -269,20 +269,48 @@ INT_PTR CALLBACK MainDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
             case IDC_SHERPA_MODEL_MANAGER:
             {
                 // Launch SherpaOnnx Model Manager
+                // Try multiple locations to support different installation layouts:
+                // 1. Same directory as installer (local development)
+                // 2. x64\ subdirectory (release structure)
+                // 3. ..\x64\Release\ (old CI structure)
                 WCHAR configToolPath[MAX_PATH];
+                BOOL found = FALSE;
+
+                // Try 1: Same directory as installer
                 GetModuleFileNameW(nullptr, configToolPath, MAX_PATH);
                 PathRemoveFileSpecW(configToolPath);
-                PathAppendW(configToolPath, L" SherpaOnnxConfig.exe");
-
-                // Also try the Release directory
-                if (!PathFileExistsW(configToolPath))
-                {
-                    GetModuleFileNameW(nullptr, configToolPath, MAX_PATH);
-                    PathRemoveFileSpecW(configToolPath);
-                    PathAppendW(configToolPath, L"\\..\\x64\\Release\\SherpaOnnxConfig.exe");
-                }
+                PathAppendW(configToolPath, L"SherpaOnnxConfig.exe");
 
                 if (PathFileExistsW(configToolPath))
+                {
+                    found = TRUE;
+                }
+                else
+                {
+                    // Try 2: x64\ subdirectory (release structure)
+                    GetModuleFileNameW(nullptr, configToolPath, MAX_PATH);
+                    PathRemoveFileSpecW(configToolPath);
+                    PathAppendW(configToolPath, L"x64\\SherpaOnnxConfig.exe");
+
+                    if (PathFileExistsW(configToolPath))
+                    {
+                        found = TRUE;
+                    }
+                    else
+                    {
+                        // Try 3: ..\x64\Release\ (old structure)
+                        GetModuleFileNameW(nullptr, configToolPath, MAX_PATH);
+                        PathRemoveFileSpecW(configToolPath);
+                        PathAppendW(configToolPath, L"\\..\\x64\\Release\\SherpaOnnxConfig.exe");
+
+                        if (PathFileExistsW(configToolPath))
+                        {
+                            found = TRUE;
+                        }
+                    }
+                }
+
+                if (found)
                 {
                     ShellExecuteW(hDlg, nullptr, configToolPath, nullptr, nullptr, SW_SHOWNORMAL);
                 }
