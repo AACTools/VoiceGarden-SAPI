@@ -665,6 +665,10 @@ namespace SherpaOnnxConfig
                 {
                     DownloadTarArchive(voice, modelDir);
                 }
+                else if (TryParseHuggingFaceFolderUrl(voice.ModelUrl, out _, out _, out _))
+                {
+                    DownloadHuggingFaceFolder(voice, modelDir);
+                }
                 else
                 {
                     downloadWorker.ReportProgress(100);
@@ -775,6 +779,69 @@ namespace SherpaOnnxConfig
 
             // Clean up tar file
             File.Delete(tarFile);
+            downloadWorker!.ReportProgress(98, $"Finalizing {voice.Id}...");
+        }
+
+        private void DownloadHuggingFaceFolder(VoiceInfo voice, string modelDir)
+        {
+            if (!TryParseHuggingFaceFolderUrl(voice.ModelUrl, out string repo, out string revision, out string folderPath))
+            {
+                throw new InvalidOperationException($"Invalid Hugging Face model URL: {voice.ModelUrl}");
+            }
+
+            this.Invoke((Action)(() =>
+                AppendOutput($"Downloading Hugging Face model files from {repo}/{folderPath}...", Color.FromArgb(150, 200, 255))));
+            downloadWorker!.ReportProgress(5, "Querying Hugging Face model files...");
+
+            using (var client = new HttpClient())
+            {
+                client.Timeout = TimeSpan.FromMinutes(30);
+                var files = GetHuggingFaceTreeFiles(client, repo, revision, folderPath);
+                if (files.Count == 0)
+                {
+                    throw new InvalidOperationException($"No files found for Hugging Face path '{folderPath}'.");
+                }
+
+                for (int i = 0; i < files.Count; i++)
+                {
+                    var file = files[i];
+                    string remotePath = file.path ?? string.Empty;
+                    if (string.IsNullOrWhiteSpace(remotePath))
+                        continue;
+
+                    string relativePath = remotePath.StartsWith(folderPath + "/", StringComparison.OrdinalIgnoreCase)
+                        ? remotePath.Substring(folderPath.Length + 1)
+                        : Path.GetFileName(remotePath);
+                    if (string.IsNullOrWhiteSpace(relativePath))
+                        continue;
+
+                    string localPath = Path.Combine(modelDir, relativePath.Replace('/', Path.DirectorySeparatorChar));
+                    string? localDir = Path.GetDirectoryName(localPath);
+                    if (!string.IsNullOrWhiteSpace(localDir))
+                        Directory.CreateDirectory(localDir);
+
+                    int progress = 10 + (int)(((i + 1) * 80.0) / files.Count);
+                    downloadWorker.ReportProgress(progress, $"Downloading {voice.Id}: {relativePath} ({i + 1}/{files.Count})");
+
+                    string fileUrl = BuildHuggingFaceResolveUrl(repo, revision, remotePath);
+                    using (var response = client.GetAsync(fileUrl).Result)
+                    {
+                        response.EnsureSuccessStatusCode();
+                        using (var stream = response.Content.ReadAsStreamAsync().Result)
+                        using (var fs = File.Create(localPath))
+                        {
+                            stream.CopyTo(fs);
+                        }
+                    }
+                }
+            }
+
+            string? validationError = ValidateSingleLocalModel(modelDir);
+            if (!string.IsNullOrEmpty(validationError))
+            {
+                throw new InvalidOperationException($"Downloaded files are incomplete: {validationError}");
+            }
+
             downloadWorker!.ReportProgress(98, $"Finalizing {voice.Id}...");
         }
 
@@ -1039,44 +1106,106 @@ namespace SherpaOnnxConfig
 
                 // Download
                 Console.WriteLine("\nDownloading...");
-                using (var client = new HttpClient())
+                if (modelUrl.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase) ||
+                    modelUrl.Contains("tar.bz2", StringComparison.OrdinalIgnoreCase))
                 {
-                    client.Timeout = TimeSpan.FromMinutes(30);
-                    var response = client.GetAsync(modelUrl).Result;
-                    response.EnsureSuccessStatusCode();
-
-                    long totalBytes = response.Content.Headers.ContentLength ?? 0;
-                    if (totalBytes > 0)
-                        Console.WriteLine($"Size: {totalBytes / (1024.0 * 1024):F1} MB");
-
-                    string tarFile = Path.Combine(modelDir, "model.tar.bz2");
-                    using (var fs = File.Create(tarFile))
+                    using (var client = new HttpClient())
                     {
-                        var stream = response.Content.ReadAsStreamAsync().Result;
-                        stream.CopyToAsync(fs).Wait();
+                        client.Timeout = TimeSpan.FromMinutes(30);
+                        var response = client.GetAsync(modelUrl).Result;
+                        response.EnsureSuccessStatusCode();
+
+                        long totalBytes = response.Content.Headers.ContentLength ?? 0;
+                        if (totalBytes > 0)
+                            Console.WriteLine($"Size: {totalBytes / (1024.0 * 1024):F1} MB");
+
+                        string tarFile = Path.Combine(modelDir, "model.tar.bz2");
+                        using (var fs = File.Create(tarFile))
+                        {
+                            var stream = response.Content.ReadAsStreamAsync().Result;
+                            stream.CopyToAsync(fs).Wait();
+                        }
+
+                        Console.WriteLine("Extracting...");
+
+                        // Extract using tar
+                        ProcessStartInfo psi = new ProcessStartInfo
+                        {
+                            FileName = "tar",
+                            Arguments = $"-xf \"{tarFile}\" -C \"{modelDir}\"",
+                            UseShellExecute = false,
+                            CreateNoWindow = true
+                        };
+
+                        using (Process process = Process.Start(psi)!)
+                        {
+                            process.WaitForExit();
+                        }
+
+                        File.Delete(tarFile);
                     }
-
-                    Console.WriteLine("Extracting...");
-
-                    // Extract using tar
-                    ProcessStartInfo psi = new ProcessStartInfo
-                    {
-                        FileName = "tar",
-                        Arguments = $"-xf \"{tarFile}\" -C \"{modelDir}\"",
-                        UseShellExecute = false,
-                        CreateNoWindow = true
-                    };
-
-                    using (Process process = Process.Start(psi)!)
-                    {
-                        process.WaitForExit();
-                    }
-
-                    File.Delete(tarFile);
-
-                    Console.WriteLine("\n✓ Model downloaded successfully!");
-                    return 0;
                 }
+                else if (TryParseHuggingFaceFolderUrl(modelUrl, out string repo, out string revision, out string folderPath))
+                {
+                    Console.WriteLine($"Detected Hugging Face model folder: {repo}/{folderPath}");
+                    using (var client = new HttpClient())
+                    {
+                        client.Timeout = TimeSpan.FromMinutes(30);
+                        var files = GetHuggingFaceTreeFiles(client, repo, revision, folderPath);
+                        if (files.Count == 0)
+                        {
+                            Console.WriteLine("ERROR: No files found in Hugging Face folder.");
+                            return 1;
+                        }
+
+                        Console.WriteLine($"Files to download: {files.Count}");
+                        for (int i = 0; i < files.Count; i++)
+                        {
+                            string remotePath = files[i].path ?? string.Empty;
+                            if (string.IsNullOrWhiteSpace(remotePath))
+                                continue;
+
+                            string relativePath = remotePath.StartsWith(folderPath + "/", StringComparison.OrdinalIgnoreCase)
+                                ? remotePath.Substring(folderPath.Length + 1)
+                                : Path.GetFileName(remotePath);
+                            if (string.IsNullOrWhiteSpace(relativePath))
+                                continue;
+
+                            Console.WriteLine($"  [{i + 1}/{files.Count}] {relativePath}");
+
+                            string localPath = Path.Combine(modelDir, relativePath.Replace('/', Path.DirectorySeparatorChar));
+                            string? localDir = Path.GetDirectoryName(localPath);
+                            if (!string.IsNullOrWhiteSpace(localDir))
+                                Directory.CreateDirectory(localDir);
+
+                            string fileUrl = BuildHuggingFaceResolveUrl(repo, revision, remotePath);
+                            using (var response = client.GetAsync(fileUrl).Result)
+                            {
+                                response.EnsureSuccessStatusCode();
+                                using (var stream = response.Content.ReadAsStreamAsync().Result)
+                                using (var fs = File.Create(localPath))
+                                {
+                                    stream.CopyTo(fs);
+                                }
+                            }
+                        }
+                    }
+
+                    string? validationError = ValidateSingleLocalModel(modelDir);
+                    if (!string.IsNullOrEmpty(validationError))
+                    {
+                        Console.WriteLine($"ERROR: Downloaded files are incomplete: {validationError}");
+                        return 1;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"ERROR: Unknown URL format: {modelUrl}");
+                    return 1;
+                }
+
+                Console.WriteLine("\n✓ Model downloaded successfully!");
+                return 0;
             }
             catch (Exception ex)
             {
@@ -1180,6 +1309,63 @@ namespace SherpaOnnxConfig
                     return path;
             }
             return null;
+        }
+
+        private static bool TryParseHuggingFaceFolderUrl(string url, out string repo, out string revision, out string folderPath)
+        {
+            repo = string.Empty;
+            revision = string.Empty;
+            folderPath = string.Empty;
+
+            if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? uri))
+                return false;
+            if (!uri.Host.Contains("huggingface.co", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            string[] segments = uri.AbsolutePath.Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length < 5)
+                return false;
+
+            int modeIndex = Array.FindIndex(segments, s =>
+                s.Equals("resolve", StringComparison.OrdinalIgnoreCase) ||
+                s.Equals("tree", StringComparison.OrdinalIgnoreCase));
+
+            if (modeIndex < 2 || modeIndex + 2 >= segments.Length)
+                return false;
+
+            repo = $"{segments[0]}/{segments[1]}";
+            revision = Uri.UnescapeDataString(segments[modeIndex + 1]);
+            folderPath = string.Join("/", segments.Skip(modeIndex + 2).Select(Uri.UnescapeDataString));
+
+            return !string.IsNullOrWhiteSpace(repo) &&
+                   !string.IsNullOrWhiteSpace(revision) &&
+                   !string.IsNullOrWhiteSpace(folderPath);
+        }
+
+        private static List<HuggingFaceTreeEntry> GetHuggingFaceTreeFiles(HttpClient client, string repo, string revision, string folderPath)
+        {
+            string encodedFolder = EncodePathSegments(folderPath);
+            string apiUrl = $"https://huggingface.co/api/models/{repo}/tree/{Uri.EscapeDataString(revision)}/{encodedFolder}";
+
+            string json = client.GetStringAsync(apiUrl).Result;
+            var entries = JsonSerializer.Deserialize<List<HuggingFaceTreeEntry>>(json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<HuggingFaceTreeEntry>();
+
+            return entries
+                .Where(e => string.Equals(e.type, "file", StringComparison.OrdinalIgnoreCase) &&
+                            !string.IsNullOrWhiteSpace(e.path))
+                .ToList();
+        }
+
+        private static string BuildHuggingFaceResolveUrl(string repo, string revision, string remotePath)
+        {
+            string encodedPath = EncodePathSegments(remotePath);
+            return $"https://huggingface.co/{repo}/resolve/{Uri.EscapeDataString(revision)}/{encodedPath}?download=true";
+        }
+
+        private static string EncodePathSegments(string path)
+        {
+            return string.Join("/", path.Split('/', StringSplitOptions.RemoveEmptyEntries).Select(Uri.EscapeDataString));
         }
 
         private static bool IsModelDownloaded(string modelId)
@@ -1439,6 +1625,13 @@ namespace SherpaOnnxConfig
     {
         public string ModelId { get; set; } = "";
         public string Error { get; set; } = "";
+    }
+
+    public class HuggingFaceTreeEntry
+    {
+        public string? type { get; set; }
+        public string? path { get; set; }
+        public long? size { get; set; }
     }
 
     public class ModelScanResult
