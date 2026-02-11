@@ -53,30 +53,34 @@ namespace SherpaOnnxConfig
         private void InitializeComponent()
         {
             this.Text = "NaturalVoice SAPI - SherpaOnnx Model Manager";
-            this.Size = new Size(760, 720);
+            this.AutoScaleMode = AutoScaleMode.Dpi;
+            this.Size = new Size(920, 860);
+            this.MinimumSize = new Size(860, 760);
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.FormBorderStyle = FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
+            this.FormBorderStyle = FormBorderStyle.Sizable;
+            this.MaximizeBox = true;
             this.BackColor = Color.FromArgb(245, 245, 245);
 
             // Title
             Label titleLabel = new Label
             {
                 Location = new Point(20, 15),
-                Size = new Size(720, 25),
+                Size = new Size(860, 25),
                 Text = "SherpaOnnx Offline TTS Model Manager",
                 Font = new Font("Segoe UI", 12F, FontStyle.Bold),
                 ForeColor = Color.FromArgb(0, 51, 102)
             };
+            titleLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
             // Status label
             statusLabel = new Label
             {
                 Location = new Point(20, 45),
-                Size = new Size(720, 20),
+                Size = new Size(860, 20),
                 Text = "Status: Loading voice catalog...",
                 ForeColor = Color.FromArgb(100, 100, 100)
             };
+            statusLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
             // Language selection
             Label languageLabel = new Label
@@ -102,9 +106,10 @@ namespace SherpaOnnxConfig
             GroupBox voiceGroup = new GroupBox
             {
                 Location = new Point(20, 115),
-                Size = new Size(720, 120),
+                Size = new Size(860, 140),
                 Text = "Available SherpaOnnx Models"
             };
+            voiceGroup.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
             Label voiceLabel = new Label
             {
@@ -117,10 +122,11 @@ namespace SherpaOnnxConfig
             voiceComboBox = new ComboBox
             {
                 Location = new Point(100, 23),
-                Size = new Size(580, 25),
+                Size = new Size(745, 25),
                 DropDownStyle = ComboBoxStyle.DropDownList,
                 Font = new Font("Segoe UI", 9F)
             };
+            voiceComboBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             voiceComboBox.SelectedIndexChanged += VoiceComboBox_SelectedIndexChanged;
 
             downloadButton = new Button
@@ -139,29 +145,32 @@ namespace SherpaOnnxConfig
             Label modelInfoLabel = new Label
             {
                 Location = new Point(15, 90),
-                Size = new Size(690, 20),
+                Size = new Size(830, 35),
                 Text = "Select a language and model to download. Models are cached in %LOCALAPPDATA%\\NaturalVoiceSAPIAdapter\\models\\",
                 ForeColor = Color.FromArgb(120, 120, 120),
                 Font = new Font("Segoe UI", 8F)
             };
+            modelInfoLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
             progressBar = new ProgressBar
             {
                 Location = new Point(300, 55),
-                Size = new Size(280, 20),
+                Size = new Size(430, 20),
                 Style = ProgressBarStyle.Continuous,
                 Visible = false
             };
+            progressBar.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
             downloadProgressLabel = new Label
             {
                 Location = new Point(300, 78),
-                Size = new Size(390, 15),
+                Size = new Size(545, 15),
                 Text = "",
                 ForeColor = Color.FromArgb(100, 100, 100),
                 Font = new Font("Segoe UI", 8F),
                 Visible = false
             };
+            downloadProgressLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
             voiceGroup.Controls.Add(voiceLabel);
             voiceGroup.Controls.Add(voiceComboBox);
@@ -173,39 +182,43 @@ namespace SherpaOnnxConfig
             // Test group
             GroupBox testGroup = new GroupBox
             {
-                Location = new Point(20, 245),
-                Size = new Size(720, 100),
+                Location = new Point(20, 265),
+                Size = new Size(860, 115),
                 Text = "Test Voice (After Download)"
             };
+            testGroup.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
             testTextInput = new TextBox
             {
                 Location = new Point(15, 25),
-                Size = new Size(545, 25),
+                Size = new Size(685, 25),
                 Text = "The quick brown fox jumps over the lazy dog.",
                 Font = new Font("Segoe UI", 9F)
             };
+            testTextInput.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
             testVoiceButton = new Button
             {
-                Location = new Point(570, 23),
+                Location = new Point(710, 23),
                 Size = new Size(135, 30),
                 Text = "▶ Test",
                 BackColor = Color.FromArgb(0, 120, 215),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
             };
+            testVoiceButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             testVoiceButton.FlatAppearance.BorderSize = 0;
             testVoiceButton.Click += TestVoiceButton_Click;
 
             Label hintLabel = new Label
             {
                 Location = new Point(15, 55),
-                Size = new Size(690, 35),
+                Size = new Size(830, 45),
                 Text = "Tests the selected voice using SAPI5. The voice must be downloaded and the DLL registered first.",
                 ForeColor = Color.FromArgb(120, 120, 120),
                 Font = new Font("Segoe UI", 8F)
             };
+            hintLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
             testGroup.Controls.Add(testTextInput);
             testGroup.Controls.Add(testVoiceButton);
@@ -214,10 +227,11 @@ namespace SherpaOnnxConfig
             // Actions group
             GroupBox actionsGroup = new GroupBox
             {
-                Location = new Point(20, 355),
-                Size = new Size(720, 70),
+                Location = new Point(20, 390),
+                Size = new Size(860, 85),
                 Text = "Actions"
             };
+            actionsGroup.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
             openModelsFolderButton = new Button
             {
@@ -239,12 +253,13 @@ namespace SherpaOnnxConfig
 
             Label actionsHint = new Label
             {
-                Location = new Point(15, 52),
-                Size = new Size(690, 15),
+                Location = new Point(15, 56),
+                Size = new Size(830, 20),
                 Text = "Rescan validates local models and shows per-model errors used by SAPI token registration.",
                 ForeColor = Color.FromArgb(120, 120, 120),
                 Font = new Font("Segoe UI", 8F)
             };
+            actionsHint.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
             actionsGroup.Controls.Add(openModelsFolderButton);
             actionsGroup.Controls.Add(rescanModelsButton);
@@ -253,8 +268,8 @@ namespace SherpaOnnxConfig
             // Output
             outputTextBox = new RichTextBox
             {
-                Location = new Point(20, 435),
-                Size = new Size(720, 260),
+                Location = new Point(20, 485),
+                Size = new Size(860, 325),
                 ReadOnly = true,
                 BackColor = Color.FromArgb(30, 30, 30),
                 ForeColor = Color.FromArgb(200, 200, 200),
@@ -269,6 +284,7 @@ namespace SherpaOnnxConfig
                        "  SherpaOnnxConfig.exe downloaded\r\n" +
                        "  SherpaOnnxConfig.exe rescan\r\n\r\n"
             };
+            outputTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 
             // Background worker for downloads
             downloadWorker = new BackgroundWorker();
