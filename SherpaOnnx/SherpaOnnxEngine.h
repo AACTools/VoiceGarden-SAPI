@@ -6,11 +6,8 @@
 #include <string>
 #include <vector>
 
-// Include SherpaOnnx C API type definitions only
-// We'll use dynamic loading for the actual functions
-extern "C" {
-#include "sherpa-onnx/c-api/c-api.h"
-}
+// Note: SherpaOnnx C API type forward declarations are in SherpaOnnxDynamic.h
+// We use dynamic loading for the actual functions
 
 namespace SherpaOnnx {
 
