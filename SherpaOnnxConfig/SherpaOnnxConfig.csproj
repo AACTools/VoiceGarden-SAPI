@@ -16,6 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="org.k2fsa.sherpa.onnx" Version="1.12.23" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 

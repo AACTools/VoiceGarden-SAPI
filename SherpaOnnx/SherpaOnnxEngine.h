@@ -1,11 +1,13 @@
 #pragma once
 
 #include "SherpaOnnxConfig.h"
+#include "SherpaOnnxDynamic.h"
 #include <memory>
 #include <string>
 #include <vector>
 
-// Include SherpaOnnx C API headers
+// Include SherpaOnnx C API type definitions only
+// We'll use dynamic loading for the actual functions
 extern "C" {
 #include "sherpa-onnx/c-api/c-api.h"
 }
@@ -13,6 +15,7 @@ extern "C" {
 namespace SherpaOnnx {
 
 // C++ wrapper around SherpaOnnx C API for TTS operations
+// Uses dynamic loading to avoid static library dependencies
 class Engine {
 public:
     explicit Engine(const ModelConfig& config);
@@ -33,7 +36,7 @@ public:
     Engine& operator=(const Engine&) = delete;
 
 private:
-    const SherpaOnnxOfflineTts* m_tts = nullptr;
+    SherpaOnnxOfflineTts* m_tts = nullptr;
     ModelConfig m_config;
     std::string m_lastError;
 

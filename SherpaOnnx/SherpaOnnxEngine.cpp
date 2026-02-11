@@ -7,10 +7,17 @@ namespace SherpaOnnx {
 Engine::Engine(const ModelConfig& config)
     : m_config(config)
 {
+    // Initialize dynamic loader first
+    if (!Dynamic::Loader().Initialize()) {
+        m_lastError = "Failed to initialize SherpaOnnx DLL: ";
+        m_lastError += Dynamic::Loader().GetLastError();
+        return;
+    }
+
     // Build C API configuration
     SherpaOnnxOfflineTtsConfig apiConfig = BuildCApiConfig();
 
-    // Create the TTS engine
+    // Create the TTS engine (uses dynamic loading)
     m_tts = SherpaOnnxCreateOfflineTts(&apiConfig);
 
     if (!m_tts) {

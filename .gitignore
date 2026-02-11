@@ -368,4 +368,5 @@ FodyWeavers.xsd
 
 # SherpaOnnx dependencies (downloaded via download-sherpa-deps.ps1)
 SherpaOnnx/libs/
+SherpaOnnx/dlls/
 *.tar.bz2

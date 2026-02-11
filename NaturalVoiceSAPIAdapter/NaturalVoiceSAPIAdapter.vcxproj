@@ -154,7 +154,7 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static-Debug\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -169,7 +169,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static-Debug\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
@@ -178,9 +178,12 @@
       <RegisterOutput>true</RegisterOutput>
       <PerUserRedirection>false</PerUserRedirection>
       <DelayLoadDLLs>Microsoft.CognitiveServices.Speech.core.dll</DelayLoadDLLs>
-      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;RuntimeObject.lib;sherpa-onnx-c-api.lib;sherpa-onnx-core.lib;sherpa-onnx-cxx-api.lib;onnxruntime.lib;espeak-ng.lib;piper_phonemize.lib;kissfft-float.lib;sherpa-onnx-fst.lib;kaldi-decoder-core.lib;kaldi-native-fbank-core.lib;sherpa-onnx-fstfar.lib;sherpa-onnx-kaldifst-core.lib;ssentencepiece_core.lib;cargs.lib;ucd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static-Debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "..\SherpaOnnx\dlls\x64\Debug\sherpa-onnx-c-api.dll" "$(OutDir)" &amp; copy /Y "..\SherpaOnnx\dlls\x64\Debug\onnxruntime.dll" "$(OutDir)" &amp; copy /Y "..\SherpaOnnx\dlls\x64\Debug\onnxruntime_providers_shared.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <ClCompile>
@@ -195,7 +198,7 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-static-Debug\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -211,7 +214,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-static-Debug\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
@@ -220,9 +223,12 @@
       <RegisterOutput>true</RegisterOutput>
       <PerUserRedirection>false</PerUserRedirection>
       <DelayLoadDLLs>Microsoft.CognitiveServices.Speech.core.dll</DelayLoadDLLs>
-      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;RuntimeObject.lib;sherpa-onnx-c-api.lib;sherpa-onnx-core.lib;sherpa-onnx-cxx-api.lib;onnxruntime.lib;espeak-ng.lib;piper_phonemize.lib;kissfft-float.lib;sherpa-onnx-fst.lib;kaldi-decoder-core.lib;kaldi-native-fbank-core.lib;sherpa-onnx-fstfar.lib;sherpa-onnx-kaldifst-core.lib;ssentencepiece_core.lib;cargs.lib;ucd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-static-Debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\lib\arm64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "..\SherpaOnnx\dlls\ARM64\Debug\sherpa-onnx-c-api.dll" "$(OutDir)" &amp; copy /Y "..\SherpaOnnx\dlls\ARM64\Debug\onnxruntime.dll" "$(OutDir)" &amp; copy /Y "..\SherpaOnnx\dlls\ARM64\Debug\onnxruntime_providers_shared.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -238,7 +244,7 @@
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-static-Debug\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -254,7 +260,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-static-Debug\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
@@ -263,9 +269,12 @@
       <RegisterOutput>true</RegisterOutput>
       <PerUserRedirection>false</PerUserRedirection>
       <DelayLoadDLLs>Microsoft.CognitiveServices.Speech.core.dll</DelayLoadDLLs>
-      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;RuntimeObject.lib;sherpa-onnx-c-api.lib;sherpa-onnx-core.lib;sherpa-onnx-cxx-api.lib;onnxruntime.lib;espeak-ng.lib;piper_phonemize.lib;kissfft-float.lib;sherpa-onnx-fst.lib;kaldi-decoder-core.lib;kaldi-native-fbank-core.lib;sherpa-onnx-fstfar.lib;sherpa-onnx-kaldifst-core.lib;ssentencepiece_core.lib;cargs.lib;ucd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-static-Debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "..\SherpaOnnx\dlls\x86\Debug\sherpa-onnx-c-api.dll" "$(OutDir)" &amp; copy /Y "..\SherpaOnnx\dlls\x86\Debug\onnxruntime.dll" "$(OutDir)" &amp; copy /Y "..\SherpaOnnx\dlls\x86\Debug\onnxruntime_providers_shared.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -281,7 +290,7 @@
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-static-Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -297,7 +306,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-static-Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
@@ -309,9 +318,12 @@
       <PerUserRedirection>false</PerUserRedirection>
       <DelayLoadDLLs>Microsoft.CognitiveServices.Speech.core.dll</DelayLoadDLLs>
       <AdditionalOptions>/PDBALTPATH:%_PDB% %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;RuntimeObject.lib;sherpa-onnx-c-api.lib;sherpa-onnx-core.lib;sherpa-onnx-cxx-api.lib;onnxruntime.lib;espeak-ng.lib;piper_phonemize.lib;kissfft-float.lib;sherpa-onnx-fst.lib;kaldi-decoder-core.lib;kaldi-native-fbank-core.lib;sherpa-onnx-fstfar.lib;sherpa-onnx-kaldifst-core.lib;ssentencepiece_core.lib;cargs.lib;ucd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-static-Release\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "..\SherpaOnnx\dlls\x86\Release\sherpa-onnx-c-api.dll" "$(OutDir)" &amp; copy /Y "..\SherpaOnnx\dlls\x86\Release\onnxruntime.dll" "$(OutDir)" &amp; copy /Y "..\SherpaOnnx\dlls\x86\Release\onnxruntime_providers_shared.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -326,7 +338,7 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static-Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -341,7 +353,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static-Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
@@ -353,9 +365,12 @@
       <PerUserRedirection>false</PerUserRedirection>
       <DelayLoadDLLs>Microsoft.CognitiveServices.Speech.core.dll</DelayLoadDLLs>
       <AdditionalOptions>/PDBALTPATH:%_PDB% %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;RuntimeObject.lib;sherpa-onnx-c-api.lib;sherpa-onnx-core.lib;sherpa-onnx-cxx-api.lib;onnxruntime.lib;espeak-ng.lib;piper_phonemize.lib;kissfft-float.lib;sherpa-onnx-fst.lib;kaldi-decoder-core.lib;kaldi-native-fbank-core.lib;sherpa-onnx-fstfar.lib;sherpa-onnx-kaldifst-core.lib;ssentencepiece_core.lib;cargs.lib;ucd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-static-Release\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "..\SherpaOnnx\dlls\x64\Release\sherpa-onnx-c-api.dll" "$(OutDir)" &amp; copy /Y "..\SherpaOnnx\dlls\x64\Release\onnxruntime.dll" "$(OutDir)" &amp; copy /Y "..\SherpaOnnx\dlls\x64\Release\onnxruntime_providers_shared.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <ClCompile>
@@ -370,7 +385,7 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-static-Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -386,7 +401,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-static-Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
@@ -398,9 +413,12 @@
       <PerUserRedirection>false</PerUserRedirection>
       <DelayLoadDLLs>Microsoft.CognitiveServices.Speech.core.dll</DelayLoadDLLs>
       <AdditionalOptions>/PDBALTPATH:%_PDB% %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;RuntimeObject.lib;sherpa-onnx-c-api.lib;sherpa-onnx-core.lib;sherpa-onnx-cxx-api.lib;onnxruntime.lib;espeak-ng.lib;piper_phonemize.lib;kissfft-float.lib;sherpa-onnx-fst.lib;kaldi-decoder-core.lib;kaldi-native-fbank-core.lib;sherpa-onnx-fstfar.lib;sherpa-onnx-kaldifst-core.lib;ssentencepiece_core.lib;cargs.lib;ucd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-static-Release\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\lib\arm64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "..\SherpaOnnx\dlls\ARM64\Release\sherpa-onnx-c-api.dll" "$(OutDir)" &amp; copy /Y "..\SherpaOnnx\dlls\ARM64\Release\onnxruntime.dll" "$(OutDir)" &amp; copy /Y "..\SherpaOnnx\dlls\ARM64\Release\onnxruntime_providers_shared.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AzacException.h" />
@@ -432,6 +450,7 @@
     <ClInclude Include="..\SherpaOnnx\SherpaOnnxEngine.h" />
     <ClInclude Include="..\SherpaOnnx\SherpaOnnxModels.h" />
     <ClInclude Include="..\SherpaOnnx\SherpaOnnxConfig.h" />
+    <ClInclude Include="..\SherpaOnnx\SherpaOnnxDynamic.h" />
     <ClInclude Include="WSLogger.h" />
     <ClInclude Include="wrappers.h" />
   </ItemGroup>
@@ -499,6 +518,14 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\SherpaOnnx\SherpaOnnxModels.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\SherpaOnnx\SherpaOnnxDynamic.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">NotUsing</PrecompiledHeader>

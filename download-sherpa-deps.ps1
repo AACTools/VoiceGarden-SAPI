@@ -63,22 +63,22 @@ if (!(Test-Path $LibsDir)) {
 $Version = "v1.12.23"
 $GithubRelease = "https://github.com/k2-fsa/sherpa-onnx/releases/download/$Version"
 
-# Platform mappings - all use -MT prefix
+# Platform mappings - use shared libraries for dynamic linking
 $PlatformConfigs = @{
     "x64" = @{
-        UrlTemplate = "$GithubRelease/sherpa-onnx-$Version-win-x64-static-MT-{CONFIG}.tar.bz2"
-        FileTemplate = "sherpa-onnx-$Version-win-x64-static-MT-{CONFIG}.tar.bz2"
-        DirTemplate = "sherpa-onnx-$Version-win-x64-static"
+        UrlTemplate = "$GithubRelease/sherpa-onnx-$Version-win-x64-shared-MT-{CONFIG}.tar.bz2"
+        FileTemplate = "sherpa-onnx-$Version-win-x64-shared-MT-{CONFIG}.tar.bz2"
+        DirTemplate = "sherpa-onnx-$Version-win-x64-shared"
     }
     "x86" = @{
-        UrlTemplate = "$GithubRelease/sherpa-onnx-$Version-win-x86-static-MT-{CONFIG}.tar.bz2"
-        FileTemplate = "sherpa-onnx-$Version-win-x86-static-MT-{CONFIG}.tar.bz2"
-        DirTemplate = "sherpa-onnx-$Version-win-x86-static"
+        UrlTemplate = "$GithubRelease/sherpa-onnx-$Version-win-x86-shared-MT-{CONFIG}.tar.bz2"
+        FileTemplate = "sherpa-onnx-$Version-win-x86-shared-MT-{CONFIG}.tar.bz2"
+        DirTemplate = "sherpa-onnx-$Version-win-x86-shared"
     }
     "ARM64" = @{
-        UrlTemplate = "$GithubRelease/sherpa-onnx-$Version-win-arm64-static-MT-{CONFIG}.tar.bz2"
-        FileTemplate = "sherpa-onnx-$Version-win-arm64-static-MT-{CONFIG}.tar.bz2"
-        DirTemplate = "sherpa-onnx-$Version-win-arm64-static"
+        UrlTemplate = "$GithubRelease/sherpa-onnx-$Version-win-arm64-shared-MT-{CONFIG}.tar.bz2"
+        FileTemplate = "sherpa-onnx-$Version-win-arm64-shared-MT-{CONFIG}.tar.bz2"
+        DirTemplate = "sherpa-onnx-$Version-win-arm64-shared"
     }
 }
 
@@ -117,6 +117,9 @@ foreach ($Platform in $Platforms) {
         $ExtractDir = Join-Path $LibsDir $Dir
         $ExtractDirWithConfig = Join-Path $LibsDir "$Dir-$BuildConfig"
 
+        # Save the original Dir value for later use (gets modified during extraction)
+        $OriginalDir = $Dir
+
         Write-Host "[$Platform / $BuildConfig]" -ForegroundColor Yellow
         Write-Host "  URL: $Url"
         Write-Host "  File: $File"
@@ -145,15 +148,117 @@ foreach ($Platform in $Platforms) {
             $DownloadedSize = (Get-Item $DestFile).Length / 1MB
             Write-Host "  Downloaded: $([math]::Round($DownloadedSize, 2)) MB" -ForegroundColor Green
 
-            # Extract
+            # Check if Invoke-WebRequest auto-decompressed the bz2 (leaves .tar file)
+            $tarFile = $DestFile
+            if ($DestFile -like "*.tar.bz2") {
+                $possibleTar = $DestFile -replace '\.bz2$', ''
+                if (Test-Path $possibleTar) {
+                    $tarFile = $possibleTar
+                }
+            }
+
+            # Extract using tar decompression
             Write-Host "  Extracting..." -ForegroundColor Cyan
-            tar -xjf $DestFile -C $LibsDir
+            try {
+                # Clean up any existing extraction directory first
+                $possibleDirs = @(
+                    (Join-Path $LibsDir "$Dir-MT-$BuildConfig"),
+                    (Join-Path $LibsDir "$Dir-$BuildConfig"),
+                    $ExtractDirWithConfig
+                )
+                foreach ($dir in $possibleDirs) {
+                    if (Test-Path $dir) {
+                        Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue
+                    }
+                }
+
+                # Try 7-Zip first (it handles tar.bz2 natively)
+                $sevenZipPaths = @(
+                    "C:\Program Files\7-Zip\7z.exe",
+                    "C:\Program Files (x86)\7-Zip\7z.exe"
+                )
+                $sevenZip = $null
+                foreach ($path in $sevenZipPaths) {
+                    if (Test-Path $path) {
+                        $sevenZip = $path
+                        break
+                    }
+                }
+
+                if ($sevenZip) {
+                    # 7-Zip needs two steps for tar.bz2: first extract bz2, then tar
+                    if ($tarFile -like "*.tar.bz2") {
+                        # First extract bz2 to tar
+                        & $sevenZip x $tarFile "-o$LibsDir" -y | Out-Null
+                        # Then extract the tar file
+                        $intermediateTar = $tarFile -replace '\.bz2$', ''
+                        if (Test-Path $intermediateTar) {
+                            & $sevenZip x $intermediateTar "-o$LibsDir" -y | Out-Null
+                            Remove-Item $intermediateTar -Force -ErrorAction SilentlyContinue
+                        }
+                    }
+                    else {
+                        # Just a tar file, extract directly
+                        & $sevenZip x $tarFile "-o$LibsDir" -y | Out-Null
+                    }
+                }
+                else {
+                    # Fallback to Windows native tar (not Git Bash tar)
+                    $winTar = "C:\Windows\System32\tar.exe"
+                    if (Test-Path $winTar) {
+                        & $winTar -xf $tarFile -C $LibsDir
+                    }
+                    else {
+                        throw "No suitable extraction tool found (7-Zip or Windows tar)"
+                    }
+                }
+            }
+            catch {
+                $errMsg = $_.Exception.Message
+                Write-Host "  Warning: Extraction had issues: ${errMsg}" -ForegroundColor Yellow
+            }
+
+            # Clean up the tar file
+            if (Test-Path $tarFile) {
+                Remove-Item $tarFile -Force -ErrorAction SilentlyContinue
+            }
+            # Also clean up the original .tar.bz2 if it exists
+            if (Test-Path $DestFile) {
+                Remove-Item $DestFile -Force -ErrorAction SilentlyContinue
+            }
 
             # The extracted directory will have -MT-Debug or -MT-Release suffix
             # Rename to keep directory names consistent with configuration suffix
-            $extractedWithSuffix = Join-Path $LibsDir "$Dir-MT-$BuildConfig"
+            $extractedWithSuffix = Join-Path $LibsDir "$OriginalDir-MT-$BuildConfig"
             if (Test-Path $extractedWithSuffix) {
-                Move-Item -Path $extractedWithSuffix -Destination $ExtractDirWithConfig -Force
+                try {
+                    # Get contents instead of the folder itself to avoid nesting
+                    $contents = Get-ChildItem -Path $extractedWithSuffix
+                    if ($contents.Count -eq 1 -and $contents[0].PSIsContainer) {
+                        # The contents are in a nested subdirectory, move those up
+                        Move-Item -Path "$($contents[0].FullName)\*" -Destination $ExtractDirWithConfig -Force
+                        Remove-Item $extractedWithSuffix -Recurse -Force
+                    } else {
+                        Move-Item -Path $extractedWithSuffix -Destination $ExtractDirWithConfig -Force -ErrorAction Stop
+                    }
+                } catch {
+                    # Move may fail if nested directory exists, but structure is correct
+                    if (!(Test-Path $ExtractDirWithConfig)) {
+                        throw
+                    }
+                }
+            }
+            # Also check for directory without MT prefix (some releases use different naming)
+            $extractedWithoutMT = Join-Path $LibsDir "$OriginalDir-$BuildConfig"
+            if (Test-Path $extractedWithoutMT) {
+                try {
+                    Move-Item -Path $extractedWithoutMT -Destination $ExtractDirWithConfig -Force -ErrorAction Stop
+                } catch {
+                    # Move may fail if nested directory exists, but structure is correct
+                    if (!(Test-Path $ExtractDirWithConfig)) {
+                        throw
+                    }
+                }
             }
 
             # Create a symlink or copy for the base directory (for backward compatibility)
@@ -168,6 +273,16 @@ foreach ($Platform in $Platforms) {
                 Write-Host "  Created junction for backward compatibility" -ForegroundColor DarkGray
             }
 
+            # Copy DLLs to the dlls directory for dynamic linking
+            $DllsDir = Join-Path $ScriptDir "SherpaOnnx\dlls\$Platform\$BuildConfig"
+            if (!(Test-Path $DllsDir)) {
+                New-Item -ItemType Directory -Path $DllsDir -Force | Out-Null
+            }
+            Copy-Item -Path (Join-Path $ExtractDirWithConfig "lib\sherpa-onnx-c-api.dll") -Destination $DllsDir -Force
+            Copy-Item -Path (Join-Path $ExtractDirWithConfig "lib\onnxruntime.dll") -Destination $DllsDir -Force
+            Copy-Item -Path (Join-Path $ExtractDirWithConfig "lib\onnxruntime_providers_shared.dll") -Destination $DllsDir -Force
+            Write-Host "  Copied DLLs to $DllsDir" -ForegroundColor DarkGray
+
             Write-Host "  Status: Complete" -ForegroundColor Green
             $SuccessCount++
         }
@@ -175,6 +290,11 @@ foreach ($Platform in $Platforms) {
             Write-Host "  Error: $($_.Exception.Message)" -ForegroundColor Red
             if (Test-Path $DestFile) {
                 Remove-Item $DestFile -Force
+            }
+            # Also clean up tar file if it exists
+            $tarFile = $DestFile -replace '\.bz2$', ''
+            if (Test-Path $tarFile) {
+                Remove-Item $tarFile -Force
             }
         }
 
