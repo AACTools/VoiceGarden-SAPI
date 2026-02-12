@@ -1596,10 +1596,11 @@ namespace SherpaOnnxConfig
             }
 
             AppendOutput($"\r\n=== Installing for Admin Apps: {voice.Id} ===", Color.FromArgb(120, 200, 255));
+            string selectedModelDir = Path.Combine(ModelsDir, voice.Id);
 
             try
             {
-                int rc = PromoteModelTokenToHklm(voice.Id);
+                int rc = PromoteModelTokenToHklm(voice.Id, selectedModelDir);
                 if (rc == 0)
                 {
                     AppendOutput($"✓ Installed {voice.Id} to HKLM tokens. Restart target apps to refresh voice list.",
@@ -1620,7 +1621,7 @@ namespace SherpaOnnxConfig
             try
             {
                 string exePath = Application.ExecutablePath;
-                string args = $"promote-hklm \"{voice.Id}\"";
+                string args = $"promote-hklm \"{voice.Id}\" --model-dir \"{selectedModelDir}\"";
                 var psi = new ProcessStartInfo
                 {
                     FileName = exePath,
@@ -2051,7 +2052,7 @@ namespace SherpaOnnxConfig
             return result.Issues.Count == 0 ? 0 : 2;
         }
 
-        public static int PromoteModelTokenToHklm(string modelId)
+        public static int PromoteModelTokenToHklm(string modelId, string? modelDirOverride = null)
         {
             if (string.IsNullOrWhiteSpace(modelId))
             {
@@ -2059,7 +2060,9 @@ namespace SherpaOnnxConfig
                 return 1;
             }
 
-            string modelDir = Path.Combine(ModelsDir, modelId);
+            string modelDir = !string.IsNullOrWhiteSpace(modelDirOverride)
+                ? modelDirOverride
+                : Path.Combine(ModelsDir, modelId);
             if (!Directory.Exists(modelDir))
             {
                 Console.WriteLine($"ERROR: model directory not found: {modelDir}");
