@@ -219,11 +219,11 @@ jobs:
         mkdir x64
         mv utilities-x64/* x64/
         mv main-x64/* x64/
-        zip -r NaturalVoiceSAPIAdapter_${ver}_x86_x64.zip x86 x64 Installer.exe -i "*.exe" "*.dll"
+        zip -r NaturalVoiceSAPIAdapter_${ver}_x86_x64.zip x86 x64 Installer.exe -i "*.exe" "*.dll" "*.json"
         mkdir ARM64
         mv utilities-ARM64/* ARM64/
         mv main-ARM64/* ARM64/
-        zip -r NaturalVoiceSAPIAdapter_${ver}_ARM64.zip x86 x64 ARM64 Installer.exe -i "*.exe" "*.dll"
+        zip -r NaturalVoiceSAPIAdapter_${ver}_ARM64.zip x86 x64 ARM64 Installer.exe -i "*.exe" "*.dll" "*.json"
         zip -r debug_symbols.zip x86 x64 ARM64 -i "*.pdb"
 
     - name: Create release
