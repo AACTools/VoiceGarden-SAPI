@@ -40,7 +40,16 @@ if (!(Test-Path $vcvars)) {
 $src1 = Join-Path $repoRoot "scripts\sherpa-smoke-test.cpp"
 $src2 = Join-Path $repoRoot "SherpaOnnx\SherpaOnnxEngine.cpp"
 $src3 = Join-Path $repoRoot "SherpaOnnx\SherpaOnnxDynamic.cpp"
-$inc1 = Join-Path $repoRoot "SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared\include"
+$incCandidates = @(
+    (Join-Path $repoRoot "SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared-Release\include"),
+    (Join-Path $repoRoot "SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared-Debug\include"),
+    (Join-Path $repoRoot "SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared\include")
+)
+$inc1 = $incCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+$inc1 = [string]$inc1
+if ([string]::IsNullOrWhiteSpace($inc1)) {
+    throw ("Sherpa include directory not found. Expected one of:`n  - " + ($incCandidates -join "`n  - "))
+}
 $inc2 = $repoRoot
 
 Write-Host "Compiling sherpa smoke test..." -ForegroundColor Cyan
