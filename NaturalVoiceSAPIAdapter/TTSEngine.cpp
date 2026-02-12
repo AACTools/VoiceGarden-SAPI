@@ -358,7 +358,58 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
 STDMETHODIMP CTTSEngine::GetOutputFormat(const GUID* /*pTargetFormatId*/, const WAVEFORMATEX* /*pTargetWaveFormatEx*/,
     GUID* pDesiredFormatId, WAVEFORMATEX** ppCoMemDesiredWaveFormatEx) noexcept
 {
-    // Embedded voice only supports 24kHz 16Bit mono
+    // For Sherpa voices, prefer model sample rate to avoid speed/pitch distortion.
+    if (m_isSherpaOnnxVoice)
+    {
+        DWORD sampleRate = 0;
+
+        // First choice: explicit token metadata from model catalog.
+        if (m_cpToken)
+        {
+            CComPtr<ISpDataKey> pConfigKey;
+            if (SUCCEEDED(m_cpToken->OpenKey(L"NaturalVoiceConfig", &pConfigKey)) && pConfigKey)
+                (void)pConfigKey->GetDWORD(L"SampleRate", &sampleRate);
+        }
+
+        // Fallback: active Sherpa engine output format.
+        if (sampleRate == 0 && m_sherpaOnnx)
+        {
+            const int sr = m_sherpaOnnx->GetSampleRate();
+            if (sr > 0)
+                sampleRate = static_cast<DWORD>(sr);
+        }
+
+        auto pickFormat = [](DWORD sr) -> SPSTREAMFORMAT {
+            switch (sr)
+            {
+            case 8000: return SPSF_8kHz16BitMono;
+            case 11025: return SPSF_11kHz16BitMono;
+            case 12000: return SPSF_12kHz16BitMono;
+            case 16000: return SPSF_16kHz16BitMono;
+            case 22050: return SPSF_22kHz16BitMono;
+            case 24000: return SPSF_24kHz16BitMono;
+            case 32000: return SPSF_32kHz16BitMono;
+            case 44100: return SPSF_44kHz16BitMono;
+            case 48000: return SPSF_48kHz16BitMono;
+            default:
+                // Nearest commonly supported mono 16-bit PCM format.
+                if (sr <= 9512) return SPSF_8kHz16BitMono;
+                if (sr <= 11512) return SPSF_11kHz16BitMono;
+                if (sr <= 14000) return SPSF_12kHz16BitMono;
+                if (sr <= 19025) return SPSF_16kHz16BitMono;
+                if (sr <= 23025) return SPSF_22kHz16BitMono;
+                if (sr <= 28000) return SPSF_24kHz16BitMono;
+                if (sr <= 38050) return SPSF_32kHz16BitMono;
+                if (sr <= 46050) return SPSF_44kHz16BitMono;
+                return SPSF_48kHz16BitMono;
+            }
+        };
+
+        const SPSTREAMFORMAT fmt = pickFormat(sampleRate == 0 ? 24000 : sampleRate);
+        return SpConvertStreamFormatEnum(fmt, pDesiredFormatId, ppCoMemDesiredWaveFormatEx);
+    }
+
+    // Embedded/cloud default
     return SpConvertStreamFormatEnum(SPSF_24kHz16BitMono, pDesiredFormatId, ppCoMemDesiredWaveFormatEx);
 }
 
