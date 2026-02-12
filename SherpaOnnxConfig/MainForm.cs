@@ -2315,61 +2315,24 @@ namespace SherpaOnnxConfig
                 return result;
             }
 
-            // Models live under %LOCALAPPDATA% (per-user), so prefer HKCU tokens.
-            bool preferPerUserTokens = ModelsDir.StartsWith(
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "NaturalVoiceSAPIAdapter"),
-                StringComparison.OrdinalIgnoreCase);
-
             bool synced = false;
-            if (preferPerUserTokens)
+            try
             {
-                try
+                using RegistryKey? hklmRoot = Registry.LocalMachine.CreateSubKey(SapiTokensRoot, writable: true);
+                if (hklmRoot != null)
                 {
-                    using RegistryKey? hkcuRoot = Registry.CurrentUser.CreateSubKey(SapiTokensRoot, writable: true);
-                    if (hkcuRoot == null)
-                    {
-                        result.Error = "Cannot open HKCU SAPI token root for writing.";
-                        result.RegistryScope = "none";
-                        return result;
-                    }
-
-                    result.RegistryScope = "HKCU";
-                    SyncPersistentTokensToRoot(hkcuRoot, validModelIds, catalog, result);
+                    result.RegistryScope = "HKLM";
+                    SyncPersistentTokensToRoot(hklmRoot, validModelIds, catalog, result);
                     synced = true;
-                    result.Warnings.Add("Using per-user HKCU token registration (models are per-user).");
-                }
-                catch (Exception ex)
-                {
-                    result.Error = $"HKCU token sync failed: {ex.Message}";
-                    result.RegistryScope = "none";
-                    return result;
                 }
             }
-
-            if (!synced)
+            catch (UnauthorizedAccessException)
             {
-                try
-                {
-                    using RegistryKey? hklmRoot = Registry.LocalMachine.CreateSubKey(SapiTokensRoot, writable: true);
-                    if (hklmRoot != null)
-                    {
-                        result.RegistryScope = "HKLM";
-                        SyncPersistentTokensToRoot(hklmRoot, validModelIds, catalog, result);
-                        synced = true;
-                    }
-                    else
-                    {
-                        result.Warnings.Add("HKLM token root unavailable.");
-                    }
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    result.Warnings.Add("HKLM token write denied (run as Administrator for machine-wide registration).");
-                }
-                catch (Exception ex)
-                {
-                    result.Warnings.Add($"HKLM token sync failed: {ex.Message}");
-                }
+                result.Warnings.Add("HKLM token write denied (run as Administrator for machine-wide registration).");
+            }
+            catch (Exception ex)
+            {
+                result.Warnings.Add($"HKLM token sync failed: {ex.Message}");
             }
 
             if (!synced)
@@ -2387,6 +2350,10 @@ namespace SherpaOnnxConfig
                     result.RegistryScope = "HKCU";
                     SyncPersistentTokensToRoot(hkcuRoot, validModelIds, catalog, result);
                     result.Warnings.Add("Using per-user HKCU token registration fallback.");
+                    if (Registry.LocalMachine.OpenSubKey(TokenEnumKeyPath, writable: false) != null)
+                    {
+                        result.Warnings.Add("HKLM TokenEnums is present. Some SAPI clients may not enumerate HKCU-only voice tokens.");
+                    }
                     synced = true;
                 }
                 catch (Exception ex)
