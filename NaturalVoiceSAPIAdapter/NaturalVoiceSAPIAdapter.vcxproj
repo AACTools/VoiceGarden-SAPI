@@ -157,7 +157,7 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared-$(Configuration)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -172,7 +172,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared-$(Configuration)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
@@ -201,7 +201,7 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-shared-$(Configuration)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -217,7 +217,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-shared-$(Configuration)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
@@ -247,7 +247,7 @@
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
-      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-shared-$(Configuration)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -263,7 +263,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-shared-$(Configuration)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
@@ -293,7 +293,7 @@
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
-      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-shared-$(Configuration)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -309,7 +309,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-shared-$(Configuration)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
@@ -341,7 +341,7 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared-$(Configuration)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -356,7 +356,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared-$(Configuration)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
@@ -388,7 +388,7 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-shared-$(Configuration)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -404,7 +404,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-shared-$(Configuration)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>

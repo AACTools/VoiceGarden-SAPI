@@ -10,7 +10,7 @@
 #include <functional>
 
 extern "C" {
-#include "../SherpaOnnx/libs/sherpa-onnx-v1.12.23-win-x64-shared/include/sherpa-onnx/c-api/c-api.h"
+#include <sherpa-onnx/c-api/c-api.h>
 } // extern "C"
 
 namespace SherpaOnnx {
