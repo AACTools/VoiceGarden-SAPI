@@ -69,7 +69,7 @@ static void UpdateDisplay(HWND hDlg)
         || (key.GetString(L"AzureVoiceKey").empty() && key.GetString(L"AzureVoiceRegion").empty())
         ? BST_UNCHECKED : BST_CHECKED);
     CheckDlgButton(hDlg, IDC_CHK_SHERPA_VOICES,
-        key.GetDword(L"NoSherpaVoices") ? BST_UNCHECKED : BST_CHECKED);
+        key.GetDword(L"NoSherpaVoices", 1) ? BST_UNCHECKED : BST_CHECKED);
     SetDlgItemTextW(hDlg, IDC_LOCAL_VOICE_PATH, key.GetString(L"NarratorVoicePath").c_str());
 
     if (key.GetDword(L"EdgeVoiceAllLanguages"))

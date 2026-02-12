@@ -23,8 +23,10 @@ namespace SherpaOnnxConfig
         private Label? titleLabel;
         private Label? statusLabel;
         private ComboBox? languageComboBox;
+        private CheckBox? downloadedOnlyCheckBox;
         private ComboBox? voiceComboBox;
         private Button? downloadButton;
+        private Button? cancelDownloadButton;
         private Button? testVoiceButton;
         private Button? openModelsFolderButton;
         private Button? rescanModelsButton;
@@ -46,6 +48,7 @@ namespace SherpaOnnxConfig
         private static readonly string ModelsDir = Path.Combine(AdapterDataDir, "models");
         private static readonly string ScanErrorsPath = Path.Combine(AdapterDataDir, "sherpa_model_scan_errors.json");
         private const string SapiTokensRoot = @"SOFTWARE\Microsoft\Speech\Voices\Tokens";
+        private const string EnumeratorConfigKeyPath = @"Software\NaturalVoiceSAPIAdapter\Enumerator";
         private const string TtsEngineClsid = "{013ab33b-ad1a-401c-8bee-f6e2b046a94e}";
         private const string VoiceEnumClsid = "{b8b9e38f-e5a2-4661-9fde-4ac7377aa6f6}";
         private const string TokenEnumKeyPath = @"SOFTWARE\Microsoft\Speech\Voices\TokenEnums\NaturalVoiceEnumerator";
@@ -57,6 +60,8 @@ namespace SherpaOnnxConfig
 
         private readonly bool autoRescanOnStartup;
         private static List<ModelScanIssue> s_lastScanIssues = new List<ModelScanIssue>();
+        private string? activeDownloadModelDir;
+        private string? activeDownloadArchive;
 
         public MainForm(bool autoRescanOnStartup = false)
         {
@@ -123,6 +128,20 @@ namespace SherpaOnnxConfig
             languageComboBox.KeyDown += LanguageComboBox_KeyDown;
             languageComboBox.Leave += LanguageComboBox_Leave;
 
+            downloadedOnlyCheckBox = new CheckBox
+            {
+                Location = new Point(400, 92),
+                Size = new Size(170, 24),
+                Text = "Downloaded Only",
+                Checked = false
+            };
+            downloadedOnlyCheckBox.CheckedChanged += (_, _) =>
+            {
+                string lang = languageComboBox?.SelectedItem?.ToString() ?? AllLanguagesOption;
+                string filter = voiceComboBox?.Text?.Trim();
+                UpdateVoiceList(lang, string.IsNullOrWhiteSpace(filter) ? null : filter);
+            };
+
             // Voice selection
             voiceGroup = new GroupBox
             {
@@ -166,6 +185,20 @@ namespace SherpaOnnxConfig
             downloadButton.FlatAppearance.BorderSize = 0;
             downloadButton.Click += DownloadButton_Click;
 
+            cancelDownloadButton = new Button
+            {
+                Location = new Point(170, 72),
+                Size = new Size(95, 34),
+                Text = "Cancel",
+                BackColor = Color.FromArgb(190, 50, 45),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Enabled = false,
+                Visible = false
+            };
+            cancelDownloadButton.FlatAppearance.BorderSize = 0;
+            cancelDownloadButton.Click += CancelDownloadButton_Click;
+
             modelInfoLabel = new Label
             {
                 Location = new Point(15, 114),
@@ -199,6 +232,7 @@ namespace SherpaOnnxConfig
             voiceGroup.Controls.Add(voiceLabel);
             voiceGroup.Controls.Add(voiceComboBox);
             voiceGroup.Controls.Add(downloadButton);
+            voiceGroup.Controls.Add(cancelDownloadButton);
             voiceGroup.Controls.Add(modelInfoLabel);
             voiceGroup.Controls.Add(progressBar);
             voiceGroup.Controls.Add(downloadProgressLabel);
@@ -322,6 +356,7 @@ namespace SherpaOnnxConfig
             this.Controls.Add(statusLabel);
             this.Controls.Add(languageLabel);
             this.Controls.Add(languageComboBox);
+            this.Controls.Add(downloadedOnlyCheckBox);
             this.Controls.Add(voiceGroup);
             this.Controls.Add(testGroup);
             this.Controls.Add(actionsGroup);
@@ -347,7 +382,8 @@ namespace SherpaOnnxConfig
             if (titleLabel == null || statusLabel == null || languageComboBox == null || voiceGroup == null ||
                 testGroup == null || actionsGroup == null || outputTextBox == null || testVoiceButton == null ||
                 testTextInput == null || voiceComboBox == null || progressBar == null || downloadProgressLabel == null ||
-                modelInfoLabel == null || testHintLabel == null || actionsHintLabel == null)
+                modelInfoLabel == null || testHintLabel == null || actionsHintLabel == null || cancelDownloadButton == null ||
+                downloadedOnlyCheckBox == null)
             {
                 return;
             }
@@ -358,10 +394,13 @@ namespace SherpaOnnxConfig
             titleLabel.SetBounds(margin, 15, width, 34);
             statusLabel.SetBounds(margin, 54, width, 24);
             languageComboBox.SetBounds(140, 90, Math.Min(320, width - 180), 30);
+            downloadedOnlyCheckBox.SetBounds(languageComboBox.Right + 12, 94, 170, 24);
 
             voiceGroup.SetBounds(margin, 135, width, 168);
             int voiceInner = Math.Max(420, voiceGroup.ClientSize.Width - 30);
             voiceComboBox.SetBounds(100, 30, Math.Max(260, voiceInner - 85), 30);
+            downloadButton.SetBounds(15, 72, 150, 34);
+            cancelDownloadButton.SetBounds(170, 72, 95, 34);
             progressBar.SetBounds(200, 74, Math.Max(200, voiceInner - 215), 22);
             downloadProgressLabel.SetBounds(200, 100, Math.Max(220, voiceInner - 215), 18);
             modelInfoLabel.SetBounds(15, 120, Math.Max(260, voiceInner), 35);
@@ -676,11 +715,17 @@ namespace SherpaOnnxConfig
                     v.Language.Contains(filter, StringComparison.OrdinalIgnoreCase));
             }
 
+            if (downloadedOnlyCheckBox?.Checked == true)
+            {
+                voicesToShow = voicesToShow.Where(v => IsModelDownloaded(v.Id));
+            }
+
             suppressComboEvents = true;
             foreach (var voice in voicesToShow.OrderBy(v => v.Name))
             {
-                bool downloaded = voice.IsDownloaded();
-                string status = downloaded ? "[✓]" : "[↓]";
+                bool hasLocalDir = HasModelDirectory(voice.Id);
+                bool downloaded = IsModelDownloaded(voice.Id);
+                string status = downloaded ? "[✓]" : (hasLocalDir ? "[!]" : "[↓]");
                 string size = voice.ModelSize > 0 ? $" ({voice.ModelSize:F0} MB)" : "";
                 voiceComboBox.Items.Add($"{voice.Id} - {voice.Name}{size} [{voice.EngineType}] {status}");
             }
@@ -715,9 +760,22 @@ namespace SherpaOnnxConfig
             var voice = GetSelectedVoice();
             if (voice != null)
             {
-                downloadButton!.Enabled = !voice.IsDownloaded();
-                downloadButton.Text = voice.IsDownloaded() ? "Downloaded" : "Download Model";
+                bool hasLocalDir = HasModelDirectory(voice.Id);
+                bool isReady = IsModelDownloaded(voice.Id);
+                downloadButton!.Enabled = !isReady;
+                downloadButton.Text = isReady ? "Downloaded" : (hasLocalDir ? "Repair Download" : "Download Model");
                 downloadProgressLabel!.Visible = false;
+                if (hasLocalDir && !isReady)
+                {
+                    string? validation = ValidateSingleLocalModel(Path.Combine(ModelsDir, voice.Id));
+                    modelInfoLabel!.Text = $"Local files exist but model is incomplete: {validation}. Click Repair Download.";
+                    modelInfoLabel.ForeColor = Color.FromArgb(200, 120, 80);
+                }
+                else
+                {
+                    modelInfoLabel!.Text = "Select a language and model to download. Models are cached in %LOCALAPPDATA%\\NaturalVoiceSAPIAdapter\\models\\";
+                    modelInfoLabel.ForeColor = Color.FromArgb(120, 120, 120);
+                }
             }
         }
 
@@ -753,14 +811,29 @@ namespace SherpaOnnxConfig
 
             progressBar!.Visible = true;
             progressBar.Value = 0;
+            progressBar.Style = ProgressBarStyle.Continuous;
             downloadProgressLabel!.Visible = true;
             downloadProgressLabel.Text = "Preparing download...";
             downloadButton!.Enabled = false;
             downloadButton.Text = "Downloading...";
+            cancelDownloadButton!.Visible = true;
+            cancelDownloadButton.Enabled = true;
             voiceComboBox!.Enabled = false;
             languageComboBox!.Enabled = false;
 
             downloadWorker.RunWorkerAsync(voice);
+        }
+
+        private void CancelDownloadButton_Click(object? sender, EventArgs e)
+        {
+            if (downloadWorker == null || !downloadWorker.IsBusy)
+                return;
+
+            cancelDownloadButton!.Enabled = false;
+            downloadProgressLabel!.Visible = true;
+            downloadProgressLabel.Text = "Cancelling download...";
+            statusLabel!.Text = "Status: Cancelling download...";
+            downloadWorker.CancelAsync();
         }
 
         private void DownloadWorker_DoWork(object? sender, DoWorkEventArgs e)
@@ -772,6 +845,8 @@ namespace SherpaOnnxConfig
             {
                 string modelDir = Path.Combine(ModelsDir, voice.Id);
                 Directory.CreateDirectory(modelDir);
+                activeDownloadModelDir = modelDir;
+                activeDownloadArchive = null;
 
                 if (string.IsNullOrEmpty(voice.ModelUrl))
                 {
@@ -781,6 +856,7 @@ namespace SherpaOnnxConfig
                 }
 
                 downloadWorker!.ReportProgress(10);
+                ThrowIfCancellationRequested();
 
                 if (voice.ModelUrl.EndsWith(".tar.bz2") || voice.ModelUrl.Contains("tar.bz2"))
                 {
@@ -798,6 +874,7 @@ namespace SherpaOnnxConfig
                     return;
                 }
 
+                ThrowIfCancellationRequested();
                 downloadWorker.ReportProgress(100);
                 this.Invoke((Action)(() =>
                 {
@@ -807,40 +884,109 @@ namespace SherpaOnnxConfig
                     TrySyncPersistentTokens("download");
                 }));
             }
+            catch (OperationCanceledException)
+            {
+                e.Cancel = true;
+                CleanupPartialDownload();
+                this.Invoke((Action)(() =>
+                {
+                    AppendOutput("Download cancelled. Partial files were removed.", Color.FromArgb(255, 200, 100));
+                    statusLabel!.Text = "Status: Download cancelled";
+                }));
+            }
             catch (Exception ex)
             {
+                CleanupPartialDownload();
                 this.Invoke((Action)(() =>
                 {
                     AppendOutput($"\rERROR: {ex.Message}", Color.FromArgb(255, 100, 100));
                     statusLabel!.Text = "Status: Download failed";
                 }));
             }
+            finally
+            {
+                activeDownloadArchive = null;
+                activeDownloadModelDir = null;
+            }
         }
 
         private void DownloadWorker_ProgressChanged(object? sender, ProgressChangedEventArgs e)
         {
-            progressBar!.Value = e.ProgressPercentage;
+            if (progressBar == null || downloadProgressLabel == null || statusLabel == null)
+                return;
+
+            bool extracting = e.UserState is string stateMessage &&
+                              stateMessage.StartsWith("Extracting ", StringComparison.OrdinalIgnoreCase);
+            if (extracting)
+            {
+                if (progressBar.Style != ProgressBarStyle.Marquee)
+                    progressBar.Style = ProgressBarStyle.Marquee;
+            }
+            else
+            {
+                if (progressBar.Style != ProgressBarStyle.Continuous)
+                    progressBar.Style = ProgressBarStyle.Continuous;
+                progressBar.Value = Math.Max(progressBar.Minimum, Math.Min(progressBar.Maximum, e.ProgressPercentage));
+            }
+
             if (e.UserState is string message && !string.IsNullOrWhiteSpace(message))
             {
-                downloadProgressLabel!.Visible = true;
+                downloadProgressLabel.Visible = true;
                 downloadProgressLabel.Text = message;
-                statusLabel!.Text = $"Status: {message}";
+                statusLabel.Text = $"Status: {message}";
             }
         }
 
         private void DownloadWorker_RunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)
         {
             progressBar!.Visible = false;
+            progressBar.Style = ProgressBarStyle.Continuous;
             downloadProgressLabel!.Visible = false;
             voiceComboBox!.Enabled = true;
             languageComboBox!.Enabled = true;
             downloadButton!.Text = "Download Model";
+            cancelDownloadButton!.Visible = false;
+            cancelDownloadButton.Enabled = false;
             VoiceComboBox_SelectedIndexChanged(null, EventArgs.Empty);
+        }
+
+        private void ThrowIfCancellationRequested()
+        {
+            if (downloadWorker?.CancellationPending == true)
+                throw new OperationCanceledException("Download cancelled by user.");
+        }
+
+        private void CleanupPartialDownload()
+        {
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(activeDownloadArchive) && File.Exists(activeDownloadArchive))
+                {
+                    File.Delete(activeDownloadArchive);
+                }
+            }
+            catch
+            {
+                // Ignore cleanup errors; best-effort only.
+            }
+
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(activeDownloadModelDir) && Directory.Exists(activeDownloadModelDir))
+                {
+                    Directory.Delete(activeDownloadModelDir, recursive: true);
+                }
+            }
+            catch
+            {
+                // Ignore cleanup errors; best-effort only.
+            }
         }
 
         private void DownloadTarArchive(VoiceInfo voice, string modelDir)
         {
             string tarFile = Path.Combine(modelDir, "model.tar.bz2");
+            activeDownloadArchive = tarFile;
 
             this.Invoke((Action)(() =>
                 AppendOutput($"Downloading from {voice.ModelUrl}...", Color.FromArgb(150, 200, 255))));
@@ -863,6 +1009,7 @@ namespace SherpaOnnxConfig
                     int bytesRead;
                     while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
                     {
+                        ThrowIfCancellationRequested();
                         fs.Write(buffer, 0, bytesRead);
                         downloadedBytes += bytesRead;
                         if (totalBytes > 0)
@@ -882,7 +1029,8 @@ namespace SherpaOnnxConfig
                 }
             }
 
-            downloadWorker!.ReportProgress(90, $"Extracting {voice.Id}...");
+            ThrowIfCancellationRequested();
+            downloadWorker!.ReportProgress(90, $"Extracting {voice.Id}... (starting)");
             this.Invoke((Action)(() => AppendOutput("Extracting...", Color.FromArgb(150, 200, 255))));
 
             // Extract using tar
@@ -891,16 +1039,35 @@ namespace SherpaOnnxConfig
                 FileName = "tar",
                 Arguments = $"-xf \"{tarFile}\" -C \"{modelDir}\"",
                 UseShellExecute = false,
-                CreateNoWindow = true
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
             };
 
             using (Process process = Process.Start(psi)!)
             {
-                process.WaitForExit();
+                var extractStart = Stopwatch.StartNew();
+                while (!process.WaitForExit(1000))
+                {
+                    ThrowIfCancellationRequested();
+                    int elapsed = (int)extractStart.Elapsed.TotalSeconds;
+                    int progress = Math.Min(97, 90 + Math.Max(1, elapsed / 2));
+                    downloadWorker.ReportProgress(progress, $"Extracting {voice.Id}... {elapsed}s");
+                }
+
+                ThrowIfCancellationRequested();
+                if (process.ExitCode != 0)
+                {
+                    string err = process.StandardError.ReadToEnd();
+                    if (string.IsNullOrWhiteSpace(err))
+                        err = $"tar exited with code {process.ExitCode}";
+                    throw new InvalidOperationException($"Extraction failed: {err.Trim()}");
+                }
             }
 
             // Clean up tar file
             File.Delete(tarFile);
+            activeDownloadArchive = null;
             downloadWorker!.ReportProgress(98, $"Finalizing {voice.Id}...");
         }
 
@@ -926,6 +1093,7 @@ namespace SherpaOnnxConfig
 
                 for (int i = 0; i < files.Count; i++)
                 {
+                    ThrowIfCancellationRequested();
                     var file = files[i];
                     string remotePath = file.path ?? string.Empty;
                     if (string.IsNullOrWhiteSpace(remotePath))
@@ -952,7 +1120,7 @@ namespace SherpaOnnxConfig
                         using (var stream = response.Content.ReadAsStreamAsync().Result)
                         using (var fs = File.Create(localPath))
                         {
-                            stream.CopyTo(fs);
+                            CopyStreamWithCancellation(stream, fs);
                         }
                     }
                 }
@@ -967,12 +1135,30 @@ namespace SherpaOnnxConfig
             downloadWorker!.ReportProgress(98, $"Finalizing {voice.Id}...");
         }
 
+        private void CopyStreamWithCancellation(Stream source, Stream destination)
+        {
+            byte[] buffer = new byte[81920];
+            int read;
+            while ((read = source.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                ThrowIfCancellationRequested();
+                destination.Write(buffer, 0, read);
+            }
+        }
+
         private async void TestVoiceButton_Click(object? sender, EventArgs e)
         {
             var voice = GetSelectedVoice();
-            if (voice == null || !voice.IsDownloaded())
+            if (voice == null)
             {
                 MessageBox.Show("Please download the model first.", "Model Not Downloaded", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (!IsModelDownloaded(voice.Id))
+            {
+                string modelDir = Path.Combine(ModelsDir, voice.Id);
+                string? validationError = Directory.Exists(modelDir) ? ValidateSingleLocalModel(modelDir) : "Model files are missing";
+                MessageBox.Show($"Model is not ready yet: {validationError}", "Model Not Ready", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -1887,17 +2073,26 @@ namespace SherpaOnnxConfig
         private static bool IsModelDownloaded(string modelId)
         {
             string modelDir = Path.Combine(ModelsDir, modelId);
-            if (!Directory.Exists(modelDir))
+            if (!HasModelDirectory(modelId))
                 return false;
 
             try
             {
-                return Directory.EnumerateFiles(modelDir, "*", SearchOption.AllDirectories).Any();
+                string? validationError = ValidateSingleLocalModel(modelDir);
+                return string.IsNullOrEmpty(validationError);
             }
             catch
             {
                 return false;
             }
+        }
+
+        private static bool HasModelDirectory(string modelId)
+        {
+            if (string.IsNullOrWhiteSpace(modelId))
+                return false;
+            string modelDir = Path.Combine(ModelsDir, modelId);
+            return Directory.Exists(modelDir);
         }
 
         private static IEnumerable<string> GetLanguageDisplayNames(SherpaModelInfo model)
@@ -2200,7 +2395,63 @@ namespace SherpaOnnxConfig
                     result.RegistryScope = "none";
                 }
             }
+
+            if (synced)
+            {
+                EnsurePersistentTokenMode(result);
+            }
             return result;
+        }
+
+        private static void EnsurePersistentTokenMode(TokenSyncResult result)
+        {
+            try
+            {
+                using RegistryKey? enumCfg = Registry.CurrentUser.CreateSubKey(EnumeratorConfigKeyPath, writable: true);
+                if (enumCfg != null)
+                {
+                    object? current = enumCfg.GetValue("NoSherpaVoices");
+                    int currentValue = current is int i ? i : 0;
+                    if (currentValue != 1)
+                    {
+                        enumCfg.SetValue("NoSherpaVoices", 1, RegistryValueKind.DWord);
+                        result.Warnings.Add("Set Enumerator\\NoSherpaVoices=1 to prevent duplicate Sherpa voice enumeration.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Warnings.Add($"Failed to enforce NoSherpaVoices=1: {ex.Message}");
+            }
+
+            try
+            {
+                bool hklmTokenEnumExists = Registry.LocalMachine.OpenSubKey(TokenEnumKeyPath, writable: false) != null;
+                if (hklmTokenEnumExists)
+                {
+                    using RegistryKey? hkcuSpeech = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Speech\Voices\TokenEnums", writable: true);
+                    if (hkcuSpeech != null)
+                    {
+                        using RegistryKey? hkcuEnum = hkcuSpeech.OpenSubKey("NaturalVoiceEnumerator", writable: false);
+                        if (hkcuEnum != null)
+                        {
+                            try
+                            {
+                                hkcuSpeech.DeleteSubKeyTree("NaturalVoiceEnumerator", throwOnMissingSubKey: false);
+                                result.Warnings.Add("Removed HKCU TokenEnums\\NaturalVoiceEnumerator to avoid duplicate enumerator registration.");
+                            }
+                            catch
+                            {
+                                // non-fatal; keep silent to avoid noisy output on every sync
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Warnings.Add($"Failed to reconcile HKCU/HKLM TokenEnums: {ex.Message}");
+            }
         }
 
         private static void SyncPersistentTokensToRoot(

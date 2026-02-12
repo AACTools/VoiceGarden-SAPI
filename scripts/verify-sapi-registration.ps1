@@ -68,6 +68,15 @@ foreach ($check in $optionalChecks) {
     }
 }
 
+$hklmTokenEnum = $requiredChecks | Where-Object { $_.Name -eq "HKLM x64 TokenEnums CLSID" } | Select-Object -First 1
+$hkcuTokenEnum = $optionalChecks | Where-Object { $_.Name -eq "HKCU TokenEnums CLSID" } | Select-Object -First 1
+if ($hklmTokenEnum -and $hkcuTokenEnum -and
+    -not [string]::IsNullOrWhiteSpace($hklmTokenEnum.Value) -and
+    -not [string]::IsNullOrWhiteSpace($hkcuTokenEnum.Value)) {
+    Write-Host "[WARN] Both HKLM and HKCU TokenEnums\\NaturalVoiceEnumerator exist. This can duplicate enumerator output." -ForegroundColor Yellow
+    Write-Host "       Prefer HKLM only; remove HKCU entry if persistent Sherpa tokens are enabled." -ForegroundColor Yellow
+}
+
 if ($VerboseOutput) {
     Write-Host ""
     Write-Host "Tip: run Installer.exe as Administrator and click Register 64-bit if HKLM entries are missing." -ForegroundColor Yellow

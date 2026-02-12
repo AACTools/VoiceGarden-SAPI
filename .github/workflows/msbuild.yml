@@ -102,8 +102,8 @@ jobs:
         nuget restore Installer -SolutionDirectory .
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{matrix.platform}} /p:OutDir=${{github.workspace}}\out\ Installer
 
-    - name: Download SherpaOnnxConfig and copy to installer output
-      if: matrix.platform == 'x86'
+    - name: Download SherpaOnnxConfig and copy to utilities output
+      if: matrix.platform == 'x86' || matrix.platform == 'x64'
       uses: actions/download-artifact@v4
       with:
         name: sherpa-onnx-config
