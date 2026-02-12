@@ -1,6 +1,10 @@
 using System;
 using System.IO;
+using System.Globalization;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32.SafeHandles;
 
@@ -27,6 +31,10 @@ namespace SherpaOnnxConfig
         private const int STD_OUTPUT_HANDLE = -11;
 
         private static System.IO.StreamWriter? consoleWriter;
+        private static readonly string ProbeLogPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "NaturalVoiceSAPIAdapter",
+            "sapi-probe.log");
 
         [STAThread]
         static void Main(string[] args)
@@ -143,6 +151,40 @@ namespace SherpaOnnxConfig
                 case "rescan":
                     return MainForm.RescanModels();
 
+                case "sapi-probe":
+                    {
+                        string? probeVoiceId = null;
+                        string probeText = "The quick brown fox jumps over the lazy dog.";
+                        int timeoutSec = 30;
+
+                        for (int i = 1; i < args.Length; i++)
+                        {
+                            if (args[i].Equals("--voice", StringComparison.OrdinalIgnoreCase) && i + 1 < args.Length)
+                            {
+                                probeVoiceId = args[++i];
+                            }
+                            else if (args[i].Equals("--text", StringComparison.OrdinalIgnoreCase) && i + 1 < args.Length)
+                            {
+                                probeText = args[++i];
+                            }
+                            else if (args[i].Equals("--timeout", StringComparison.OrdinalIgnoreCase) && i + 1 < args.Length)
+                            {
+                                if (int.TryParse(args[++i], NumberStyles.Integer, CultureInfo.InvariantCulture, out int parsed) && parsed > 0)
+                                {
+                                    timeoutSec = parsed;
+                                }
+                            }
+                        }
+
+                        if (string.IsNullOrWhiteSpace(probeVoiceId))
+                        {
+                            Console.WriteLine("ERROR: sapi-probe requires --voice <voice-id>.");
+                            return 1;
+                        }
+
+                        return RunSapiProbe(probeVoiceId, probeText, timeoutSec);
+                    }
+
                 case "-h":
                 case "--help":
                 case "/?":
@@ -171,18 +213,231 @@ namespace SherpaOnnxConfig
             Console.WriteLine("  download <model-id>       Download a model by ID");
             Console.WriteLine("  downloaded               List downloaded models");
             Console.WriteLine("  rescan                   Validate local model folders and show per-model errors");
+            Console.WriteLine("  sapi-probe --voice <id>   Probe SAPI activation/speak stages for one voice");
             Console.WriteLine();
             Console.WriteLine("Examples:");
             Console.WriteLine("  SherpaOnnxConfig.exe list");
             Console.WriteLine("  SherpaOnnxConfig.exe list --language English");
             Console.WriteLine("  SherpaOnnxConfig.exe list --language Chinese");
             Console.WriteLine("  SherpaOnnxConfig.exe download kokoro-en-en-19");
+            Console.WriteLine("  SherpaOnnxConfig.exe sapi-probe --voice piper-en-alan-low");
             Console.WriteLine("  SherpaOnnxConfig.exe downloaded");
             Console.WriteLine();
             Console.WriteLine("Without arguments, the GUI will launch.");
             Console.WriteLine();
             Console.WriteLine("Models are downloaded to:");
             Console.WriteLine($"  {Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\NaturalVoiceSAPIAdapter\\models\\");
+        }
+
+        private static int RunSapiProbe(string voiceId, string text, int timeoutSeconds)
+        {
+            var tcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+            TryResetProbeLog();
+
+            Thread thread = new Thread(() =>
+            {
+                object? voiceObj = null;
+                object? voices = null;
+                object? selectedToken = null;
+                try
+                {
+                    ProbeWrite($"[probe] voice-id={voiceId}");
+                    ProbeWrite("[probe] stage=create SpVoice");
+                    Type? spVoiceType = Type.GetTypeFromProgID("SAPI.SpVoice");
+                    if (spVoiceType == null)
+                    {
+                        ProbeWrite("[probe] FAIL: SAPI.SpVoice ProgID not found");
+                        tcs.TrySetResult(2);
+                        return;
+                    }
+
+                    voiceObj = Activator.CreateInstance(spVoiceType);
+                    if (voiceObj == null)
+                    {
+                        ProbeWrite("[probe] FAIL: could not instantiate SpVoice");
+                        tcs.TrySetResult(3);
+                        return;
+                    }
+                    ProbeWrite("[probe] OK: SpVoice created");
+
+                    ProbeWrite("[probe] stage=GetVoices(Vendor=K2FSA)");
+                    voices = InvokeComMethod(voiceObj, "GetVoices", "Vendor=K2FSA", "");
+                    if (voices == null)
+                    {
+                        ProbeWrite("[probe] FAIL: GetVoices returned null");
+                        tcs.TrySetResult(4);
+                        return;
+                    }
+
+                    int count = Convert.ToInt32(GetComProperty(voices, "Count") ?? 0, CultureInfo.InvariantCulture);
+                    ProbeWrite($"[probe] voices-count={count}");
+                    for (int i = 0; i < count; i++)
+                    {
+                        object? v = null;
+                        try
+                        {
+                            v = InvokeComMethod(voices, "Item", i);
+                            string id = GetComProperty(v, "Id")?.ToString() ?? "<null>";
+                            ProbeWrite($"[probe] item[{i}] id={id}");
+                            if (id.IndexOf(voiceId, StringComparison.OrdinalIgnoreCase) >= 0 && selectedToken == null)
+                            {
+                                selectedToken = v;
+                                v = null;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            ProbeWrite($"[probe] item[{i}] err={ex.GetType().Name}: {ex.Message}");
+                        }
+                        finally
+                        {
+                            ReleaseComObject(v);
+                        }
+                    }
+
+                    if (selectedToken == null)
+                    {
+                        ProbeWrite("[probe] FAIL: target token not found in collection");
+                        tcs.TrySetResult(5);
+                        return;
+                    }
+
+                    ProbeWrite("[probe] stage=set Voice");
+                    SetComProperty(voiceObj, "Voice", selectedToken);
+                    ProbeWrite("[probe] OK: Voice set");
+
+                    ProbeWrite("[probe] stage=Speak(async)");
+                    // SPF_ASYNC = 1 so the call should return quickly and still validate activation.
+                    object? ret = InvokeComMethod(voiceObj, "Speak", text, 1);
+                    ProbeWrite($"[probe] OK: Speak returned {ret}");
+                    tcs.TrySetResult(0);
+                }
+                catch (Exception ex)
+                {
+                    Exception root = ex;
+                    while (root is TargetInvocationException tie && tie.InnerException != null)
+                    {
+                        root = tie.InnerException;
+                    }
+
+                    if (root is COMException comEx)
+                    {
+                        ProbeWrite($"[probe] COM FAIL: {comEx.Message} HRESULT=0x{comEx.HResult:X8}");
+                    }
+                    else
+                    {
+                        ProbeWrite($"[probe] FAIL: {root.GetType().Name}: {root.Message}");
+                    }
+                    tcs.TrySetResult(10);
+                }
+                finally
+                {
+                    ReleaseComObject(selectedToken);
+                    ReleaseComObject(voices);
+                    ReleaseComObject(voiceObj);
+                }
+            });
+
+            thread.IsBackground = true;
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+
+            if (!tcs.Task.Wait(TimeSpan.FromSeconds(timeoutSeconds)))
+            {
+                ProbeWrite($"[probe] TIMEOUT after {timeoutSeconds}s");
+                return 124;
+            }
+
+            return tcs.Task.Result;
+        }
+
+        private static void ProbeWrite(string line)
+        {
+            try
+            {
+                Console.WriteLine(line);
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                string? dir = Path.GetDirectoryName(ProbeLogPath);
+                if (!string.IsNullOrWhiteSpace(dir))
+                    Directory.CreateDirectory(dir);
+                File.AppendAllText(ProbeLogPath, line + Environment.NewLine);
+            }
+            catch
+            {
+            }
+        }
+
+        private static void TryResetProbeLog()
+        {
+            try
+            {
+                string? dir = Path.GetDirectoryName(ProbeLogPath);
+                if (!string.IsNullOrWhiteSpace(dir))
+                    Directory.CreateDirectory(dir);
+                File.WriteAllText(ProbeLogPath, $"=== sapi-probe {DateTime.Now:yyyy-MM-dd HH:mm:ss} ==={Environment.NewLine}");
+            }
+            catch
+            {
+            }
+        }
+
+        private static object? InvokeComMethod(object? target, string name, params object[] args)
+        {
+            if (target == null)
+                return null;
+            return target.GetType().InvokeMember(
+                name,
+                BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Instance,
+                null,
+                target,
+                args,
+                CultureInfo.InvariantCulture);
+        }
+
+        private static object? GetComProperty(object? target, string name)
+        {
+            if (target == null)
+                return null;
+            return target.GetType().InvokeMember(
+                name,
+                BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Instance,
+                null,
+                target,
+                null,
+                CultureInfo.InvariantCulture);
+        }
+
+        private static void SetComProperty(object? target, string name, object? value)
+        {
+            if (target == null)
+                return;
+            target.GetType().InvokeMember(
+                name,
+                BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.Instance,
+                null,
+                target,
+                new[] { value },
+                CultureInfo.InvariantCulture);
+        }
+
+        private static void ReleaseComObject(object? obj)
+        {
+            if (obj == null)
+                return;
+            try
+            {
+                if (Marshal.IsComObject(obj))
+                    Marshal.FinalReleaseComObject(obj);
+            }
+            catch
+            {
+            }
         }
     }
 }

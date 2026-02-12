@@ -99,6 +99,48 @@ std::string ExtractLanguageString(const nlohmann::json& c) {
 
     return "";
 }
+
+std::filesystem::path ResolveModelRootPath(const std::filesystem::path& modelDir) {
+    try {
+        const bool hasTopTokens = std::filesystem::exists(modelDir / "tokens.txt");
+        const bool hasTopModel = std::filesystem::exists(modelDir / "model.onnx");
+        const bool hasTopVoices = std::filesystem::exists(modelDir / "voices.bin");
+        const bool hasTopEspeak = std::filesystem::exists(modelDir / "espeak-ng-data");
+        const bool hasTopOnnx = std::any_of(
+            std::filesystem::directory_iterator(modelDir),
+            std::filesystem::directory_iterator(),
+            [](const auto& entry) {
+                if (!entry.is_regular_file()) {
+                    return false;
+                }
+                std::string filename = ToLowerCopy(entry.path().filename().string());
+                return filename.size() >= 5 && filename.rfind(".onnx") == filename.size() - 5;
+            });
+
+        if (hasTopTokens || hasTopModel || hasTopVoices || hasTopEspeak || hasTopOnnx) {
+            return modelDir;
+        }
+
+        std::filesystem::path singleSubDir;
+        int subDirCount = 0;
+        for (const auto& entry : std::filesystem::directory_iterator(modelDir)) {
+            if (!entry.is_directory()) {
+                continue;
+            }
+            ++subDirCount;
+            if (subDirCount > 1) {
+                break;
+            }
+            singleSubDir = entry.path();
+        }
+        if (subDirCount == 1) {
+            return singleSubDir;
+        }
+    } catch (...) {
+    }
+
+    return modelDir;
+}
 }  // namespace
 
 std::vector<VoiceInfo> Models::DiscoverModels(
@@ -379,18 +421,19 @@ VoiceInfo Models::ParseModelDirectory(const std::filesystem::path& modelDir)
     VoiceInfo info;
 
     info.name = WideToUTF8(modelDir.filename().wstring());
-    info.modelType = DetectModelType(modelDir);
+    std::filesystem::path modelRoot = ResolveModelRootPath(modelDir);
+    info.modelType = DetectModelType(modelRoot);
 
     switch (info.modelType) {
         case ModelType::Matcha: {
-            info.acousticModelPath = FindOnnxFile(modelDir, "model-steps");
-            info.vocoderPath = FindOnnxFile(modelDir, "vocos");
+            info.acousticModelPath = FindOnnxFile(modelRoot, "model-steps");
+            info.vocoderPath = FindOnnxFile(modelRoot, "vocos");
             if (info.vocoderPath.empty()) {
-                info.vocoderPath = FindOnnxFile(modelDir, "vocoder");
+                info.vocoderPath = FindOnnxFile(modelRoot, "vocoder");
             }
-            info.tokensPath = WideToUTF8((modelDir / "tokens.txt").wstring());
+            info.tokensPath = WideToUTF8((modelRoot / "tokens.txt").wstring());
 
-            std::filesystem::path dataDir = modelDir / "espeak-ng-data";
+            std::filesystem::path dataDir = modelRoot / "espeak-ng-data";
             if (std::filesystem::exists(dataDir)) {
                 info.dataDir = WideToUTF8(dataDir.wstring());
             }
@@ -398,9 +441,9 @@ VoiceInfo Models::ParseModelDirectory(const std::filesystem::path& modelDir)
         }
 
         case ModelType::Kokoro: {
-            info.modelPath = WideToUTF8((modelDir / "model.onnx").wstring());
-            info.voicesPath = WideToUTF8((modelDir / "voices.bin").wstring());
-            info.tokensPath = WideToUTF8((modelDir / "tokens.txt").wstring());
+            info.modelPath = WideToUTF8((modelRoot / "model.onnx").wstring());
+            info.voicesPath = WideToUTF8((modelRoot / "voices.bin").wstring());
+            info.tokensPath = WideToUTF8((modelRoot / "tokens.txt").wstring());
             break;
         }
 
@@ -408,10 +451,10 @@ VoiceInfo Models::ParseModelDirectory(const std::filesystem::path& modelDir)
         case ModelType::Piper:
         case ModelType::MMS:
         default: {
-            info.modelPath = WideToUTF8((modelDir / "model.onnx").wstring());
-            info.tokensPath = WideToUTF8((modelDir / "tokens.txt").wstring());
+            info.modelPath = FindPrimaryModelOnnx(modelRoot);
+            info.tokensPath = WideToUTF8((modelRoot / "tokens.txt").wstring());
 
-            std::filesystem::path dataDir = modelDir / "espeak-ng-data";
+            std::filesystem::path dataDir = modelRoot / "espeak-ng-data";
             if (std::filesystem::exists(dataDir)) {
                 info.dataDir = WideToUTF8(dataDir.wstring());
                 if (info.modelType == ModelType::Unknown) {
@@ -454,7 +497,8 @@ ModelType Models::DetectModelType(const std::filesystem::path& modelDir)
         return ModelType::Matcha;
     }
 
-    if (std::filesystem::exists(modelDir / "model.onnx") &&
+    std::string primaryModel = FindPrimaryModelOnnx(modelDir);
+    if (!primaryModel.empty() &&
         std::filesystem::exists(modelDir / "tokens.txt")) {
         if (std::filesystem::exists(modelDir / "espeak-ng-data")) {
             return ModelType::Piper;
@@ -497,6 +541,41 @@ std::string Models::FindOnnxFile(const std::filesystem::path& dir,
     return "";
 }
 
+std::string Models::FindPrimaryModelOnnx(const std::filesystem::path& dir)
+{
+    if (!std::filesystem::exists(dir)) {
+        return "";
+    }
+
+    std::filesystem::path canonical = dir / "model.onnx";
+    if (std::filesystem::exists(canonical)) {
+        return WideToUTF8(canonical.wstring());
+    }
+
+    try {
+        for (const auto& entry : std::filesystem::directory_iterator(dir)) {
+            if (!entry.is_regular_file()) {
+                continue;
+            }
+            std::string filename = ToLowerCopy(entry.path().filename().string());
+            if (filename.size() < 5 || filename.rfind(".onnx") != filename.size() - 5) {
+                continue;
+            }
+
+            if (filename.find("model-steps") == 0 ||
+                filename.find("vocos") == 0 ||
+                filename.find("vocoder") == 0) {
+                continue;
+            }
+
+            return WideToUTF8(entry.path().wstring());
+        }
+    } catch (...) {
+    }
+
+    return "";
+}
+
 bool Models::HasRequiredFiles(const std::filesystem::path& dir)
 {
     ModelType type = DetectModelType(dir);
@@ -522,7 +601,7 @@ bool Models::HasRequiredFiles(const std::filesystem::path& dir)
         case ModelType::Piper:
         case ModelType::MMS:
         default:
-            return std::filesystem::exists(dir / "model.onnx") &&
+            return !FindPrimaryModelOnnx(dir).empty() &&
                    std::filesystem::exists(dir / "tokens.txt");
     }
 }
@@ -563,22 +642,44 @@ std::string Models::NormalizeLocale(const std::string& locale)
 
 std::string Models::InferLocaleFromName(const std::string& name)
 {
-    const std::string source = ToLowerCopy(name);
-
-    static const std::regex localePattern(R"(([a-z]{2,3})[-_]([a-z]{2}))", std::regex_constants::icase);
-    std::smatch match;
-    if (std::regex_search(source, match, localePattern) && match.size() >= 3) {
-        std::string lang = ToLowerCopy(match[1].str());
-        std::string region = ToUpperCopy(match[2].str());
-        return lang + "-" + region;
-    }
-
     static const std::map<std::string, std::string> defaults = {
         {"en", "en-US"}, {"zh", "zh-CN"}, {"es", "es-ES"}, {"fr", "fr-FR"},
         {"de", "de-DE"}, {"it", "it-IT"}, {"pt", "pt-BR"}, {"ja", "ja-JP"},
         {"ko", "ko-KR"}, {"ar", "ar-SA"}, {"ru", "ru-RU"}, {"tr", "tr-TR"},
         {"vi", "vi-VN"}, {"pl", "pl-PL"}, {"uk", "uk-UA"}, {"nl", "nl-NL"}
     };
+
+    const std::string source = ToLowerCopy(name);
+    std::string tokenized = source;
+    std::replace(tokenized.begin(), tokenized.end(), '_', '-');
+
+    std::vector<std::string> parts;
+    std::stringstream ss(tokenized);
+    std::string part;
+    while (std::getline(ss, part, '-')) {
+        if (!part.empty()) {
+            parts.push_back(part);
+        }
+    }
+
+    for (size_t i = 0; i < parts.size(); ++i) {
+        const std::string& lang = parts[i];
+        if (lang.size() != 2) {
+            continue;
+        }
+        if (!defaults.contains(lang)) {
+            continue;
+        }
+
+        if (i + 1 < parts.size()) {
+            const std::string& next = parts[i + 1];
+            if (next.size() == 2 && !defaults.contains(next)) {
+                return lang + "-" + ToUpperCopy(next);
+            }
+        }
+
+        return defaults.at(lang);
+    }
 
     for (const auto& [code, locale] : defaults) {
         const std::string needleDash = "-" + code + "-";

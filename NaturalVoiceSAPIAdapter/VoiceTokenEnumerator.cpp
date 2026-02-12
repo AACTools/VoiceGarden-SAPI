@@ -665,6 +665,20 @@ static std::shared_ptr<DataKeyData> MakeAzureVoiceToken(
 static std::shared_ptr<DataKeyData> MakeSherpaVoiceToken(
     const SherpaOnnx::VoiceInfo& model)
 {
+    auto deriveKokoroLang = [](std::wstring locale) -> std::wstring
+    {
+        if (locale.empty())
+            return L"en-us";
+
+        size_t delim = locale.find_first_of(L",; ");
+        if (delim != std::wstring::npos)
+            locale = locale.substr(0, delim);
+
+        std::replace(locale.begin(), locale.end(), L'_', L'-');
+        std::transform(locale.begin(), locale.end(), locale.begin(), ::towlower);
+        return locale.empty() ? L"en-us" : locale;
+    };
+
     // Convert language from model (e.g., "en-US", "zh-CN")
     std::wstring language = UTF8ToWString(model.language);
 
@@ -777,6 +791,10 @@ static std::shared_ptr<DataKeyData> MakeSherpaVoiceToken(
             configValues.push_back({ L"SherpaOnnxModelPath", UTF8ToWString(model.modelPath) });
             configValues.push_back({ L"SherpaOnnxVoices", UTF8ToWString(model.voicesPath) });
             configValues.push_back({ L"SherpaOnnxTokens", UTF8ToWString(model.tokensPath) });
+            configValues.push_back({ L"SherpaOnnxLang", deriveKokoroLang(language) });
+            if (!model.dataDir.empty()) {
+                configValues.push_back({ L"SherpaOnnxDataDir", UTF8ToWString(model.dataDir) });
+            }
             break;
 
         case SherpaOnnx::ModelType::Vits:

@@ -196,7 +196,7 @@ void InitializeLogger() noexcept
 
 		DWORD loglevel = std::clamp<DWORD>(key.GetDword(L"LogLevel", spdlog::level::info), 0, 6);
 		logger.set_level(static_cast<spdlog::level::level_enum>(loglevel));
-		loglevel = std::clamp<DWORD>(key.GetDword(L"LogFlushLevel", spdlog::level::warn), 0, 6);
+		loglevel = std::clamp<DWORD>(key.GetDword(L"LogFlushLevel", spdlog::level::info), 0, 6);
 		logger.flush_on(static_cast<spdlog::level::level_enum>(loglevel));
 
 		DWORD flushInterval = key.GetDword(L"LogFlushInterval");

@@ -7,76 +7,10 @@
 #include <string>
 #include <memory>
 #include <cstdint>
+#include <functional>
 
-// SherpaOnnx C API type definitions
-// These mirror the structures from sherpa-onnx/c-api/c-api.h
 extern "C" {
-
-// VITS Model Config
-struct SherpaOnnxOfflineTtsVitsModelConfig {
-    const char* model;
-    const char* lexicon;
-    const char* tokens;
-    const char* data_dir;
-    const char* dict_dir;
-    float noise_scale;
-    float noise_scale_w;
-    float length_scale;
-};
-
-// Matcha Model Config
-struct SherpaOnnxOfflineTtsMatchaModelConfig {
-    const char* acoustic_model;
-    const char* vocoder;
-    const char* tokens;
-    const char* lexicon;
-    const char* data_dir;
-    const char* dict_dir;
-    float noise_scale;
-    float length_scale;
-};
-
-// Kokoro Model Config
-struct SherpaOnnxOfflineTtsKokoroModelConfig {
-    const char* model;
-    const char* voices;
-    const char* tokens;
-    const char* lexicon;
-    const char* data_dir;
-    const char* dict_dir;
-    const char* lang;
-    float length_scale;
-};
-
-// TTS Model Config (union of all model types)
-struct SherpaOnnxOfflineTtsModelConfig {
-    SherpaOnnxOfflineTtsVitsModelConfig vits;
-    SherpaOnnxOfflineTtsMatchaModelConfig matcha;
-    SherpaOnnxOfflineTtsKokoroModelConfig kokoro;
-    int num_threads;
-    int debug;
-    const char* provider;
-};
-
-// TTS Config
-struct SherpaOnnxOfflineTtsConfig {
-    SherpaOnnxOfflineTtsModelConfig model;
-    const char* rule_fsts;
-    int max_num_sentences;
-    const char* rule_fars;
-    float silence_scale;
-};
-
-// Generated Audio
-struct SherpaOnnxGeneratedAudio {
-    const float* samples;
-    int32_t n;
-    int32_t sample_rate;
-};
-
-// Opaque TTS handle
-struct SherpaOnnxOfflineTts;
-
+#include "../SherpaOnnx/libs/sherpa-onnx-v1.12.23-win-x64-shared/include/sherpa-onnx/c-api/c-api.h"
 } // extern "C"
 
 namespace SherpaOnnx {
@@ -97,10 +31,12 @@ public:
     const std::string& GetLastError() const { return m_lastError; }
 
     // Function pointers to SherpaOnnx C API
-    SherpaOnnxOfflineTts* (*SherpaOnnxCreateOfflineTts)(const SherpaOnnxOfflineTtsConfig*);
-    void (*SherpaOnnxDestroyOfflineTts)(SherpaOnnxOfflineTts*);
+    const SherpaOnnxOfflineTts* (*SherpaOnnxCreateOfflineTts)(const SherpaOnnxOfflineTtsConfig*);
+    void (*SherpaOnnxDestroyOfflineTts)(const SherpaOnnxOfflineTts*);
     const SherpaOnnxGeneratedAudio* (*SherpaOnnxOfflineTtsGenerate)(
-        SherpaOnnxOfflineTts*, const char*, int, float);
+        const SherpaOnnxOfflineTts*, const char*, int, float);
+    const SherpaOnnxGeneratedAudio* (*SherpaOnnxOfflineTtsGenerateWithProgressCallbackWithArg)(
+        const SherpaOnnxOfflineTts*, const char*, int, float, SherpaOnnxGeneratedAudioProgressCallbackWithArg, void*);
     void (*SherpaOnnxDestroyOfflineTtsGeneratedAudio)(const SherpaOnnxGeneratedAudio*);
     int (*SherpaOnnxOfflineTtsSampleRate)(const SherpaOnnxOfflineTts*);
     int (*SherpaOnnxOfflineTtsNumSpeakers)(const SherpaOnnxOfflineTts*);
@@ -136,12 +72,3 @@ inline SherpaOnnxLoader& Loader() {
 
 } // namespace Dynamic
 } // namespace SherpaOnnx
-
-// Override the SherpaOnnx C API functions to use dynamic loading
-// These macros replace the original function calls
-#define SherpaOnnxCreateOfflineTts SherpaOnnx::Dynamic::Loader().SherpaOnnxCreateOfflineTts
-#define SherpaOnnxDestroyOfflineTts SherpaOnnx::Dynamic::Loader().SherpaOnnxDestroyOfflineTts
-#define SherpaOnnxOfflineTtsGenerate SherpaOnnx::Dynamic::Loader().SherpaOnnxOfflineTtsGenerate
-#define SherpaOnnxDestroyOfflineTtsGeneratedAudio SherpaOnnx::Dynamic::Loader().SherpaOnnxDestroyOfflineTtsGeneratedAudio
-#define SherpaOnnxOfflineTtsSampleRate SherpaOnnx::Dynamic::Loader().SherpaOnnxOfflineTtsSampleRate
-#define SherpaOnnxOfflineTtsNumSpeakers SherpaOnnx::Dynamic::Loader().SherpaOnnxOfflineTtsNumSpeakers

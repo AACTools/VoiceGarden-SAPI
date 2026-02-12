@@ -8,6 +8,8 @@
 #include <VersionHelpers.h>
 #include "RegKey.h"
 #include "wrappers.h"
+#include <mutex>
+#include <filesystem>
 
 // CTTSEngine
 
@@ -22,19 +24,98 @@ static inline DWORD _GetTickCount()
 #pragma warning (default: 28159)
 }
 
+static std::wstring TrimWhitespace(const std::wstring& text)
+{
+    size_t start = text.find_first_not_of(L" \t\r\n");
+    if (start == std::wstring::npos)
+        return {};
+    size_t end = text.find_last_not_of(L" \t\r\n");
+    return text.substr(start, end - start + 1);
+}
+
+static std::wstring ExtractSherpaPlainText(const SPVTEXTFRAG* pTextFragList)
+{
+    std::wstring out;
+    for (auto pTextFrag = pTextFragList; pTextFrag; pTextFrag = pTextFrag->pNext)
+    {
+        if (!pTextFrag->pTextStart || pTextFrag->ulTextLen == 0)
+            continue;
+
+        switch (pTextFrag->State.eAction)
+        {
+        case SPVA_Speak:
+        case SPVA_SpellOut:
+        case SPVA_Pronounce:
+            if (!out.empty() && !iswspace(out.back()))
+                out.push_back(L' ');
+            out.append(pTextFrag->pTextStart, pTextFrag->ulTextLen);
+            break;
+        default:
+            break;
+        }
+    }
+    return TrimWhitespace(out);
+}
+
+namespace {
+std::mutex g_sherpaInitMutex;
+std::mutex g_sherpaGenerateMutex;
+std::string g_cachedSherpaKey;
+std::shared_ptr<SherpaOnnx::Engine> g_cachedSherpaEngine;
+
+std::string BuildSherpaEngineKey(const SherpaOnnx::ModelConfig& cfg)
+{
+    std::string key = std::to_string(static_cast<int>(cfg.modelType)) + "|";
+    switch (cfg.modelType)
+    {
+    case SherpaOnnx::TtsModelType::Matcha:
+        key += cfg.matcha.acousticModel + "|" + cfg.matcha.vocoder + "|" + cfg.matcha.tokens + "|" + cfg.matcha.dataDir;
+        break;
+    case SherpaOnnx::TtsModelType::Kokoro:
+        key += cfg.kokoro.model + "|" + cfg.kokoro.voices + "|" + cfg.kokoro.tokens + "|" + cfg.kokoro.dataDir + "|" + cfg.kokoro.lang;
+        break;
+    case SherpaOnnx::TtsModelType::Vits:
+    default:
+        key += cfg.vits.model + "|" + cfg.vits.tokens + "|" + cfg.vits.dataDir;
+        break;
+    }
+    key += "|" + cfg.provider + "|" + std::to_string(cfg.numThreads);
+    return key;
+}
+}
+
 // ISpObjectWithToken Implementation
 
 // Initializes this instance of CTTSEngine to use the voice specified in registry
 STDMETHODIMP CTTSEngine::SetObjectToken(ISpObjectToken* pToken) noexcept
 {
     ScopeTracer tracer("TTS init: begin", "TTS init: end");
+    LogInfo("TTS init: SetObjectToken invoked");
     try
     {
-        CheckSapiHr(SpGenericSetObjectToken(pToken, m_cpToken));
+        if (SP_IS_BAD_INTERFACE_PTR(pToken))
+            return E_POINTER;
+        // SpGenericSetObjectToken can re-enter token resolution and stall when using
+        // virtual TokenEnum-backed tokens. Keep a direct reference instead.
+        m_cpToken = pToken;
+        LogInfo("TTS init: SpGenericSetObjectToken completed");
 
+        LogInfo("TTS init: InitVoice starting");
         InitVoice();
+        LogInfo("TTS init: InitVoice completed");
 
-        InitPhoneConverter();
+        if (m_isSherpaOnnxVoice)
+        {
+            // Sherpa path synthesizes plain text directly and does not require
+            // SAPI phone converter initialization.
+            LogInfo("TTS init: skipping InitPhoneConverter for Sherpa voice");
+        }
+        else
+        {
+            LogInfo("TTS init: InitPhoneConverter starting");
+            InitPhoneConverter();
+            LogInfo("TTS init: InitPhoneConverter completed");
+        }
 
         return S_OK;
     }
@@ -72,21 +153,35 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
     ISpTTSEngineSite* pOutputSite) noexcept
 {
     ScopeTracer tracer("Speak: begin", "Speak: end");
+    LogInfo("Speak: entered");
     try
     {
-        // Check args
-        if (SP_IS_BAD_INTERFACE_PTR(pOutputSite) ||
-            SP_IS_BAD_READ_PTR(pTextFragList))
+        LogInfo("Speak: state synth={} rest={} sherpa={} cancelFuture={}",
+            m_synthesizer ? 1 : 0,
+            m_restApi ? 1 : 0,
+            m_sherpaOnnx ? 1 : 0,
+            m_lastCancellingFuture.valid() ? 1 : 0);
+        LogErr("SpeakDiag: stage=after-state-log");
+
+        // Check args (avoid legacy SP_IS_BAD_* probes which can fault in modern processes).
+        if (!pOutputSite || !pTextFragList)
         {
+            LogWarn("Speak: bad input pointers");
             return E_INVALIDARG;
         }
+        LogInfo("Speak: pointer validation passed");
+        LogErr("SpeakDiag: stage=after-pointer-check");
         if (!m_synthesizer && !m_restApi && !m_sherpaOnnx)
         {
+            LogWarn("Speak: no engine initialized");
             return SPERR_UNINITIALIZED;
         }
+        LogInfo("Speak: engine presence check passed");
+        LogErr("SpeakDiag: stage=after-engine-check");
 
         if (m_lastCancellingFuture.valid())
         {
+            LogInfo("Speak: waiting previous cancellation");
             // The previous cancellation is still in progress. Wait for it.
             while (m_lastCancellingFuture.wait_for(std::chrono::milliseconds(0)) == std::future_status::timeout)
             {
@@ -100,14 +195,8 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
             }
             // Cancellation completed. Clear the future.
             m_lastCancellingFuture = {};
+            LogInfo("Speak: previous cancellation completed");
         }
-
-        ULONGLONG eventInterests = 0;
-        pOutputSite->GetEventInterest(&eventInterests);
-        if (m_synthesizer)
-            SetupSynthesizerEvents(eventInterests);
-        else
-            SetupRestAPIEvents(eventInterests);
 
         // Clear m_pOutputSite automatically when Speak is completed
         ScopeGuard siteDeleter([this]()
@@ -115,7 +204,50 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
                 std::lock_guard lock(m_outputSiteMutex);
                 m_pOutputSite = nullptr;
             });
+        LogInfo("Speak: scope guard created");
+        LogErr("SpeakDiag: stage=after-scopeguard");
         m_pOutputSite = pOutputSite;
+        LogInfo("Speak: output site assigned");
+        LogErr("SpeakDiag: stage=after-outputsite-assign");
+
+        LogInfo("Speak: pre-branch sherpa={}", m_sherpaOnnx ? 1 : 0);
+        LogErr("SpeakDiag: stage=before-sherpa-branch");
+        if (m_sherpaOnnx)
+        {
+            LogInfo("Speak: Sherpa path selected");
+            LogErr("SpeakDiag: stage=in-sherpa-branch");
+            std::wstring plainTextW = ExtractSherpaPlainText(pTextFragList);
+            LogInfo("Speak: Sherpa extracted text length={}", plainTextW.size());
+            if (plainTextW.empty())
+            {
+                LogDebug("Speak: Sherpa plain text is empty");
+                FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
+                return S_OK;
+            }
+
+            m_compensatedSilenceWritten = false;
+            m_compensatedSilentBytes = 0;
+            m_lastSilentBytes = 0;
+            m_thisSpeakStartedTicks = _GetTickCount();
+
+            // Keep Sherpa synthesis on the caller thread to avoid cross-thread COM access
+            // to ISpTTSEngineSite when writing audio.
+            m_sherpaAbortRequested.store(false, std::memory_order_relaxed);
+            LogInfo("Speak: Sherpa generation begin");
+            GenerateSherpaOnnxAudio(WStringToUTF8(plainTextW));
+            LogInfo("Speak: Sherpa generation end");
+            m_lastSpeakCompletedTicks = _GetTickCount();
+            return S_OK;
+        }
+
+        ULONGLONG eventInterests = 0;
+        pOutputSite->GetEventInterest(&eventInterests);
+        if (m_synthesizer)
+            SetupSynthesizerEvents(eventInterests);
+        else if (m_restApi)
+            SetupRestAPIEvents(eventInterests);
+        else
+            ClearSynthesizerEvents();
 
         if (!BuildSSML(pTextFragList))
         {
@@ -135,13 +267,9 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
             !m_onlineVoiceName.empty() && RegOpenConfigKey().GetDword(L"EnableOnlineDelayOptimization");
 
         std::future<void> future;
+        m_sherpaAbortRequested.store(false, std::memory_order_relaxed);
 
-        if (m_sherpaOnnx)
-        {
-            // SherpaOnnx doesn't support SSML, strip to plain text
-            future = std::async(std::launch::async, [this]() { GenerateSherpaOnnxAudio(); });
-        }
-        else if (m_synthesizer)
+        if (m_synthesizer)
         {
             future = std::async(std::launch::async, [this]() { CheckSynthesisResult(m_synthesizer->SpeakSsml(m_ssml)); });
         }
@@ -165,7 +293,12 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
         if (pOutputSite->GetActions() & SPVES_ABORT) // requested stop
         {
             LogDebug("Speak: Requested stop");
-            if (m_synthesizer)
+            if (m_sherpaOnnx)
+            {
+                m_sherpaAbortRequested.store(true, std::memory_order_relaxed);
+                future.wait();
+            }
+            else if (m_synthesizer)
             {
                 // Cancellation might not finish, but we won't wait for it.
                 // Return immediately on requested stop.
@@ -259,7 +392,9 @@ void CTTSEngine::InitVoice()
     CComPtr<ISpDataKey> pConfigKey;
     CSpDynamicString pszRegion, pszKey, pszPath, pszVoice;
     
+    LogInfo("TTS init: opening NaturalVoiceConfig key");
     HRESULT hr = m_cpToken->OpenKey(L"NaturalVoiceConfig", &pConfigKey); // this key must exist
+    LogInfo("TTS init: OpenKey NaturalVoiceConfig returned hr={:#x}", static_cast<unsigned int>(hr));
     if (FAILED(hr))
         throw std::system_error(hr, sapi_category(), "Subkey 'NaturalVoiceConfig' is missing");
 
@@ -361,6 +496,7 @@ bool CTTSEngine::InitLocalVoice(ISpDataKey* pConfigKey)
 
 bool CTTSEngine::InitSherpaOnnxVoice(ISpDataKey* pConfigKey)
 {
+    LogInfo("Sherpa init: probing token for Sherpa config");
     // Check if this is a SherpaOnnx voice configuration by checking for model type
     CSpDynamicString pszModelType;
     int modelTypeValue = 0;  // Default to Vits (0)
@@ -375,15 +511,33 @@ bool CTTSEngine::InitSherpaOnnxVoice(ISpDataKey* pConfigKey)
         modelTypeValue = 0;
     }
 
-    SherpaOnnx::TtsModelType modelType = static_cast<SherpaOnnx::TtsModelType>(modelTypeValue);
+    // Token metadata uses SherpaOnnx::ModelType (Vits/Matcha/Kokoro/Piper/MMS),
+    // while runtime engine config uses SherpaOnnx::TtsModelType (Vits/Matcha/Kokoro/Unknown).
+    // Normalize so Piper/MMS are treated as Vits-family models.
+    SherpaOnnx::TtsModelType modelType = SherpaOnnx::TtsModelType::Vits;
+    switch (modelTypeValue)
+    {
+    case 1:
+        modelType = SherpaOnnx::TtsModelType::Matcha;
+        break;
+    case 2:
+        modelType = SherpaOnnx::TtsModelType::Kokoro;
+        break;
+    default:
+        modelType = SherpaOnnx::TtsModelType::Vits;
+        break;
+    }
+    LogInfo("Sherpa init: model type value = {}", modelTypeValue);
 
     try
     {
         SherpaOnnx::ModelConfig config;
         config.modelType = modelType;
+        // Baseline parity with vanilla Sherpa sample first; optimize later.
         config.numThreads = 1;
         config.debug = false;
         config.provider = "cpu";
+        config.maxNumSentences = 1;
 
         CSpDynamicString pszVoiceName;
         if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxVoiceName", &pszVoiceName))) {
@@ -465,6 +619,26 @@ bool CTTSEngine::InitSherpaOnnxVoice(ISpDataKey* pConfigKey)
                     config.kokoro.dictDir = WStringToUTF8(std::wstring(pDictDir.m_psz));
                 if (pLang.m_psz && *pLang.m_psz)
                     config.kokoro.lang = WStringToUTF8(std::wstring(pLang.m_psz));
+                else
+                {
+                    CComPtr<ISpDataKey> pAttrKey;
+                    CSpDynamicString locale;
+                    if (SUCCEEDED(m_cpToken->OpenKey(SPTOKENKEY_ATTRIBUTES, &pAttrKey)) &&
+                        SUCCEEDED(pAttrKey->GetStringValue(L"Locale", &locale)) &&
+                        locale.m_psz && *locale.m_psz)
+                    {
+                        std::wstring loc = locale.m_psz;
+                        size_t delim = loc.find_first_of(L",; ");
+                        if (delim != std::wstring::npos)
+                            loc = loc.substr(0, delim);
+                        std::replace(loc.begin(), loc.end(), L'_', L'-');
+                        std::transform(loc.begin(), loc.end(), loc.begin(), ::towlower);
+                        if (!loc.empty())
+                            config.kokoro.lang = WStringToUTF8(loc);
+                    }
+                    if (config.kokoro.lang.empty())
+                        config.kokoro.lang = "en-us";
+                }
 
                 config.kokoro.lengthScale = 1.0f;
                 break;
@@ -486,32 +660,66 @@ bool CTTSEngine::InitSherpaOnnxVoice(ISpDataKey* pConfigKey)
                 config.vits.model = WStringToUTF8(std::wstring(pszModel.m_psz));
                 config.vits.tokens = WStringToUTF8(std::wstring(pszTokens.m_psz));
 
-                // Optional parameters
+                // Optional parameters: keep only data_dir in baseline path.
                 CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxDataDir", &pDataDir));
-                CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxLexicon", &pLexicon));
-                CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxDictDir", &pDictDir));
 
                 if (pDataDir.m_psz && *pDataDir.m_psz)
                     config.vits.dataDir = WStringToUTF8(std::wstring(pDataDir.m_psz));
-                if (pLexicon.m_psz && *pLexicon.m_psz)
-                    config.vits.lexicon = WStringToUTF8(std::wstring(pLexicon.m_psz));
-                if (pDictDir.m_psz && *pDictDir.m_psz)
-                    config.vits.dictDir = WStringToUTF8(std::wstring(pDictDir.m_psz));
-
-                config.vits.noiseScale = 0.667f;
-                config.vits.noiseScaleW = 0.8f;
-                config.vits.lengthScale = 1.0f;
+                LogInfo("Sherpa init: vits model='{}'", config.vits.model);
+                LogInfo("Sherpa init: vits tokens='{}'", config.vits.tokens);
+                LogInfo("Sherpa init: vits data_dir='{}'", config.vits.dataDir);
+                try
+                {
+                    std::error_code ecModel, ecTokens, ecData;
+                    bool hasModel = std::filesystem::is_regular_file(std::filesystem::u8path(config.vits.model), ecModel);
+                    bool hasTokens = std::filesystem::is_regular_file(std::filesystem::u8path(config.vits.tokens), ecTokens);
+                    bool hasDataDir = config.vits.dataDir.empty() ||
+                        std::filesystem::is_directory(std::filesystem::u8path(config.vits.dataDir), ecData);
+                    LogInfo("Sherpa init: path checks model={} tokens={} data_dir={}", hasModel ? 1 : 0, hasTokens ? 1 : 0, hasDataDir ? 1 : 0);
+                    if (!hasDataDir)
+                    {
+                        LogWarn("Sherpa init: data_dir path missing, clearing optional data_dir");
+                        config.vits.dataDir.clear();
+                    }
+                }
+                catch (...)
+                {
+                    LogWarn("Sherpa init: failed to evaluate path checks");
+                }
                 break;
             }
         }
 
-        // Create SherpaOnnx engine
-        m_sherpaOnnx = std::make_unique<SherpaOnnx::Engine>(config);
+        std::string engineKey = BuildSherpaEngineKey(config);
+        {
+            std::lock_guard<std::mutex> guard(g_sherpaInitMutex);
+            if (g_cachedSherpaEngine && g_cachedSherpaEngine->IsValid() && g_cachedSherpaKey == engineKey)
+            {
+                m_sherpaOnnx = g_cachedSherpaEngine;
+                LogInfo("Sherpa init: reusing cached engine instance");
+            }
+            else
+            {
+                LogInfo("Sherpa init: creating Sherpa engine instance");
+                auto created = std::make_shared<SherpaOnnx::Engine>(config);
+                LogInfo("Sherpa init: Sherpa engine instance created");
+                if (!created->IsValid())
+                {
+                    LogErr("Failed to initialize SherpaOnnx engine for voice: {}. reason={}",
+                        WStringToUTF8(std::wstring(pszVoiceName.m_psz)), created->GetLastError());
+                    m_sherpaOnnx.reset();
+                    return false;
+                }
+                g_cachedSherpaEngine = created;
+                g_cachedSherpaKey = engineKey;
+                m_sherpaOnnx = std::move(created);
+            }
+        }
 
         if (!m_sherpaOnnx->IsValid())
         {
-            LogErr("Failed to initialize SherpaOnnx engine for voice: {}",
-                WStringToUTF8(std::wstring(pszVoiceName.m_psz)));
+            LogErr("Failed to initialize SherpaOnnx engine for voice: {}. reason={}",
+                WStringToUTF8(std::wstring(pszVoiceName.m_psz)), m_sherpaOnnx->GetLastError());
             m_sherpaOnnx.reset();
             return false;
         }
@@ -805,6 +1013,9 @@ void CTTSEngine::SetupSynthesizerEvents(ULONGLONG interests)
 
 void CTTSEngine::ClearSynthesizerEvents()
 {
+    if (!m_synthesizer)
+        return;
+
     m_synthesizer->BookmarkReached.DisconnectAll();
     m_synthesizer->WordBoundary.DisconnectAll();
     m_synthesizer->VisemeReceived.DisconnectAll();
@@ -1418,46 +1629,63 @@ std::wstring CTTSEngine::StripSSML(const std::wstring& ssml)
     return result.substr(start, end - start + 1);
 }
 
-void CTTSEngine::GenerateSherpaOnnxAudio()
+void CTTSEngine::GenerateSherpaOnnxAudio(const std::string& plainText)
 {
-    // SherpaOnnx doesn't support SSML, strip to plain text
-    std::string plainText = WStringToUTF8(StripSSML(m_ssml));
-
     if (plainText.empty())
     {
-        LogWarn("SherpaOnnx: No text to speak after SSML stripping");
+        LogWarn("SherpaOnnx: No text to speak");
         return;
     }
 
     try
     {
-        // Generate audio (SherpaOnnx returns float samples in [-1, 1])
-        std::vector<float> audio = m_sherpaOnnx->Generate(plainText, 1.0f);
-
-        if (audio.empty())
+        if (m_sherpaAbortRequested.load(std::memory_order_relaxed))
         {
-            LogWarn("SherpaOnnx generated no audio for text: {}", plainText);
+            LogInfo("SherpaOnnx generation aborted");
             return;
         }
 
-        // Convert float samples to 16-bit PCM for SAPI
-        std::vector<BYTE> pcmData;
-        pcmData.reserve(audio.size() * 2);
-
-        for (float sample : audio)
+        // Serialize calls into shared Sherpa engine instance.
+        std::vector<float> samples;
         {
-            // Clamp and convert
-            float clamped = std::clamp(sample, -1.0f, 1.0f);
-            int16_t pcm = static_cast<int16_t>(clamped * 32767.0f);
+            std::lock_guard<std::mutex> guard(g_sherpaGenerateMutex);
+            // Baseline stable path: generate full audio first, then stream to SAPI output site.
+            LogInfo("SherpaOnnx: Generate() call begin");
+            samples = m_sherpaOnnx->Generate(plainText, 1.0f);
+            LogInfo("SherpaOnnx: Generate() call end");
+        }
+        if (samples.empty())
+        {
+            if (!m_sherpaAbortRequested.load(std::memory_order_relaxed))
+                LogWarn("SherpaOnnx generated no audio for text: {}", plainText);
+            return;
+        }
 
+        if (m_sherpaAbortRequested.load(std::memory_order_relaxed))
+        {
+            LogInfo("SherpaOnnx generation aborted");
+            return;
+        }
+
+        std::vector<BYTE> pcmData;
+        pcmData.reserve(samples.size() * 2);
+        for (float s : samples)
+        {
+            float clamped = std::clamp(s, -1.0f, 1.0f);
+            int16_t pcm = static_cast<int16_t>(clamped * 32767.0f);
             pcmData.push_back(static_cast<BYTE>(pcm & 0xFF));
             pcmData.push_back(static_cast<BYTE>((pcm >> 8) & 0xFF));
         }
 
-        // Write to SAPI output site
-        OnAudioData(pcmData.data(), static_cast<uint32_t>(pcmData.size()));
+        int wrote = OnAudioData(pcmData.data(), static_cast<uint32_t>(pcmData.size()));
+        LogInfo("SherpaOnnx: OnAudioData returned {}", wrote);
+        if (wrote <= 0)
+        {
+            LogWarn("SherpaOnnx audio write failed for text: {}", plainText);
+            return;
+        }
 
-        LogInfo("SherpaOnnx generated {} samples ({} bytes)", audio.size(), pcmData.size());
+        LogInfo("SherpaOnnx generated {} samples", samples.size());
     }
     catch (const std::exception& ex)
     {

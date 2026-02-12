@@ -102,6 +102,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <RegisterOutput Condition="'$(RegisterOutput)'==''">true</RegisterOutput>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <LinkIncremental>true</LinkIncremental>
@@ -154,7 +157,7 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -169,13 +172,13 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <ModuleDefinitionFile>.\NaturalVoiceSAPIAdapter.def</ModuleDefinitionFile>
-      <RegisterOutput>true</RegisterOutput>
+      <RegisterOutput>$(RegisterOutput)</RegisterOutput>
       <PerUserRedirection>false</PerUserRedirection>
       <DelayLoadDLLs>Microsoft.CognitiveServices.Speech.core.dll</DelayLoadDLLs>
       <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -198,7 +201,7 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -214,13 +217,13 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <ModuleDefinitionFile>.\NaturalVoiceSAPIAdapter.def</ModuleDefinitionFile>
-      <RegisterOutput>true</RegisterOutput>
+      <RegisterOutput>$(RegisterOutput)</RegisterOutput>
       <PerUserRedirection>false</PerUserRedirection>
       <DelayLoadDLLs>Microsoft.CognitiveServices.Speech.core.dll</DelayLoadDLLs>
       <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -244,7 +247,7 @@
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -260,13 +263,13 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <ModuleDefinitionFile>.\NaturalVoiceSAPIAdapter.def</ModuleDefinitionFile>
-      <RegisterOutput>true</RegisterOutput>
+      <RegisterOutput>$(RegisterOutput)</RegisterOutput>
       <PerUserRedirection>false</PerUserRedirection>
       <DelayLoadDLLs>Microsoft.CognitiveServices.Speech.core.dll</DelayLoadDLLs>
       <AdditionalDependencies>libcrypto.lib;libssl.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -290,7 +293,7 @@
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -306,7 +309,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x86-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
@@ -314,7 +317,7 @@
       <ModuleDefinitionFile>.\NaturalVoiceSAPIAdapter.def</ModuleDefinitionFile>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <RegisterOutput>true</RegisterOutput>
+      <RegisterOutput>$(RegisterOutput)</RegisterOutput>
       <PerUserRedirection>false</PerUserRedirection>
       <DelayLoadDLLs>Microsoft.CognitiveServices.Speech.core.dll</DelayLoadDLLs>
       <AdditionalOptions>/PDBALTPATH:%_PDB% %(AdditionalOptions)</AdditionalOptions>
@@ -338,7 +341,7 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -353,7 +356,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-x64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
@@ -361,7 +364,7 @@
       <ModuleDefinitionFile>.\NaturalVoiceSAPIAdapter.def</ModuleDefinitionFile>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <RegisterOutput>true</RegisterOutput>
+      <RegisterOutput>$(RegisterOutput)</RegisterOutput>
       <PerUserRedirection>false</PerUserRedirection>
       <DelayLoadDLLs>Microsoft.CognitiveServices.Speech.core.dll</DelayLoadDLLs>
       <AdditionalOptions>/PDBALTPATH:%_PDB% %(AdditionalOptions)</AdditionalOptions>
@@ -385,7 +388,7 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -401,7 +404,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0804</Culture>
-      <AdditionalIncludeDirectories>$(IntDir);..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);..\include;..\SherpaOnnx\libs\sherpa-onnx-v1.12.23-win-arm64-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
@@ -409,7 +412,7 @@
       <ModuleDefinitionFile>.\NaturalVoiceSAPIAdapter.def</ModuleDefinitionFile>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <RegisterOutput>true</RegisterOutput>
+      <RegisterOutput>$(RegisterOutput)</RegisterOutput>
       <PerUserRedirection>false</PerUserRedirection>
       <DelayLoadDLLs>Microsoft.CognitiveServices.Speech.core.dll</DelayLoadDLLs>
       <AdditionalOptions>/PDBALTPATH:%_PDB% %(AdditionalOptions)</AdditionalOptions>

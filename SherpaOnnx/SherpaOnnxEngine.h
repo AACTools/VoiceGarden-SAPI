@@ -2,6 +2,7 @@
 
 #include "SherpaOnnxConfig.h"
 #include "SherpaOnnxDynamic.h"
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -20,6 +21,10 @@ public:
 
     // Generate speech from text (returns float samples in [-1, 1] range)
     std::vector<float> Generate(const std::string& text, float speed = 1.0f);
+    bool GenerateWithProgressCallback(
+        const std::string& text,
+        float speed,
+        const std::function<bool(const float* samples, int32_t n, float progress)>& onChunk);
 
     // Get engine properties
     int GetSampleRate() const;
@@ -33,9 +38,12 @@ public:
     Engine& operator=(const Engine&) = delete;
 
 private:
-    SherpaOnnxOfflineTts* m_tts = nullptr;
+    const SherpaOnnxOfflineTts* m_tts = nullptr;
     ModelConfig m_config;
     std::string m_lastError;
+    std::vector<std::string> m_ownedStrings;
+
+    const char* PersistString(const std::string& value, bool nullIfEmpty = false);
 
     // Helper to convert SherpaOnnx audio to vector
     static std::vector<float> ConvertGeneratedAudio(
@@ -43,6 +51,9 @@ private:
 
     // Build C API config from our config structure
     SherpaOnnxOfflineTtsConfig BuildCApiConfig();
+
+    // Validate model-type specific config/files before calling into Sherpa.
+    bool ValidateConfig(std::string& error) const;
 };
 
 } // namespace SherpaOnnx

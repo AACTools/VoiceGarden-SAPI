@@ -96,6 +96,8 @@ private:
     // Find ONNX file matching a pattern
     static std::string FindOnnxFile(const std::filesystem::path& dir,
                                     const std::string& pattern);
+    // Find the primary model ONNX file for VITS/Piper/MMS models.
+    static std::string FindPrimaryModelOnnx(const std::filesystem::path& dir);
 
     // Parse / normalize locale metadata from model id/name/config.
     static std::string NormalizeLocale(const std::string& locale);

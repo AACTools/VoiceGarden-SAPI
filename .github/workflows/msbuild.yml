@@ -147,6 +147,13 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{matrix.platform}} /p:OutDir=${{github.workspace}}\out\ . /t:NaturalVoiceSAPIAdapter
+
+    - name: Compile Sherpa smoke test (x64)
+      if: matrix.platform == 'x64'
+      shell: pwsh
+      working-directory: ${{github.workspace}}
+      run: |
+        .\scripts\run-sherpa-smoke-test.ps1 -CompileOnly
       
     - name: Remove unnecessary DLLs
       # Remove the codec DLL because it can trigger the 'GStreamer DLL not found' error

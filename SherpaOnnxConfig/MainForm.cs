@@ -9,12 +9,18 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.ComponentModel;
 using System.Globalization;
-using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
+using Microsoft.Win32;
 
 namespace SherpaOnnxConfig
 {
     public partial class MainForm : Form
     {
+        private Label? titleLabel;
         private Label? statusLabel;
         private ComboBox? languageComboBox;
         private ComboBox? voiceComboBox;
@@ -27,15 +33,23 @@ namespace SherpaOnnxConfig
         private ProgressBar? progressBar;
         private Label? downloadProgressLabel;
         private BackgroundWorker? downloadWorker;
+        private GroupBox? voiceGroup;
+        private GroupBox? testGroup;
+        private GroupBox? actionsGroup;
+        private Label? modelInfoLabel;
+        private Label? testHintLabel;
+        private Label? actionsHintLabel;
 
         private SherpaModelsCatalog? sherpaCatalog = null;
         private static readonly string AppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         private static readonly string AdapterDataDir = Path.Combine(AppDataPath, "NaturalVoiceSAPIAdapter");
         private static readonly string ModelsDir = Path.Combine(AdapterDataDir, "models");
         private static readonly string ScanErrorsPath = Path.Combine(AdapterDataDir, "sherpa_model_scan_errors.json");
+        private const string SapiTokensRoot = @"SOFTWARE\Microsoft\Speech\Voices\Tokens";
+        private const string TtsEngineClsid = "{013ab33b-ad1a-401c-8bee-f6e2b046a94e}";
+        private const string VoiceEnumClsid = "{b8b9e38f-e5a2-4661-9fde-4ac7377aa6f6}";
+        private const string TokenEnumKeyPath = @"SOFTWARE\Microsoft\Speech\Voices\TokenEnums\NaturalVoiceEnumerator";
         private const string AllLanguagesOption = "All Languages";
-        private static readonly Regex LanguageCodeRegex = new Regex(@"(?:^|[-_])([a-z]{2})(?:[-_][A-Za-z]{2})?(?:[-_]|$)",
-            RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private bool suppressComboEvents;
 
         // Voice list for CLI access
@@ -55,16 +69,16 @@ namespace SherpaOnnxConfig
         {
             this.Text = "NaturalVoice SAPI - SherpaOnnx Model Manager";
             this.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            this.AutoScaleMode = AutoScaleMode.Font;
-            this.Size = new Size(980, 900);
-            this.MinimumSize = new Size(900, 800);
+            this.AutoScaleMode = AutoScaleMode.Dpi;
+            this.Size = new Size(1080, 920);
+            this.MinimumSize = new Size(980, 820);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.Sizable;
             this.MaximizeBox = true;
             this.BackColor = Color.FromArgb(245, 245, 245);
 
             // Title
-            Label titleLabel = new Label
+            titleLabel = new Label
             {
                 Location = new Point(20, 15),
                 Size = new Size(920, 34),
@@ -98,18 +112,19 @@ namespace SherpaOnnxConfig
                 Location = new Point(140, 90),
                 Size = new Size(240, 30),
                 DropDownStyle = ComboBoxStyle.DropDown,
-                AutoCompleteMode = AutoCompleteMode.SuggestAppend,
-                AutoCompleteSource = AutoCompleteSource.ListItems,
+                AutoCompleteMode = AutoCompleteMode.None,
+                AutoCompleteSource = AutoCompleteSource.None,
                 Font = new Font("Segoe UI", 9F)
             };
             languageComboBox.Items.Add(AllLanguagesOption);
             languageComboBox.SelectedIndex = 0;
             languageComboBox.SelectedIndexChanged += LanguageComboBox_SelectedIndexChanged;
+            languageComboBox.TextUpdate += LanguageComboBox_TextUpdate;
             languageComboBox.KeyDown += LanguageComboBox_KeyDown;
             languageComboBox.Leave += LanguageComboBox_Leave;
 
             // Voice selection
-            GroupBox voiceGroup = new GroupBox
+            voiceGroup = new GroupBox
             {
                 Location = new Point(20, 135),
                 Size = new Size(920, 160),
@@ -130,8 +145,8 @@ namespace SherpaOnnxConfig
                 Location = new Point(100, 30),
                 Size = new Size(810, 30),
                 DropDownStyle = ComboBoxStyle.DropDown,
-                AutoCompleteMode = AutoCompleteMode.SuggestAppend,
-                AutoCompleteSource = AutoCompleteSource.ListItems,
+                AutoCompleteMode = AutoCompleteMode.None,
+                AutoCompleteSource = AutoCompleteSource.None,
                 Font = new Font("Segoe UI", 9F)
             };
             voiceComboBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
@@ -151,7 +166,7 @@ namespace SherpaOnnxConfig
             downloadButton.FlatAppearance.BorderSize = 0;
             downloadButton.Click += DownloadButton_Click;
 
-            Label modelInfoLabel = new Label
+            modelInfoLabel = new Label
             {
                 Location = new Point(15, 114),
                 Size = new Size(895, 35),
@@ -189,7 +204,7 @@ namespace SherpaOnnxConfig
             voiceGroup.Controls.Add(downloadProgressLabel);
 
             // Test group
-            GroupBox testGroup = new GroupBox
+            testGroup = new GroupBox
             {
                 Location = new Point(20, 305),
                 Size = new Size(920, 130),
@@ -219,7 +234,7 @@ namespace SherpaOnnxConfig
             testVoiceButton.FlatAppearance.BorderSize = 0;
             testVoiceButton.Click += TestVoiceButton_Click;
 
-            Label hintLabel = new Label
+            testHintLabel = new Label
             {
                 Location = new Point(15, 70),
                 Size = new Size(895, 45),
@@ -227,14 +242,14 @@ namespace SherpaOnnxConfig
                 ForeColor = Color.FromArgb(120, 120, 120),
                 Font = new Font("Segoe UI", 8F)
             };
-            hintLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            testHintLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
             testGroup.Controls.Add(testTextInput);
             testGroup.Controls.Add(testVoiceButton);
-            testGroup.Controls.Add(hintLabel);
+            testGroup.Controls.Add(testHintLabel);
 
             // Actions group
-            GroupBox actionsGroup = new GroupBox
+            actionsGroup = new GroupBox
             {
                 Location = new Point(20, 445),
                 Size = new Size(920, 100),
@@ -260,7 +275,7 @@ namespace SherpaOnnxConfig
             };
             rescanModelsButton.Click += RescanModelsButton_Click;
 
-            Label actionsHint = new Label
+            actionsHintLabel = new Label
             {
                 Location = new Point(15, 72),
                 Size = new Size(895, 22),
@@ -268,11 +283,11 @@ namespace SherpaOnnxConfig
                 ForeColor = Color.FromArgb(120, 120, 120),
                 Font = new Font("Segoe UI", 8F)
             };
-            actionsHint.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            actionsHintLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
             actionsGroup.Controls.Add(openModelsFolderButton);
             actionsGroup.Controls.Add(rescanModelsButton);
-            actionsGroup.Controls.Add(actionsHint);
+            actionsGroup.Controls.Add(actionsHintLabel);
 
             // Output
             outputTextBox = new RichTextBox
@@ -311,9 +326,11 @@ namespace SherpaOnnxConfig
             this.Controls.Add(testGroup);
             this.Controls.Add(actionsGroup);
             this.Controls.Add(outputTextBox);
+            this.Resize += (_, _) => ApplyResponsiveLayout();
 
             this.Shown += (_, _) =>
             {
+                ApplyResponsiveLayout();
                 if (autoRescanOnStartup)
                 {
                     PerformLocalModelRescan();
@@ -323,6 +340,48 @@ namespace SherpaOnnxConfig
 
         private HashSet<string> allLanguages = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private Dictionary<string, List<VoiceInfo>> voicesByLanguage = new Dictionary<string, List<VoiceInfo>>(StringComparer.OrdinalIgnoreCase);
+        private List<string> sortedLanguages = new List<string>();
+
+        private void ApplyResponsiveLayout()
+        {
+            if (titleLabel == null || statusLabel == null || languageComboBox == null || voiceGroup == null ||
+                testGroup == null || actionsGroup == null || outputTextBox == null || testVoiceButton == null ||
+                testTextInput == null || voiceComboBox == null || progressBar == null || downloadProgressLabel == null ||
+                modelInfoLabel == null || testHintLabel == null || actionsHintLabel == null)
+            {
+                return;
+            }
+
+            const int margin = 20;
+            int width = Math.Max(720, this.ClientSize.Width - (margin * 2));
+
+            titleLabel.SetBounds(margin, 15, width, 34);
+            statusLabel.SetBounds(margin, 54, width, 24);
+            languageComboBox.SetBounds(140, 90, Math.Min(320, width - 180), 30);
+
+            voiceGroup.SetBounds(margin, 135, width, 168);
+            int voiceInner = Math.Max(420, voiceGroup.ClientSize.Width - 30);
+            voiceComboBox.SetBounds(100, 30, Math.Max(260, voiceInner - 85), 30);
+            progressBar.SetBounds(200, 74, Math.Max(200, voiceInner - 215), 22);
+            downloadProgressLabel.SetBounds(200, 100, Math.Max(220, voiceInner - 215), 18);
+            modelInfoLabel.SetBounds(15, 120, Math.Max(260, voiceInner), 35);
+
+            testGroup.SetBounds(margin, 313, width, 130);
+            int testInner = Math.Max(420, testGroup.ClientSize.Width - 30);
+            int buttonWidth = 140;
+            int buttonLeft = 15 + testInner - buttonWidth;
+            testVoiceButton.SetBounds(buttonLeft, 32, buttonWidth, 34);
+            testTextInput.SetBounds(15, 34, Math.Max(240, buttonLeft - 25), 30);
+            testHintLabel.SetBounds(15, 70, Math.Max(260, testInner), 45);
+
+            actionsGroup.SetBounds(margin, 451, width, 100);
+            int actionsInner = Math.Max(420, actionsGroup.ClientSize.Width - 30);
+            actionsHintLabel.SetBounds(15, 72, Math.Max(260, actionsInner), 22);
+
+            int outputTop = actionsGroup.Bottom + 10;
+            int outputHeight = Math.Max(180, this.ClientSize.Height - outputTop - margin);
+            outputTextBox.SetBounds(margin, outputTop, width, outputHeight);
+        }
 
         private async void LoadCatalogsAsync()
         {
@@ -435,17 +494,14 @@ namespace SherpaOnnxConfig
                 }
 
                 // Populate language dropdown
-                languageComboBox!.Items.Clear();
-                foreach (var lang in allLanguages.OrderBy(l => l))
-                {
-                    languageComboBox.Items.Add(lang);
-                }
-                languageComboBox.SelectedIndex = 0;
+                sortedLanguages = allLanguages.OrderBy(l => l).ToList();
+                RefreshLanguageItems(null, AllLanguagesOption);
 
                 // Show all voices initially
-                UpdateVoiceList("All Languages");
+                UpdateVoiceList(AllLanguagesOption);
 
                 AppendOutput($"Found {allLanguages.Count - 1} unique languages with {AllVoices.Count} models.", Color.FromArgb(100, 200, 255));
+                TrySyncPersistentTokens("startup");
 
                 statusLabel!.Text = $"Status: Ready - {AllVoices.Count} models available";
                 ShowLastScanIssuesSummary();
@@ -466,6 +522,34 @@ namespace SherpaOnnxConfig
             {
                 UpdateVoiceList(languageComboBox.SelectedItem.ToString() ?? AllLanguagesOption);
             }
+        }
+
+        private void LanguageComboBox_TextUpdate(object? sender, EventArgs e)
+        {
+            if (suppressComboEvents || languageComboBox == null)
+                return;
+
+            string query = languageComboBox.Text?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                RefreshLanguageItems(null, languageComboBox.SelectedItem?.ToString());
+                return;
+            }
+
+            // Defer refresh to avoid mutating ComboBox items during TextUpdate.
+            BeginInvoke((Action)(() =>
+            {
+                if (languageComboBox == null || languageComboBox.IsDisposed)
+                    return;
+
+                string latest = languageComboBox.Text?.Trim() ?? string.Empty;
+                RefreshLanguageItems(latest, null);
+                languageComboBox.Text = latest;
+                languageComboBox.SelectionStart = languageComboBox.Text.Length;
+                languageComboBox.SelectionLength = 0;
+                if (languageComboBox.Items.Count > 0)
+                    languageComboBox.DroppedDown = true;
+            }));
         }
 
         private void LanguageComboBox_KeyDown(object? sender, KeyEventArgs e)
@@ -518,6 +602,43 @@ namespace SherpaOnnxConfig
             }
 
             UpdateVoiceList(choice);
+        }
+
+        private void RefreshLanguageItems(string? query, string? preferredSelection)
+        {
+            if (languageComboBox == null)
+                return;
+
+            IEnumerable<string> source = sortedLanguages;
+            if (!string.IsNullOrWhiteSpace(query))
+            {
+                source = source.Where(l => l.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0);
+            }
+
+            suppressComboEvents = true;
+            languageComboBox.BeginUpdate();
+            try
+            {
+                languageComboBox.Items.Clear();
+                foreach (string language in source)
+                {
+                    languageComboBox.Items.Add(language);
+                }
+
+                if (languageComboBox.Items.Count == 0)
+                {
+                    languageComboBox.Items.Add(AllLanguagesOption);
+                }
+
+                string target = preferredSelection ?? languageComboBox.SelectedItem?.ToString() ?? AllLanguagesOption;
+                int idx = languageComboBox.Items.IndexOf(target);
+                languageComboBox.SelectedIndex = idx >= 0 ? idx : 0;
+            }
+            finally
+            {
+                languageComboBox.EndUpdate();
+                suppressComboEvents = false;
+            }
         }
 
         private void UpdateVoiceList(string language)
@@ -683,6 +804,7 @@ namespace SherpaOnnxConfig
                     AppendOutput($"\r✓ Model downloaded to {modelDir}", Color.FromArgb(100, 255, 100));
                     statusLabel!.Text = $"Status: {voice.Id} downloaded";
                     UpdateVoiceList(languageComboBox!.SelectedItem?.ToString() ?? AllLanguagesOption);
+                    TrySyncPersistentTokens("download");
                 }));
             }
             catch (Exception ex)
@@ -845,7 +967,7 @@ namespace SherpaOnnxConfig
             downloadWorker!.ReportProgress(98, $"Finalizing {voice.Id}...");
         }
 
-        private void TestVoiceButton_Click(object? sender, EventArgs e)
+        private async void TestVoiceButton_Click(object? sender, EventArgs e)
         {
             var voice = GetSelectedVoice();
             if (voice == null || !voice.IsDownloaded())
@@ -858,56 +980,402 @@ namespace SherpaOnnxConfig
             if (string.IsNullOrEmpty(testText))
                 testText = "The quick brown fox jumps over the lazy dog.";
 
+            testVoiceButton!.Enabled = false;
+            AppendOutput($"\rTesting voice {voice.Id} via SAPI5...", Color.FromArgb(150, 200, 255));
+
             try
             {
-                // Try to speak using SAPI5 via late binding
-                Type? spVoiceType = Type.GetTypeFromProgID("SAPI.SpVoice");
-                if (spVoiceType == null)
+                Task<TestVoiceResult> speakTask = RunSapiTestOnStaThread(voice.Id, testText);
+                Task completed = await Task.WhenAny(speakTask, Task.Delay(TimeSpan.FromSeconds(30)));
+                if (completed != speakTask)
                 {
-                    AppendOutput("\rSAPI5 not available on this system.", Color.FromArgb(255, 200, 100));
+                    AppendOutput("\rTest timed out after 30s. The SAPI engine likely stalled during model init/generation.",
+                        Color.FromArgb(255, 180, 100));
                     return;
                 }
 
-                object? voiceObjRaw = Activator.CreateInstance(spVoiceType);
-                if (voiceObjRaw == null)
-                {
-                    AppendOutput("\rFailed to create SAPI.SpVoice instance.", Color.FromArgb(255, 200, 100));
-                    return;
-                }
-                dynamic voiceObj = voiceObjRaw;
-
-                // Find the SherpaOnnx voice by name
-                var voices = voiceObj.GetVoices();
-                if (voices == null)
-                {
-                    AppendOutput("\rNo SAPI voices collection returned.", Color.FromArgb(255, 200, 100));
-                    return;
-                }
-                bool found = false;
-                for (int i = 0; i < voices.Count; i++)
-                {
-                    var v = voices.Item(i);
-                    if (v.Id != null && v.Id.Contains(voice.Id))
-                    {
-                        voiceObj.Voice = v;
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (found)
-                {
-                    voiceObj.Speak(testText);
-                    AppendOutput($"\r✓ Played test using {voice.Id}", Color.FromArgb(100, 255, 100));
-                }
-                else
-                {
-                    AppendOutput($"\rVoice {voice.Id} not found in SAPI5. Please install and register the DLL first.", Color.FromArgb(255, 200, 100));
-                }
+                TestVoiceResult result = await speakTask;
+                AppendOutput(result.Message, result.Success ? Color.FromArgb(100, 255, 100) : Color.FromArgb(255, 200, 100));
             }
             catch (Exception ex)
             {
                 AppendOutput($"\rERROR testing voice: {ex.Message}", Color.FromArgb(255, 100, 100));
+            }
+            finally
+            {
+                testVoiceButton.Enabled = true;
+            }
+        }
+
+        private static Task<TestVoiceResult> RunSapiTestOnStaThread(string voiceId, string testText)
+        {
+            var tcs = new TaskCompletionSource<TestVoiceResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            Thread thread = new Thread(() =>
+            {
+                object? voiceObjRaw = null;
+                object? voices = null;
+                object? selectedVoiceToken = null;
+                try
+                {
+                    if (!TryValidateSapiRegistration(out string regReason))
+                    {
+                        tcs.TrySetResult(new TestVoiceResult(false, "\r" + regReason));
+                        return;
+                    }
+
+                    Type? spVoiceType = Type.GetTypeFromProgID("SAPI.SpVoice");
+                    if (spVoiceType == null)
+                    {
+                        tcs.TrySetResult(new TestVoiceResult(false, "\rSAPI5 not available on this system."));
+                        return;
+                    }
+
+                    voiceObjRaw = Activator.CreateInstance(spVoiceType);
+                    if (voiceObjRaw == null)
+                    {
+                        tcs.TrySetResult(new TestVoiceResult(false, "\rFailed to create SAPI.SpVoice instance."));
+                        return;
+                    }
+
+                    // Preferred path: bind concrete persistent token IDs first.
+                    string[] directTokenIds = new[]
+                    {
+                        $@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\Sherpa-{voiceId}",
+                        $@"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Speech\Voices\Tokens\Sherpa-{voiceId}"
+                    };
+                    string directTokenId = directTokenIds[0];
+                    string directBindErrors = string.Empty;
+                    Type? spTokenType = Type.GetTypeFromProgID("SAPI.SpObjectToken");
+                    if (spTokenType != null)
+                    {
+                        foreach (string candidateTokenId in directTokenIds)
+                        {
+                            object? directToken = null;
+                            try
+                            {
+                                directTokenId = candidateTokenId;
+                                directToken = Activator.CreateInstance(spTokenType);
+                                if (directToken != null)
+                                {
+                                    InvokeComMethod(directToken, "SetId", directTokenId, false);
+                                    SetComProperty(voiceObjRaw, "Voice", directToken);
+                                    InvokeComMethod(voiceObjRaw, "Speak", testText);
+                                    tcs.TrySetResult(new TestVoiceResult(true, $"\r✓ Played test using {voiceId} ({directTokenId})"));
+                                    return;
+                                }
+                            }
+                            catch (Exception directEx)
+                            {
+                                Exception directRoot = directEx;
+                                while (directRoot is TargetInvocationException dtie && dtie.InnerException != null)
+                                {
+                                    directRoot = dtie.InnerException;
+                                }
+                                string directDetails = directRoot is COMException directCom
+                                    ? $"{directCom.Message} (HRESULT 0x{directCom.HResult:X8})"
+                                    : directRoot.Message;
+                                directBindErrors += $"{candidateTokenId} => {directDetails}; ";
+                            }
+                            finally
+                            {
+                                ReleaseComObject(directToken);
+                            }
+                        }
+                    }
+
+                    // Enumerate only NaturalVoice Sherpa tokens to avoid unrelated broken tokens.
+                    voices = InvokeComMethod(voiceObjRaw, "GetVoices", "Vendor=K2FSA", "");
+                    if (voices == null)
+                    {
+                        tcs.TrySetResult(new TestVoiceResult(false, "\rNo SAPI voices collection returned for Vendor=K2FSA."));
+                        return;
+                    }
+
+                    int count = Convert.ToInt32(GetComProperty(voices, "Count") ?? 0, CultureInfo.InvariantCulture);
+                    if (count == 0)
+                    {
+                        tcs.TrySetResult(new TestVoiceResult(false,
+                            "\rNo Sherpa voices found in SAPI (Vendor=K2FSA). Re-register 64-bit and rescan models."));
+                        return;
+                    }
+
+                    bool found = false;
+                    string selectedVoiceTokenId = string.Empty;
+                    for (int i = 0; i < count; i++)
+                    {
+                        object? v = null;
+                        try
+                        {
+                            v = InvokeComMethod(voices, "Item", i);
+                            string? id = GetComProperty(v, "Id")?.ToString();
+                            if (!string.IsNullOrWhiteSpace(id) &&
+                                id.IndexOf(voiceId, StringComparison.OrdinalIgnoreCase) >= 0)
+                            {
+                                try
+                                {
+                                    SetComProperty(voiceObjRaw, "Voice", v);
+                                }
+                                catch (Exception setVoiceEx)
+                                {
+                                    Exception setRoot = setVoiceEx;
+                                    while (setRoot is TargetInvocationException stie && stie.InnerException != null)
+                                    {
+                                        setRoot = stie.InnerException;
+                                    }
+                                    string setDetails = setRoot is COMException setCom
+                                        ? $"{setCom.Message} (HRESULT 0x{setCom.HResult:X8})"
+                                        : setRoot.Message;
+                                    tcs.TrySetResult(new TestVoiceResult(false,
+                                        $"\rERROR testing voice at Set Voice token: {setDetails} [{setRoot.GetType().Name}] {GetSapiRegistrationSnapshot()}"));
+                                    return;
+                                }
+                                selectedVoiceToken = v;
+                                v = null; // keep selected token alive until Speak completes
+                                selectedVoiceTokenId = id;
+                                found = true;
+                                break;
+                            }
+                        }
+                        catch
+                        {
+                            // Skip malformed token and continue.
+                        }
+                        finally
+                        {
+                            ReleaseComObject(v);
+                        }
+                    }
+
+                    if (!found)
+                    {
+                        var availableIds = new List<string>();
+                        for (int i = 0; i < count; i++)
+                        {
+                            object? v = null;
+                            try
+                            {
+                                v = InvokeComMethod(voices, "Item", i);
+                                string? id = GetComProperty(v, "Id")?.ToString();
+                                if (!string.IsNullOrWhiteSpace(id))
+                                    availableIds.Add(id);
+                            }
+                            catch
+                            {
+                                // Ignore bad token for diagnostics list.
+                            }
+                            finally
+                            {
+                                ReleaseComObject(v);
+                            }
+                        }
+                        string shortList = string.Join(", ", availableIds.Take(5));
+                        if (availableIds.Count > 5)
+                            shortList += ", ...";
+                        tcs.TrySetResult(new TestVoiceResult(false,
+                            $"\rVoice {voiceId} not found in SAPI5 Vendor=K2FSA set. Available voices: {shortList}"));
+                        return;
+                    }
+
+                    try
+                    {
+                        InvokeComMethod(voiceObjRaw, "Speak", testText);
+                    }
+                    catch (Exception speakEx)
+                    {
+                        Exception speakRoot = speakEx;
+                        while (speakRoot is TargetInvocationException tie && tie.InnerException != null)
+                        {
+                            speakRoot = tie.InnerException;
+                        }
+
+                        string speakDetails = speakRoot is COMException speakCom
+                            ? $"{speakCom.Message} (HRESULT 0x{speakCom.HResult:X8})"
+                            : speakRoot.Message;
+
+                        tcs.TrySetResult(new TestVoiceResult(false,
+                            $"\rERROR testing voice at Speak call: {speakDetails} [{speakRoot.GetType().Name}] tokenHint={directTokenId} directBind={directBindErrors} {GetSapiRegistrationSnapshot()}"));
+                        return;
+                    }
+                    tcs.TrySetResult(new TestVoiceResult(true, $"\r✓ Played test using {voiceId} ({selectedVoiceTokenId})"));
+                }
+                catch (Exception ex)
+                {
+                    Exception root = ex;
+                    while (root is TargetInvocationException tie && tie.InnerException != null)
+                    {
+                        root = tie.InnerException;
+                    }
+
+                    string details = root.Message;
+                    if (root is COMException comEx)
+                    {
+                        details = $"{comEx.Message} (HRESULT 0x{comEx.HResult:X8})";
+                    }
+
+                    string regSnapshot = GetSapiRegistrationSnapshot();
+                    tcs.TrySetResult(new TestVoiceResult(
+                        false,
+                        $"\rERROR testing voice: {details} [{root.GetType().Name}] {regSnapshot}"));
+                }
+                finally
+                {
+                    ReleaseComObject(selectedVoiceToken);
+                    ReleaseComObject(voices);
+                    ReleaseComObject(voiceObjRaw);
+                }
+            });
+
+            thread.IsBackground = true;
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+
+            return tcs.Task;
+        }
+
+        private static void ReleaseComObject(object? obj)
+        {
+            if (obj == null)
+                return;
+
+            try
+            {
+                if (Marshal.IsComObject(obj))
+                    Marshal.FinalReleaseComObject(obj);
+            }
+            catch
+            {
+                // Ignore release errors in test diagnostics path.
+            }
+        }
+
+        private static bool TryValidateSapiRegistration(out string reason)
+        {
+            string ttsInproc = ReadRegistryString(RegistryHive.LocalMachine, RegistryView.Registry64,
+                $@"SOFTWARE\Classes\CLSID\{TtsEngineClsid}\InprocServer32", null);
+            string enumInproc = ReadRegistryString(RegistryHive.LocalMachine, RegistryView.Registry64,
+                $@"SOFTWARE\Classes\CLSID\{VoiceEnumClsid}\InprocServer32", null);
+            string tokenEnumClsid = ReadRegistryString(RegistryHive.LocalMachine, RegistryView.Registry64,
+                TokenEnumKeyPath, "CLSID");
+            string userTokenEnumClsid = ReadRegistryString(RegistryHive.CurrentUser, RegistryView.Default,
+                @"Software\Microsoft\Speech\Voices\TokenEnums\NaturalVoiceEnumerator", "CLSID");
+
+            if (string.IsNullOrWhiteSpace(ttsInproc) || string.IsNullOrWhiteSpace(enumInproc))
+            {
+                reason = "SAPI COM registration is missing in HKLM. Run Installer as Administrator and click Register 64-bit.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(tokenEnumClsid))
+            {
+                if (!string.IsNullOrWhiteSpace(userTokenEnumClsid))
+                {
+                    reason = "TokenEnums exists only under HKCU. Register the DLL as Administrator so HKLM TokenEnums is created.";
+                }
+                else
+                {
+                    reason = "HKLM TokenEnums registration is missing. Run Installer as Administrator and click Register 64-bit.";
+                }
+                return false;
+            }
+
+            if (!string.Equals(tokenEnumClsid, VoiceEnumClsid, StringComparison.OrdinalIgnoreCase))
+            {
+                reason = $"HKLM TokenEnums CLSID mismatch: {tokenEnumClsid}";
+                return false;
+            }
+
+            reason = string.Empty;
+            return true;
+        }
+
+        private static string GetSapiRegistrationSnapshot()
+        {
+            string ttsInproc = ReadRegistryString(RegistryHive.LocalMachine, RegistryView.Registry64,
+                $@"SOFTWARE\Classes\CLSID\{TtsEngineClsid}\InprocServer32", null);
+            string enumInproc = ReadRegistryString(RegistryHive.LocalMachine, RegistryView.Registry64,
+                $@"SOFTWARE\Classes\CLSID\{VoiceEnumClsid}\InprocServer32", null);
+            string tokenEnumClsid = ReadRegistryString(RegistryHive.LocalMachine, RegistryView.Registry64,
+                TokenEnumKeyPath, "CLSID");
+            string userTokenEnumClsid = ReadRegistryString(RegistryHive.CurrentUser, RegistryView.Default,
+                @"Software\Microsoft\Speech\Voices\TokenEnums\NaturalVoiceEnumerator", "CLSID");
+
+            var sb = new StringBuilder();
+            sb.Append("(reg: ");
+            sb.Append("HKLM.TTS=");
+            sb.Append(string.IsNullOrWhiteSpace(ttsInproc) ? "<missing>" : ttsInproc);
+            sb.Append("; HKLM.Enum=");
+            sb.Append(string.IsNullOrWhiteSpace(enumInproc) ? "<missing>" : enumInproc);
+            sb.Append("; HKLM.TokenEnum=");
+            sb.Append(string.IsNullOrWhiteSpace(tokenEnumClsid) ? "<missing>" : tokenEnumClsid);
+            sb.Append("; HKCU.TokenEnum=");
+            sb.Append(string.IsNullOrWhiteSpace(userTokenEnumClsid) ? "<missing>" : userTokenEnumClsid);
+            sb.Append(')');
+            return sb.ToString();
+        }
+
+        private static string ReadRegistryString(RegistryHive hive, RegistryView view, string subKey, string? valueName)
+        {
+            try
+            {
+                using RegistryKey baseKey = RegistryKey.OpenBaseKey(hive, view);
+                using RegistryKey? key = baseKey.OpenSubKey(subKey, writable: false);
+                return key?.GetValue(valueName ?? string.Empty) as string ?? string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        private static object? InvokeComMethod(object? target, string name, params object[] args)
+        {
+            if (target == null)
+                return null;
+            return target.GetType().InvokeMember(
+                name,
+                BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Instance,
+                null,
+                target,
+                args,
+                CultureInfo.InvariantCulture);
+        }
+
+        private static object? GetComProperty(object? target, string name)
+        {
+            if (target == null)
+                return null;
+            return target.GetType().InvokeMember(
+                name,
+                BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Instance,
+                null,
+                target,
+                null,
+                CultureInfo.InvariantCulture);
+        }
+
+        private static void SetComProperty(object? target, string name, object? value)
+        {
+            if (target == null)
+                return;
+            target.GetType().InvokeMember(
+                name,
+                BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.Instance,
+                null,
+                target,
+                new[] { value },
+                CultureInfo.InvariantCulture);
+        }
+
+        private sealed class TestVoiceResult
+        {
+            public bool Success { get; }
+            public string Message { get; }
+
+            public TestVoiceResult(bool success, string message)
+            {
+                Success = success;
+                Message = message;
             }
         }
 
@@ -935,25 +1403,43 @@ namespace SherpaOnnxConfig
             var result = ScanLocalModels();
             s_lastScanIssues = result.Issues;
             PersistLastScanIssues(result.Issues);
+            var syncResult = SyncPersistentSherpaTokens(result);
 
             if (result.TotalDirectories == 0)
             {
                 AppendOutput("No local model directories found.", Color.FromArgb(255, 200, 100));
-                return;
+            }
+            else
+            {
+                AppendOutput($"Valid models: {result.ValidModels}/{result.TotalDirectories}", Color.FromArgb(100, 255, 100));
+
+                if (result.Issues.Count == 0)
+                {
+                    AppendOutput("No scan errors detected.", Color.FromArgb(100, 255, 100));
+                }
+                else
+                {
+                    AppendOutput($"Scan errors: {result.Issues.Count}", Color.FromArgb(255, 180, 100));
+                    foreach (var issue in result.Issues.OrderBy(i => i.ModelId))
+                    {
+                        AppendOutput($"  {issue.ModelId}: {issue.Error}", Color.FromArgb(255, 120, 120));
+                    }
+                }
             }
 
-            AppendOutput($"Valid models: {result.ValidModels}/{result.TotalDirectories}", Color.FromArgb(100, 255, 100));
-
-            if (result.Issues.Count == 0)
+            AppendOutput($"Persistent SAPI Sherpa tokens ({syncResult.RegistryScope}): +{syncResult.Added} ~{syncResult.Updated} -{syncResult.Removed}",
+                syncResult.Error == null ? Color.FromArgb(120, 220, 140) : Color.FromArgb(255, 180, 100));
+            foreach (string warning in syncResult.Warnings.Take(5))
             {
-                AppendOutput("No scan errors detected.", Color.FromArgb(100, 255, 100));
-                return;
+                AppendOutput($"  Token sync note: {warning}", Color.FromArgb(255, 180, 120));
             }
-
-            AppendOutput($"Scan errors: {result.Issues.Count}", Color.FromArgb(255, 180, 100));
-            foreach (var issue in result.Issues.OrderBy(i => i.ModelId))
+            if (syncResult.Warnings.Count > 5)
             {
-                AppendOutput($"  {issue.ModelId}: {issue.Error}", Color.FromArgb(255, 120, 120));
+                AppendOutput($"  ... and {syncResult.Warnings.Count - 5} more token warnings", Color.FromArgb(255, 180, 120));
+            }
+            if (!string.IsNullOrWhiteSpace(syncResult.Error))
+            {
+                AppendOutput($"  Token sync warning: {syncResult.Error}", Color.FromArgb(255, 140, 120));
             }
         }
 
@@ -964,6 +1450,26 @@ namespace SherpaOnnxConfig
             outputTextBox.AppendText(text + "\r\n");
             outputTextBox.SelectionStart = outputTextBox.TextLength;
             outputTextBox.ScrollToCaret();
+        }
+
+        private void TrySyncPersistentTokens(string reason)
+        {
+            try
+            {
+                var scan = ScanLocalModels();
+                var sync = SyncPersistentSherpaTokens(scan);
+                AppendOutput(
+                    $"Token sync ({reason}, {sync.RegistryScope}): +{sync.Added} ~{sync.Updated} -{sync.Removed}",
+                    string.IsNullOrWhiteSpace(sync.Error) ? Color.FromArgb(120, 220, 140) : Color.FromArgb(255, 180, 100));
+                if (!string.IsNullOrWhiteSpace(sync.Error))
+                {
+                    AppendOutput($"  Token sync warning: {sync.Error}", Color.FromArgb(255, 140, 120));
+                }
+            }
+            catch (Exception ex)
+            {
+                AppendOutput($"Token sync ({reason}) failed: {ex.Message}", Color.FromArgb(255, 140, 120));
+            }
         }
 
         // Static methods for CLI access
@@ -1272,6 +1778,16 @@ namespace SherpaOnnxConfig
                 Console.WriteLine($"  {issue.ModelId}: {issue.Error}");
             }
 
+            var syncResult = SyncPersistentSherpaTokens(result);
+            Console.WriteLine();
+            Console.WriteLine($"Persistent SAPI Sherpa tokens synced ({syncResult.RegistryScope}): +{syncResult.Added} ~{syncResult.Updated} -{syncResult.Removed}");
+            foreach (string warning in syncResult.Warnings.Take(10))
+            {
+                Console.WriteLine($"  note: {warning}");
+            }
+            if (!string.IsNullOrWhiteSpace(syncResult.Error))
+                Console.WriteLine($"Token sync warning: {syncResult.Error}");
+
             return result.Issues.Count == 0 ? 0 : 2;
         }
 
@@ -1401,18 +1917,6 @@ namespace SherpaOnnxConfig
             if (names.Count > 0)
                 return names;
 
-            string modelId = model.id ?? string.Empty;
-            foreach (Match match in LanguageCodeRegex.Matches(modelId))
-            {
-                string langCode = match.Groups[1].Value.ToLowerInvariant();
-                string? inferred = ResolveLanguageName(new SherpaLanguage { lang_code = langCode });
-                if (!string.IsNullOrWhiteSpace(inferred))
-                    names.Add(inferred);
-            }
-
-            if (names.Count > 0)
-                return names;
-
             return new[] { "Unknown" };
         }
 
@@ -1437,7 +1941,10 @@ namespace SherpaOnnxConfig
             {
                 string normalized = code.ToLowerInvariant();
                 var culture = CultureInfo.GetCultures(CultureTypes.NeutralCultures)
-                    .FirstOrDefault(c => c.TwoLetterISOLanguageName.Equals(normalized, StringComparison.OrdinalIgnoreCase));
+                    .FirstOrDefault(c =>
+                        c.TwoLetterISOLanguageName.Equals(normalized, StringComparison.OrdinalIgnoreCase) ||
+                        c.ThreeLetterISOLanguageName.Equals(normalized, StringComparison.OrdinalIgnoreCase) ||
+                        c.ThreeLetterWindowsLanguageName.Equals(normalized, StringComparison.OrdinalIgnoreCase));
                 if (culture != null)
                     return culture.EnglishName;
             }
@@ -1505,13 +2012,34 @@ namespace SherpaOnnxConfig
 
         private static string? ValidateSingleLocalModel(string modelDir)
         {
-            bool hasTokens = File.Exists(Path.Combine(modelDir, "tokens.txt"));
-            bool hasModel = File.Exists(Path.Combine(modelDir, "model.onnx"));
-            bool hasVoices = File.Exists(Path.Combine(modelDir, "voices.bin"));
+            string scanDir = modelDir;
+            bool hasTopLevelSignals = File.Exists(Path.Combine(modelDir, "tokens.txt")) ||
+                                      File.Exists(Path.Combine(modelDir, "model.onnx")) ||
+                                      File.Exists(Path.Combine(modelDir, "voices.bin")) ||
+                                      Directory.Exists(Path.Combine(modelDir, "espeak-ng-data")) ||
+                                      Directory.EnumerateFiles(modelDir, "*.onnx", SearchOption.TopDirectoryOnly).Any();
+            if (!hasTopLevelSignals)
+            {
+                var subdirs = Directory.GetDirectories(modelDir);
+                if (subdirs.Length == 1)
+                    scanDir = subdirs[0];
+            }
 
-            bool hasMatchaModel = Directory.EnumerateFiles(modelDir, "model-steps*.onnx", SearchOption.TopDirectoryOnly).Any();
-            bool hasMatchaVocoder = Directory.EnumerateFiles(modelDir, "vocos*.onnx", SearchOption.TopDirectoryOnly).Any() ||
-                                   Directory.EnumerateFiles(modelDir, "vocoder*.onnx", SearchOption.TopDirectoryOnly).Any();
+            bool hasTokens = File.Exists(Path.Combine(scanDir, "tokens.txt"));
+            bool hasModel = File.Exists(Path.Combine(scanDir, "model.onnx")) ||
+                Directory.EnumerateFiles(scanDir, "*.onnx", SearchOption.TopDirectoryOnly)
+                    .Any(f =>
+                    {
+                        string file = Path.GetFileName(f).ToLowerInvariant();
+                        return !file.StartsWith("model-steps", StringComparison.Ordinal) &&
+                               !file.StartsWith("vocos", StringComparison.Ordinal) &&
+                               !file.StartsWith("vocoder", StringComparison.Ordinal);
+                    });
+            bool hasVoices = File.Exists(Path.Combine(scanDir, "voices.bin"));
+
+            bool hasMatchaModel = Directory.EnumerateFiles(scanDir, "model-steps*.onnx", SearchOption.TopDirectoryOnly).Any();
+            bool hasMatchaVocoder = Directory.EnumerateFiles(scanDir, "vocos*.onnx", SearchOption.TopDirectoryOnly).Any() ||
+                                   Directory.EnumerateFiles(scanDir, "vocoder*.onnx", SearchOption.TopDirectoryOnly).Any();
 
             if (hasMatchaModel || hasMatchaVocoder)
             {
@@ -1537,6 +2065,435 @@ namespace SherpaOnnxConfig
             }
 
             return "No recognizable Sherpa model files found";
+        }
+
+        private sealed class PersistentTokenMetadata
+        {
+            public string FriendlyName { get; set; } = "";
+            public string DisplayName { get; set; } = "";
+            public string Locale { get; set; } = "en-US";
+            public string LanguageHexChain { get; set; } = "0409";
+            public string Gender { get; set; } = "Neutral";
+            public int ModelType { get; set; }
+            public string ModelPath { get; set; } = "";
+            public string TokensPath { get; set; } = "";
+            public string DataDir { get; set; } = "";
+            public string VoicesPath { get; set; } = "";
+            public string AcousticModel { get; set; } = "";
+            public string Vocoder { get; set; } = "";
+            public int SampleRate { get; set; } = 22050;
+            public int SpeakerCount { get; set; } = 1;
+            public string ModelName { get; set; } = "";
+        }
+
+        private sealed class TokenSyncResult
+        {
+            public int Added { get; set; }
+            public int Updated { get; set; }
+            public int Removed { get; set; }
+            public string? Error { get; set; }
+            public string RegistryScope { get; set; } = "none";
+            public List<string> Warnings { get; } = new List<string>();
+        }
+
+        private static TokenSyncResult SyncPersistentSherpaTokens(ModelScanResult scanResult)
+        {
+            var result = new TokenSyncResult();
+            Dictionary<string, SherpaModelInfo> catalog;
+            HashSet<string> validModelIds;
+            try
+            {
+                catalog = LoadCatalogById();
+                validModelIds = new HashSet<string>(
+                    Directory.GetDirectories(ModelsDir)
+                        .Select(Path.GetFileName)
+                        .Where(id => !string.IsNullOrWhiteSpace(id))
+                        .Cast<string>(),
+                    StringComparer.OrdinalIgnoreCase);
+
+                foreach (var issue in scanResult.Issues)
+                    validModelIds.Remove(issue.ModelId);
+            }
+            catch (Exception ex)
+            {
+                result.Error = ex.Message;
+                return result;
+            }
+
+            // Models live under %LOCALAPPDATA% (per-user), so prefer HKCU tokens.
+            bool preferPerUserTokens = ModelsDir.StartsWith(
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "NaturalVoiceSAPIAdapter"),
+                StringComparison.OrdinalIgnoreCase);
+
+            bool synced = false;
+            if (preferPerUserTokens)
+            {
+                try
+                {
+                    using RegistryKey? hkcuRoot = Registry.CurrentUser.CreateSubKey(SapiTokensRoot, writable: true);
+                    if (hkcuRoot == null)
+                    {
+                        result.Error = "Cannot open HKCU SAPI token root for writing.";
+                        result.RegistryScope = "none";
+                        return result;
+                    }
+
+                    result.RegistryScope = "HKCU";
+                    SyncPersistentTokensToRoot(hkcuRoot, validModelIds, catalog, result);
+                    synced = true;
+                    result.Warnings.Add("Using per-user HKCU token registration (models are per-user).");
+                }
+                catch (Exception ex)
+                {
+                    result.Error = $"HKCU token sync failed: {ex.Message}";
+                    result.RegistryScope = "none";
+                    return result;
+                }
+            }
+
+            if (!synced)
+            {
+                try
+                {
+                    using RegistryKey? hklmRoot = Registry.LocalMachine.CreateSubKey(SapiTokensRoot, writable: true);
+                    if (hklmRoot != null)
+                    {
+                        result.RegistryScope = "HKLM";
+                        SyncPersistentTokensToRoot(hklmRoot, validModelIds, catalog, result);
+                        synced = true;
+                    }
+                    else
+                    {
+                        result.Warnings.Add("HKLM token root unavailable.");
+                    }
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    result.Warnings.Add("HKLM token write denied (run as Administrator for machine-wide registration).");
+                }
+                catch (Exception ex)
+                {
+                    result.Warnings.Add($"HKLM token sync failed: {ex.Message}");
+                }
+            }
+
+            if (!synced)
+            {
+                try
+                {
+                    using RegistryKey? hkcuRoot = Registry.CurrentUser.CreateSubKey(SapiTokensRoot, writable: true);
+                    if (hkcuRoot == null)
+                    {
+                        result.Error = "Cannot open HKLM or HKCU SAPI token roots for writing.";
+                        result.RegistryScope = "none";
+                        return result;
+                    }
+
+                    result.RegistryScope = "HKCU";
+                    SyncPersistentTokensToRoot(hkcuRoot, validModelIds, catalog, result);
+                    result.Warnings.Add("Using per-user HKCU token registration fallback.");
+                    synced = true;
+                }
+                catch (Exception ex)
+                {
+                    result.Error = $"HKLM and HKCU token sync failed: {ex.Message}";
+                    result.RegistryScope = "none";
+                }
+            }
+            return result;
+        }
+
+        private static void SyncPersistentTokensToRoot(
+            RegistryKey tokensRoot,
+            HashSet<string> validModelIds,
+            Dictionary<string, SherpaModelInfo> catalog,
+            TokenSyncResult result)
+        {
+            foreach (string modelId in validModelIds.OrderBy(s => s, StringComparer.OrdinalIgnoreCase))
+            {
+                string modelDir = Path.Combine(ModelsDir, modelId);
+                if (!TryBuildPersistentTokenMetadata(modelId, modelDir, catalog, out var meta, out string? why))
+                {
+                    if (!string.IsNullOrWhiteSpace(why))
+                    {
+                        result.Warnings.Add($"{modelId}: {why}");
+                    }
+                    continue;
+                }
+
+                string tokenName = "Sherpa-" + modelId;
+                bool existed = tokensRoot.OpenSubKey(tokenName) != null;
+                WritePersistentToken(tokensRoot, tokenName, meta);
+                if (existed) result.Updated++;
+                else result.Added++;
+            }
+
+            // Remove stale Sherpa-* tokens that no longer have a valid local model.
+            foreach (string subName in tokensRoot.GetSubKeyNames())
+            {
+                if (!subName.StartsWith("Sherpa-", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                string modelId = subName.Substring("Sherpa-".Length);
+                if (validModelIds.Contains(modelId))
+                    continue;
+                try
+                {
+                    tokensRoot.DeleteSubKeyTree(subName, throwOnMissingSubKey: false);
+                    result.Removed++;
+                }
+                catch (Exception ex)
+                {
+                    result.Warnings.Add($"{subName}: remove failed ({ex.Message})");
+                }
+            }
+        }
+
+        private static Dictionary<string, SherpaModelInfo> LoadCatalogById()
+        {
+            var byId = new Dictionary<string, SherpaModelInfo>(StringComparer.OrdinalIgnoreCase);
+            string? path = FindCatalogPath();
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+                return byId;
+
+            string json = File.ReadAllText(path);
+            var catalog = JsonSerializer.Deserialize<SherpaModelsCatalog>(json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            if (catalog == null)
+                return byId;
+
+            foreach (var kv in catalog)
+            {
+                string id = kv.Value.id ?? kv.Key;
+                if (string.IsNullOrWhiteSpace(id))
+                    continue;
+                byId[id] = kv.Value;
+            }
+            return byId;
+        }
+
+        private static bool TryBuildPersistentTokenMetadata(
+            string modelId,
+            string modelDir,
+            Dictionary<string, SherpaModelInfo> catalogById,
+            out PersistentTokenMetadata meta,
+            out string? error)
+        {
+            meta = new PersistentTokenMetadata();
+            error = null;
+
+            string scanDir = ResolveModelScanDir(modelDir);
+            string? modelPath = FindPrimaryModelOnnx(scanDir);
+            string tokensPath = Path.Combine(scanDir, "tokens.txt");
+            string dataDir = Path.Combine(scanDir, "espeak-ng-data");
+            string voicesPath = Path.Combine(scanDir, "voices.bin");
+            string? acoustic = Directory.EnumerateFiles(scanDir, "model-steps*.onnx", SearchOption.TopDirectoryOnly).FirstOrDefault();
+            string? vocoder = Directory.EnumerateFiles(scanDir, "vocos*.onnx", SearchOption.TopDirectoryOnly).FirstOrDefault()
+                            ?? Directory.EnumerateFiles(scanDir, "vocoder*.onnx", SearchOption.TopDirectoryOnly).FirstOrDefault();
+
+            bool isMatcha = !string.IsNullOrWhiteSpace(acoustic) || !string.IsNullOrWhiteSpace(vocoder);
+            bool isKokoro = File.Exists(voicesPath) || modelId.Contains("kokoro", StringComparison.OrdinalIgnoreCase);
+            int modelType = isMatcha ? 1 : (isKokoro ? 2 : 0);
+
+            if (isMatcha)
+            {
+                if (string.IsNullOrWhiteSpace(acoustic) || string.IsNullOrWhiteSpace(vocoder) || !File.Exists(tokensPath))
+                {
+                    error = "Matcha model missing acoustic/vocoder/tokens files.";
+                    return false;
+                }
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(modelPath) || !File.Exists(tokensPath))
+                {
+                    error = "VITS/Kokoro model missing model.onnx or tokens.txt.";
+                    return false;
+                }
+                if (isKokoro && !File.Exists(voicesPath))
+                {
+                    error = "Kokoro model missing voices.bin.";
+                    return false;
+                }
+            }
+
+            SherpaModelInfo? catalogModel = null;
+            catalogById.TryGetValue(modelId, out catalogModel);
+            string displayName = !string.IsNullOrWhiteSpace(catalogModel?.name) ? catalogModel!.name! : modelId;
+            string locale = GetPrimaryLocale(catalogModel) ?? "en-US";
+            string langHexChain = BuildSapiLanguageHexChain(locale);
+            string gender = InferGenderFromText($"{modelId} {displayName}");
+            string friendly = $"Sherpa {displayName}";
+
+            meta.FriendlyName = friendly;
+            meta.DisplayName = displayName;
+            meta.Locale = locale;
+            meta.LanguageHexChain = langHexChain;
+            meta.Gender = gender;
+            meta.ModelType = modelType;
+            meta.ModelPath = modelPath ?? "";
+            meta.TokensPath = tokensPath;
+            meta.DataDir = Directory.Exists(dataDir) ? dataDir : "";
+            meta.VoicesPath = isKokoro ? voicesPath : "";
+            meta.AcousticModel = acoustic ?? "";
+            meta.Vocoder = vocoder ?? "";
+            meta.SampleRate = catalogModel?.sample_rate ?? 22050;
+            meta.SpeakerCount = 1;
+            meta.ModelName = modelId;
+            return true;
+        }
+
+        private static string ResolveModelScanDir(string modelDir)
+        {
+            bool hasTop = File.Exists(Path.Combine(modelDir, "tokens.txt")) ||
+                          File.Exists(Path.Combine(modelDir, "model.onnx")) ||
+                          File.Exists(Path.Combine(modelDir, "voices.bin")) ||
+                          Directory.Exists(Path.Combine(modelDir, "espeak-ng-data")) ||
+                          Directory.EnumerateFiles(modelDir, "*.onnx", SearchOption.TopDirectoryOnly).Any();
+            if (hasTop)
+                return modelDir;
+
+            string[] subdirs = Directory.GetDirectories(modelDir);
+            if (subdirs.Length == 1)
+                return subdirs[0];
+
+            return modelDir;
+        }
+
+        private static string? FindPrimaryModelOnnx(string dir)
+        {
+            if (File.Exists(Path.Combine(dir, "model.onnx")))
+                return Path.Combine(dir, "model.onnx");
+            foreach (string f in Directory.EnumerateFiles(dir, "*.onnx", SearchOption.TopDirectoryOnly))
+            {
+                string name = Path.GetFileName(f).ToLowerInvariant();
+                if (name.StartsWith("model-steps", StringComparison.Ordinal) ||
+                    name.StartsWith("vocos", StringComparison.Ordinal) ||
+                    name.StartsWith("vocoder", StringComparison.Ordinal))
+                    continue;
+                return f;
+            }
+            return null;
+        }
+
+        private static string? GetPrimaryLocale(SherpaModelInfo? model)
+        {
+            if (model?.language == null || model.language.Count == 0)
+                return null;
+            foreach (var lang in model.language)
+            {
+                string? code = lang.lang_code ?? lang.IsoCodeAlt;
+                if (!string.IsNullOrWhiteSpace(code))
+                    return NormalizeLocaleCode(code);
+            }
+            return null;
+        }
+
+        private static string NormalizeLocaleCode(string code)
+        {
+            string raw = code.Trim().Replace('_', '-');
+            if (string.IsNullOrWhiteSpace(raw))
+                return "en-US";
+
+            try
+            {
+                var ci = new CultureInfo(raw);
+                if (!ci.IsNeutralCulture && !string.IsNullOrWhiteSpace(ci.Name))
+                    return ci.Name;
+
+                // For neutral language tags like "en", choose a valid specific culture.
+                var specific = CultureInfo.CreateSpecificCulture(ci.Name);
+                if (!string.IsNullOrWhiteSpace(specific.Name))
+                    return specific.Name;
+            }
+            catch
+            {
+                // fall through
+            }
+
+            try
+            {
+                var specific = CultureInfo.CreateSpecificCulture(raw);
+                if (!string.IsNullOrWhiteSpace(specific.Name))
+                    return specific.Name;
+            }
+            catch
+            {
+                // fall through
+            }
+
+            return "en-US";
+        }
+
+        private static string BuildSapiLanguageHexChain(string locale)
+        {
+            try
+            {
+                var normalized = NormalizeLocaleCode(locale);
+                var ci = new CultureInfo(normalized);
+                var ids = new List<int> { ci.LCID };
+                // Add parent only if it is a real language LCID (exclude invariant/neutral sentinel values).
+                if (ci.Parent != null && ci.Parent.LCID != ci.LCID && ci.Parent.LCID >= 0x0400 && ci.Parent.LCID != 0x007F)
+                    ids.Add(ci.Parent.LCID);
+                if (!ids.Contains(0x0409))
+                    ids.Add(0x0409);
+                // SAPI tokens commonly use hex without leading zeros (e.g. 409, 809).
+                return string.Join(";", ids.Distinct().Select(id => id.ToString("X")));
+            }
+            catch
+            {
+                return "409";
+            }
+        }
+
+        private static string InferGenderFromText(string text)
+        {
+            string v = text.ToLowerInvariant();
+            if (v.Contains("female") || v.Contains("woman") || v.Contains("girl"))
+                return "Female";
+            if (v.Contains("male") || v.Contains("man") || v.Contains("boy"))
+                return "Male";
+            return "Neutral";
+        }
+
+        private static void WritePersistentToken(RegistryKey tokensRoot, string tokenName, PersistentTokenMetadata m)
+        {
+            using RegistryKey tokenKey = tokensRoot.CreateSubKey(tokenName, writable: true)!;
+            tokenKey.SetValue("", m.FriendlyName, RegistryValueKind.String);
+            tokenKey.SetValue("CLSID", "{013AB33B-AD1A-401C-8BEE-F6E2B046A94E}", RegistryValueKind.String);
+
+            using (RegistryKey attrs = tokenKey.CreateSubKey("Attributes", writable: true)!)
+            {
+                attrs.SetValue("Name", m.DisplayName, RegistryValueKind.String);
+                attrs.SetValue("Gender", m.Gender, RegistryValueKind.String);
+                attrs.SetValue("Age", "Adult", RegistryValueKind.String);
+                attrs.SetValue("Language", m.LanguageHexChain, RegistryValueKind.String);
+                attrs.SetValue("Locale", m.Locale, RegistryValueKind.String);
+                attrs.SetValue("Vendor", "K2FSA", RegistryValueKind.String);
+                attrs.SetValue("NaturalVoiceType", "Sherpa;Offline", RegistryValueKind.String);
+                attrs.SetValue("SherpaModelName", m.ModelName, RegistryValueKind.String);
+            }
+
+            using (RegistryKey cfg = tokenKey.CreateSubKey("NaturalVoiceConfig", writable: true)!)
+            {
+                cfg.SetValue("EngineType", "Sherpa", RegistryValueKind.String);
+                cfg.SetValue("SherpaOnnxModelType", m.ModelType, RegistryValueKind.DWord);
+                cfg.SetValue("SampleRate", m.SampleRate, RegistryValueKind.DWord);
+                cfg.SetValue("SpeakerCount", m.SpeakerCount, RegistryValueKind.DWord);
+                cfg.SetValue("IsSherpaVoice", 1, RegistryValueKind.DWord);
+
+                if (!string.IsNullOrWhiteSpace(m.ModelPath))
+                    cfg.SetValue("SherpaOnnxModelPath", m.ModelPath, RegistryValueKind.String);
+                if (!string.IsNullOrWhiteSpace(m.TokensPath))
+                    cfg.SetValue("SherpaOnnxTokens", m.TokensPath, RegistryValueKind.String);
+                if (!string.IsNullOrWhiteSpace(m.DataDir))
+                    cfg.SetValue("SherpaOnnxDataDir", m.DataDir, RegistryValueKind.String);
+                if (!string.IsNullOrWhiteSpace(m.VoicesPath))
+                    cfg.SetValue("SherpaOnnxVoices", m.VoicesPath, RegistryValueKind.String);
+                if (!string.IsNullOrWhiteSpace(m.AcousticModel))
+                    cfg.SetValue("SherpaOnnxAcousticModel", m.AcousticModel, RegistryValueKind.String);
+                if (!string.IsNullOrWhiteSpace(m.Vocoder))
+                    cfg.SetValue("SherpaOnnxVocoder", m.Vocoder, RegistryValueKind.String);
+            }
         }
     }
 

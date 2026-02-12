@@ -26,6 +26,9 @@
 .PARAMETER SkipSherpaDeps
     Skip downloading SherpaOnnx dependencies (useful if already downloaded)
 
+.PARAMETER ForceSherpaDeps
+    Force re-download SherpaOnnx dependencies even if already extracted
+
 .PARAMETER SkipSubmodules
     Skip initializing/updating submodules
 
@@ -46,6 +49,8 @@ param(
     [string[]]$Platforms = @("x64"),
 
     [switch]$SkipSherpaDeps,
+
+    [switch]$ForceSherpaDeps,
 
     [switch]$SkipSubmodules,
 
@@ -95,6 +100,16 @@ if (!(Test-Path $UtilitiesOutputDir)) {
     New-Item -ItemType Directory -Path $UtilitiesOutputDir -Force | Out-Null
 }
 
+function Copy-IfExists {
+    param(
+        [Parameter(Mandatory = $true)][string]$SourcePath,
+        [Parameter(Mandatory = $true)][string]$DestinationPath
+    )
+    if (Test-Path $SourcePath) {
+        Copy-Item -Path $SourcePath -Destination $DestinationPath -Force -ErrorAction Stop
+    }
+}
+
 # Step 1: Initialize submodules
 if (!$SkipSubmodules) {
     Write-Host "[Step 1/7] Initializing submodules..." -ForegroundColor Cyan
@@ -127,11 +142,19 @@ if (!$SkipSherpaDeps) {
     $confs = @($Configuration)
     if ($Configuration -eq "Debug") {
         # For Debug builds, download Debug libraries
-        & $depsScript -Platforms $Platforms -Configuration Debug -Force
+        if ($ForceSherpaDeps) {
+            & $depsScript -Platforms $Platforms -Configuration Debug -Force
+        } else {
+            & $depsScript -Platforms $Platforms -Configuration Debug
+        }
     }
     else {
         # For Release builds, download Release libraries
-        & $depsScript -Platforms $Platforms -Configuration Release -Force
+        if ($ForceSherpaDeps) {
+            & $depsScript -Platforms $Platforms -Configuration Release -Force
+        } else {
+            & $depsScript -Platforms $Platforms -Configuration Release
+        }
     }
 
     if ($LASTEXITCODE -ne 0) {
@@ -233,9 +256,13 @@ foreach ($Platform in $Platforms) {
             throw "MSBuild failed with exit code $LASTEXITCODE"
         }
 
-        # Copy output files to utilities directory (for installer)
-        Copy-Item -Path "$outDir\*.dll" -Destination $UtilitiesOutputDir -Force -ErrorAction SilentlyContinue
-        Copy-Item -Path "$outDir\*.pdb" -Destination $UtilitiesOutputDir -Force -ErrorAction SilentlyContinue
+        # Copy core runtime files to utilities directory (for installer/runtime verification).
+        # Fail fast if these cannot be refreshed, to avoid stale DLLs in out\.
+        Copy-IfExists -SourcePath "$outDir\NaturalVoiceSAPIAdapter.dll" -DestinationPath $UtilitiesOutputDir
+        Copy-IfExists -SourcePath "$outDir\NaturalVoiceSAPIAdapter.pdb" -DestinationPath $UtilitiesOutputDir
+        Copy-IfExists -SourcePath "$outDir\sherpa-onnx-c-api.dll" -DestinationPath $UtilitiesOutputDir
+        Copy-IfExists -SourcePath "$outDir\onnxruntime.dll" -DestinationPath $UtilitiesOutputDir
+        Copy-IfExists -SourcePath "$outDir\onnxruntime_providers_shared.dll" -DestinationPath $UtilitiesOutputDir
 
         Write-Host "    $Platform built successfully" -ForegroundColor Green
     }
@@ -290,6 +317,10 @@ if (!$SkipVerify) {
         & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $ScriptDir "scripts\verify-sherpa-integration.ps1") -SkipBuild
         if ($LASTEXITCODE -ne 0) {
             throw "Verification script failed with exit code $LASTEXITCODE"
+        }
+        & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $ScriptDir "scripts\run-sherpa-smoke-test.ps1")
+        if ($LASTEXITCODE -ne 0) {
+            throw "Sherpa smoke test failed with exit code $LASTEXITCODE"
         }
         Write-Host "  Verification passed" -ForegroundColor Green
     }
