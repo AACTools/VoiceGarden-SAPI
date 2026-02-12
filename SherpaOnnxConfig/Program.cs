@@ -151,6 +151,27 @@ namespace SherpaOnnxConfig
                 case "rescan":
                     return MainForm.RescanModels();
 
+                case "promote-hklm":
+                    {
+                        string? promoteModelId = null;
+                        for (int i = 1; i < args.Length; i++)
+                        {
+                            if (!args[i].StartsWith("--"))
+                            {
+                                promoteModelId = args[i];
+                                break;
+                            }
+                        }
+
+                        if (string.IsNullOrWhiteSpace(promoteModelId))
+                        {
+                            Console.WriteLine("ERROR: 'promote-hklm' command requires a model ID.");
+                            return 1;
+                        }
+
+                        return MainForm.PromoteModelTokenToHklm(promoteModelId);
+                    }
+
                 case "sapi-probe":
                     {
                         string? probeVoiceId = null;
@@ -213,6 +234,7 @@ namespace SherpaOnnxConfig
             Console.WriteLine("  download <model-id>       Download a model by ID");
             Console.WriteLine("  downloaded               List downloaded models");
             Console.WriteLine("  rescan                   Validate local model folders and show per-model errors");
+            Console.WriteLine("  promote-hklm <model-id>  Install one model token to HKLM for admin/machine-wide apps");
             Console.WriteLine("  sapi-probe --voice <id>   Probe SAPI activation/speak stages for one voice");
             Console.WriteLine();
             Console.WriteLine("Examples:");
@@ -220,6 +242,7 @@ namespace SherpaOnnxConfig
             Console.WriteLine("  SherpaOnnxConfig.exe list --language English");
             Console.WriteLine("  SherpaOnnxConfig.exe list --language Chinese");
             Console.WriteLine("  SherpaOnnxConfig.exe download kokoro-en-en-19");
+            Console.WriteLine("  SherpaOnnxConfig.exe promote-hklm piper-en-alan-low");
             Console.WriteLine("  SherpaOnnxConfig.exe sapi-probe --voice piper-en-alan-low");
             Console.WriteLine("  SherpaOnnxConfig.exe downloaded");
             Console.WriteLine();

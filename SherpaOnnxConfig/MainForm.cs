@@ -26,10 +26,10 @@ namespace SherpaOnnxConfig
         private CheckBox? downloadedOnlyCheckBox;
         private ComboBox? voiceComboBox;
         private Button? downloadButton;
-        private Button? cancelDownloadButton;
         private Button? testVoiceButton;
         private Button? openModelsFolderButton;
         private Button? rescanModelsButton;
+        private Button? installForAdminAppsButton;
         private RichTextBox? outputTextBox;
         private TextBox? testTextInput;
         private ProgressBar? progressBar;
@@ -185,19 +185,6 @@ namespace SherpaOnnxConfig
             downloadButton.FlatAppearance.BorderSize = 0;
             downloadButton.Click += DownloadButton_Click;
 
-            cancelDownloadButton = new Button
-            {
-                Location = new Point(170, 72),
-                Size = new Size(95, 34),
-                Text = "Cancel",
-                BackColor = Color.FromArgb(190, 50, 45),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Enabled = false,
-                Visible = false
-            };
-            cancelDownloadButton.FlatAppearance.BorderSize = 0;
-            cancelDownloadButton.Click += CancelDownloadButton_Click;
 
             modelInfoLabel = new Label
             {
@@ -232,7 +219,6 @@ namespace SherpaOnnxConfig
             voiceGroup.Controls.Add(voiceLabel);
             voiceGroup.Controls.Add(voiceComboBox);
             voiceGroup.Controls.Add(downloadButton);
-            voiceGroup.Controls.Add(cancelDownloadButton);
             voiceGroup.Controls.Add(modelInfoLabel);
             voiceGroup.Controls.Add(progressBar);
             voiceGroup.Controls.Add(downloadProgressLabel);
@@ -309,6 +295,15 @@ namespace SherpaOnnxConfig
             };
             rescanModelsButton.Click += RescanModelsButton_Click;
 
+            installForAdminAppsButton = new Button
+            {
+                Location = new Point(395, 30),
+                Size = new Size(220, 36),
+                Text = "Install for Admin Apps",
+                FlatStyle = FlatStyle.Flat
+            };
+            installForAdminAppsButton.Click += InstallForAdminAppsButton_Click;
+
             actionsHintLabel = new Label
             {
                 Location = new Point(15, 72),
@@ -321,6 +316,7 @@ namespace SherpaOnnxConfig
 
             actionsGroup.Controls.Add(openModelsFolderButton);
             actionsGroup.Controls.Add(rescanModelsButton);
+            actionsGroup.Controls.Add(installForAdminAppsButton);
             actionsGroup.Controls.Add(actionsHintLabel);
 
             // Output
@@ -382,7 +378,8 @@ namespace SherpaOnnxConfig
             if (titleLabel == null || statusLabel == null || languageComboBox == null || voiceGroup == null ||
                 testGroup == null || actionsGroup == null || outputTextBox == null || testVoiceButton == null ||
                 testTextInput == null || voiceComboBox == null || progressBar == null || downloadProgressLabel == null ||
-                modelInfoLabel == null || testHintLabel == null || actionsHintLabel == null || cancelDownloadButton == null ||
+                modelInfoLabel == null || testHintLabel == null || actionsHintLabel == null ||
+                openModelsFolderButton == null || rescanModelsButton == null || installForAdminAppsButton == null ||
                 downloadedOnlyCheckBox == null)
             {
                 return;
@@ -400,7 +397,6 @@ namespace SherpaOnnxConfig
             int voiceInner = Math.Max(420, voiceGroup.ClientSize.Width - 30);
             voiceComboBox.SetBounds(100, 30, Math.Max(260, voiceInner - 85), 30);
             downloadButton.SetBounds(15, 72, 150, 34);
-            cancelDownloadButton.SetBounds(170, 72, 95, 34);
             progressBar.SetBounds(200, 74, Math.Max(200, voiceInner - 215), 22);
             downloadProgressLabel.SetBounds(200, 100, Math.Max(220, voiceInner - 215), 18);
             modelInfoLabel.SetBounds(15, 120, Math.Max(260, voiceInner), 35);
@@ -415,6 +411,9 @@ namespace SherpaOnnxConfig
 
             actionsGroup.SetBounds(margin, 451, width, 100);
             int actionsInner = Math.Max(420, actionsGroup.ClientSize.Width - 30);
+            openModelsFolderButton.SetBounds(15, 30, 190, 36);
+            rescanModelsButton.SetBounds(215, 30, 170, 36);
+            installForAdminAppsButton.SetBounds(395, 30, 220, 36);
             actionsHintLabel.SetBounds(15, 72, Math.Max(260, actionsInner), 22);
 
             int outputTop = actionsGroup.Bottom + 10;
@@ -762,6 +761,7 @@ namespace SherpaOnnxConfig
             {
                 bool hasLocalDir = HasModelDirectory(voice.Id);
                 bool isReady = IsModelDownloaded(voice.Id);
+                downloadButton!.BackColor = Color.FromArgb(255, 140, 0);
                 downloadButton!.Enabled = !isReady;
                 downloadButton.Text = isReady ? "Downloaded" : (hasLocalDir ? "Repair Download" : "Download Model");
                 downloadProgressLabel!.Visible = false;
@@ -795,14 +795,14 @@ namespace SherpaOnnxConfig
 
         private void DownloadButton_Click(object? sender, EventArgs e)
         {
-            var voice = GetSelectedVoice();
-            if (voice == null) return;
-
             if (downloadWorker!.IsBusy)
             {
-                AppendOutput("Download already in progress...", Color.FromArgb(255, 200, 100));
+                RequestDownloadCancellation();
                 return;
             }
+
+            var voice = GetSelectedVoice();
+            if (voice == null) return;
 
             AppendOutput($"\r\n=== Downloading Model: {voice.Id} ===", Color.FromArgb(255, 140, 0));
             if (voice.ModelSize > 0)
@@ -814,22 +814,21 @@ namespace SherpaOnnxConfig
             progressBar.Style = ProgressBarStyle.Continuous;
             downloadProgressLabel!.Visible = true;
             downloadProgressLabel.Text = "Preparing download...";
-            downloadButton!.Enabled = false;
-            downloadButton.Text = "Downloading...";
-            cancelDownloadButton!.Visible = true;
-            cancelDownloadButton.Enabled = true;
+            downloadButton!.Enabled = true;
+            downloadButton.Text = "Cancel Download";
+            downloadButton.BackColor = Color.FromArgb(190, 50, 45);
             voiceComboBox!.Enabled = false;
             languageComboBox!.Enabled = false;
 
             downloadWorker.RunWorkerAsync(voice);
         }
 
-        private void CancelDownloadButton_Click(object? sender, EventArgs e)
+        private void RequestDownloadCancellation()
         {
             if (downloadWorker == null || !downloadWorker.IsBusy)
                 return;
 
-            cancelDownloadButton!.Enabled = false;
+            downloadButton!.Enabled = false;
             downloadProgressLabel!.Visible = true;
             downloadProgressLabel.Text = "Cancelling download...";
             statusLabel!.Text = "Status: Cancelling download...";
@@ -945,8 +944,7 @@ namespace SherpaOnnxConfig
             voiceComboBox!.Enabled = true;
             languageComboBox!.Enabled = true;
             downloadButton!.Text = "Download Model";
-            cancelDownloadButton!.Visible = false;
-            cancelDownloadButton.Enabled = false;
+            downloadButton.BackColor = Color.FromArgb(255, 140, 0);
             VoiceComboBox_SelectedIndexChanged(null, EventArgs.Empty);
         }
 
@@ -1583,6 +1581,82 @@ namespace SherpaOnnxConfig
             PerformLocalModelRescan();
         }
 
+        private void InstallForAdminAppsButton_Click(object? sender, EventArgs e)
+        {
+            var voice = GetSelectedVoice();
+            if (voice == null)
+            {
+                MessageBox.Show("Select a model first.", "No Model Selected", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            if (!IsModelDownloaded(voice.Id))
+            {
+                MessageBox.Show("Download the model first.", "Model Not Downloaded", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            AppendOutput($"\r\n=== Installing for Admin Apps: {voice.Id} ===", Color.FromArgb(120, 200, 255));
+
+            try
+            {
+                int rc = PromoteModelTokenToHklm(voice.Id);
+                if (rc == 0)
+                {
+                    AppendOutput($"✓ Installed {voice.Id} to HKLM tokens. Restart target apps to refresh voice list.",
+                        Color.FromArgb(100, 255, 100));
+                    return;
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // Fall through to elevation path.
+            }
+            catch (Exception ex)
+            {
+                AppendOutput($"Promotion failed: {ex.Message}", Color.FromArgb(255, 140, 120));
+                return;
+            }
+
+            try
+            {
+                string exePath = Application.ExecutablePath;
+                string args = $"promote-hklm \"{voice.Id}\"";
+                var psi = new ProcessStartInfo
+                {
+                    FileName = exePath,
+                    Arguments = args,
+                    UseShellExecute = true,
+                    Verb = "runas"
+                };
+
+                using Process? elevated = Process.Start(psi);
+                if (elevated == null)
+                {
+                    AppendOutput("Promotion cancelled.", Color.FromArgb(255, 200, 100));
+                    return;
+                }
+
+                elevated.WaitForExit();
+                if (elevated.ExitCode == 0)
+                {
+                    AppendOutput($"✓ Installed {voice.Id} to HKLM tokens (elevated). Restart target apps to refresh voice list.",
+                        Color.FromArgb(100, 255, 100));
+                }
+                else
+                {
+                    AppendOutput($"Promotion failed (exit code {elevated.ExitCode}).", Color.FromArgb(255, 140, 120));
+                }
+            }
+            catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+            {
+                AppendOutput("Promotion cancelled by user.", Color.FromArgb(255, 200, 100));
+            }
+            catch (Exception ex)
+            {
+                AppendOutput($"Could not start elevated promotion: {ex.Message}", Color.FromArgb(255, 140, 120));
+            }
+        }
+
         private void PerformLocalModelRescan()
         {
             AppendOutput($"\r\n=== Rescanning local models in {ModelsDir} ===", Color.FromArgb(120, 200, 255));
@@ -1977,6 +2051,49 @@ namespace SherpaOnnxConfig
             return result.Issues.Count == 0 ? 0 : 2;
         }
 
+        public static int PromoteModelTokenToHklm(string modelId)
+        {
+            if (string.IsNullOrWhiteSpace(modelId))
+            {
+                Console.WriteLine("ERROR: model id is required.");
+                return 1;
+            }
+
+            string modelDir = Path.Combine(ModelsDir, modelId);
+            if (!Directory.Exists(modelDir))
+            {
+                Console.WriteLine($"ERROR: model directory not found: {modelDir}");
+                return 1;
+            }
+
+            var catalog = LoadCatalogById();
+            if (!TryBuildPersistentTokenMetadata(modelId, modelDir, catalog, out var meta, out string? why))
+            {
+                Console.WriteLine($"ERROR: cannot build token metadata for {modelId}: {why}");
+                return 2;
+            }
+
+            using RegistryKey? hklmRoot = Registry.LocalMachine.CreateSubKey(SapiTokensRoot, writable: true);
+            if (hklmRoot == null)
+            {
+                Console.WriteLine("ERROR: cannot open HKLM SAPI tokens root for writing.");
+                return 3;
+            }
+
+            string tokenName = "Sherpa-" + modelId;
+            WritePersistentToken(hklmRoot, tokenName, meta);
+
+            var syncResult = new TokenSyncResult { RegistryScope = "HKLM" };
+            EnsurePersistentTokenMode(syncResult);
+
+            Console.WriteLine($"Promoted {modelId} to HKLM token: {tokenName}");
+            foreach (string warning in syncResult.Warnings.Take(5))
+            {
+                Console.WriteLine($"  note: {warning}");
+            }
+            return 0;
+        }
+
         private void ShowLastScanIssuesSummary()
         {
             var persistedIssues = LoadPersistedScanIssues();
@@ -2328,7 +2445,7 @@ namespace SherpaOnnxConfig
             }
             catch (UnauthorizedAccessException)
             {
-                result.Warnings.Add("HKLM token write denied (run as Administrator for machine-wide registration).");
+                result.Warnings.Add("HKLM token write denied (Administrator required only for machine-wide registration).");
             }
             catch (Exception ex)
             {
@@ -2352,7 +2469,7 @@ namespace SherpaOnnxConfig
                     result.Warnings.Add("Using per-user HKCU token registration fallback.");
                     if (Registry.LocalMachine.OpenSubKey(TokenEnumKeyPath, writable: false) != null)
                     {
-                        result.Warnings.Add("HKLM TokenEnums is present. Some SAPI clients may not enumerate HKCU-only voice tokens.");
+                        result.Warnings.Add("HKLM TokenEnums is present. Some SAPI clients enumerate HKLM only and may miss HKCU-only voices.");
                     }
                     synced = true;
                 }
@@ -2372,6 +2489,7 @@ namespace SherpaOnnxConfig
 
         private static void EnsurePersistentTokenMode(TokenSyncResult result)
         {
+            bool machineWideTokens = string.Equals(result.RegistryScope, "HKLM", StringComparison.OrdinalIgnoreCase);
             try
             {
                 using RegistryKey? enumCfg = Registry.CurrentUser.CreateSubKey(EnumeratorConfigKeyPath, writable: true);
@@ -2379,22 +2497,26 @@ namespace SherpaOnnxConfig
                 {
                     object? current = enumCfg.GetValue("NoSherpaVoices");
                     int currentValue = current is int i ? i : 0;
-                    if (currentValue != 1)
+                    int desired = machineWideTokens ? 1 : 0;
+                    if (currentValue != desired)
                     {
-                        enumCfg.SetValue("NoSherpaVoices", 1, RegistryValueKind.DWord);
-                        result.Warnings.Add("Set Enumerator\\NoSherpaVoices=1 to prevent duplicate Sherpa voice enumeration.");
+                        enumCfg.SetValue("NoSherpaVoices", desired, RegistryValueKind.DWord);
+                        if (desired == 1)
+                            result.Warnings.Add("Set Enumerator\\NoSherpaVoices=1 to prevent duplicate Sherpa voice enumeration.");
+                        else
+                            result.Warnings.Add("Set Enumerator\\NoSherpaVoices=0 because tokens are per-user (HKCU).");
                     }
                 }
             }
             catch (Exception ex)
             {
-                result.Warnings.Add($"Failed to enforce NoSherpaVoices=1: {ex.Message}");
+                result.Warnings.Add($"Failed to enforce Enumerator\\NoSherpaVoices mode: {ex.Message}");
             }
 
             try
             {
                 bool hklmTokenEnumExists = Registry.LocalMachine.OpenSubKey(TokenEnumKeyPath, writable: false) != null;
-                if (hklmTokenEnumExists)
+                if (machineWideTokens && hklmTokenEnumExists)
                 {
                     using RegistryKey? hkcuSpeech = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Speech\Voices\TokenEnums", writable: true);
                     if (hkcuSpeech != null)
