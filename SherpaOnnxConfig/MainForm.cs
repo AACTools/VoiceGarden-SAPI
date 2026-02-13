@@ -138,8 +138,8 @@ namespace SherpaOnnxConfig
             downloadedOnlyCheckBox.CheckedChanged += (_, _) =>
             {
                 string lang = languageComboBox?.SelectedItem?.ToString() ?? AllLanguagesOption;
-                string filter = voiceComboBox?.Text?.Trim();
-                UpdateVoiceList(lang, string.IsNullOrWhiteSpace(filter) ? null : filter);
+                // Toggling this is a scope change, not a text-search action.
+                UpdateVoiceList(lang, null);
             };
 
             // Voice selection
@@ -668,9 +668,13 @@ namespace SherpaOnnxConfig
                     languageComboBox.Items.Add(AllLanguagesOption);
                 }
 
-                string target = preferredSelection ?? languageComboBox.SelectedItem?.ToString() ?? AllLanguagesOption;
-                int idx = languageComboBox.Items.IndexOf(target);
-                languageComboBox.SelectedIndex = idx >= 0 ? idx : 0;
+                bool inTypingMode = !string.IsNullOrWhiteSpace(query) && string.IsNullOrWhiteSpace(preferredSelection);
+                if (!inTypingMode)
+                {
+                    string target = preferredSelection ?? languageComboBox.SelectedItem?.ToString() ?? AllLanguagesOption;
+                    int idx = languageComboBox.Items.IndexOf(target);
+                    languageComboBox.SelectedIndex = idx >= 0 ? idx : 0;
+                }
             }
             finally
             {
@@ -1286,6 +1290,8 @@ namespace SherpaOnnxConfig
 
                     bool found = false;
                     string selectedVoiceTokenId = string.Empty;
+                    object? bestToken = null;
+                    int bestScore = int.MinValue;
                     for (int i = 0; i < count; i++)
                     {
                         object? v = null;
@@ -1296,29 +1302,23 @@ namespace SherpaOnnxConfig
                             if (!string.IsNullOrWhiteSpace(id) &&
                                 id.IndexOf(voiceId, StringComparison.OrdinalIgnoreCase) >= 0)
                             {
-                                try
+                                int score = 0;
+                                string hklmExact = $@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\Sherpa-{voiceId}";
+                                string hkcuExact = $@"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Speech\Voices\Tokens\Sherpa-{voiceId}";
+                                if (id.Equals(hklmExact, StringComparison.OrdinalIgnoreCase)) score = 300;
+                                else if (id.Equals(hkcuExact, StringComparison.OrdinalIgnoreCase)) score = 200;
+                                else if (id.StartsWith(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\Sherpa-", StringComparison.OrdinalIgnoreCase)) score = 150;
+                                else if (id.StartsWith(@"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Speech\Voices\Tokens\Sherpa-", StringComparison.OrdinalIgnoreCase)) score = 100;
+                                else score = 10;
+
+                                if (score > bestScore)
                                 {
-                                    SetComProperty(voiceObjRaw, "Voice", v);
+                                    ReleaseComObject(bestToken);
+                                    bestToken = v;
+                                    v = null;
+                                    bestScore = score;
+                                    selectedVoiceTokenId = id;
                                 }
-                                catch (Exception setVoiceEx)
-                                {
-                                    Exception setRoot = setVoiceEx;
-                                    while (setRoot is TargetInvocationException stie && stie.InnerException != null)
-                                    {
-                                        setRoot = stie.InnerException;
-                                    }
-                                    string setDetails = setRoot is COMException setCom
-                                        ? $"{setCom.Message} (HRESULT 0x{setCom.HResult:X8})"
-                                        : setRoot.Message;
-                                    tcs.TrySetResult(new TestVoiceResult(false,
-                                        $"\rERROR testing voice at Set Voice token: {setDetails} [{setRoot.GetType().Name}] {GetSapiRegistrationSnapshot()}"));
-                                    return;
-                                }
-                                selectedVoiceToken = v;
-                                v = null; // keep selected token alive until Speak completes
-                                selectedVoiceTokenId = id;
-                                found = true;
-                                break;
                             }
                         }
                         catch
@@ -1328,6 +1328,35 @@ namespace SherpaOnnxConfig
                         finally
                         {
                             ReleaseComObject(v);
+                        }
+                    }
+
+                    if (bestToken != null)
+                    {
+                        try
+                        {
+                            SetComProperty(voiceObjRaw, "Voice", bestToken);
+                            selectedVoiceToken = bestToken;
+                            bestToken = null; // transfer ownership
+                            found = true;
+                        }
+                        catch (Exception setVoiceEx)
+                        {
+                            Exception setRoot = setVoiceEx;
+                            while (setRoot is TargetInvocationException stie && stie.InnerException != null)
+                            {
+                                setRoot = stie.InnerException;
+                            }
+                            string setDetails = setRoot is COMException setCom
+                                ? $"{setCom.Message} (HRESULT 0x{setCom.HResult:X8})"
+                                : setRoot.Message;
+                            tcs.TrySetResult(new TestVoiceResult(false,
+                                $"\rERROR testing voice at Set Voice token: {setDetails} [{setRoot.GetType().Name}] token={selectedVoiceTokenId} {GetSapiRegistrationSnapshot()}"));
+                            return;
+                        }
+                        finally
+                        {
+                            ReleaseComObject(bestToken);
                         }
                     }
 
