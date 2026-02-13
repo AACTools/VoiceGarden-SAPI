@@ -164,8 +164,9 @@ namespace SherpaOnnxConfig
                             }
                             if (!args[i].StartsWith("--"))
                             {
-                                promoteModelId = args[i];
-                                break;
+                                // Keep scanning so trailing flags like --model-dir are still parsed.
+                                promoteModelId ??= args[i];
+                                continue;
                             }
                         }
 

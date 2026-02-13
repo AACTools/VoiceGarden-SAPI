@@ -685,11 +685,23 @@ namespace SherpaOnnxConfig
 
         private void UpdateVoiceList(string language)
         {
-            UpdateVoiceList(language, null);
+            UpdateVoiceList(language, null, null);
         }
 
         private void UpdateVoiceList(string language, string? voiceFilter)
         {
+            UpdateVoiceList(language, voiceFilter, null);
+        }
+
+        private void UpdateVoiceList(string language, string? voiceFilter, string? preferredVoiceId)
+        {
+            string? previouslySelectedId = preferredVoiceId;
+            if (string.IsNullOrWhiteSpace(previouslySelectedId))
+            {
+                var current = GetSelectedVoice();
+                previouslySelectedId = current?.Id;
+            }
+
             voiceComboBox!.Items.Clear();
             voiceComboBox.SelectedIndex = -1;
 
@@ -724,6 +736,8 @@ namespace SherpaOnnxConfig
             }
 
             suppressComboEvents = true;
+            int preferredIndex = -1;
+            int index = 0;
             foreach (var voice in voicesToShow.OrderBy(v => v.Name))
             {
                 bool hasLocalDir = HasModelDirectory(voice.Id);
@@ -731,10 +745,21 @@ namespace SherpaOnnxConfig
                 string status = downloaded ? "[✓]" : (hasLocalDir ? "[!]" : "[↓]");
                 string size = voice.ModelSize > 0 ? $" ({voice.ModelSize:F0} MB)" : "";
                 voiceComboBox.Items.Add($"{voice.Id} - {voice.Name}{size} [{voice.EngineType}] {status}");
+                if (!string.IsNullOrWhiteSpace(previouslySelectedId) &&
+                    voice.Id.Equals(previouslySelectedId, StringComparison.OrdinalIgnoreCase))
+                {
+                    preferredIndex = index;
+                }
+                index++;
             }
 
-            if (voiceComboBox.Items.Count > 0 && !hasFilter)
-                voiceComboBox.SelectedIndex = 0;
+            if (voiceComboBox.Items.Count > 0)
+            {
+                if (preferredIndex >= 0)
+                    voiceComboBox.SelectedIndex = preferredIndex;
+                else if (!hasFilter)
+                    voiceComboBox.SelectedIndex = 0;
+            }
             suppressComboEvents = false;
 
             statusLabel!.Text = $"Status: {voiceComboBox.Items.Count} model(s) available";
@@ -883,7 +908,7 @@ namespace SherpaOnnxConfig
                 {
                     AppendOutput($"\r✓ Model downloaded to {modelDir}", Color.FromArgb(100, 255, 100));
                     statusLabel!.Text = $"Status: {voice.Id} downloaded";
-                    UpdateVoiceList(languageComboBox!.SelectedItem?.ToString() ?? AllLanguagesOption);
+                    UpdateVoiceList(languageComboBox!.SelectedItem?.ToString() ?? AllLanguagesOption, null, voice.Id);
                     TrySyncPersistentTokens("download");
                 }));
             }
@@ -997,7 +1022,7 @@ namespace SherpaOnnxConfig
             using (var client = new HttpClient())
             {
                 client.Timeout = TimeSpan.FromMinutes(30);
-                var response = client.GetAsync(voice.ModelUrl).Result;
+                var response = SendWithRetry(client, voice.ModelUrl, "model archive");
                 response.EnsureSuccessStatusCode();
 
                 long totalBytes = response.Content.Headers.ContentLength ?? 0;
@@ -1116,7 +1141,7 @@ namespace SherpaOnnxConfig
                     downloadWorker.ReportProgress(progress, $"Downloading {voice.Id}: {relativePath} ({i + 1}/{files.Count})");
 
                     string fileUrl = BuildHuggingFaceResolveUrl(repo, revision, remotePath);
-                    using (var response = client.GetAsync(fileUrl).Result)
+                    using (var response = SendWithRetry(client, fileUrl, $"file {relativePath}"))
                     {
                         response.EnsureSuccessStatusCode();
                         using (var stream = response.Content.ReadAsStreamAsync().Result)
@@ -1908,7 +1933,7 @@ namespace SherpaOnnxConfig
                     using (var client = new HttpClient())
                     {
                         client.Timeout = TimeSpan.FromMinutes(30);
-                        var response = client.GetAsync(modelUrl).Result;
+                        var response = SendWithRetry(client, modelUrl, "model archive");
                         response.EnsureSuccessStatusCode();
 
                         long totalBytes = response.Content.Headers.ContentLength ?? 0;
@@ -1975,7 +2000,7 @@ namespace SherpaOnnxConfig
                                 Directory.CreateDirectory(localDir);
 
                             string fileUrl = BuildHuggingFaceResolveUrl(repo, revision, remotePath);
-                            using (var response = client.GetAsync(fileUrl).Result)
+                            using (var response = SendWithRetry(client, fileUrl, $"file {relativePath}"))
                             {
                                 response.EnsureSuccessStatusCode();
                                 using (var stream = response.Content.ReadAsStreamAsync().Result)
@@ -2198,7 +2223,7 @@ namespace SherpaOnnxConfig
             string encodedFolder = EncodePathSegments(folderPath);
             string apiUrl = $"https://huggingface.co/api/models/{repo}/tree/{Uri.EscapeDataString(revision)}/{encodedFolder}";
 
-            string json = client.GetStringAsync(apiUrl).Result;
+            string json = GetStringWithRetry(client, apiUrl, "Hugging Face tree API");
             var entries = JsonSerializer.Deserialize<List<HuggingFaceTreeEntry>>(json,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<HuggingFaceTreeEntry>();
 
@@ -2217,6 +2242,53 @@ namespace SherpaOnnxConfig
         private static string EncodePathSegments(string path)
         {
             return string.Join("/", path.Split('/', StringSplitOptions.RemoveEmptyEntries).Select(Uri.EscapeDataString));
+        }
+
+        private static HttpResponseMessage SendWithRetry(HttpClient client, string url, string purpose)
+        {
+            const int maxAttempts = 4;
+            Exception? lastEx = null;
+            int? lastStatus = null;
+
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
+            {
+                try
+                {
+                    HttpResponseMessage response = client.GetAsync(url).Result;
+                    int code = (int)response.StatusCode;
+                    if ((code == 429 || code == 502 || code == 503 || code == 504) && attempt < maxAttempts)
+                    {
+                        lastStatus = code;
+                        response.Dispose();
+                        Thread.Sleep(300 * attempt * attempt);
+                        continue;
+                    }
+
+                    return response;
+                }
+                catch (Exception ex) when (attempt < maxAttempts)
+                {
+                    lastEx = ex;
+                    Thread.Sleep(300 * attempt * attempt);
+                }
+                catch (Exception ex)
+                {
+                    lastEx = ex;
+                    break;
+                }
+            }
+
+            if (lastStatus.HasValue)
+                throw new HttpRequestException($"Failed to fetch {purpose} after {maxAttempts} attempts. Last status: {lastStatus.Value}.");
+
+            throw new HttpRequestException($"Failed to fetch {purpose} after {maxAttempts} attempts.", lastEx);
+        }
+
+        private static string GetStringWithRetry(HttpClient client, string url, string purpose)
+        {
+            using HttpResponseMessage response = SendWithRetry(client, url, purpose);
+            response.EnsureSuccessStatusCode();
+            return response.Content.ReadAsStringAsync().Result;
         }
 
         private static bool IsModelDownloaded(string modelId)

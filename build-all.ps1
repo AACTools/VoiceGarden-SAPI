@@ -299,14 +299,35 @@ Write-Host ""
 # Copy SherpaOnnxConfig to utilities output (for installer)
 Write-Host "Copying SherpaOnnxConfig to utilities output..." -ForegroundColor Cyan
 try {
-    Copy-Item -Path "$UtilitiesOutputDir\sherpa-config\SherpaOnnxConfig.exe" -Destination $UtilitiesOutputDir -Force
-    if (Test-Path "$UtilitiesOutputDir\sherpa-config\merged_models.json") {
-        Copy-Item -Path "$UtilitiesOutputDir\sherpa-config\merged_models.json" -Destination $UtilitiesOutputDir -Force
+    # Ensure we don't keep running with a stale model-manager binary in out\
+    # when a previous instance is still open.
+    Stop-Process -Name SherpaOnnxConfig -Force -ErrorAction SilentlyContinue
+
+    $srcExe = Join-Path $UtilitiesOutputDir "sherpa-config\SherpaOnnxConfig.exe"
+    $srcJson = Join-Path $UtilitiesOutputDir "sherpa-config\merged_models.json"
+    $dstExe = Join-Path $UtilitiesOutputDir "SherpaOnnxConfig.exe"
+    $dstJson = Join-Path $UtilitiesOutputDir "merged_models.json"
+
+    if (!(Test-Path $srcExe)) {
+        throw "Expected SherpaOnnxConfig publish output not found: $srcExe"
     }
+
+    Copy-Item -Path $srcExe -Destination $dstExe -Force -ErrorAction Stop
+    if (Test-Path $srcJson) {
+        Copy-Item -Path $srcJson -Destination $dstJson -Force -ErrorAction Stop
+    }
+
+    # Validate staging succeeded so we never silently ship a stale exe.
+    if (!(Test-Path $dstExe)) {
+        throw "Failed to stage SherpaOnnxConfig.exe to $dstExe"
+    }
+
     Write-Host "  Copied successfully" -ForegroundColor Green
 }
 catch {
-    Write-Host "  Warning: Failed to copy SherpaOnnxConfig: $($_.Exception.Message)" -ForegroundColor Yellow
+    Write-Host "  Error: Failed to copy SherpaOnnxConfig: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "  Close SherpaOnnxConfig/Installer and re-run build-all." -ForegroundColor Yellow
+    exit 1
 }
 Write-Host ""
 
