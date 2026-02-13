@@ -363,20 +363,20 @@ STDMETHODIMP CTTSEngine::GetOutputFormat(const GUID* /*pTargetFormatId*/, const 
     {
         DWORD sampleRate = 0;
 
-        // First choice: explicit token metadata from model catalog.
-        if (m_cpToken)
-        {
-            CComPtr<ISpDataKey> pConfigKey;
-            if (SUCCEEDED(m_cpToken->OpenKey(L"NaturalVoiceConfig", &pConfigKey)) && pConfigKey)
-                (void)pConfigKey->GetDWORD(L"SampleRate", &sampleRate);
-        }
-
-        // Fallback: active Sherpa engine output format.
-        if (sampleRate == 0 && m_sherpaOnnx)
+        // First choice: active Sherpa engine output format (ground truth).
+        if (m_sherpaOnnx)
         {
             const int sr = m_sherpaOnnx->GetSampleRate();
             if (sr > 0)
                 sampleRate = static_cast<DWORD>(sr);
+        }
+
+        // Fallback: token metadata from model catalog.
+        if (sampleRate == 0 && m_cpToken)
+        {
+            CComPtr<ISpDataKey> pConfigKey;
+            if (SUCCEEDED(m_cpToken->OpenKey(L"NaturalVoiceConfig", &pConfigKey)) && pConfigKey)
+                (void)pConfigKey->GetDWORD(L"SampleRate", &sampleRate);
         }
 
         auto pickFormat = [](DWORD sr) -> SPSTREAMFORMAT {

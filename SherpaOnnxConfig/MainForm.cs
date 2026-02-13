@@ -3001,7 +3001,8 @@ namespace SherpaOnnxConfig
             meta.VoicesPath = isKokoro ? voicesPath : "";
             meta.AcousticModel = acoustic ?? "";
             meta.Vocoder = vocoder ?? "";
-            meta.SampleRate = catalogModel?.sample_rate ?? 22050;
+            int defaultSampleRate = modelId.StartsWith("mms_", StringComparison.OrdinalIgnoreCase) ? 16000 : 22050;
+            meta.SampleRate = catalogModel?.sample_rate ?? defaultSampleRate;
             meta.SpeakerCount = 1;
             meta.ModelName = modelId;
             return true;
