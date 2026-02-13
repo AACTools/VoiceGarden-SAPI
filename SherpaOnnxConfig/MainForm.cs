@@ -30,6 +30,7 @@ namespace SherpaOnnxConfig
         private Button? openModelsFolderButton;
         private Button? rescanModelsButton;
         private Button? installForAdminAppsButton;
+        private CheckBox? enUsCompatAliasCheckBox;
         private RichTextBox? outputTextBox;
         private TextBox? testTextInput;
         private ProgressBar? progressBar;
@@ -52,8 +53,11 @@ namespace SherpaOnnxConfig
         private const string TtsEngineClsid = "{013ab33b-ad1a-401c-8bee-f6e2b046a94e}";
         private const string VoiceEnumClsid = "{b8b9e38f-e5a2-4661-9fde-4ac7377aa6f6}";
         private const string TokenEnumKeyPath = @"SOFTWARE\Microsoft\Speech\Voices\TokenEnums\NaturalVoiceEnumerator";
+        private const string SherpaCompatKeyPath = @"Software\NaturalVoiceSAPIAdapter\SherpaCompat";
         private const string AllLanguagesOption = "All Languages";
+        private const string CompatibilityAliasSuffix = "-enUS";
         private bool suppressComboEvents;
+        private bool suppressCompatAliasEvents;
 
         // Voice list for CLI access
         public static List<VoiceInfo> AllVoices { get; private set; } = new List<VoiceInfo>();
@@ -304,11 +308,21 @@ namespace SherpaOnnxConfig
             };
             installForAdminAppsButton.Click += InstallForAdminAppsButton_Click;
 
+            enUsCompatAliasCheckBox = new CheckBox
+            {
+                Location = new Point(625, 36),
+                Size = new Size(285, 24),
+                Text = "Add en-US compatibility alias",
+                Checked = false,
+                Enabled = false
+            };
+            enUsCompatAliasCheckBox.CheckedChanged += EnUsCompatAliasCheckBox_CheckedChanged;
+
             actionsHintLabel = new Label
             {
                 Location = new Point(15, 72),
                 Size = new Size(895, 22),
-                Text = "Rescan validates local models and shows per-model errors used by SAPI token registration.",
+                Text = "Rescan validates models. Compatibility alias adds a second en-US token for apps that hide non-en-US voices.",
                 ForeColor = Color.FromArgb(120, 120, 120),
                 Font = new Font("Segoe UI", 8F)
             };
@@ -317,6 +331,7 @@ namespace SherpaOnnxConfig
             actionsGroup.Controls.Add(openModelsFolderButton);
             actionsGroup.Controls.Add(rescanModelsButton);
             actionsGroup.Controls.Add(installForAdminAppsButton);
+            actionsGroup.Controls.Add(enUsCompatAliasCheckBox);
             actionsGroup.Controls.Add(actionsHintLabel);
 
             // Output
@@ -380,7 +395,7 @@ namespace SherpaOnnxConfig
                 testTextInput == null || voiceComboBox == null || progressBar == null || downloadProgressLabel == null ||
                 modelInfoLabel == null || testHintLabel == null || actionsHintLabel == null ||
                 openModelsFolderButton == null || rescanModelsButton == null || installForAdminAppsButton == null ||
-                downloadedOnlyCheckBox == null)
+                downloadedOnlyCheckBox == null || enUsCompatAliasCheckBox == null)
             {
                 return;
             }
@@ -414,6 +429,7 @@ namespace SherpaOnnxConfig
             openModelsFolderButton.SetBounds(15, 30, 190, 36);
             rescanModelsButton.SetBounds(215, 30, 170, 36);
             installForAdminAppsButton.SetBounds(395, 30, 220, 36);
+            enUsCompatAliasCheckBox.SetBounds(625, 36, Math.Max(240, actionsInner - 610), 24);
             actionsHintLabel.SetBounds(15, 72, Math.Max(260, actionsInner), 22);
 
             int outputTop = actionsGroup.Bottom + 10;
@@ -806,6 +822,59 @@ namespace SherpaOnnxConfig
                     modelInfoLabel.ForeColor = Color.FromArgb(120, 120, 120);
                 }
             }
+            UpdateCompatAliasCheckboxForSelection(voice);
+        }
+
+        private void UpdateCompatAliasCheckboxForSelection(VoiceInfo? voice)
+        {
+            if (enUsCompatAliasCheckBox == null)
+                return;
+
+            suppressCompatAliasEvents = true;
+            try
+            {
+                if (voice == null)
+                {
+                    enUsCompatAliasCheckBox.Checked = false;
+                    enUsCompatAliasCheckBox.Enabled = false;
+                    return;
+                }
+
+                bool downloaded = IsModelDownloaded(voice.Id);
+                enUsCompatAliasCheckBox.Enabled = downloaded;
+                enUsCompatAliasCheckBox.Checked = downloaded && IsEnUsCompatibilityAliasEnabled(voice.Id);
+            }
+            finally
+            {
+                suppressCompatAliasEvents = false;
+            }
+        }
+
+        private void EnUsCompatAliasCheckBox_CheckedChanged(object? sender, EventArgs e)
+        {
+            if (suppressCompatAliasEvents)
+                return;
+
+            var voice = GetSelectedVoice();
+            if (voice == null || enUsCompatAliasCheckBox == null)
+                return;
+
+            if (!IsModelDownloaded(voice.Id))
+            {
+                suppressCompatAliasEvents = true;
+                enUsCompatAliasCheckBox.Checked = false;
+                suppressCompatAliasEvents = false;
+                return;
+            }
+
+            bool enabled = enUsCompatAliasCheckBox.Checked;
+            SetEnUsCompatibilityAliasEnabled(voice.Id, enabled);
+            AppendOutput(
+                enabled
+                    ? $"en-US compatibility alias enabled for {voice.Id}."
+                    : $"en-US compatibility alias disabled for {voice.Id}.",
+                Color.FromArgb(180, 220, 255));
+            TrySyncPersistentTokens("compat-alias change");
         }
 
         private VoiceInfo? GetSelectedVoice()
@@ -1651,10 +1720,11 @@ namespace SherpaOnnxConfig
 
             AppendOutput($"\r\n=== Installing for Admin Apps: {voice.Id} ===", Color.FromArgb(120, 200, 255));
             string selectedModelDir = Path.Combine(ModelsDir, voice.Id);
+            bool installCompatAlias = enUsCompatAliasCheckBox?.Checked == true;
 
             try
             {
-                int rc = PromoteModelTokenToHklm(voice.Id, selectedModelDir);
+                int rc = PromoteModelTokenToHklm(voice.Id, selectedModelDir, installCompatAlias);
                 if (rc == 0)
                 {
                     AppendOutput($"✓ Installed {voice.Id} to HKLM tokens. Restart target apps to refresh voice list.",
@@ -1676,6 +1746,8 @@ namespace SherpaOnnxConfig
             {
                 string exePath = Application.ExecutablePath;
                 string args = $"promote-hklm \"{voice.Id}\" --model-dir \"{selectedModelDir}\"";
+                if (installCompatAlias)
+                    args += " --compat-en-us";
                 var psi = new ProcessStartInfo
                 {
                     FileName = exePath,
@@ -2106,7 +2178,7 @@ namespace SherpaOnnxConfig
             return result.Issues.Count == 0 ? 0 : 2;
         }
 
-        public static int PromoteModelTokenToHklm(string modelId, string? modelDirOverride = null)
+        public static int PromoteModelTokenToHklm(string modelId, string? modelDirOverride = null, bool addEnUsCompatAlias = false)
         {
             if (string.IsNullOrWhiteSpace(modelId))
             {
@@ -2139,6 +2211,12 @@ namespace SherpaOnnxConfig
 
             string tokenName = "Sherpa-" + modelId;
             WritePersistentToken(hklmRoot, tokenName, meta);
+            if (ShouldCreateEnUsCompatibilityAlias(addEnUsCompatAlias, meta))
+            {
+                string aliasTokenName = tokenName + CompatibilityAliasSuffix;
+                var aliasMeta = CloneAsEnUsAlias(meta);
+                WritePersistentToken(hklmRoot, aliasTokenName, aliasMeta, compatibilityAlias: true);
+            }
 
             var syncResult = new TokenSyncResult { RegistryScope = "HKLM" };
             EnsurePersistentTokenMode(syncResult);
@@ -2670,6 +2748,16 @@ namespace SherpaOnnxConfig
                 WritePersistentToken(tokensRoot, tokenName, meta);
                 if (existed) result.Updated++;
                 else result.Added++;
+
+                if (ShouldCreateEnUsCompatibilityAlias(IsEnUsCompatibilityAliasEnabled(modelId), meta))
+                {
+                    string aliasTokenName = tokenName + CompatibilityAliasSuffix;
+                    bool aliasExisted = tokensRoot.OpenSubKey(aliasTokenName) != null;
+                    var aliasMeta = CloneAsEnUsAlias(meta);
+                    WritePersistentToken(tokensRoot, aliasTokenName, aliasMeta, compatibilityAlias: true);
+                    if (aliasExisted) result.Updated++;
+                    else result.Added++;
+                }
             }
 
             // Remove stale Sherpa-* tokens that no longer have a valid local model.
@@ -2677,9 +2765,38 @@ namespace SherpaOnnxConfig
             {
                 if (!subName.StartsWith("Sherpa-", StringComparison.OrdinalIgnoreCase))
                     continue;
-                string modelId = subName.Substring("Sherpa-".Length);
-                if (validModelIds.Contains(modelId))
+
+                if (!TryResolveTokenModelId(tokensRoot, subName, out string modelId, out bool isCompatAlias))
                     continue;
+
+                if (!validModelIds.Contains(modelId))
+                {
+                    try
+                    {
+                        tokensRoot.DeleteSubKeyTree(subName, throwOnMissingSubKey: false);
+                        result.Removed++;
+                    }
+                    catch (Exception ex)
+                    {
+                        result.Warnings.Add($"{subName}: remove failed ({ex.Message})");
+                    }
+                    continue;
+                }
+
+                if (isCompatAlias)
+                {
+                    bool keepAlias = false;
+                    if (TryBuildPersistentTokenMetadata(modelId, Path.Combine(ModelsDir, modelId), catalog, out var meta, out _))
+                        keepAlias = ShouldCreateEnUsCompatibilityAlias(IsEnUsCompatibilityAliasEnabled(modelId), meta);
+
+                    if (keepAlias)
+                        continue;
+                }
+                else
+                {
+                    continue;
+                }
+
                 try
                 {
                     tokensRoot.DeleteSubKeyTree(subName, throwOnMissingSubKey: false);
@@ -2690,6 +2807,110 @@ namespace SherpaOnnxConfig
                     result.Warnings.Add($"{subName}: remove failed ({ex.Message})");
                 }
             }
+        }
+
+        private static bool ShouldCreateEnUsCompatibilityAlias(bool requested, PersistentTokenMetadata meta)
+        {
+            return requested && !string.Equals(meta.Locale, "en-US", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static PersistentTokenMetadata CloneAsEnUsAlias(PersistentTokenMetadata meta)
+        {
+            return new PersistentTokenMetadata
+            {
+                FriendlyName = $"{meta.FriendlyName} (en-US alias)",
+                DisplayName = $"{meta.DisplayName} (en-US alias)",
+                Locale = "en-US",
+                LanguageHexChain = "409",
+                Gender = meta.Gender,
+                ModelType = meta.ModelType,
+                ModelPath = meta.ModelPath,
+                TokensPath = meta.TokensPath,
+                DataDir = meta.DataDir,
+                VoicesPath = meta.VoicesPath,
+                AcousticModel = meta.AcousticModel,
+                Vocoder = meta.Vocoder,
+                SampleRate = meta.SampleRate,
+                SpeakerCount = meta.SpeakerCount,
+                ModelName = meta.ModelName
+            };
+        }
+
+        private static bool TryResolveTokenModelId(RegistryKey tokensRoot, string tokenName, out string modelId, out bool isCompatAlias)
+        {
+            modelId = string.Empty;
+            isCompatAlias = false;
+
+            try
+            {
+                using RegistryKey? tokenKey = tokensRoot.OpenSubKey(tokenName, writable: false);
+                if (tokenKey != null)
+                {
+                    object? compat = tokenKey.GetValue("SherpaCompatAlias");
+                    if (compat is int i && i != 0)
+                        isCompatAlias = true;
+
+                    using RegistryKey? attrs = tokenKey.OpenSubKey("Attributes", writable: false);
+                    string? fromAttrs = attrs?.GetValue("SherpaModelName") as string;
+                    if (!string.IsNullOrWhiteSpace(fromAttrs))
+                        modelId = fromAttrs.Trim();
+                }
+            }
+            catch
+            {
+                // Fall back to token-name parsing.
+            }
+
+            if (string.IsNullOrWhiteSpace(modelId))
+            {
+                if (!tokenName.StartsWith("Sherpa-", StringComparison.OrdinalIgnoreCase))
+                    return false;
+
+                modelId = tokenName.Substring("Sherpa-".Length);
+                if (modelId.EndsWith(CompatibilityAliasSuffix, StringComparison.OrdinalIgnoreCase))
+                {
+                    modelId = modelId.Substring(0, modelId.Length - CompatibilityAliasSuffix.Length);
+                    isCompatAlias = true;
+                }
+            }
+
+            return !string.IsNullOrWhiteSpace(modelId);
+        }
+
+        private static bool IsEnUsCompatibilityAliasEnabled(string modelId)
+        {
+            if (string.IsNullOrWhiteSpace(modelId))
+                return false;
+
+            try
+            {
+                using RegistryKey? key = Registry.CurrentUser.OpenSubKey(SherpaCompatKeyPath, writable: false);
+                object? value = key?.GetValue(modelId);
+                if (value is int i)
+                    return i != 0;
+                if (value is string s && int.TryParse(s, out int parsed))
+                    return parsed != 0;
+            }
+            catch
+            {
+            }
+
+            return false;
+        }
+
+        private static void SetEnUsCompatibilityAliasEnabled(string modelId, bool enabled)
+        {
+            if (string.IsNullOrWhiteSpace(modelId))
+                return;
+
+            using RegistryKey? key = Registry.CurrentUser.CreateSubKey(SherpaCompatKeyPath, writable: true);
+            if (key == null)
+                return;
+
+            if (enabled)
+                key.SetValue(modelId, 1, RegistryValueKind.DWord);
+            else
+                key.DeleteValue(modelId, throwOnMissingValue: false);
         }
 
         private static Dictionary<string, SherpaModelInfo> LoadCatalogById()
@@ -2899,11 +3120,12 @@ namespace SherpaOnnxConfig
             return "Neutral";
         }
 
-        private static void WritePersistentToken(RegistryKey tokensRoot, string tokenName, PersistentTokenMetadata m)
+        private static void WritePersistentToken(RegistryKey tokensRoot, string tokenName, PersistentTokenMetadata m, bool compatibilityAlias = false)
         {
             using RegistryKey tokenKey = tokensRoot.CreateSubKey(tokenName, writable: true)!;
             tokenKey.SetValue("", m.FriendlyName, RegistryValueKind.String);
             tokenKey.SetValue("CLSID", "{013AB33B-AD1A-401C-8BEE-F6E2B046A94E}", RegistryValueKind.String);
+            tokenKey.SetValue("SherpaCompatAlias", compatibilityAlias ? 1 : 0, RegistryValueKind.DWord);
 
             using (RegistryKey attrs = tokenKey.CreateSubKey("Attributes", writable: true)!)
             {

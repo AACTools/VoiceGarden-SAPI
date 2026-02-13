@@ -167,6 +167,8 @@ jobs:
         $dlls = & $dumpbinpath /dependents NaturalVoiceSAPIAdapter.dll Microsoft.CognitiveServices.*.dll `
           | ? { $_ -like "    *.dll" } | % { $_.Trim() } | Select-Object -Unique
         $dlls += "NaturalVoiceSAPIAdapter.dll", "Microsoft.CognitiveServices.*.dll"
+        # Keep SherpaOnnx runtime dependencies in release artifacts.
+        $dlls += "sherpa-onnx-c-api.dll", "onnxruntime.dll", "onnxruntime_providers_shared.dll"
         Remove-Item * -Include *.dll -Exclude $dlls
         Remove-Item Microsoft.CognitiveServices.Speech.extension.codec.dll -ErrorAction Ignore
         exit 0   # This is necessary because "-ErrorAction Ignore" doesn't ensure a zero exit code

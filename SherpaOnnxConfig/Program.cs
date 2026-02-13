@@ -155,11 +155,17 @@ namespace SherpaOnnxConfig
                     {
                         string? promoteModelId = null;
                         string? promoteModelDir = null;
+                        bool promoteCompatEnUs = false;
                         for (int i = 1; i < args.Length; i++)
                         {
                             if (args[i].Equals("--model-dir", StringComparison.OrdinalIgnoreCase) && i + 1 < args.Length)
                             {
                                 promoteModelDir = args[++i];
+                                continue;
+                            }
+                            if (args[i].Equals("--compat-en-us", StringComparison.OrdinalIgnoreCase))
+                            {
+                                promoteCompatEnUs = true;
                                 continue;
                             }
                             if (!args[i].StartsWith("--"))
@@ -176,7 +182,7 @@ namespace SherpaOnnxConfig
                             return 1;
                         }
 
-                        return MainForm.PromoteModelTokenToHklm(promoteModelId, promoteModelDir);
+                        return MainForm.PromoteModelTokenToHklm(promoteModelId, promoteModelDir, promoteCompatEnUs);
                     }
 
                 case "sapi-probe":
@@ -241,7 +247,7 @@ namespace SherpaOnnxConfig
             Console.WriteLine("  download <model-id>       Download a model by ID");
             Console.WriteLine("  downloaded               List downloaded models");
             Console.WriteLine("  rescan                   Validate local model folders and show per-model errors");
-            Console.WriteLine("  promote-hklm <model-id> [--model-dir <path>]  Install one model token to HKLM for admin/machine-wide apps");
+            Console.WriteLine("  promote-hklm <model-id> [--model-dir <path>] [--compat-en-us]  Install one model token to HKLM");
             Console.WriteLine("  sapi-probe --voice <id>   Probe SAPI activation/speak stages for one voice");
             Console.WriteLine();
             Console.WriteLine("Examples:");
@@ -251,6 +257,7 @@ namespace SherpaOnnxConfig
             Console.WriteLine("  SherpaOnnxConfig.exe download kokoro-en-en-19");
             Console.WriteLine("  SherpaOnnxConfig.exe promote-hklm piper-en-alan-low");
             Console.WriteLine("  SherpaOnnxConfig.exe promote-hklm piper-en-alan-low --model-dir \"C:\\Users\\WillWade\\AppData\\Local\\NaturalVoiceSAPIAdapter\\models\\piper-en-alan-low\"");
+            Console.WriteLine("  SherpaOnnxConfig.exe promote-hklm piper-en-alan-low --compat-en-us");
             Console.WriteLine("  SherpaOnnxConfig.exe sapi-probe --voice piper-en-alan-low");
             Console.WriteLine("  SherpaOnnxConfig.exe downloaded");
             Console.WriteLine();
