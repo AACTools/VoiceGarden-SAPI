@@ -28,6 +28,7 @@ $rootAllow = @(
     "Installer.exe",
     "InstallPlanRunner.exe",
     "install-plan.json",
+    "branding.json",
     "SherpaOnnxConfig.exe",
     "merged_models.json",
     "LICENSE.txt",

@@ -377,6 +377,13 @@ if (Test-Path (Join-Path $PayloadDir "x86\InstallPlanRunner.exe")) {
     Copy-Item (Join-Path $PayloadDir "x86\InstallPlanRunner.exe") (Join-Path $PayloadDir "InstallPlanRunner.exe") -Force
 }
 
+$brandingSource = ""
+$brandingCandidate = Join-Path $RepoRoot "config\branding.json"
+if (Test-Path $brandingCandidate) {
+    $brandingSource = $brandingCandidate
+    Copy-Item $brandingSource (Join-Path $PayloadDir "branding.json") -Force
+}
+
 $defaultPlanSource = Join-Path $RepoRoot "samples\install-plans\default-install-plan.json"
 if (Test-Path $defaultPlanSource) {
     Copy-Item $defaultPlanSource (Join-Path $PayloadDir "install-plan.json") -Force
@@ -387,9 +394,9 @@ Write-Host ""
 # Step 8: Build MSI + setup.exe (optional)
 if ($BuildSetup) {
     Write-Host "[Step 8/8] Building MSI and setup.exe..." -ForegroundColor Cyan
-    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\build-setup.ps1") -PayloadDir $PayloadDir -OutputDir $InstallerOutputDir
+    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\build-setup.ps1") -PayloadDir $PayloadDir -OutputDir $InstallerOutputDir -BrandingFile $brandingSource
     if ($LASTEXITCODE -ne 0) { throw "MSI build failed" }
-    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\build-bootstrapper.ps1") -MsiPath (Join-Path $InstallerOutputDir "NaturalVoiceSAPIAdapter.msi") -OutputDir $InstallerOutputDir
+    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\build-bootstrapper.ps1") -MsiPath (Join-Path $InstallerOutputDir "NaturalVoiceSAPIAdapter.msi") -OutputDir $InstallerOutputDir -BrandingFile $brandingSource
     if ($LASTEXITCODE -ne 0) { throw "Bootstrapper build failed" }
     Write-Host "  MSI + setup.exe built in $InstallerOutputDir" -ForegroundColor Green
 } else {

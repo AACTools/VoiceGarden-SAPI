@@ -16,6 +16,7 @@ param(
     [string]$Configuration = "Release",
     [string]$OutputDir = ".\installer-output",
     [string]$Version = "",
+    [string]$BrandingFile = "",
     [switch]$SkipCurate
 )
 
@@ -35,6 +36,32 @@ if (!(Test-Path $payloadInput -PathType Container)) {
 
 if (!(Test-Path $setupDir -PathType Container)) {
     throw "Setup project directory not found: $setupDir"
+}
+
+$productName = "NaturalVoiceSAPIAdapter"
+$manufacturer = "NaturalVoiceSAPIAdapter"
+$installFolderName = "NaturalVoiceSAPIAdapter"
+$installerShortcutName = "NaturalVoiceSAPIAdapter Installer"
+$projectUrl = "https://github.com/gexgd0419/NaturalVoiceSAPIAdapter"
+
+$brandingPath = $null
+if (![string]::IsNullOrWhiteSpace($BrandingFile)) {
+    $brandingPath = if ([System.IO.Path]::IsPathRooted($BrandingFile)) { $BrandingFile } else { Join-Path $repoRoot $BrandingFile }
+    if (!(Test-Path $brandingPath -PathType Leaf)) {
+        throw "Branding file not found: $brandingPath"
+    }
+}
+elseif (Test-Path (Join-Path $repoRoot "config\branding.json") -PathType Leaf) {
+    $brandingPath = Join-Path $repoRoot "config\branding.json"
+}
+
+if ($brandingPath) {
+    $branding = Get-Content $brandingPath -Raw | ConvertFrom-Json
+    if ($branding.product_name) { $productName = [string]$branding.product_name }
+    if ($branding.manufacturer) { $manufacturer = [string]$branding.manufacturer }
+    if ($branding.install_folder_name) { $installFolderName = [string]$branding.install_folder_name }
+    if ($branding.installer_shortcut_name) { $installerShortcutName = [string]$branding.installer_shortcut_name }
+    if ($branding.project_url) { $projectUrl = [string]$branding.project_url }
 }
 
 if ([string]::IsNullOrWhiteSpace($Version)) {
@@ -63,6 +90,10 @@ else {
     $payloadFull = (Resolve-Path $curatedPayload).Path
 }
 
+if ($brandingPath) {
+    Copy-Item -Path $brandingPath -Destination (Join-Path $payloadFull "branding.json") -Force
+}
+
 Write-Host "Generating setup payload manifest..." -ForegroundColor Cyan
 & (Join-Path $PSScriptRoot "generate-setup-payload-wxs.ps1") -PayloadDir $payloadFull -OutputPath $manifestPath
 
@@ -71,6 +102,11 @@ dotnet build (Join-Path $setupDir "Setup.wixproj") `
     -c $Configuration `
     -p:PayloadDir="$payloadFull" `
     -p:ProductVersion="$Version" `
+    -p:ProductName="$productName" `
+    -p:Manufacturer="$manufacturer" `
+    -p:InstallFolderName="$installFolderName" `
+    -p:InstallerShortcutName="$installerShortcutName" `
+    -p:ProjectUrl="$projectUrl" `
     -p:OutputPath="$outputFull\" `
     /nologo
 

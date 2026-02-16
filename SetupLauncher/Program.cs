@@ -1,14 +1,24 @@
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.Text.Json;
 using System.Windows.Forms;
 
 static class Program
 {
+    sealed class Branding
+    {
+        public string ProductName { get; set; } = "NaturalVoiceSAPIAdapter";
+        public string SetupCaption { get; set; } = "NaturalVoiceSAPIAdapter Setup";
+        public string InstallFolderName { get; set; } = "NaturalVoiceSAPIAdapter";
+    }
+
     static int Main(string[] args)
     {
         try
         {
+            Branding branding = LoadBranding(AppContext.BaseDirectory);
+
             bool uninstall = HasArg(args, "--uninstall") || HasArg(args, "/uninstall");
             bool quiet = HasArg(args, "--silent") || HasArg(args, "/silent") || HasArg(args, "/quiet");
             bool removeAppData = HasArg(args, "--remove-appdata");
@@ -18,17 +28,17 @@ static class Program
 
             if (!File.Exists(msiPath))
             {
-                Notify($"MSI not found next to setup.exe:\n{msiPath}", "NaturalVoiceSAPIAdapter Setup", quiet, error: true);
+                Notify($"MSI not found next to setup.exe:\n{msiPath}", branding.SetupCaption, quiet, error: true);
                 return 2;
             }
 
             string msiexecArgs;
             if (uninstall)
             {
-                string? productCode = FindInstalledProductCode("NaturalVoiceSAPIAdapter");
+                string? productCode = FindInstalledProductCode(branding.ProductName);
                 if (string.IsNullOrWhiteSpace(productCode))
                 {
-                    Notify("Could not find an installed NaturalVoiceSAPIAdapter product.", "NaturalVoiceSAPIAdapter Setup", quiet, error: true);
+                    Notify($"Could not find an installed {branding.ProductName} product.", branding.SetupCaption, quiet, error: true);
                     return 3;
                 }
 
@@ -56,36 +66,62 @@ static class Program
                 {
                     if (uninstall)
                     {
-                        Notify("Uninstall completed.", "NaturalVoiceSAPIAdapter Setup", quiet, error: false);
+                        Notify("Uninstall completed.", branding.SetupCaption, quiet, error: false);
                     }
                     else
                     {
-                        if (!TryLaunchInstalledInstaller())
+                        if (!TryLaunchInstalledInstaller(branding))
                         {
-                            Notify("Install completed, but Installer.exe was not found in the install location.", "NaturalVoiceSAPIAdapter Setup", quiet, error: true);
+                            Notify("Install completed, but Installer.exe was not found in the install location.", branding.SetupCaption, quiet, error: true);
                             return 4;
                         }
                     }
                 }
                 else if (rc == 3010)
                 {
-                    Notify("Operation completed. A reboot is required.", "NaturalVoiceSAPIAdapter Setup", quiet, error: false);
+                    Notify("Operation completed. A reboot is required.", branding.SetupCaption, quiet, error: false);
                 }
                 else if (rc == 1618)
                 {
-                    Notify("Another installer is currently running. Please wait and try again.", "NaturalVoiceSAPIAdapter Setup", quiet, error: true);
+                    Notify("Another installer is currently running. Please wait and try again.", branding.SetupCaption, quiet, error: true);
                 }
                 else
                 {
-                    Notify($"Setup failed with exit code {rc}.", "NaturalVoiceSAPIAdapter Setup", quiet, error: true);
+                    Notify($"Setup failed with exit code {rc}.", branding.SetupCaption, quiet, error: true);
                 }
             }
             return rc;
         }
         catch (Exception ex)
         {
-            Notify(ex.Message, "NaturalVoiceSAPIAdapter Setup", quiet: false, error: true);
+            Notify(ex.Message, "Setup", quiet: false, error: true);
             return 1;
+        }
+    }
+
+    static Branding LoadBranding(string baseDir)
+    {
+        try
+        {
+            string p = Path.Combine(baseDir, "branding.json");
+            if (!File.Exists(p))
+                return new Branding();
+
+            using FileStream fs = File.OpenRead(p);
+            using JsonDocument doc = JsonDocument.Parse(fs);
+            Branding b = new Branding();
+            JsonElement root = doc.RootElement;
+            if (root.TryGetProperty("product_name", out JsonElement product) && product.ValueKind == JsonValueKind.String)
+                b.ProductName = product.GetString() ?? b.ProductName;
+            if (root.TryGetProperty("app_caption", out JsonElement caption) && caption.ValueKind == JsonValueKind.String)
+                b.SetupCaption = caption.GetString() ?? b.SetupCaption;
+            if (root.TryGetProperty("install_folder_name", out JsonElement folder) && folder.ValueKind == JsonValueKind.String)
+                b.InstallFolderName = folder.GetString() ?? b.InstallFolderName;
+            return b;
+        }
+        catch
+        {
+            return new Branding();
         }
     }
 
@@ -143,12 +179,12 @@ static class Program
     static bool IsProductCode(string value) =>
         Regex.IsMatch(value, @"^\{[0-9A-Fa-f\-]{36}\}$");
 
-    static bool TryLaunchInstalledInstaller()
+    static bool TryLaunchInstalledInstaller(Branding branding)
     {
         var candidates = new[]
         {
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "NaturalVoiceSAPIAdapter", "Installer.exe"),
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "NaturalVoiceSAPIAdapter", "Installer.exe")
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), branding.InstallFolderName, "Installer.exe"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), branding.InstallFolderName, "Installer.exe")
         };
 
         foreach (string p in candidates.Distinct(StringComparer.OrdinalIgnoreCase))

@@ -65,9 +65,26 @@ struct UiPolicyVisibility
     bool hideEdge = false;
 };
 
+struct BrandingConfig
+{
+    std::wstring appCaption;
+};
+
 static bool EqualsI(const std::string& a, const char* b)
 {
     return _stricmp(a.c_str(), b) == 0;
+}
+
+static std::wstring Utf8ToWide(const std::string& value)
+{
+    if (value.empty())
+        return {};
+    int len = MultiByteToWideChar(CP_UTF8, 0, value.c_str(), (int)value.size(), nullptr, 0);
+    if (len <= 0)
+        return {};
+    std::wstring out(len, L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, value.c_str(), (int)value.size(), out.data(), len);
+    return out;
 }
 
 static bool IsHiddenValue(const nlohmann::json& v)
@@ -81,6 +98,14 @@ static std::wstring GetAdjacentInstallPlanPath()
     GetModuleFileNameW(nullptr, exePath, MAX_PATH);
     std::filesystem::path p(exePath);
     return (p.parent_path() / L"install-plan.json").wstring();
+}
+
+static std::wstring GetAdjacentBrandingPath()
+{
+    WCHAR exePath[MAX_PATH] = {};
+    GetModuleFileNameW(nullptr, exePath, MAX_PATH);
+    std::filesystem::path p(exePath);
+    return (p.parent_path() / L"branding.json").wstring();
 }
 
 static UiPolicyVisibility LoadUiPolicyVisibility()
@@ -172,6 +197,33 @@ static void ApplyUiPolicyVisibility(HWND hDlg)
     }
 }
 
+static BrandingConfig LoadBrandingConfig()
+{
+    BrandingConfig cfg;
+    const std::wstring path = GetAdjacentBrandingPath();
+    if (!PathFileExistsW(path.c_str()))
+        return cfg;
+
+    std::ifstream in(path, std::ios::binary);
+    if (!in.is_open())
+        return cfg;
+
+    nlohmann::json j;
+    try
+    {
+        in >> j;
+    }
+    catch (...)
+    {
+        return cfg;
+    }
+
+    if (j.contains("app_caption") && j["app_caption"].is_string())
+        cfg.appCaption = Utf8ToWide(j["app_caption"].get<std::string>());
+
+    return cfg;
+}
+
 static void UpdateDisplay(HWND hDlg)
 {
     CheckInstallation(false, hDlg, IDC_STATIC_32BIT_STATUS, IDC_UNINSTALL_32BIT);
@@ -232,6 +284,10 @@ static void UpdateDisplay(HWND hDlg)
 static BOOL MainDlgInit(HWND hDlg)
 {
     CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+
+    const BrandingConfig branding = LoadBrandingConfig();
+    if (!branding.appCaption.empty())
+        SetWindowTextW(hDlg, branding.appCaption.c_str());
 
     if (!IsAdmin())
     {

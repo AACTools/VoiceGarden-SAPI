@@ -8,7 +8,8 @@ param(
     [string]$MsiPath = ".\installer-output\NaturalVoiceSAPIAdapter.msi",
     [string]$Configuration = "Release",
     [string]$OutputDir = ".\installer-output",
-    [string]$Version = ""
+    [string]$Version = "",
+    [string]$BrandingFile = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -35,6 +36,17 @@ if ([string]::IsNullOrWhiteSpace($Version)) {
 
 if (!(Test-Path $outputFull)) {
     New-Item -ItemType Directory -Path $outputFull -Force | Out-Null
+}
+
+$brandingPath = $null
+if (![string]::IsNullOrWhiteSpace($BrandingFile)) {
+    $brandingPath = if ([System.IO.Path]::IsPathRooted($BrandingFile)) { $BrandingFile } else { Join-Path $repoRoot $BrandingFile }
+    if (!(Test-Path $brandingPath -PathType Leaf)) {
+        throw "Branding file not found: $brandingPath"
+    }
+}
+elseif (Test-Path (Join-Path $repoRoot "config\branding.json") -PathType Leaf) {
+    $brandingPath = Join-Path $repoRoot "config\branding.json"
 }
 
 Write-Host "Building setup.exe bootstrapper..." -ForegroundColor Cyan
@@ -65,6 +77,9 @@ Copy-Item -Path $builtExe.FullName -Destination $targetExe -Force
 $targetMsi = Join-Path $outputFull "NaturalVoiceSAPIAdapter.msi"
 if ([System.IO.Path]::GetFullPath($msiFull) -ne [System.IO.Path]::GetFullPath($targetMsi)) {
     Copy-Item -Path $msiFull -Destination $targetMsi -Force
+}
+if ($brandingPath) {
+    Copy-Item -Path $brandingPath -Destination (Join-Path $outputFull "branding.json") -Force
 }
 
 Write-Host "Bootstrapper built: $targetExe" -ForegroundColor Green
