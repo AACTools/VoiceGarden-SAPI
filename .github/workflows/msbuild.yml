@@ -296,6 +296,8 @@ jobs:
         zip -r debug_symbols.zip x86 x64 ARM64 -i "*.pdb"
         cp setup-msi/NaturalVoiceSAPIAdapter.msi ./
         cp setup-exe/setup.exe ./
+        # Canonical release payload layout (single package).
+        zip -r NaturalVoiceSAPIAdapter_${ver}_release-layout.zip x86 x64 ARM64 Installer.exe InstallPlanRunner.exe setup.exe NaturalVoiceSAPIAdapter.msi -i "*.exe" "*.dll" "*.json" "*.msi"
 
     - name: Create release
       # TEMPORARY: Disabled for testing - ZIPs will be available as artifacts only
@@ -305,7 +307,8 @@ jobs:
       with:
         body_path: ${{github.workspace}}/release_notes.md
         files: |
-          ${{github.workspace}}/artifacts/*.zip
+          ${{github.workspace}}/artifacts/NaturalVoiceSAPIAdapter_*_release-layout.zip
+          ${{github.workspace}}/artifacts/debug_symbols.zip
 
     # TEMPORARY: Upload ZIPs as artifacts for testing
     # REVERT BEFORE MERGE: Remove this step when re-enabling GitHub releases
@@ -315,5 +318,18 @@ jobs:
         name: release-zips
         path: |
           ${{github.workspace}}/artifacts/*.zip
+          ${{github.workspace}}/artifacts/NaturalVoiceSAPIAdapter.msi
+          ${{github.workspace}}/artifacts/setup.exe
+
+    - name: Upload release layout (unzipped)
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-layout
+        path: |
+          ${{github.workspace}}/artifacts/x86/**
+          ${{github.workspace}}/artifacts/x64/**
+          ${{github.workspace}}/artifacts/ARM64/**
+          ${{github.workspace}}/artifacts/Installer.exe
+          ${{github.workspace}}/artifacts/InstallPlanRunner.exe
           ${{github.workspace}}/artifacts/NaturalVoiceSAPIAdapter.msi
           ${{github.workspace}}/artifacts/setup.exe
