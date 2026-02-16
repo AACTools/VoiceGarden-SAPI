@@ -10,6 +10,8 @@
 - `scripts/run-sherpa-smoke-test.ps1`: compiles/runs native Sherpa smoke test.
 - `scripts/clean-naturalvoice-state.ps1`: clean/reset local registry + app data state (self-elevating).
 - `scripts/promote-hkcu-sherpa-tokens-to-hklm.ps1`: exports HKCU Sherpa tokens and imports them into HKLM (self-elevating).
+- `scripts/test-installer-cli.ps1`: regression smoke checks for `Installer.exe` plan/direct CLI modes.
+  - Also validates sample plan fixtures from `samples/install-plans/` and `InstallPlanRunner.exe` auto-plan mode.
 
 ## Diagnostic/reference scripts (optional)
 

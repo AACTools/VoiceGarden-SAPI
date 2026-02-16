@@ -63,6 +63,33 @@ As for now, Microsoft hasn't yet allowed third-party apps to use the Narrator/Ed
     - Azure voices require a subscription key (API key) and its region. Click "Set Azure key" to enter your key. You can visit [Azure Portal](https://portal.azure.com/), go to your speech service resource, then go to **Resource Management** > **Keys and Endpoint** to copy & paste the key and the region.
   7. Close the Installer window to apply the changes. You can open the Installer again when you want to change something, and changing the settings doesn't require reinstallation or administrator's permission.
 
+Silent/declarative install (work in progress):
+
+- `Installer.exe --silent --plan .\install-plan.json`
+- `Installer.exe .\install-plan.json` (positional plan path for drag/drop/simple usage)
+- `InstallPlanRunner.exe` (if `install-plan.json` is next to it, it auto-runs silently with no UI)
+- Contract/schema draft: `docs/install-plan-and-cli-contract.md`
+- Web-plan fixtures/examples: `samples/install-plans/*.json`
+
+MSI setup packaging:
+
+- Build from staged payload (default `out/`): `powershell -ExecutionPolicy Bypass -File .\scripts\build-setup.ps1`
+- Output: `installer-output/NaturalVoiceSAPIAdapter.msi`
+- Optional appdata cleanup during uninstall:
+  - `msiexec /x {PRODUCT-CODE} REMOVE_APPDATA=1`
+  - (default keeps `%LOCALAPPDATA%\NaturalVoiceSAPIAdapter`)
+
+setup.exe bootstrapper packaging:
+
+- Build after MSI is available:
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\build-bootstrapper.ps1`
+- Output: `installer-output/setup.exe`
+- The bootstrapper runs the MSI in the same folder.
+- Uninstall via bootstrapper:
+  - `setup.exe --uninstall`
+  - `setup.exe --uninstall --remove-appdata`
+- Current bootstrapper is unsigned; SignPath signing can be added in CI later.
+
 ![Installer UI in English](https://github.com/user-attachments/assets/422264b8-a2ef-4ab7-96e9-4017dd88ca13)
 
 
@@ -83,6 +110,14 @@ Or, you can go to Control Panel > Speech (Windows XP), or Control Panel > Speech
 - SherpaOnnx local models are loaded from `%LOCALAPPDATA%\\NaturalVoiceSAPIAdapter\\models\\`.
 - SherpaOnnx synthesis currently supports plain text only. SAPI/SSML tags are converted to plain text before offline generation.
 - Use `SherpaOnnxConfig.exe rescan` (or the **Rescan Models** button) to validate local model folders and view per-model scan errors.
+- Installer/CLI orchestration contract draft: `docs/install-plan-and-cli-contract.md`.
+
+## Install Plan Builder Web App
+
+- Scaffold lives at `web-plan-builder/`.
+- It loads Sherpa models from:
+  - `https://raw.githubusercontent.com/willwade/tts-wrapper/main/tts_wrapper/engines/sherpaonnx/merged_models.json`
+- It generates `install-plan.json` for `Installer.exe` / `InstallPlanRunner.exe`.
 
 ## Libraries used
 - Microsoft.CognitiveServices.Speech.Extension.Embedded.TTS

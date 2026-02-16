@@ -1,0 +1,73 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package
+    Name="NaturalVoiceSAPIAdapter"
+    Manufacturer="NaturalVoiceSAPIAdapter"
+    Version="$(var.ProductVersion)"
+    UpgradeCode="5A7A242A-1414-41D0-A1C5-6A1E338F0B7C">
+
+    <MajorUpgrade
+      AllowSameVersionUpgrades="yes"
+      DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="NaturalVoiceSAPIAdapter" />
+    </StandardDirectory>
+
+    <Property Id="ARPCONTACT" Value="https://github.com/gexgd0419/NaturalVoiceSAPIAdapter" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/gexgd0419/NaturalVoiceSAPIAdapter" />
+    <Property Id="REMOVE_APPDATA" Value="0" />
+
+    <!--
+      Optional appdata cleanup:
+      msiexec /x {PRODUCT-CODE} REMOVE_APPDATA=1
+    -->
+    <CustomAction
+      Id="CleanupAppData"
+      Directory="SystemFolder"
+      ExeCommand='cmd.exe /c if exist "[LocalAppDataFolder]NaturalVoiceSAPIAdapter" rmdir /s /q "[LocalAppDataFolder]NaturalVoiceSAPIAdapter"'
+      Execute="deferred"
+      Impersonate="yes"
+      Return="ignore" />
+
+    <InstallExecuteSequence>
+      <Custom Action="CleanupAppData" Before="RemoveFiles" Condition='REMOVE="ALL" AND REMOVE_APPDATA=1' />
+    </InstallExecuteSequence>
+
+    <Feature Id="MainFeature" Title="NaturalVoiceSAPIAdapter" Level="1">
+      <ComponentGroupRef Id="PayloadComponents" />
+      <ComponentGroupRef Id="ShortcutComponents" />
+    </Feature>
+  </Package>
+
+  <Fragment>
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder" Name="NaturalVoiceSAPIAdapter" />
+    </StandardDirectory>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ShortcutComponents">
+      <Component Id="StartMenuShortcutComponent" Directory="ApplicationProgramsFolder" Guid="*">
+        <Shortcut
+          Id="StartMenuInstallerShortcut"
+          Name="NaturalVoiceSAPIAdapter Installer"
+          Description="Configure and register NaturalVoiceSAPIAdapter"
+          Target="[INSTALLFOLDER]Installer.exe"
+          WorkingDirectory="INSTALLFOLDER" />
+        <RemoveFolder Id="RemoveApplicationProgramsFolder" On="uninstall" />
+        <RegistryValue Root="HKCU" Key="Software\NaturalVoiceSAPIAdapter" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+
+      <Component Id="DesktopShortcutComponent" Directory="DesktopFolder" Guid="*">
+        <Shortcut
+          Id="DesktopInstallerShortcut"
+          Name="NaturalVoiceSAPIAdapter Installer"
+          Description="Configure and register NaturalVoiceSAPIAdapter"
+          Target="[INSTALLFOLDER]Installer.exe"
+          WorkingDirectory="INSTALLFOLDER" />
+        <RegistryValue Root="HKCU" Key="Software\NaturalVoiceSAPIAdapter" Name="DesktopShortcut" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

@@ -1,8 +1,13 @@
 #include "framework.h"
 #include "Installer.h"
 #include "RegKey.h"
+#include "SherpaManagerDlg.h"
+#include "../include/nlohmann/json.hpp"
 #include <algorithm>
+#include <filesystem>
+#include <fstream>
 #include <shlobj.h>
+#include <string>
 #pragma comment (lib, "shell32.lib")
 
 INT_PTR CALLBACK AboutDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
@@ -52,6 +57,119 @@ static void UpdateEnableStates(HWND hDlg)
     EnableWindow(GetDlgItem(hDlg, IDC_STATIC_INCLUDED_LANGUAGES), onlineEnabled);
     EnableWindow(GetDlgItem(hDlg, IDC_INCLUDED_LANGUAGES), onlineEnabled);
     EnableWindow(GetDlgItem(hDlg, IDC_CHANGE_LANGUAGES), onlineEnabled);
+}
+
+struct UiPolicyVisibility
+{
+    bool hideNarrator = false;
+    bool hideEdge = false;
+};
+
+static bool EqualsI(const std::string& a, const char* b)
+{
+    return _stricmp(a.c_str(), b) == 0;
+}
+
+static bool IsHiddenValue(const nlohmann::json& v)
+{
+    return v.is_string() && EqualsI(v.get<std::string>(), "hide");
+}
+
+static std::wstring GetAdjacentInstallPlanPath()
+{
+    WCHAR exePath[MAX_PATH] = {};
+    GetModuleFileNameW(nullptr, exePath, MAX_PATH);
+    std::filesystem::path p(exePath);
+    return (p.parent_path() / L"install-plan.json").wstring();
+}
+
+static UiPolicyVisibility LoadUiPolicyVisibility()
+{
+    UiPolicyVisibility vis;
+    const std::wstring path = GetAdjacentInstallPlanPath();
+    if (!PathFileExistsW(path.c_str()))
+        return vis;
+
+    std::ifstream in(path, std::ios::binary);
+    if (!in.is_open())
+        return vis;
+
+    nlohmann::json j;
+    try
+    {
+        in >> j;
+    }
+    catch (...)
+    {
+        return vis;
+    }
+
+    if (!j.contains("policy") || !j["policy"].is_object())
+        return vis;
+
+    const auto& policy = j["policy"];
+    if (policy.contains("ui_visibility") && policy["ui_visibility"].is_object())
+    {
+        const auto& ui = policy["ui_visibility"];
+        if (ui.contains("narrator") && IsHiddenValue(ui["narrator"]))
+            vis.hideNarrator = true;
+        if (ui.contains("edge") && IsHiddenValue(ui["edge"]))
+            vis.hideEdge = true;
+        if (ui.contains("edge_online") && IsHiddenValue(ui["edge_online"]))
+            vis.hideEdge = true;
+    }
+
+    if (policy.contains("allowed_engines") && policy["allowed_engines"].is_array())
+    {
+        bool allowNarrator = false;
+        bool allowEdge = false;
+        for (const auto& e : policy["allowed_engines"])
+        {
+            if (!e.is_string())
+                continue;
+            const auto engine = e.get<std::string>();
+            if (EqualsI(engine, "narrator"))
+                allowNarrator = true;
+            if (EqualsI(engine, "edge") || EqualsI(engine, "edge_online"))
+                allowEdge = true;
+        }
+        if (!allowNarrator)
+            vis.hideNarrator = true;
+        if (!allowEdge)
+            vis.hideEdge = true;
+    }
+
+    return vis;
+}
+
+static void HideControl(HWND hDlg, int id)
+{
+    HWND h = GetDlgItem(hDlg, id);
+    if (!h)
+        return;
+    EnableWindow(h, FALSE);
+    ShowWindow(h, SW_HIDE);
+}
+
+static void ApplyUiPolicyVisibility(HWND hDlg)
+{
+    const UiPolicyVisibility vis = LoadUiPolicyVisibility();
+    if (vis.hideNarrator)
+    {
+        CheckDlgButton(hDlg, IDC_CHK_NARRATOR_VOICES, BST_UNCHECKED);
+        HideControl(hDlg, IDC_GROUP_NARRATOR);
+        HideControl(hDlg, IDC_CHK_NARRATOR_VOICES);
+        HideControl(hDlg, IDC_NARRATOR_VOICE_TIP_LINKS);
+        HideControl(hDlg, IDC_STATIC_LOCAL_VOICE_PATH);
+        HideControl(hDlg, IDC_LOCAL_VOICE_PATH);
+        HideControl(hDlg, IDC_BROWSE_LOCAL_VOICE);
+    }
+
+    if (vis.hideEdge)
+    {
+        CheckDlgButton(hDlg, IDC_CHK_EDGE_VOICES, BST_UNCHECKED);
+        HideControl(hDlg, IDC_CHK_EDGE_VOICES);
+    }
 }
 
 static void UpdateDisplay(HWND hDlg)
@@ -144,6 +262,8 @@ static BOOL MainDlgInit(HWND hDlg)
     }
 
     UpdateDisplay(hDlg);
+    ApplyUiPolicyVisibility(hDlg);
+    UpdateEnableStates(hDlg);
 
     return TRUE;
 }
@@ -163,29 +283,6 @@ static void SaveChanges(HWND hDlg)
     WCHAR path[MAX_PATH];
     GetDlgItemTextW(hDlg, IDC_LOCAL_VOICE_PATH, path, MAX_PATH);
     key.SetString(L"NarratorVoicePath", path);
-}
-
-static BOOL FindSherpaConfigToolPath(WCHAR configToolPath[MAX_PATH])
-{
-    // Try 1: Same directory as installer
-    GetModuleFileNameW(nullptr, configToolPath, MAX_PATH);
-    PathRemoveFileSpecW(configToolPath);
-    PathAppendW(configToolPath, L"SherpaOnnxConfig.exe");
-    if (PathFileExistsW(configToolPath))
-        return TRUE;
-
-    // Try 2: x64\\ subdirectory (release structure)
-    GetModuleFileNameW(nullptr, configToolPath, MAX_PATH);
-    PathRemoveFileSpecW(configToolPath);
-    PathAppendW(configToolPath, L"x64\\SherpaOnnxConfig.exe");
-    if (PathFileExistsW(configToolPath))
-        return TRUE;
-
-    // Try 3: ..\\x64\\Release\\ (old CI structure)
-    GetModuleFileNameW(nullptr, configToolPath, MAX_PATH);
-    PathRemoveFileSpecW(configToolPath);
-    PathAppendW(configToolPath, L"\\..\\x64\\Release\\SherpaOnnxConfig.exe");
-    return PathFileExistsW(configToolPath);
 }
 
 INT_PTR CALLBACK MainDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -291,31 +388,7 @@ INT_PTR CALLBACK MainDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
             }
             case IDC_SHERPA_MODEL_MANAGER:
             {
-                // Launch SherpaOnnx Model Manager
-                WCHAR configToolPath[MAX_PATH];
-                if (FindSherpaConfigToolPath(configToolPath))
-                {
-                    ShellExecuteW(hDlg, nullptr, configToolPath, nullptr, nullptr, SW_SHOWNORMAL);
-                }
-                else
-                {
-                    MessageBoxW(hDlg, L"SherpaOnnx Model Manager not found.\n\nPlease ensure SherpaOnnxConfig.exe is in the application directory.",
-                        L"Model Manager Not Found", MB_ICONEXCLAMATION);
-                }
-                break;
-            }
-            case IDC_SHERPA_RESCAN:
-            {
-                WCHAR configToolPath[MAX_PATH];
-                if (FindSherpaConfigToolPath(configToolPath))
-                {
-                    ShellExecuteW(hDlg, nullptr, configToolPath, L"rescan-gui", nullptr, SW_SHOWNORMAL);
-                }
-                else
-                {
-                    MessageBoxW(hDlg, L"SherpaOnnx Model Manager not found.\n\nPlease ensure SherpaOnnxConfig.exe is in the application directory.",
-                        L"Model Manager Not Found", MB_ICONEXCLAMATION);
-                }
+                DialogBoxParamW(nullptr, MAKEINTRESOURCEW(IDD_SHERPA_MANAGER), hDlg, SherpaManagerDlg, 0);
                 break;
             }
             }

@@ -26,6 +26,7 @@
 #define IDS_LANGUAGES_ALL               141
 #define IDS_LOG_LEVELS                  142
 #define IDS_LOCAL_VOICE_PATH_NONASCII   143
+#define IDD_SHERPA_MANAGER              141
 #define IDC_INSTALL_32BIT               1000
 #define IDC_UNINSTALL_32BIT             1001
 #define IDC_INSTALL_64BIT               1002
@@ -62,6 +63,20 @@
 #define IDC_SHERPA_MODEL_MANAGER        1034
 #define IDC_CHK_SHERPA_VOICES           1035
 #define IDC_SHERPA_RESCAN               1036
+#define IDC_SHERPA_LANGUAGE             1037
+#define IDC_SHERPA_FILTER               1038
+#define IDC_SHERPA_MODELS               1039
+#define IDC_SHERPA_DOWNLOAD             1040
+#define IDC_SHERPA_OPEN_MODELS          1041
+#define IDC_SHERPA_RESCAN_MANAGER       1042
+#define IDC_SHERPA_ADMIN_ALL            1043
+#define IDC_SHERPA_ALIAS_ALL            1044
+#define IDC_SHERPA_APPLY_ALL            1045
+#define IDC_SHERPA_STATUS               1046
+#define IDC_SHERPA_LOG                  1047
+#define IDC_SHERPA_REFRESH              1048
+#define IDC_GROUP_NARRATOR              1049
+#define IDC_GROUP_ONLINE                1050
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -69,9 +84,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        141
+#define _APS_NEXT_RESOURCE_VALUE        142
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1037
+#define _APS_NEXT_CONTROL_VALUE         1049
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

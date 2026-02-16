@@ -54,7 +54,13 @@ param(
 
     [switch]$SkipSubmodules,
 
-    [switch]$SkipVerify
+    [switch]$SkipVerify,
+
+    # Full CI-parity build (utilities + payload + MSI/bootstrapper).
+    [switch]$FullRelease,
+
+    # Build MSI + setup.exe (implies -FullRelease).
+    [switch]$BuildSetup
 )
 
 $ErrorActionPreference = "Stop"
@@ -63,6 +69,29 @@ $ErrorActionPreference = "Stop"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $OutputDir = Join-Path $ScriptDir "installer-output"
 $UtilitiesOutputDir = Join-Path $ScriptDir "out"
+
+if ($BuildSetup) {
+    $FullRelease = $true
+}
+
+if ($FullRelease) {
+    $releaseScript = Join-Path $ScriptDir "scripts\build-release-local.ps1"
+    if (!(Test-Path $releaseScript)) {
+        Write-Host "Error: build-release-local.ps1 not found at $releaseScript" -ForegroundColor Red
+        exit 1
+    }
+
+    & $releaseScript `
+        -Configuration $Configuration `
+        -Platforms $Platforms `
+        -SkipSherpaDeps:$SkipSherpaDeps `
+        -ForceSherpaDeps:$ForceSherpaDeps `
+        -SkipSubmodules:$SkipSubmodules `
+        -SkipVerify:$SkipVerify `
+        -BuildSetup:$BuildSetup
+
+    exit $LASTEXITCODE
+}
 
 # Find MSBuild (VS 2022)
 $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
@@ -288,6 +317,12 @@ try {
     }
 
     Write-Host "  Installer built successfully" -ForegroundColor Green
+
+    # Create plan-runner alias. Same binary, runner mode is based on executable name.
+    Copy-Item -Path (Join-Path $UtilitiesOutputDir "Installer.exe") `
+              -Destination (Join-Path $UtilitiesOutputDir "InstallPlanRunner.exe") `
+              -Force -ErrorAction Stop
+    Write-Host "  InstallPlanRunner.exe staged" -ForegroundColor Green
 }
 catch {
     $errMsg = $_.Exception.Message

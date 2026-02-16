@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "policy": {
+    "allowed_engines": [
+      "azure_online",
+      "sherpa_offline"
+    ],
+    "ui_visibility": {
+      "narrator": "hide",
+      "edge": "hide",
+      "azure_online": "show",
+      "sherpa_offline": "show"
+    },
+    "require_explicit_enable": true
+  },
+  "scope": "current-user",
+  "architectures": [
+    "x64"
+  ],
+  "engines": {
+    "azure_online": {
+      "enabled": false,
+      "key": "",
+      "region": "",
+      "validate": true
+    },
+    "embedded_msix": {
+      "enabled": false
+    },
+    "sherpa_offline": {
+      "enabled": true,
+      "download": [],
+      "rescan": true,
+      "promote_hklm": false,
+      "compat_alias": {
+        "mode": "none",
+        "model_ids": []
+      },
+      "test_voice_id": ""
+    }
+  },
+  "post_install": {
+    "register_com": true,
+    "verify_registration": true,
+    "run_self_test": true
+  }
+}

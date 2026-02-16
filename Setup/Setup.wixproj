@@ -1,0 +1,8 @@
+<Project Sdk="PanelSwWix4.Sdk/5.0.0-psw-wix.0113-3">
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <ProductVersion Condition="'$(ProductVersion)'==''">0.3.0.0</ProductVersion>
+    <PayloadDir Condition="'$(PayloadDir)'==''">$(MSBuildProjectDirectory)\..\out</PayloadDir>
+    <DefineConstants>ProductVersion=$(ProductVersion);PayloadDir=$(PayloadDir)</DefineConstants>
+  </PropertyGroup>
+</Project>
