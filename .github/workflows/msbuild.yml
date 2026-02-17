@@ -102,6 +102,12 @@ jobs:
         nuget restore Installer -SolutionDirectory .
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=Win32 /p:OutDir=${{github.workspace}}\out\ Installer
         Copy-Item -Path out\Installer.exe -Destination out\InstallPlanRunner.exe -Force
+        if (Test-Path .\samples\install-plans\default-install-plan.json) {
+          Copy-Item -Path .\samples\install-plans\default-install-plan.json -Destination out\install-plan.json -Force
+        }
+        if (Test-Path .\config\branding.json) {
+          Copy-Item -Path .\config\branding.json -Destination out\branding.json -Force
+        }
 
     - name: Download SherpaOnnxConfig and copy to utilities output
       if: matrix.platform == 'x86' || matrix.platform == 'x64'
@@ -109,6 +115,20 @@ jobs:
       with:
         name: sherpa-onnx-config
         path: ${{github.workspace}}\out\
+
+    - name: Download Sherpa model metadata for ARM64 utilities
+      if: matrix.platform == 'ARM64'
+      uses: actions/download-artifact@v4
+      with:
+        name: sherpa-onnx-config
+        path: ${{github.workspace}}\out\
+
+    - name: Keep only merged_models.json in ARM64 utilities
+      if: matrix.platform == 'ARM64'
+      shell: pwsh
+      working-directory: ${{github.workspace}}
+      run: |
+        Remove-Item out\SherpaOnnxConfig.exe -ErrorAction SilentlyContinue
 
     - name: Run Installer plan fixture regression tests (x86)
       if: matrix.platform == 'x86'
@@ -181,6 +201,13 @@ jobs:
         Remove-Item Microsoft.CognitiveServices.Speech.extension.codec.dll -ErrorAction Ignore
         exit 0   # This is necessary because "-ErrorAction Ignore" doesn't ensure a zero exit code
 
+    - name: Remove sherpa smoke test artifacts (x64)
+      if: matrix.platform == 'x64'
+      shell: pwsh
+      working-directory: ${{github.workspace}}
+      run: |
+        Remove-Item out\sherpa-smoke -Recurse -Force -ErrorAction SilentlyContinue
+
     - name: Copy ucrtbase.dll (x64)
       if: matrix.platform == 'x64'
       working-directory: ${{github.workspace}}
@@ -230,6 +257,12 @@ jobs:
         Copy-Item artifacts\main-ARM64\* payload\ARM64\ -Recurse -Force
         Copy-Item payload\x86\Installer.exe payload\Installer.exe -Force
         Copy-Item payload\x86\InstallPlanRunner.exe payload\InstallPlanRunner.exe -Force
+        if (Test-Path payload\x86\install-plan.json) {
+          Copy-Item payload\x86\install-plan.json payload\install-plan.json -Force
+        }
+        if (Test-Path payload\x86\branding.json) {
+          Copy-Item payload\x86\branding.json payload\branding.json -Force
+        }
 
     - name: Build MSI
       shell: pwsh
@@ -256,6 +289,7 @@ jobs:
         path: |
           installer-output/setup.exe
           installer-output/NaturalVoiceSAPIAdapter.msi
+          installer-output/branding.json
 
   release:
     runs-on: ubuntu-latest
@@ -285,6 +319,7 @@ jobs:
         mv main-x86/* x86/
         mv x86/Installer.exe ./
         mv x86/InstallPlanRunner.exe ./
+        if [ -f x86/install-plan.json ]; then cp x86/install-plan.json ./; fi
         mkdir x64
         mv utilities-x64/* x64/
         mv main-x64/* x64/
@@ -296,8 +331,9 @@ jobs:
         zip -r debug_symbols.zip x86 x64 ARM64 -i "*.pdb"
         cp setup-msi/NaturalVoiceSAPIAdapter.msi ./
         cp setup-exe/setup.exe ./
+        if [ -f setup-exe/branding.json ]; then cp setup-exe/branding.json ./; fi
         # Canonical release payload layout (single package).
-        zip -r NaturalVoiceSAPIAdapter_${ver}_release-layout.zip x86 x64 ARM64 Installer.exe InstallPlanRunner.exe setup.exe NaturalVoiceSAPIAdapter.msi -i "*.exe" "*.dll" "*.json" "*.msi"
+        zip -r NaturalVoiceSAPIAdapter_${ver}_release-layout.zip x86 x64 ARM64 Installer.exe InstallPlanRunner.exe setup.exe NaturalVoiceSAPIAdapter.msi branding.json -i "*.exe" "*.dll" "*.json" "*.msi"
 
     - name: Create release
       # TEMPORARY: Disabled for testing - ZIPs will be available as artifacts only
@@ -310,17 +346,6 @@ jobs:
           ${{github.workspace}}/artifacts/NaturalVoiceSAPIAdapter_*_release-layout.zip
           ${{github.workspace}}/artifacts/debug_symbols.zip
 
-    # TEMPORARY: Upload ZIPs as artifacts for testing
-    # REVERT BEFORE MERGE: Remove this step when re-enabling GitHub releases
-    - name: Upload release ZIPs as artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: release-zips
-        path: |
-          ${{github.workspace}}/artifacts/*.zip
-          ${{github.workspace}}/artifacts/NaturalVoiceSAPIAdapter.msi
-          ${{github.workspace}}/artifacts/setup.exe
-
     - name: Upload release layout (unzipped)
       uses: actions/upload-artifact@v4
       with:
@@ -331,5 +356,7 @@ jobs:
           ${{github.workspace}}/artifacts/ARM64/**
           ${{github.workspace}}/artifacts/Installer.exe
           ${{github.workspace}}/artifacts/InstallPlanRunner.exe
+          ${{github.workspace}}/artifacts/install-plan.json
+          ${{github.workspace}}/artifacts/branding.json
           ${{github.workspace}}/artifacts/NaturalVoiceSAPIAdapter.msi
           ${{github.workspace}}/artifacts/setup.exe
