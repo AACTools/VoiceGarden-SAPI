@@ -7,9 +7,11 @@
 #include <filesystem>
 #include <fstream>
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 #include <system_error>
+#include <thread>
 #include <vector>
 #include <cwctype>
 #include <shlobj.h>
@@ -35,10 +37,22 @@ struct SherpaDialogState
     std::wstring modelsRoot;
     std::vector<SherpaModelItem> models;
     std::vector<int> filtered;
+    bool installedOnly = false;
+    bool operationBusy = false;
+};
+
+struct AsyncDownloadResult
+{
+    std::wstring modelId;
+    DWORD exitCode = 0;
+    std::wstring errorText;
 };
 
 constexpr LPCWSTR kInstallerSherpaPrefs = L"Software\\NaturalVoiceSAPIAdapter\\Installer";
 constexpr LPCWSTR kSherpaCompatPrefs = L"Software\\NaturalVoiceSAPIAdapter\\SherpaCompat";
+constexpr UINT WM_SHERPA_DOWNLOAD_DONE = WM_APP + 201;
+std::vector<int> GetSelectedModelIndexes(HWND hDlg, SherpaDialogState& st);
+void UpdateSelectionState(HWND hDlg, SherpaDialogState& st);
 
 std::string WideToUtf8(const std::wstring& value)
 {
@@ -366,6 +380,105 @@ void SetAliasPreferenceForModels(const std::vector<std::wstring>& modelIds, bool
     }
 }
 
+void RemoveAliasPreferenceForModels(const std::vector<std::wstring>& modelIds)
+{
+    RegKey key;
+    key.Create(HKEY_CURRENT_USER, kSherpaCompatPrefs, KEY_SET_VALUE);
+    for (const auto& id : modelIds)
+    {
+        key.SetDword(id.c_str(), 0);
+    }
+}
+
+void SetDialogBusy(HWND hDlg, SherpaDialogState& st, bool busy)
+{
+    st.operationBusy = busy;
+
+    const int controlIds[] = {
+        IDC_SHERPA_DOWNLOAD,
+        IDC_SHERPA_RESCAN_MANAGER,
+        IDC_SHERPA_OPEN_MODELS,
+        IDC_SHERPA_APPLY_ALL,
+        IDC_SHERPA_REFRESH,
+        IDC_SHERPA_LANGUAGE,
+        IDC_SHERPA_FILTER,
+        IDC_SHERPA_MODELS,
+        IDC_SHERPA_INSTALLED_ONLY
+    };
+
+    for (int id : controlIds)
+    {
+        HWND h = GetDlgItem(hDlg, id);
+        if (h)
+            EnableWindow(h, busy ? FALSE : TRUE);
+    }
+
+    if (busy)
+    {
+        EnableWindow(GetDlgItem(hDlg, IDC_SHERPA_UNINSTALL), FALSE);
+    }
+    else
+    {
+        UpdateSelectionState(hDlg, st);
+    }
+}
+
+std::vector<int> GetSelectedModelIndexes(HWND hDlg, SherpaDialogState& st)
+{
+    std::vector<int> indexes;
+    HWND hList = GetDlgItem(hDlg, IDC_SHERPA_MODELS);
+    int selCount = static_cast<int>(SendMessageW(hList, LB_GETSELCOUNT, 0, 0));
+    if (selCount == LB_ERR)
+    {
+        int sel = static_cast<int>(SendMessageW(hList, LB_GETCURSEL, 0, 0));
+        if (sel == LB_ERR)
+            return indexes;
+        int idx = static_cast<int>(SendMessageW(hList, LB_GETITEMDATA, sel, 0));
+        if (idx >= 0 && idx < static_cast<int>(st.models.size()))
+            indexes.push_back(idx);
+        return indexes;
+    }
+
+    if (selCount <= 0)
+        return indexes;
+
+    std::vector<int> selected(selCount);
+    if (SendMessageW(hList, LB_GETSELITEMS, selCount, reinterpret_cast<LPARAM>(selected.data())) == LB_ERR)
+        return indexes;
+
+    for (int sel : selected)
+    {
+        int idx = static_cast<int>(SendMessageW(hList, LB_GETITEMDATA, sel, 0));
+        if (idx >= 0 && idx < static_cast<int>(st.models.size()))
+            indexes.push_back(idx);
+    }
+
+    std::sort(indexes.begin(), indexes.end());
+    indexes.erase(std::unique(indexes.begin(), indexes.end()), indexes.end());
+    return indexes;
+}
+
+void UpdateSelectionState(HWND hDlg, SherpaDialogState& st)
+{
+    bool canUninstall = false;
+    if (!st.operationBusy)
+    {
+        std::vector<int> indexes = GetSelectedModelIndexes(hDlg, st);
+        for (int idx : indexes)
+        {
+            if (idx >= 0 && idx < static_cast<int>(st.models.size()) && st.models[idx].hasLocalDir)
+            {
+                canUninstall = true;
+                break;
+            }
+        }
+    }
+
+    HWND hUninstall = GetDlgItem(hDlg, IDC_SHERPA_UNINSTALL);
+    if (hUninstall)
+        EnableWindow(hUninstall, canUninstall ? TRUE : FALSE);
+}
+
 void RefreshFilterList(HWND hDlg, SherpaDialogState& st)
 {
     WCHAR langBuf[256] = {};
@@ -396,6 +509,9 @@ void RefreshFilterList(HWND hDlg, SherpaDialogState& st)
         if (!matchLang)
             continue;
 
+        if (st.installedOnly && !m.hasLocalDir)
+            continue;
+
         if (!filter.empty())
         {
             std::wstring hay = ToLower(m.id + L" " + m.language);
@@ -420,7 +536,10 @@ void RefreshFilterList(HWND hDlg, SherpaDialogState& st)
     std::wstring status = L"Catalog: " + std::to_wstring(st.models.size()) +
         L" models, downloaded: " + std::to_wstring(downloadedCount);
     SetDlgItemTextW(hDlg, IDC_SHERPA_STATUS, status.c_str());
+    UpdateSelectionState(hDlg, st);
 }
+
+void OnRescan(HWND hDlg, SherpaDialogState& st);
 
 void ReloadCatalog(HWND hDlg, SherpaDialogState& st)
 {
@@ -480,6 +599,9 @@ std::vector<std::wstring> GatherDownloadedModelIds(const SherpaDialogState& st)
 
 void OnDownloadSelected(HWND hDlg, SherpaDialogState& st)
 {
+    if (st.operationBusy)
+        return;
+
     SherpaModelItem model;
     if (!TryGetSelectedModel(hDlg, st, model))
     {
@@ -489,24 +611,84 @@ void OnDownloadSelected(HWND hDlg, SherpaDialogState& st)
 
     std::wstring cmd = L"download \"" + model.id + L"\"";
     AppendLog(hDlg, L"Downloading: " + model.id + L"\r\n");
-    try
-    {
-        DWORD rc = RunProcess(st.sherpaExePath.c_str(), cmd, false);
-        if (rc == 0)
+    SetDialogBusy(hDlg, st, true);
+    SetDlgItemTextW(hDlg, IDC_SHERPA_STATUS, L"Status: Download in progress...");
+
+    const std::wstring sherpaExe = st.sherpaExePath;
+    const std::wstring modelId = model.id;
+    std::thread([hDlg, sherpaExe, cmd, modelId]() {
+        auto* result = new AsyncDownloadResult();
+        result->modelId = modelId;
+        try
         {
-            AppendLog(hDlg, L"Download completed.\r\n");
-            ReloadCatalog(hDlg, st);
+            result->exitCode = RunProcess(sherpaExe.c_str(), cmd, false);
+        }
+        catch (const std::exception& ex)
+        {
+            result->errorText = Utf8ToWide(ex.what());
+        }
+
+        if (!PostMessageW(hDlg, WM_SHERPA_DOWNLOAD_DONE, 0, reinterpret_cast<LPARAM>(result)))
+            delete result;
+    }).detach();
+}
+
+void OnUninstallSelected(HWND hDlg, SherpaDialogState& st)
+{
+    if (st.operationBusy)
+        return;
+
+    std::vector<int> indexes = GetSelectedModelIndexes(hDlg, st);
+    if (indexes.empty())
+    {
+        MessageBoxW(hDlg, L"Select one or more models first.", L"Sherpa Models", MB_ICONINFORMATION);
+        return;
+    }
+
+    std::vector<std::wstring> targets;
+    for (int idx : indexes)
+    {
+        const auto& m = st.models[idx];
+        if (m.hasLocalDir)
+            targets.push_back(m.id);
+    }
+
+    if (targets.empty())
+    {
+        MessageBoxW(hDlg, L"Selected models are not installed.", L"Sherpa Models", MB_ICONINFORMATION);
+        return;
+    }
+
+    std::wstring confirm = L"Uninstall " + std::to_wstring(targets.size()) + L" selected model(s)?";
+    if (MessageBoxW(hDlg, confirm.c_str(), L"Sherpa Models", MB_ICONQUESTION | MB_YESNO) != IDYES)
+        return;
+
+    int removed = 0;
+    int failed = 0;
+    for (const auto& id : targets)
+    {
+        std::filesystem::path modelPath = std::filesystem::path(st.modelsRoot) / id;
+        std::error_code ec;
+        std::uintmax_t count = std::filesystem::remove_all(modelPath, ec);
+        if (!ec && count > 0)
+        {
+            ++removed;
+            AppendLog(hDlg, L"Uninstalled: " + id + L"\r\n");
         }
         else
         {
-            AppendLog(hDlg, L"Download failed with exit code " + std::to_wstring(rc) + L".\r\n");
+            ++failed;
+            AppendLog(hDlg, L"Failed to uninstall: " + id + L"\r\n");
         }
     }
-    catch (const std::exception& ex)
-    {
-        AppendLog(hDlg, L"Download launch failed.\r\n");
-        ShowMessageBox(ex.what(), MB_ICONEXCLAMATION);
-    }
+
+    RemoveAliasPreferenceForModels(targets);
+    OnRescan(hDlg, st);
+
+    std::wstring msg = L"Uninstall complete. Removed: " + std::to_wstring(removed);
+    if (failed > 0)
+        msg += L", failed: " + std::to_wstring(failed);
+    MessageBoxW(hDlg, msg.c_str(), L"Sherpa Models", failed > 0 ? MB_ICONEXCLAMATION : MB_ICONINFORMATION);
 }
 
 void OnRescan(HWND hDlg, SherpaDialogState& st)
@@ -583,6 +765,8 @@ BOOL OnInitDialog(HWND hDlg)
     SetWindowLongPtrW(hDlg, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(st));
 
     LoadDialogPrefs(hDlg);
+    st->installedOnly = false;
+    CheckDlgButton(hDlg, IDC_SHERPA_INSTALLED_ONLY, BST_UNCHECKED);
 
     if (!FindSherpaConfigToolPath(st->sherpaExePath))
     {
@@ -625,6 +809,11 @@ INT_PTR CALLBACK SherpaManagerDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM
         {
         case IDCANCEL:
         case IDOK:
+            if (st->operationBusy)
+            {
+                MessageBoxW(hDlg, L"Please wait for the current operation to complete.", L"Sherpa Models", MB_ICONINFORMATION);
+                return TRUE;
+            }
             SaveDialogPrefs(hDlg);
             EndDialog(hDlg, LOWORD(wParam));
             return TRUE;
@@ -650,6 +839,15 @@ INT_PTR CALLBACK SherpaManagerDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM
             ReloadCatalog(hDlg, *st);
             return TRUE;
 
+        case IDC_SHERPA_UNINSTALL:
+            OnUninstallSelected(hDlg, *st);
+            return TRUE;
+
+        case IDC_SHERPA_INSTALLED_ONLY:
+            st->installedOnly = (IsDlgButtonChecked(hDlg, IDC_SHERPA_INSTALLED_ONLY) == BST_CHECKED);
+            RefreshFilterList(hDlg, *st);
+            return TRUE;
+
         case IDC_SHERPA_LANGUAGE:
             if (HIWORD(wParam) == CBN_SELCHANGE)
             {
@@ -665,8 +863,51 @@ INT_PTR CALLBACK SherpaManagerDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM
                 return TRUE;
             }
             break;
+
+        case IDC_SHERPA_MODELS:
+            if (HIWORD(wParam) == LBN_SELCHANGE)
+            {
+                UpdateSelectionState(hDlg, *st);
+                return TRUE;
+            }
+            break;
         }
         break;
+
+    case WM_CLOSE:
+        if (st && st->operationBusy)
+        {
+            MessageBoxW(hDlg, L"Please wait for the current operation to complete.", L"Sherpa Models", MB_ICONINFORMATION);
+            return TRUE;
+        }
+        break;
+
+    case WM_SHERPA_DOWNLOAD_DONE:
+        if (!st)
+            return TRUE;
+        {
+            std::unique_ptr<AsyncDownloadResult> result(reinterpret_cast<AsyncDownloadResult*>(lParam));
+            SetDialogBusy(hDlg, *st, false);
+            if (!result->errorText.empty())
+            {
+                AppendLog(hDlg, L"Download launch failed.\r\n");
+                SetDlgItemTextW(hDlg, IDC_SHERPA_STATUS, L"Status: Download failed");
+                ShowMessageBox(result->errorText.c_str(), MB_ICONEXCLAMATION);
+                return TRUE;
+            }
+
+            if (result->exitCode == 0)
+            {
+                AppendLog(hDlg, L"Download completed.\r\n");
+                ReloadCatalog(hDlg, *st);
+            }
+            else
+            {
+                AppendLog(hDlg, L"Download failed with exit code " + std::to_wstring(result->exitCode) + L".\r\n");
+                SetDlgItemTextW(hDlg, IDC_SHERPA_STATUS, L"Status: Download failed");
+            }
+        }
+        return TRUE;
 
     case WM_DESTROY:
         delete st;

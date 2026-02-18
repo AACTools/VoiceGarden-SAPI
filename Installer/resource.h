@@ -77,6 +77,8 @@
 #define IDC_SHERPA_REFRESH              1048
 #define IDC_GROUP_NARRATOR              1049
 #define IDC_GROUP_ONLINE                1050
+#define IDC_SHERPA_INSTALLED_ONLY       1051
+#define IDC_SHERPA_UNINSTALL            1052
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -86,7 +88,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        142
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1049
+#define _APS_NEXT_CONTROL_VALUE         1053
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif
