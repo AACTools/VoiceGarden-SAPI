@@ -1,6 +1,7 @@
 #include "Installer.h"
 #include "RegKey.h"
 #include "../include/nlohmann/json.hpp"
+#include "../include/AppDataLayout.h"
 #include <vector>
 #include <string>
 #include <fstream>
@@ -219,7 +220,9 @@ int SetupEmbeddedMsix(const InstallPlan& plan, std::wstring& err)
             err = L"Unable to resolve %LOCALAPPDATA% for embedded_msix extraction.";
             return 5;
         }
-        narratorPath = local + L"\\NaturalVoiceSAPIAdapter\\LocalVoices";
+        const std::wstring preferredRootName = AppDataLayout::ResolveInstallFolderNameNearModule(nullptr);
+        const std::wstring rootName = AppDataLayout::ChooseExistingRootName(local, preferredRootName);
+        narratorPath = local + L"\\" + rootName + L"\\LocalVoices";
     }
     if (!EnsureDirectory(narratorPath))
     {

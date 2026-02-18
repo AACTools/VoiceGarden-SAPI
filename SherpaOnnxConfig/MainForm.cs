@@ -44,9 +44,8 @@ namespace SherpaOnnxConfig
         private Label? actionsHintLabel;
 
         private SherpaModelsCatalog? sherpaCatalog = null;
-        private static readonly string AppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        private static readonly string AdapterDataDir = Path.Combine(AppDataPath, "NaturalVoiceSAPIAdapter");
-        private static readonly string ModelsDir = Path.Combine(AdapterDataDir, "models");
+        private static readonly string AdapterDataDir = AppDataLayout.AdapterDataDir;
+        private static readonly string ModelsDir = AppDataLayout.ModelsDir;
         private static readonly string ScanErrorsPath = Path.Combine(AdapterDataDir, "sherpa_model_scan_errors.json");
         private const string SapiTokensRoot = @"SOFTWARE\Microsoft\Speech\Voices\Tokens";
         private const string EnumeratorConfigKeyPath = @"Software\NaturalVoiceSAPIAdapter\Enumerator";
@@ -194,7 +193,7 @@ namespace SherpaOnnxConfig
             {
                 Location = new Point(15, 114),
                 Size = new Size(895, 35),
-                Text = "Select a language and model to download. Models are cached in %LOCALAPPDATA%\\NaturalVoiceSAPIAdapter\\models\\",
+                Text = $"Select a language and model to download. Models are cached in {ModelsDir}\\",
                 ForeColor = Color.FromArgb(120, 120, 120),
                 Font = new Font("Segoe UI", 8F)
             };
@@ -818,7 +817,7 @@ namespace SherpaOnnxConfig
                 }
                 else
                 {
-                    modelInfoLabel!.Text = "Select a language and model to download. Models are cached in %LOCALAPPDATA%\\NaturalVoiceSAPIAdapter\\models\\";
+                    modelInfoLabel!.Text = $"Select a language and model to download. Models are cached in {ModelsDir}\\";
                     modelInfoLabel.ForeColor = Color.FromArgb(120, 120, 120);
                 }
             }
@@ -3228,9 +3227,7 @@ namespace SherpaOnnxConfig
 
         public bool IsDownloaded()
         {
-            string modelsDir = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "NaturalVoiceSAPIAdapter", "models", Id);
+            string modelsDir = Path.Combine(AppDataLayout.ModelsDir, Id);
             if (!Directory.Exists(modelsDir))
                 return false;
 

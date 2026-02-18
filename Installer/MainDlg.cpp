@@ -3,6 +3,7 @@
 #include "RegKey.h"
 #include "SherpaManagerDlg.h"
 #include "../include/nlohmann/json.hpp"
+#include "../include/AppDataLayout.h"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
@@ -435,10 +436,13 @@ INT_PTR CALLBACK MainDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
             case IDC_OPEN_CACHE_FOLDER:
             {
                 WCHAR path[MAX_PATH];
-                if (SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, SHGFP_TYPE_CURRENT, path) == S_OK
-                    && PathAppendW(path, L"NaturalVoiceSAPIAdapter"))
+                if (SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, SHGFP_TYPE_CURRENT, path) == S_OK)
                 {
-                    ShellExecuteW(hDlg, nullptr, path, nullptr, nullptr, SW_SHOWNORMAL);
+                    const std::wstring localBase = path;
+                    const std::wstring preferredRootName = AppDataLayout::ResolveInstallFolderNameNearModule(nullptr);
+                    const std::wstring rootName = AppDataLayout::ChooseExistingRootName(localBase, preferredRootName);
+                    if (PathAppendW(path, rootName.c_str()))
+                        ShellExecuteW(hDlg, nullptr, path, nullptr, nullptr, SW_SHOWNORMAL);
                 }
                 break;
             }

@@ -7,8 +7,20 @@
 #include "TaskScheduler.h"
 #include "Logger.h"
 #include "StrUtils.h"
+#include "../include/AppDataLayout.h"
 
 extern TaskScheduler g_taskScheduler;
+
+static HMODULE GetCurrentModuleHandle() noexcept
+{
+    HMODULE module = nullptr;
+    if (GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+        reinterpret_cast<LPCWSTR>(&GetCurrentModuleHandle), &module))
+    {
+        return module;
+    }
+    return nullptr;
+}
 
 static std::string ReadTextFromFile(HANDLE hFile)
 {
@@ -57,19 +69,24 @@ bool GetCachePath(LPWSTR path) noexcept
         return true;
     }
 
-    // try using %LOCALAPPDATA%\NaturalVoiceSAPIAdapter
-    if (SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, SHGFP_TYPE_CURRENT, path) == S_OK
-        && PathAppendW(path, L"NaturalVoiceSAPIAdapter"))
+    // try using %LOCALAPPDATA%\<install_folder_name> (with legacy fallback)
+    if (SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, SHGFP_TYPE_CURRENT, path) == S_OK)
     {
-        DWORD attr = GetFileAttributesW(path);
-        if ((attr == (DWORD)-1 && CreateDirectoryW(path, nullptr))             // if not exist, create it
-            || ((attr & FILE_ATTRIBUTE_DIRECTORY) && IsFolderWritable(path)))  // exists and writable
+        const std::wstring localBase = path;
+        const std::wstring preferredRootName = AppDataLayout::ResolveInstallFolderNameNearModule(GetCurrentModuleHandle());
+        const std::wstring rootName = AppDataLayout::ChooseExistingRootName(localBase, preferredRootName);
+        if (PathAppendW(path, rootName.c_str()))
         {
-            wcscpy_s(cachePath, MAX_PATH, path);
-            return true;
+            DWORD attr = GetFileAttributesW(path);
+            if ((attr == (DWORD)-1 && CreateDirectoryW(path, nullptr))             // if not exist, create it
+                || ((attr & FILE_ATTRIBUTE_DIRECTORY) && IsFolderWritable(path)))  // exists and writable
+            {
+                wcscpy_s(cachePath, MAX_PATH, path);
+                return true;
+            }
         }
     }
-    LogWarn("Cache: Cannot use %LOCALAPPDATA%\\NaturalVoiceSAPIAdapter as cache data path, falling back to %TEMP%.");
+    LogWarn("Cache: Cannot use %LOCALAPPDATA% app data folder as cache data path, falling back to %TEMP%.");
 
     // try using %TEMP%
     if (GetTempPathW(MAX_PATH, path) && IsFolderWritable(path))

@@ -9,6 +9,7 @@
 #include <sstream>
 #include <windows.h>
 #include <nlohmann/json.hpp>
+#include "../include/AppDataLayout.h"
 
 // External symbol for the DLL base address
 extern "C" IMAGE_DOS_HEADER __ImageBase;
@@ -155,14 +156,16 @@ std::pair<std::vector<VoiceInfo>, std::vector<ModelScanError>> Models::DiscoverM
     std::vector<VoiceInfo> voices;
     std::vector<ModelScanError> errors;
 
+    const std::wstring preferredRootName = AppDataLayout::ResolveInstallFolderNameNearModule((HMODULE)&__ImageBase);
     wchar_t localAppPath[MAX_PATH];
-    if (SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA,
-                                   nullptr, 0, localAppPath))) {
-        std::wstring configPath =
-            std::wstring(localAppPath) + L"\\NaturalVoiceSAPIAdapter\\engines_config.json";
+    if (SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, localAppPath))) {
+        for (const auto& rootName : AppDataLayout::CandidateRootNames(preferredRootName)) {
+            std::filesystem::path configPath = std::filesystem::path(localAppPath) / rootName / L"engines_config.json";
+            if (!std::filesystem::exists(configPath)) {
+                continue;
+            }
 
-        if (std::filesystem::exists(configPath)) {
-            voices = LoadFromConfigJson(configPath);
+            voices = LoadFromConfigJson(configPath.wstring());
             if (!voices.empty()) {
                 return {voices, errors};
             }
@@ -302,18 +305,23 @@ bool Models::ValidateModel(const VoiceInfo& info, std::string& error)
 std::vector<std::wstring> Models::GetDefaultModelPaths()
 {
     std::vector<std::wstring> paths;
+    const std::wstring preferredRootName = AppDataLayout::ResolveInstallFolderNameNearModule((HMODULE)&__ImageBase);
+    const auto rootNames = AppDataLayout::CandidateRootNames(preferredRootName);
 
     wchar_t localAppPath[MAX_PATH];
     if (SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA,
                                    nullptr, 0, localAppPath))) {
-        paths.push_back(std::wstring(localAppPath) + L"\\NaturalVoiceSAPIAdapter\\models");
+        for (const auto& rootName : rootNames) {
+            paths.push_back((std::filesystem::path(localAppPath) / rootName / L"models").wstring());
+        }
     }
 
     wchar_t programDataPath[MAX_PATH];
     if (SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_COMMON_APPDATA,
                                    nullptr, 0, programDataPath))) {
-        paths.push_back(std::wstring(programDataPath) +
-                        L"\\NaturalVoiceSAPIAdapter\\models");
+        for (const auto& rootName : rootNames) {
+            paths.push_back((std::filesystem::path(programDataPath) / rootName / L"models").wstring());
+        }
     }
 
     wchar_t modulePath[MAX_PATH];

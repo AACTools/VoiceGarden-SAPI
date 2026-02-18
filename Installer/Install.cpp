@@ -1,5 +1,6 @@
 #include "Installer.h"
 #include "RegKey.h"
+#include "../include/AppDataLayout.h"
 #include <system_error>
 #include <stdexcept>
 #include <vector>
@@ -34,7 +35,10 @@ void AppendInstallLog(const std::wstring& message)
 
     wchar_t dirPath[MAX_PATH] = {};
     wcsncpy_s(dirPath, localAppData, _TRUNCATE);
-    if (!PathAppendW(dirPath, L"NaturalVoiceSAPIAdapter"))
+    const std::wstring localBase = localAppData;
+    const std::wstring preferredRootName = AppDataLayout::ResolveInstallFolderNameNearModule(nullptr);
+    const std::wstring rootName = AppDataLayout::ChooseExistingRootName(localBase, preferredRootName);
+    if (!PathAppendW(dirPath, rootName.c_str()))
         return;
 
     CreateDirectoryW(dirPath, nullptr);

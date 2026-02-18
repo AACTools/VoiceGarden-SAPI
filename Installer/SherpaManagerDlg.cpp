@@ -2,6 +2,7 @@
 #include "Installer.h"
 #include "SherpaManagerDlg.h"
 #include "../include/nlohmann/json.hpp"
+#include "../include/AppDataLayout.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -136,7 +137,11 @@ std::wstring BuildModelsRoot()
     WCHAR path[MAX_PATH] = {};
     if (SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, SHGFP_TYPE_CURRENT, path) != S_OK)
         return {};
-    if (!PathAppendW(path, L"NaturalVoiceSAPIAdapter"))
+
+    std::wstring localBase = path;
+    const std::wstring preferredRootName = AppDataLayout::ResolveInstallFolderNameNearModule(nullptr);
+    const std::wstring rootName = AppDataLayout::ChooseExistingRootName(localBase, preferredRootName);
+    if (!PathAppendW(path, rootName.c_str()))
         return {};
     std::wstring root = path;
     root += L"\\models";

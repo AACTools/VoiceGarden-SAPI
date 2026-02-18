@@ -31,10 +31,7 @@ namespace SherpaOnnxConfig
         private const int STD_OUTPUT_HANDLE = -11;
 
         private static System.IO.StreamWriter? consoleWriter;
-        private static readonly string ProbeLogPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "NaturalVoiceSAPIAdapter",
-            "sapi-probe.log");
+        private static readonly string ProbeLogPath = Path.Combine(AppDataLayout.AdapterDataDir, "sapi-probe.log");
 
         [STAThread]
         static void Main(string[] args)
@@ -256,7 +253,7 @@ namespace SherpaOnnxConfig
             Console.WriteLine("  SherpaOnnxConfig.exe list --language Chinese");
             Console.WriteLine("  SherpaOnnxConfig.exe download kokoro-en-en-19");
             Console.WriteLine("  SherpaOnnxConfig.exe promote-hklm piper-en-alan-low");
-            Console.WriteLine("  SherpaOnnxConfig.exe promote-hklm piper-en-alan-low --model-dir \"C:\\Users\\WillWade\\AppData\\Local\\NaturalVoiceSAPIAdapter\\models\\piper-en-alan-low\"");
+            Console.WriteLine("  SherpaOnnxConfig.exe promote-hklm piper-en-alan-low --model-dir \"C:\\Users\\WillWade\\AppData\\Local\\<InstallFolder>\\models\\piper-en-alan-low\"");
             Console.WriteLine("  SherpaOnnxConfig.exe promote-hklm piper-en-alan-low --compat-en-us");
             Console.WriteLine("  SherpaOnnxConfig.exe sapi-probe --voice piper-en-alan-low");
             Console.WriteLine("  SherpaOnnxConfig.exe downloaded");
@@ -264,7 +261,7 @@ namespace SherpaOnnxConfig
             Console.WriteLine("Without arguments, the GUI will launch.");
             Console.WriteLine();
             Console.WriteLine("Models are downloaded to:");
-            Console.WriteLine($"  {Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\NaturalVoiceSAPIAdapter\\models\\");
+            Console.WriteLine($"  {AppDataLayout.ModelsDir}\\");
         }
 
         private static int RunSapiProbe(string voiceId, string text, int timeoutSeconds)
