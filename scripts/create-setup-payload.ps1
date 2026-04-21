@@ -51,8 +51,14 @@ function Copy-ArchTree([string]$archDirPath, [string]$archName) {
 
     # Include runtime-oriented files only.
     $includeExt = @("*.dll", "*.exe", "*.json", "*.txt")
+    # Exclude debug/development tools from installer payload
+    $excludeNames = @("TtsApplication.exe")
+
     foreach ($pattern in $includeExt) {
         Get-ChildItem -Path $archDirPath -Recurse -File -Filter $pattern | ForEach-Object {
+            if ($excludeNames -contains $_.Name) {
+                return
+            }
             $rel = $_.FullName.Substring($archDirPath.Length).TrimStart('\')
             $destFile = Join-Path $dst $rel
             $destParent = Split-Path -Parent $destFile
