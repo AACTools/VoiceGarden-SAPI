@@ -68,17 +68,17 @@ jobs:
 
     - name: Build AzureSpeechSDKShim (x64)
       if: matrix.platform == 'x64'
-      working-directory: ${{github.workspace}}
+      working-directory: ${{github.workspace}}\AzureSpeechSDKShim
       run: |
-        nuget restore AzureSpeechSDKShim -SolutionDirectory .
-        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 /p:OutDir=${{github.workspace}}\out\ AzureSpeechSDKShim\AzureSpeechSDKShim.sln
+        nuget restore AzureSpeechSDKShim.sln
+        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 /p:OutDir=${{github.workspace}}\out\ AzureSpeechSDKShim.sln
 
     - name: Build AzureSpeechSDKShim (x86/Win32)
       if: matrix.platform == 'x86'
-      working-directory: ${{github.workspace}}
+      working-directory: ${{github.workspace}}\AzureSpeechSDKShim
       run: |
-        nuget restore AzureSpeechSDKShim -SolutionDirectory .
-        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=Win32 /p:OutDir=${{github.workspace}}\out\ AzureSpeechSDKShim\AzureSpeechSDKShim.sln
+        nuget restore AzureSpeechSDKShim.sln
+        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=Win32 /p:OutDir=${{github.workspace}}\out\ AzureSpeechSDKShim.sln
 
     - name: Build Arm64XForwarder (ARM64 only)
       if: matrix.platform == 'ARM64'
