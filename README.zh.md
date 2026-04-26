@@ -1,6 +1,12 @@
-# NaturalVoiceSAPIAdapter
+# VoiceGarden-SAPI
 
 [For the English version, click here](README.md)
+
+> **注意：** 本项目最初 fork 自 [NaturalVoiceSAPIAdapter](https://github.com/gexgd0419/NaturalVoiceSAPIAdapter)，现已迁移至 [AACTools/VoiceGarden-SAPI](https://github.com/AACTools/VoiceGarden-SAPI) 作为独立项目。
+>
+> 本 fork 与上游项目有以下重要差异：
+> - **内置 SherpaOnnx 支持**，可使用 SherpaOnnx 模型进行完全本地的离线 TTS，无需云服务。
+> - 我们担心通过 SAPI 使用 Edge 和讲述人语音可能违反微软的服务条款。虽然上游项目的语音定义仍通过 JSON 配置文件保留在我们的代码库中，但我们认为发布依赖这些语音的产品存在风险。VoiceGarden-SAPI 专注于合法的语音来源——主要是 SherpaOnnx 本地模型和具有有效订阅密钥的 Azure 语音。
 
 连接 [Azure AI 语音服务][3]，使第三方程序也能使用微软[自然语音][2]的 [SAPI 5 TTS 引擎][1]。支持如下自然语音：
 

@@ -1,6 +1,12 @@
-# NaturalVoiceSAPIAdapter
+# VoiceGarden-SAPI
 
 [查看中文文档请点击这里](README.zh.md)
+
+> **Note:** This project was originally forked from [NaturalVoiceSAPIAdapter](https://github.com/gexgd0419/NaturalVoiceSAPIAdapter). It has moved to [AACTools/VoiceGarden-SAPI](https://github.com/AACTools/VoiceGarden-SAPI) as a standalone project.
+>
+> This fork diverges from the upstream project in important ways:
+> - **SherpaOnnx support** is built in, enabling fully local, offline TTS using SherpaOnnx models with no cloud services required.
+> - We have concerns that using Edge and Narrator voices through SAPI may violate Microsoft's Terms of Service. While the upstream project's voice definitions are still available in our codebase via a JSON configuration file, we believe releasing a product that relies on those voices is risky. VoiceGarden-SAPI focuses on legitimate voice sources — primarily SherpaOnnx local models and Azure voices with a valid subscription key.
 
 An [SAPI 5 text-to-speech (TTS) engine][1] that can utilize the [natural/neural voices][2] provided by the [Azure AI Speech Service][3], including:
 
@@ -57,8 +63,9 @@ As for now, Microsoft hasn't yet allowed third-party apps to use the Narrator/Ed
     - On 64-bit systems, to make this work with every program (32-bit and 64-bit), you need to install both of them.
     - On 32-bit systems, the "64-bit" row will not be shown.
 5. Click Install/Uninstall. Administrator's permission is required.
-6. Choose what kinds of voices you want to use. By default, local Narrator voices (if supported) and Microsoft Edge Read Aloud online voices are enabled.
-    - Online voices require Internet access, and they can be slower and less stable. If you only want to use the local Narrator voices, you can uncheck "Enable Microsoft Edge online voices" and "Enable Azure online voices".
+6. Choose what kinds of voices you want to use. By default, SherpaOnnx local models (if available) and Azure online voices are enabled.
+    - **Recommended:** Use SherpaOnnx local models for fully offline TTS with no cloud dependency. See the [SherpaOnnx Notes](#sherpaonnx-notes) section below.
+    - Online voices require Internet access, and they can be slower and less stable. If you only want to use local voices, you can uncheck "Enable Microsoft Edge online voices" and "Enable Azure online voices".
     - As there are many online voices, by default, only those in your preferred languages and in English (US) are included, to avoid cluttering the voice selection list. Click "Change..." to change what languages are included.
     - Azure voices require a subscription key (API key) and its region. Click "Set Azure key" to enter your key. You can visit [Azure Portal](https://portal.azure.com/), go to your speech service resource, then go to **Resource Management** > **Keys and Endpoint** to copy & paste the key and the region.
   7. Close the Installer window to apply the changes. You can open the Installer again when you want to change something, and changing the settings doesn't require reinstallation or administrator's permission.
