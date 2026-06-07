@@ -218,10 +218,46 @@ jobs:
         name: main-${{matrix.platform}}
         path: out
 
+  build-dotnet-adapter:
+    name: Build .NET TTS Adapter
+    runs-on: windows-2022
+
+    permissions:
+      contents: read
+
+    strategy:
+      matrix:
+        platform: [x86, x64]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Publish .NET adapter
+      shell: pwsh
+      run: |
+        $rid = "${{matrix.platform}}" -eq "x86" ? "win-x86" : "win-x64"
+        dotnet publish NaturalVoiceSAPIAdapter.Net\NaturalVoiceSAPIAdapter.Net.csproj `
+          -c ${{env.BUILD_CONFIGURATION}} `
+          -r $rid `
+          --self-contained false `
+          -o ${{github.workspace}}\out
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v6
+      with:
+        name: dotnet-adapter-${{matrix.platform}}
+        path: out
+
   build-setup:
     name: Build MSI setup
     runs-on: windows-2022
-    needs: [build-sherpa-config, build-utilities, build-main]
+    needs: [build-sherpa-config, build-utilities, build-main, build-dotnet-adapter]
 
     permissions:
       contents: read
@@ -247,6 +283,8 @@ jobs:
         Copy-Item artifacts\main-x64\* payload\x64\ -Recurse -Force
         Copy-Item artifacts\utilities-ARM64\* payload\ARM64\ -Recurse -Force
         Copy-Item artifacts\main-ARM64\* payload\ARM64\ -Recurse -Force
+        Copy-Item artifacts\dotnet-adapter-x86\* payload\x86\ -Recurse -Force
+        Copy-Item artifacts\dotnet-adapter-x64\* payload\x64\ -Recurse -Force
         Copy-Item payload\x86\Installer.exe payload\Installer.exe -Force
         Copy-Item payload\x86\InstallPlanRunner.exe payload\InstallPlanRunner.exe -Force
         if (Test-Path payload\x86\install-plan.json) {
@@ -285,7 +323,7 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    needs: [build-sherpa-config, build-utilities, build-main, build-setup]
+    needs: [build-sherpa-config, build-utilities, build-main, build-dotnet-adapter, build-setup]
     if: github.ref_type == 'tag'
 
     permissions:
