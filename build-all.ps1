@@ -228,6 +228,7 @@ try {
         -r win-x64 `
         --self-contained `
         -p:PublishSingleFile=true `
+        -p:PublishReadyToRun=false `
         -o $sherpaConfigOutput `
         /nologo /v:q
 
@@ -302,6 +303,34 @@ foreach ($Platform in $Platforms) {
     }
 }
 Write-Host ""
+
+# Step 6.5: Build .NET SAPI adapter (x86, x64 only)
+$dotnetPlatforms = $Platforms | Where-Object { $_ -ne "ARM64" }
+if ($dotnetPlatforms.Count -gt 0) {
+    Write-Host "[Step 6.5/9] Building .NET SAPI adapter..." -ForegroundColor Cyan
+    foreach ($Platform in $dotnetPlatforms) {
+        $rid = if ($Platform -eq "x86") { "win-x86" } else { "win-x64" }
+        Write-Host "  Publishing .NET adapter ($Platform)..." -ForegroundColor Cyan
+        try {
+            dotnet publish (Join-Path $ScriptDir "NaturalVoiceSAPIAdapter.Net\NaturalVoiceSAPIAdapter.Net.csproj") `
+                -c $Configuration `
+                -r $rid `
+                --self-contained false `
+                -o $UtilitiesOutputDir `
+                /nologo /v:q
+            if ($LASTEXITCODE -ne 0) {
+                throw "dotnet publish failed for .NET adapter ($Platform)"
+            }
+            Write-Host "    $Platform built successfully" -ForegroundColor Green
+        }
+        catch {
+            $errMsg = $_.Exception.Message
+            Write-Host ("    Warning: .NET adapter build failed for ${Platform}: " + $errMsg) -ForegroundColor Yellow
+            Write-Host "    Continuing without .NET adapter (C++ adapter will still work)" -ForegroundColor Yellow
+        }
+    }
+    Write-Host ""
+}
 
 # Step 7: Build Installer (x86 only)
 Write-Host "[Step 7/7] Building Installer..." -ForegroundColor Cyan
