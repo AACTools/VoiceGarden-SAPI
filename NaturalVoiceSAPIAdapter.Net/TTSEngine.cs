@@ -31,28 +31,47 @@ public class TTSEngine : ISpTTSEngine, ISpObjectWithToken
         if (pTextFragList == IntPtr.Zero || pOutputSite == null)
             return SapiConstants.E_POINTER;
 
+        Logger.Info($"Speak() called, engine='{_engineName}', voiceId='{_voiceId}'");
+
         EnsureTtsClient();
+
+        if (_ttsClient == null)
+        {
+            Logger.Error($"Speak: TTS client is null after EnsureTtsClient (engine='{_engineName}')");
+            return SapiConstants.E_FAIL;
+        }
 
         var text = ExtractTextFromFragments(pTextFragList);
         if (string.IsNullOrEmpty(text))
+        {
+            Logger.Warn("Speak: no text extracted from fragments");
             return SapiConstants.S_OK;
+        }
+
+        Logger.Info($"Speak: synthesizing {text.Length} chars: \"{text.Substring(0, Math.Min(100, text.Length))}{(text.Length > 100 ? "..." : "")}\"");
 
         try
         {
             var options = BuildTtsOptions(pTextFragList);
-            var result = _ttsClient!.SynthToBytesAsync(text, options).GetAwaiter().GetResult();
+            Logger.Info($"Speak: calling SynthToBytesAsync, engine='{_engineName}', voice='{_voiceId}'");
+            var result = _ttsClient.SynthToBytesAsync(text, options).GetAwaiter().GetResult();
 
             if (result?.AudioData != null && result.AudioData.Length > 0)
             {
                 byte[] pcmData = EnsurePcm16(result.AudioData);
+                Logger.Info($"Speak: got {result.AudioData.Length} bytes audio (PCM: {pcmData.Length}), writing to site");
                 WriteAudioToSite(pOutputSite, pcmData);
+            }
+            else
+            {
+                Logger.Warn($"Speak: synthesis returned no audio data (result={result != null}, audioLen={result?.AudioData?.Length ?? 0})");
             }
 
             FireEndStreamEvent(pOutputSite);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"TTS synthesis error: {ex.Message}");
+            Logger.Error($"Speak: TTS synthesis error (engine='{_engineName}', voice='{_voiceId}')", ex);
         }
 
         return SapiConstants.S_OK;
@@ -89,7 +108,9 @@ public class TTSEngine : ISpTTSEngine, ISpObjectWithToken
     public int SetObjectToken(ISpObjectToken pToken)
     {
         _token = pToken;
+        Logger.Info("SetObjectToken called");
         ReadVoiceConfig(pToken);
+        Logger.Info($"SetObjectToken: engine='{_engineName}', voiceId='{_voiceId}', sampleRate={_sampleRate}");
         return SapiConstants.S_OK;
     }
 
@@ -152,12 +173,35 @@ public class TTSEngine : ISpTTSEngine, ISpObjectWithToken
     {
         if (_ttsClient != null) return;
 
+        Logger.Info($"EnsureTtsClient: building client for engine='{_engineName}', voiceId='{_voiceId}'");
+
         ITtsCredentials? credentials = BuildCredentials();
+
+        if (credentials == null)
+        {
+            Logger.Warn($"EnsureTtsClient: no credentials found for engine='{_engineName}'");
+        }
+        else
+        {
+            Logger.Info($"EnsureTtsClient: credentials type={credentials.GetType().Name}");
+        }
+
         _ttsClient = TtsFactory.CreateClient(_engineName, credentials);
+
+        if (_ttsClient == null)
+        {
+            Logger.Error($"EnsureTtsClient: TtsFactory.CreateClient returned null for engine='{_engineName}'");
+            return;
+        }
 
         if (!string.IsNullOrEmpty(_voiceId))
         {
             _ttsClient.SetVoice(_voiceId);
+            Logger.Info($"EnsureTtsClient: voice set to '{_voiceId}'");
+        }
+        else
+        {
+            Logger.Warn("EnsureTtsClient: no voiceId set");
         }
     }
 
@@ -171,15 +215,31 @@ public class TTSEngine : ISpTTSEngine, ISpObjectWithToken
             {
                 _token.OpenKey("NaturalVoiceConfig", out ISpDataKey configKey);
                 creds = CredentialBuilder.FromTokenConfig(_engineName, configKey);
-                if (creds != null) return creds;
+                if (creds != null)
+                {
+                    Logger.Info("BuildCredentials: from token NaturalVoiceConfig");
+                    return creds;
+                }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Logger.Warn($"BuildCredentials: token config not available: {ex.Message}");
+            }
         }
 
         creds = TryReadRegistryCredentials();
-        if (creds != null) return creds;
+        if (creds != null)
+        {
+            Logger.Info("BuildCredentials: from registry");
+            return creds;
+        }
 
-        return EnvFallbackCredentials(_engineName);
+        creds = EnvFallbackCredentials(_engineName);
+        if (creds != null)
+        {
+            Logger.Info("BuildCredentials: from environment variables");
+        }
+        return creds;
     }
 
     private ITtsCredentials? TryReadRegistryCredentials()

@@ -23,14 +23,16 @@ public class VoiceTokenEnumerator : IEnumSpObjectTokens
     public VoiceTokenEnumerator()
     {
         _currentPos = 0;
+        Logger.Info("VoiceTokenEnumerator created");
         try
         {
             InitDiscovery();
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"VoiceTokenEnumerator init error: {ex}");
+            Logger.Error("VoiceTokenEnumerator init error", ex);
         }
+        Logger.Info($"VoiceTokenEnumerator ready: {_tokens.Count} voices discovered");
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -42,7 +44,7 @@ public class VoiceTokenEnumerator : IEnumSpObjectTokens
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Voice discovery error: {ex}");
+            Logger.Error("Voice discovery error", ex);
         }
     }
 
@@ -64,7 +66,7 @@ public class VoiceTokenEnumerator : IEnumSpObjectTokens
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Local engine discovery error: {ex}");
+            Logger.Error("Local engine discovery error", ex);
         }
 
         try
@@ -73,7 +75,7 @@ public class VoiceTokenEnumerator : IEnumSpObjectTokens
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Cloud engine discovery error: {ex}");
+            Logger.Error("Cloud engine discovery error", ex);
         }
     }
 
@@ -81,12 +83,19 @@ public class VoiceTokenEnumerator : IEnumSpObjectTokens
     {
         try
         {
+            Logger.Info($"Discovering voices for engine '{engine}'...");
             var client = TtsFactory.CreateClient(engine, credentials);
-            if (client == null) return;
+            if (client == null)
+            {
+                Logger.Warn($"TtsFactory.CreateClient returned null for '{engine}'");
+                return;
+            }
 
             List<TtsVoice> voices;
             try { voices = await client.GetVoicesAsync(); }
-            catch { return; }
+            catch (Exception ex) { Logger.Warn($"GetVoicesAsync failed for '{engine}': {ex.Message}"); return; }
+
+            Logger.Info($"Engine '{engine}' returned {voices.Count} voices");
 
             foreach (var voice in voices)
             {
@@ -97,13 +106,13 @@ public class VoiceTokenEnumerator : IEnumSpObjectTokens
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Token creation error for {voice.Name}: {ex}");
+                    Logger.Error($"Token creation error for {voice.Name}", ex);
                 }
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Engine {engine} discovery error: {ex}");
+            Logger.Error($"Engine {engine} discovery error", ex);
         }
     }
 
@@ -137,7 +146,7 @@ public class VoiceTokenEnumerator : IEnumSpObjectTokens
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Cloud engine {engine} discovery error: {ex}");
+                Logger.Error($"Cloud engine {engine} discovery error", ex);
             }
         }
     }
@@ -211,6 +220,8 @@ public class VoiceTokenEnumerator : IEnumSpObjectTokens
 
         PersistTokenToRegistry(token);
 
+        Logger.Info($"Voice token created: engine={engineName}, id={voice.Id}, name={voice.Name}, locale={langStr}, gender={voice.Gender}");
+
         return token;
     }
 
@@ -235,7 +246,7 @@ public class VoiceTokenEnumerator : IEnumSpObjectTokens
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Registry persist error: {ex.Message}");
+            Logger.Error("Registry persist error", ex);
         }
     }
 
@@ -340,7 +351,7 @@ public class VoiceTokenEnumerator : IEnumSpObjectTokens
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Next error: {ex}");
+            Logger.Error("Next error", ex);
             return SapiConstants.E_FAIL;
         }
     }
