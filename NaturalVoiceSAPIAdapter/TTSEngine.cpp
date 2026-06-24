@@ -555,7 +555,8 @@ bool CTTSEngine::InitSherpaOnnxVoice(ISpDataKey* pConfigKey)
         // Model type is specified
     } else {
         // For backward compatibility, check if SherpaOnnxModelPath exists (old style)
-        if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxModelPath", nullptr))) {
+        CSpDynamicString pszDummy;
+        if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxModelPath", &pszDummy))) {
             return false; // Not a SherpaOnnx voice
         }
         // Old-style config is always VITS
