@@ -392,3 +392,6 @@ e2e-test-bin/
 nul
 NaturalVoiceSAPIAdapter.Net/.e2e-*.json
 NaturalVoiceSAPIAdapter.Net/.e2e-*.ps1
+
+# NuGet CLI (downloaded for local builds)
+nuget.exe
