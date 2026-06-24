@@ -31,6 +31,7 @@ internal static class Program
             {
                 "engines" => ListEngines(),
                 "voices" => ListVoices(args),
+                "validate" => ValidateCredentials(args),
                 "promote" => PromoteVoice(args),
                 "unpromote" => UnpromoteVoice(args),
                 "promoted" => ListPromoted(),
@@ -135,6 +136,99 @@ internal static class Program
         }
 
         return 0;
+    }
+
+    private static int ValidateCredentials(string[] args)
+    {
+        var opts = ParseArgs(args);
+        if (string.IsNullOrEmpty(opts.Engine))
+        {
+            Console.Error.WriteLine("Error: --engine is required");
+            Console.Error.WriteLine("Usage: validate --engine <engine> --key <key> [--region <region>]");
+            return 1;
+        }
+
+        var creds = BuildCredentials(opts.Engine, opts.Key, opts.Region);
+        if (creds == null)
+        {
+            Console.Error.WriteLine($"Error: Unknown engine '{opts.Engine}'");
+            return 1;
+        }
+
+        Console.WriteLine($"Validating credentials for '{opts.Engine}'...");
+
+        var client = DotNetTtsWrapper.Models.TtsFactory.CreateClient(opts.Engine, creds);
+        if (client == null)
+        {
+            Console.Error.WriteLine($"Error: Could not create client for engine '{opts.Engine}'");
+            return 1;
+        }
+
+        // Try CheckCredentialsAsync first (fast path)
+        try
+        {
+            var result = client.CheckCredentialsAsync().GetAwaiter().GetResult();
+            if (result.IsValid)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"  Credentials valid! ({result.AvailableVoiceCount} voices available)");
+                Console.ResetColor();
+                return 0;
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"  Credentials invalid: {result.ErrorMessage}");
+                Console.ResetColor();
+                return 2;
+            }
+        }
+        catch (Exception ex)
+        {
+            // CheckCredentialsAsync may not actually hit the API (hardcoded voice lists)
+            // Fall through to real validation via a tiny synthesis attempt
+            Console.WriteLine($"  CheckCredentialsAsync inconclusive ({ex.Message}), trying synthesis...");
+        }
+
+        // Real validation: attempt a tiny synthesis
+        try
+        {
+            var tempFile = Path.Combine(Path.GetTempPath(), $"validate_{opts.Engine}_{Guid.NewGuid():N}.wav");
+            client.SynthToFileAsync("test", tempFile).GetAwaiter().GetResult();
+            var file = new FileInfo(tempFile);
+            if (file.Exists && file.Length > 0)
+            {
+                file.Delete();
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("  Credentials valid! (synthesis test succeeded)");
+                Console.ResetColor();
+                return 0;
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("  Credentials invalid: synthesis produced no audio");
+                Console.ResetColor();
+                return 2;
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            var status = ex.StatusCode?.ToString() ?? "unknown";
+            Console.WriteLine($"  Credentials invalid: HTTP {status}");
+            if (status == "Unauthorized" || status == "Forbidden")
+                Console.WriteLine("  API key is wrong, expired, or lacks permissions");
+            Console.ResetColor();
+            return 2;
+        }
+        catch (Exception ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"  Credentials invalid: {ex.Message}");
+            Console.ResetColor();
+            return 2;
+        }
     }
 
     private static int PromoteVoice(string[] args)
