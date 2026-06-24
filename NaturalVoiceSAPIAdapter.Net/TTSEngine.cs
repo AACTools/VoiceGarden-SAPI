@@ -151,13 +151,38 @@ public class TTSEngine : ISpTTSEngine, ISpObjectWithToken
             }
             catch { }
 
+            // SherpaOnnxConfig-created tokens use "EngineType" instead of "EngineName"
+            if (string.IsNullOrEmpty(_engineName))
+            {
+                try
+                {
+                    configKey.GetStringValue("EngineType", out IntPtr pType);
+                    var engineType = Marshal.PtrToStringUni(pType) ?? "";
+                    Marshal.FreeCoTaskMem(pType);
+                    if (engineType.Equals("Sherpa", StringComparison.OrdinalIgnoreCase))
+                        _engineName = "sherpaonnx";
+                }
+                catch { }
+            }
+
             try
             {
                 configKey.GetStringValue("VoiceId", out IntPtr pVoice);
                 _voiceId = Marshal.PtrToStringUni(pVoice) ?? _voiceId;
-                Marshal.FreeCoTaskMem(pVoice);
             }
             catch { }
+
+            // SherpaOnnxConfig tokens store model name in a different value
+            if (string.IsNullOrEmpty(_voiceId))
+            {
+                try
+                {
+                    configKey.GetStringValue("SherpaModelName", out IntPtr pModel);
+                    _voiceId = Marshal.PtrToStringUni(pModel) ?? _voiceId;
+                    Marshal.FreeCoTaskMem(pModel);
+                }
+                catch { }
+            }
 
             try
             {
@@ -285,10 +310,11 @@ public class TTSEngine : ISpTTSEngine, ISpObjectWithToken
                         SecretAccessKey = secretKey ?? "",
                         Region = region ?? "us-east-1"
                     },
-                    "sherpaonnx" => new SherpaOnnxCredentials
+                    "sherpaonnx" when !string.IsNullOrEmpty(modelPath) => new SherpaOnnxCredentials
                     {
                         ModelPath = modelPath,
                     },
+                    "sherpaonnx" => new SherpaOnnxCredentials(),
                     _ => null
                 };
             }
@@ -323,6 +349,7 @@ public class TTSEngine : ISpTTSEngine, ISpObjectWithToken
                     SecretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY") ?? "",
                     Region = Environment.GetEnvironmentVariable("AWS_REGION") ?? "us-east-1"
                 },
+            "sherpaonnx" or "sherpa" => new SherpaOnnxCredentials(),
             _ => null
         };
     }

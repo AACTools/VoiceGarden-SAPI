@@ -232,6 +232,14 @@ dotnet publish (Join-Path $RepoRoot "SherpaOnnxConfig\SherpaOnnxConfig.csproj") 
 if ($LASTEXITCODE -ne 0) {
     throw "dotnet publish failed with exit code $LASTEXITCODE"
 }
+
+# Single-file publish drops content files; copy merged_models.json manually.
+$catalogSrc = Join-Path $RepoRoot "SherpaOnnxConfig\merged_models.json"
+if (Test-Path $catalogSrc) {
+    Copy-Item -Path $catalogSrc -Destination $sherpaConfigOutput -Force
+    Write-Host "  merged_models.json copied to publish output" -ForegroundColor DarkGray
+}
+
 Write-Host "  SherpaOnnxConfig built successfully" -ForegroundColor Green
 Write-Host ""
 
@@ -400,7 +408,16 @@ foreach ($Platform in $Platforms) {
 
     $dotnetOut = Join-Path $StageRoot "dotnet-adapter-$Platform"
     if (Test-Path $dotnetOut) {
-        Copy-Item $dotnetOut\* $platformPayload\ -Recurse -Force
+        # Copy .NET adapter files but DON'T overwrite native SherpaOnnx/ORT DLLs
+        # from the C++ adapter (they must match the version the C++ code was compiled against)
+        $nativeDllsToPreserve = @("sherpa-onnx-c-api.dll", "sherpa-onnx.dll", "onnxruntime.dll", "onnxruntime_providers_shared.dll")
+        Get-ChildItem $dotnetOut -File | Where-Object { $_.Name -notin $nativeDllsToPreserve } | ForEach-Object {
+            Copy-Item $_.FullName $platformPayload\ -Force
+        }
+        # Also copy managed subdirectories (e.g., ref/)
+        Get-ChildItem $dotnetOut -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+            Copy-Item $_.FullName $platformPayload\ -Recurse -Force
+        }
     }
 }
 

@@ -56,12 +56,28 @@ public class VoiceTokenEnumerator : IEnumSpObjectTokens
 
     private async Task DiscoverVoicesAsync()
     {
+        // First: discover SherpaOnnx voices registered in HKLM by SherpaOnnxConfig
+        try
+        {
+            DiscoverSherpaOnnxTokensFromHklm();
+        }
+        catch (Exception ex)
+        {
+            Logger.Error("HKLM SherpaOnnx token discovery error", ex);
+        }
+
+        // Second: discover via DotNetTtsWrapper catalog
         try
         {
             var localEngines = new[] { "sherpaonnx" };
             foreach (var engine in localEngines)
             {
-                await DiscoverEngineVoices(engine, null);
+                ITtsCredentials? creds = engine.ToLowerInvariant() switch
+                {
+                    "sherpaonnx" or "sherpa" => new SherpaOnnxCredentials(),
+                    _ => null
+                };
+                await DiscoverEngineVoices(engine, creds);
             }
         }
         catch (Exception ex)
@@ -77,6 +93,84 @@ public class VoiceTokenEnumerator : IEnumSpObjectTokens
         {
             Logger.Error("Cloud engine discovery error", ex);
         }
+    }
+
+    private void DiscoverSherpaOnnxTokensFromHklm()
+    {
+        const string sapiTokensRoot = @"SOFTWARE\Microsoft\Speech\Voices\Tokens";
+        try
+        {
+            using var tokensKey = Registry.LocalMachine.OpenSubKey(sapiTokensRoot);
+            if (tokensKey == null) return;
+
+            foreach (var tokenName in tokensKey.GetSubKeyNames())
+            {
+                if (!tokenName.StartsWith("Sherpa-", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                try
+                {
+                    using var tokenKey = tokensKey.OpenSubKey(tokenName);
+                    if (tokenKey == null) continue;
+
+                    using var configKey = tokenKey.OpenSubKey("NaturalVoiceConfig");
+                    if (configKey == null) continue;
+
+                    string? engineType = configKey.GetValue("EngineType") as string;
+                    if (engineType != "Sherpa") continue;
+
+                    string? modelPath = configKey.GetValue("SherpaOnnxModelPath") as string;
+                    string? tokensPath = configKey.GetValue("SherpaOnnxTokens") as string;
+                    string? dataDir = configKey.GetValue("SherpaOnnxDataDir") as string;
+                    string? modelName = configKey.GetValue("SherpaModelName") as string;
+
+                    if (string.IsNullOrEmpty(modelPath)) continue;
+
+                    using var attrsKey = tokenKey.OpenSubKey("Attributes");
+                    string? displayName = attrsKey?.GetValue("Name") as string ?? modelName ?? tokenName;
+                    string? locale = attrsKey?.GetValue("Locale") as string ?? "en-US";
+                    string? gender = attrsKey?.GetValue("Gender") as string ?? "Neutral";
+
+                    var token = new SpObjectToken();
+                    string tokenId = $@"HKEY_LOCAL_MACHINE\{sapiTokensRoot}\{tokenName}";
+                    token.SetId(null, tokenId, true);
+                    token.SetStringValue(null, displayName);
+                    token.SetStringValue("EngineName", "sherpaonnx");
+                    token.SetStringValue("VoiceId", modelName ?? tokenName);
+                    token.SetStringValue("CLSID", "{013AB33B-AD1A-401C-8BEE-F6E2B046A94E}");
+
+                    var attrs = token.Data.GetOrCreateSubKey("Attributes");
+                    attrs.SetStringValue("Name", displayName);
+                    attrs.SetStringValue("Gender", gender);
+                    attrs.SetStringValue("Age", "Adult");
+                    attrs.SetStringValue("Vendor", "K2FSA");
+                    attrs.SetStringValue("Locale", locale);
+                    try
+                    {
+                        ushort langId = LocaleToLangId(locale);
+                        attrs.SetStringValue("Language", $"0x{langId:X4}");
+                    }
+                    catch { }
+                    attrs.SetStringValue("NaturalVoiceType", "Sherpa;Offline");
+
+                    var config = token.Data.GetOrCreateSubKey("NaturalVoiceConfig");
+                    config.SetStringValue("EngineType", "Sherpa");
+                    config.SetStringValue("EngineName", "sherpaonnx");
+                    config.SetStringValue("VoiceId", modelName ?? tokenName);
+                    if (modelPath != null) config.SetStringValue("SherpaOnnxModelPath", modelPath);
+                    if (tokensPath != null) config.SetStringValue("SherpaOnnxTokens", tokensPath);
+                    if (dataDir != null) config.SetStringValue("SherpaOnnxDataDir", dataDir);
+
+                    _tokens.Add(token);
+                    Logger.Info($"HKLM SherpaOnnx token discovered: {tokenName} (model={modelPath})");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"Error reading HKLM token {tokenName}", ex);
+                }
+            }
+        }
+        catch { }
     }
 
     private async Task DiscoverEngineVoices(string engine, ITtsCredentials? credentials)

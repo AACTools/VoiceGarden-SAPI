@@ -14,6 +14,36 @@ public static class CredentialBuilder
         string? apiKey = TryGetString(configKey, "ApiKey");
         string? region = TryGetString(configKey, "Region");
 
+        // SherpaOnnx tokens created by SherpaOnnxConfig use "Sherpa" as EngineType
+        // and store explicit file paths (SherpaOnnxModelPath, SherpaOnnxTokens, etc.)
+        if (engine == "sherpaonnx" || engine == "sherpa")
+        {
+            var modelFilePath = TryGetString(configKey, "SherpaOnnxModelPath");
+            var tokensFilePath = TryGetString(configKey, "SherpaOnnxTokens");
+            var dataDirPath = TryGetString(configKey, "SherpaOnnxDataDir");
+            var lexiconPath = TryGetString(configKey, "SherpaOnnxLexicon");
+
+            // If we have explicit file paths, use them
+            if (!string.IsNullOrEmpty(modelFilePath))
+            {
+                return new SherpaOnnxCredentials
+                {
+                    ModelFilePath = modelFilePath,
+                    TokensFilePath = tokensFilePath,
+                    DataDirPath = dataDirPath,
+                    LexiconFilePath = lexiconPath,
+                    ModelId = TryGetString(configKey, "VoiceId"),
+                };
+            }
+
+            // Fall back to ModelPath/ModelId style
+            return new SherpaOnnxCredentials
+            {
+                ModelPath = TryGetString(configKey, "ModelPath"),
+                ModelId = TryGetString(configKey, "ModelId"),
+            };
+        }
+
         return engine switch
         {
             "azuresdk" or "azure" => new AzureCredentials
@@ -46,11 +76,6 @@ public static class CredentialBuilder
             "deepgram" => new DeepgramCredentials
             {
                 ApiKey = apiKey ?? ""
-            },
-            "sherpaonnx" or "sherpa" => new SherpaOnnxCredentials
-            {
-                ModelPath = TryGetString(configKey, "ModelPath"),
-                ModelId = TryGetString(configKey, "ModelId"),
             },
             _ => null
         };

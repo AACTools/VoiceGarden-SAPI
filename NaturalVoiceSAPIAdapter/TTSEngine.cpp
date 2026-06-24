@@ -752,7 +752,26 @@ bool CTTSEngine::InitSherpaOnnxVoice(ISpDataKey* pConfigKey)
             else
             {
                 LogInfo("Sherpa init: creating Sherpa engine instance");
-                auto created = std::make_shared<SherpaOnnx::Engine>(config);
+                std::shared_ptr<SherpaOnnx::Engine> created;
+                std::string engineError;
+                std::thread initThread([&]() {
+                    CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+                    try {
+                        created = std::make_shared<SherpaOnnx::Engine>(config);
+                    } catch (const std::exception& ex) {
+                        engineError = ex.what();
+                    }
+                    CoUninitialize();
+                });
+                initThread.join();
+
+                if (!created)
+                {
+                    LogErr("Failed to initialize SherpaOnnx engine for voice: {}. reason={}",
+                        WStringToUTF8(std::wstring(pszVoiceName.m_psz)), engineError);
+                    m_sherpaOnnx.reset();
+                    return false;
+                }
                 LogInfo("Sherpa init: Sherpa engine instance created");
                 if (!created->IsValid())
                 {
