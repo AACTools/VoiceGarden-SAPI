@@ -352,7 +352,18 @@ DWORD RunProcess(LPCWSTR app, const std::wstring& args, bool asAdmin)
     DWORD exitcode = 0;
     if (info.hProcess)
     {
-        WaitForSingleObject(info.hProcess, INFINITE);
+        while (WaitForSingleObject(info.hProcess, 100) == WAIT_TIMEOUT)
+        {
+            MSG msg;
+            while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
+            {
+                if (!IsDialogMessageW(GetParent(GetActiveWindow()), &msg))
+                {
+                    TranslateMessage(&msg);
+                    DispatchMessageW(&msg);
+                }
+            }
+        }
         GetExitCodeProcess(info.hProcess, &exitcode);
         CloseHandle(info.hProcess);
     }

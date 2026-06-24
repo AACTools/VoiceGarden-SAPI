@@ -5,7 +5,8 @@ using NaturalVoiceSAPIAdapter.SapiInterop;
 
 namespace NaturalVoiceSAPIAdapter;
 
-[ComVisible(false)]
+[ComVisible(true)]
+[Guid("F2B3C4D5-E6F7-4A8B-9C0D-1E2F3A4B5C6D")]
 [ClassInterface(ClassInterfaceType.None)]
 public class SpDataKey : ISpDataKey
 {
