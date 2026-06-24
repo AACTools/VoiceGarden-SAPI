@@ -1085,6 +1085,19 @@ void CVoiceTokenEnumerator::EnumSherpaVoices(TokenMap& tokens, DWORD langFlags, 
                     continue;
             }
 
+            // Skip if this voice is already registered as a persistent HKLM token
+            // (by SherpaOnnxConfig's promote-hklm). Duplicates break System.Speech's SelectVoice.
+            {
+                std::wstring hklmTokenPath = L"SOFTWARE\\Microsoft\\Speech\\Voices\\Tokens\\Sherpa-" + UTF8ToWString(model.name);
+                HKEY hKey = nullptr;
+                if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, hklmTokenPath.c_str(), 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+                {
+                    RegCloseKey(hKey);
+                    logger.debug("Skipping Sherpa voice '{}' - already registered in HKLM", model.name);
+                    continue;
+                }
+            }
+
             // Create the voice token
             auto token = MakeSherpaVoiceToken(model);
             if (token)
