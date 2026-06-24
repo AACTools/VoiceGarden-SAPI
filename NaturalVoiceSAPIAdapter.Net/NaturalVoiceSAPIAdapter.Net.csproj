@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableComHosting>true</EnableComHosting>
+    <RollForward>LatestMajor</RollForward>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>NaturalVoiceSAPIAdapter</RootNamespace>
+    <AssemblyName>NaturalVoiceSAPIAdapter.Net</AssemblyName>
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+    <DefaultItemExcludes>$(DefaultItemExcludes);TestLocal\**;DownloadModel\**</DefaultItemExcludes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DotNetTtsWrapper" Version="1.1.3" />
+  </ItemGroup>
+
+</Project>

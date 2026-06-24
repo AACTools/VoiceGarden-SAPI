@@ -226,6 +226,7 @@ dotnet publish (Join-Path $RepoRoot "SherpaOnnxConfig\SherpaOnnxConfig.csproj") 
     -r win-x64 `
     --self-contained `
     -p:PublishSingleFile=true `
+    -p:PublishReadyToRun=false `
     -o $sherpaConfigOutput `
     /nologo /v:q
 if ($LASTEXITCODE -ne 0) {
@@ -253,14 +254,19 @@ foreach ($Platform in $Platforms) {
         if ($LASTEXITCODE -ne 0) { throw "AzureSpeechSDKShim build failed ($Platform)" }
     }
 
-    Write-Host "  TtsApplication ($Platform)..." -ForegroundColor Cyan
-    Invoke-Restore -InputPath (Join-Path $RepoRoot "TtsApplication")
-    if ($Platform -eq "x86") {
-        & $msbuild /m /p:Configuration=$Configuration /p:Platform=Win32 /p:OutDir="$utilOut\" (Join-Path $RepoRoot "TtsApplication\TtsApplication.sln")
+    $ttsAppDir = Join-Path $RepoRoot "TtsApplication"
+    if (Test-Path $ttsAppDir) {
+        Write-Host "  TtsApplication ($Platform)..." -ForegroundColor Cyan
+        Invoke-Restore -InputPath $ttsAppDir
+        if ($Platform -eq "x86") {
+            & $msbuild /m /p:Configuration=$Configuration /p:Platform=Win32 /p:OutDir="$utilOut\" (Join-Path $ttsAppDir "TtsApplication.sln")
+        } else {
+            & $msbuild /m /p:Configuration=$Configuration /p:Platform=$Platform /p:OutDir="$utilOut\" (Join-Path $ttsAppDir "TtsApplication.sln")
+        }
+        if ($LASTEXITCODE -ne 0) { throw "TtsApplication build failed ($Platform)" }
     } else {
-        & $msbuild /m /p:Configuration=$Configuration /p:Platform=$Platform /p:OutDir="$utilOut\" (Join-Path $RepoRoot "TtsApplication\TtsApplication.sln")
+        Write-Host "  TtsApplication ($Platform)... skipped (not present)" -ForegroundColor DarkGray
     }
-    if ($LASTEXITCODE -ne 0) { throw "TtsApplication build failed ($Platform)" }
 
     if ($Platform -eq "ARM64") {
         Write-Host "  Arm64XForwarder (ARM64EC)..." -ForegroundColor Cyan
@@ -338,6 +344,29 @@ foreach ($Platform in $Platforms) {
 Write-Host "  Main adapter built successfully" -ForegroundColor Green
 Write-Host ""
 
+# Step 5.5: Build .NET adapter (x86, x64 only)
+$dotnetAdapterPlatforms = $Platforms | Where-Object { $_ -ne "ARM64" }
+if ($dotnetAdapterPlatforms.Count -gt 0) {
+    Write-Host "[Step 5.5/9] Building .NET SAPI adapter..." -ForegroundColor Cyan
+    foreach ($Platform in $dotnetAdapterPlatforms) {
+        $dotnetOut = Join-Path $StageRoot "dotnet-adapter-$Platform"
+        Ensure-Dir $dotnetOut
+        $rid = if ($Platform -eq "x86") { "win-x86" } else { "win-x64" }
+        Write-Host "  Publishing .NET adapter ($Platform)..." -ForegroundColor Cyan
+        dotnet publish (Join-Path $RepoRoot "NaturalVoiceSAPIAdapter.Net\NaturalVoiceSAPIAdapter.Net.csproj") `
+            -c $Configuration `
+            -r $rid `
+            --self-contained false `
+            -o $dotnetOut `
+            /nologo /v:q
+        if ($LASTEXITCODE -ne 0) {
+            throw "dotnet publish failed for .NET adapter ($Platform)"
+        }
+    }
+    Write-Host "  .NET adapter built successfully" -ForegroundColor Green
+    Write-Host ""
+}
+
 # Step 6: Sherpa verification
 if (!$SkipVerify) {
     Write-Host "[Step 6/8] Running Sherpa integration verification..." -ForegroundColor Cyan
@@ -368,6 +397,11 @@ foreach ($Platform in $Platforms) {
     $platformPayload = Join-Path $PayloadDir $Platform
     Copy-Item $utilOut\* $platformPayload\ -Recurse -Force
     Copy-Item $mainOut\* $platformPayload\ -Recurse -Force
+
+    $dotnetOut = Join-Path $StageRoot "dotnet-adapter-$Platform"
+    if (Test-Path $dotnetOut) {
+        Copy-Item $dotnetOut\* $platformPayload\ -Recurse -Force
+    }
 }
 
 if (Test-Path (Join-Path $PayloadDir "x86\Installer.exe")) {

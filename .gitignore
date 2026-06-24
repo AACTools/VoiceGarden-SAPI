@@ -385,3 +385,13 @@ FodyWeavers.xsd
 SherpaOnnx/libs/
 SherpaOnnx/dlls/
 *.tar.bz2
+
+# E2E test artifacts
+e2e-result.txt
+e2e-test-bin/
+nul
+NaturalVoiceSAPIAdapter.Net/.e2e-*.json
+NaturalVoiceSAPIAdapter.Net/.e2e-*.ps1
+
+# NuGet CLI (downloaded for local builds)
+nuget.exe
