@@ -26,6 +26,7 @@ public static class CliDispatcher
                 "promote" => RunPromote(args),
                 "promoted" => RunListPromoted(),
                 "unpromote" => RunUnpromote(args),
+                "models" => RunModels(args),
                 "-h" or "--help" or "/?" => ShowHelp(),
                 _ => UnknownCommand(command)
             };
@@ -282,5 +283,74 @@ public static class CliDispatcher
             "deepgram" => new DotNetTtsWrapper.Models.DeepgramCredentials { ApiKey = key },
             _ => null,
         };
+    }
+
+    private static int RunModels(string[] args)
+    {
+        if (args.Length < 2)
+        {
+            Console.WriteLine("Usage: models <list|download|promote-all|rescan>");
+            return 1;
+        }
+
+        var sub = args[1].ToLowerInvariant();
+        return sub switch
+        {
+            "list" => RunModelsList(),
+            "download" => RunModelsDownload(args),
+            "promote-all" => RunModelsPromoteAll(),
+            "rescan" => RunModelsRescan(),
+            _ => UnknownCommand($"models {sub}")
+        };
+    }
+
+    private static int RunModelsList()
+    {
+        var installed = Services.SherpaModelService.ScanInstalledModels();
+        Console.WriteLine($"Installed models: {installed.Count}");
+        foreach (var m in installed)
+        {
+            Console.WriteLine($"  {m.Id,-30} Model: {(m.ModelPath != null ? "OK" : "MISSING")}  Promoted: {m.IsPromoted}");
+        }
+        return 0;
+    }
+
+    private static int RunModelsDownload(string[] args)
+    {
+        if (args.Length < 3)
+        {
+            Console.Error.WriteLine("Error: model ID required. Usage: models download <id>");
+            return 1;
+        }
+        var modelId = args[2];
+        var catalog = Services.SherpaModelService.LoadCatalogAsync().GetAwaiter().GetResult();
+        var model = catalog.Find(c => c.Id == modelId);
+        if (model == null)
+        {
+            Console.Error.WriteLine($"Model '{modelId}' not found in catalog");
+            return 1;
+        }
+        Console.WriteLine($"Downloading {modelId}...");
+        Services.SherpaModelService.DownloadModelAsync(model).GetAwaiter().GetResult();
+        Console.WriteLine("Done");
+        return 0;
+    }
+
+    private static int RunModelsPromoteAll()
+    {
+        var (promoted, failed) = Services.SherpaModelService.PromoteAll();
+        Console.WriteLine($"Promoted {promoted} model(s), failed {failed}");
+        return failed > 0 ? 1 : 0;
+    }
+
+    private static int RunModelsRescan()
+    {
+        var installed = Services.SherpaModelService.ScanInstalledModels();
+        Console.WriteLine($"Found {installed.Count} installed models:");
+        foreach (var m in installed)
+        {
+            Console.WriteLine($"  {m.Id,-30} Promoted: {m.IsPromoted}");
+        }
+        return 0;
     }
 }

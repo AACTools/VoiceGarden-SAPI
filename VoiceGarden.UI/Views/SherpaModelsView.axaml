@@ -1,0 +1,83 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:VoiceGarden.UI.ViewModels"
+             x:Class="VoiceGarden.UI.Views.SherpaModelsView">
+
+    <Design.DataContext>
+        <vm:SherpaModelsViewModel/>
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto, Auto, *, Auto">
+
+        <!-- Filter row -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto, *, Auto, Auto" Margin="0,0,0,8">
+            <TextBlock Grid.Column="0" Text="Language:" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
+            <TextBox Grid.Column="1" Text="{Binding LanguageFilter}" Watermark="All" Width="80" Margin="0,0,8,0"/>
+            <TextBlock Grid.Column="2" Text="Filter:" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
+            <TextBox Grid.Column="3" Text="{Binding SearchFilter}" Watermark="Search..." MinWidth="120"/>
+            <CheckBox Grid.Column="4" Content="Installed only" IsChecked="{Binding ShowInstalledOnly}" Margin="16,0,0,0"/>
+            <Button Grid.Column="5" Content="Rescan" Command="{Binding RescanCommand}" Padding="12,2" Margin="8,0,0,0"/>
+        </Grid>
+
+        <!-- Model list -->
+        <Border Grid.Row="1" BorderBrush="{DynamicResource SystemControlDefaultChromeMediumLowBrush}"
+                BorderThickness="1" CornerRadius="4" MinHeight="200" MaxHeight="400">
+            <ListBox ItemsSource="{Binding FilteredModels}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:SherpaModelItem">
+                        <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto">
+                            <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" Margin="0,0,8,0"/>
+                            <StackPanel Grid.Column="1" Spacing="2">
+                                <TextBlock Text="{Binding Name}" FontWeight="Medium"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="{Binding Language}" Classes="Hint"/>
+                                    <TextBlock Text="{Binding Id}" Classes="Hint" Opacity="0.4"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <TextBlock Grid.Column="2" Text="Downloaded" Classes="Hint"
+                                       Foreground="Green" IsVisible="{Binding IsDownloaded}"
+                                       Margin="8,0"/>
+                            <TextBlock Grid.Column="3" Text="Installed" Classes="Hint"
+                                       Foreground="Blue" IsVisible="{Binding IsPromoted}"
+                                       Margin="8,0"/>
+                            <ProgressBar Grid.Column="4" Value="{Binding DownloadProgress}"
+                                         IsVisible="{Binding !!DownloadStatus.Length}"
+                                         Width="60" Margin="8,0"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+
+        <!-- Actions -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0" HorizontalAlignment="Left">
+            <Button Content="Download Selected" Command="{Binding DownloadSelectedCommand}" Padding="16,4"/>
+            <Button Content="Install All to SAPI" Command="{Binding PromoteAllCommand}"
+                    Classes="Primary" Padding="16,4"/>
+            <Button Content="Open Models Folder" Command="{Binding OpenModelsFolderCommand}"
+                    Padding="16,4" FontSize="12"/>
+        </StackPanel>
+
+        <!-- Status -->
+        <Grid Grid.Row="3" ColumnDefinitions="*, Auto" Margin="0,8,0,0">
+            <TextBlock Grid.Column="0" Text="{Binding StatusText}" Classes="Hint"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16">
+                <TextBlock Text="{Binding DownloadedCount, StringFormat='{}{0} downloaded'}" Classes="Hint"/>
+                <TextBlock Text="{Binding PromotedCount, StringFormat='{}{0} installed'}" Classes="Hint"/>
+                <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} total'}" Classes="Hint"/>
+            </StackPanel>
+        </Grid>
+
+    </Grid>
+
+    <UserControl.Styles>
+        <Style Selector="TextBlock.Hint">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Opacity" Value="0.6"/>
+        </Style>
+        <Style Selector="Button.Primary">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+    </UserControl.Styles>
+
+</UserControl>

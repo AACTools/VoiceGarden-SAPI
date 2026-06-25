@@ -96,8 +96,12 @@ public partial class MainViewModel : ObservableObject
     partial void OnShowAdvancedChanged(bool value) => OnPropertyChanged(nameof(AdvancedToggleText));
 
     [ObservableProperty] private bool isVoiceConfigVisible = false;
+    [ObservableProperty] private bool isSherpaManagerVisible = false;
+
+    public bool IsMainViewVisible => !IsVoiceConfigVisible && !IsSherpaManagerVisible;
 
     public VoiceConfigViewModel VoiceConfig { get; } = new();
+    public SherpaModelsViewModel SherpaModels { get; } = new();
 
     [RelayCommand]
     private void OpenVoiceConfig()
@@ -113,12 +117,15 @@ public partial class MainViewModel : ObservableObject
             VoiceConfig.Initialize("azure", "", "eastus");
         }
         IsVoiceConfigVisible = true;
+        OnPropertyChanged(nameof(IsMainViewVisible));
     }
 
     [RelayCommand]
     private void BackToMain()
     {
         IsVoiceConfigVisible = false;
+        IsSherpaManagerVisible = false;
+        OnPropertyChanged(nameof(IsMainViewVisible));
     }
 
     private void UpdateSherpaModelCount()
@@ -178,13 +185,9 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void OpenSherpaManager()
     {
-        // Phase 3: Open SherpaOnnx model manager panel
-        // For now, launch existing SherpaOnnxConfig.exe if available
-        var exePath = Path.Combine(ComRegistrationService.GetInstallDir(true), "SherpaOnnxConfig.exe");
-        if (File.Exists(exePath))
-        {
-            Process.Start(new ProcessStartInfo(exePath) { UseShellExecute = true });
-        }
+        IsSherpaManagerVisible = true;
+        OnPropertyChanged(nameof(IsMainViewVisible));
+        _ = SherpaModels.LoadCatalogCommand.ExecuteAsync(null);
     }
 
 

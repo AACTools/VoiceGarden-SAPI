@@ -15,8 +15,8 @@
 
     <Grid RowDefinitions="*">
 
-        <!-- Main View -->
-        <ScrollViewer Grid.Row="0" IsVisible="{Binding !IsVoiceConfigVisible}">
+        <!-- Main View (visible when no sub-view) -->
+        <ScrollViewer Grid.Row="0" IsVisible="{Binding IsMainViewVisible}">
             <StackPanel Margin="20" Spacing="16">
 
                 <!-- Adapter Installation -->
@@ -50,8 +50,7 @@
                         <StackPanel Spacing="4">
                             <TextBlock Text="Offline Voices" Classes="SectionLabel"/>
                             <CheckBox Content="SherpaOnnx Neural TTS (local, no internet required)"
-                                      IsChecked="{Binding SherpaEnabled}"
-                                      Margin="8,0,0,0"/>
+                                      IsChecked="{Binding SherpaEnabled}" Margin="8,0,0,0"/>
                             <StackPanel Orientation="Horizontal" Spacing="8" Margin="24,0,0,0">
                                 <TextBlock Text="{Binding SherpaModelSummary}" Classes="Hint"/>
                                 <Button Content="Manage Models..." Command="{Binding OpenSherpaManagerCommand}"
@@ -103,11 +102,9 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Advanced toggle -->
                 <ToggleButton Content="{Binding AdvancedToggleText}" IsChecked="{Binding ShowAdvanced}"
                               Padding="12,4" HorizontalAlignment="Left" FontSize="12"/>
 
-                <!-- Bottom buttons -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,8,0,0">
                     <Button Content="About" Command="{Binding ShowAboutCommand}" Padding="20,6"/>
                     <Button Content="Close" Click="Close_Click" Classes="Primary" Padding="20,6"/>
@@ -122,15 +119,24 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-
-            <!-- Back button + title -->
             <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,16">
                 <Button Content="← Back" Command="{Binding BackToMainCommand}" Padding="12,4"/>
                 <TextBlock Text="Configure Voices" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
             </StackPanel>
-
-            <!-- Voice config content -->
             <views:VoiceConfigView Grid.Row="1" DataContext="{Binding VoiceConfig}"/>
+        </Grid>
+
+        <!-- SherpaOnnx Models View -->
+        <Grid Grid.Row="0" IsVisible="{Binding IsSherpaManagerVisible}" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,16">
+                <Button Content="← Back" Command="{Binding BackToMainCommand}" Padding="12,4"/>
+                <TextBlock Text="SherpaOnnx Models" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            </StackPanel>
+            <views:SherpaModelsView Grid.Row="1" DataContext="{Binding SherpaModels}"/>
         </Grid>
 
     </Grid>
