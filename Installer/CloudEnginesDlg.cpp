@@ -57,6 +57,11 @@ bool FindEngineConfigPath(std::wstring& path) {
 
     std::vector<std::wstring> candidates = {
         dir + L"\\EngineConfig.exe",
+        dir + L"\\x64\\EngineConfig.exe",
+        dir + L"\\x86\\EngineConfig.exe",
+        dir + L"\\..\\x64\\EngineConfig.exe",
+        dir + L"\\..\\x86\\EngineConfig.exe",
+        dir + L"\\..\\engine-config\\EngineConfig.exe",
         dir + L"\\..\\EngineConfig\\bin\\publish\\EngineConfig.exe",
         dir + L"\\..\\EngineConfig\\bin\\Release\\net8.0\\EngineConfig.exe",
     };
