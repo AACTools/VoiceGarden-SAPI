@@ -1,116 +1,139 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:VoiceGarden.UI.ViewModels"
+        xmlns:models="using:VoiceGarden.UI.Models"
+        xmlns:views="using:VoiceGarden.UI.Views"
         x:Class="VoiceGarden.UI.MainWindow"
         Title="VoiceGarden"
-        Width="560" Height="640"
-        MinWidth="480" MinHeight="520"
-        WindowStartupLocation="CenterScreen"
-        Icon="/Assets/app-icon.ico">
+        Width="640" Height="700"
+        MinWidth="520" MinHeight="560"
+        WindowStartupLocation="CenterScreen">
 
     <Design.DataContext>
         <vm:MainViewModel/>
     </Design.DataContext>
 
-    <ScrollViewer Padding="0">
-        <StackPanel Margin="20" Spacing="16">
+    <Grid RowDefinitions="*">
 
-            <!-- Adapter Installation -->
-            <Border Classes="Card">
-                <StackPanel Spacing="8">
-                    <TextBlock Text="Adapter Installation" Classes="CardHeader"/>
-                    <Grid ColumnDefinitions="*, Auto, Auto" RowDefinitions="Auto, Auto">
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Status64Bit}" VerticalAlignment="Center"/>
-                        <Button Grid.Row="0" Grid.Column="1" Content="{Binding Install64Text}"
-                                Command="{Binding Install64Command}" Margin="8,0,0,0" Padding="16,4"/>
-                        <Button Grid.Row="0" Grid.Column="2" Content="Uninstall"
-                                Command="{Binding Uninstall64Command}" Margin="8,0,0,0" Padding="16,4"
-                                IsEnabled="{Binding Is64Installed}"/>
+        <!-- Main View -->
+        <ScrollViewer Grid.Row="0" IsVisible="{Binding !IsVoiceConfigVisible}">
+            <StackPanel Margin="20" Spacing="16">
 
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Status32Bit}" VerticalAlignment="Center" Margin="0,8,0,0"/>
-                        <Button Grid.Row="1" Grid.Column="1" Content="{Binding Install32Text}"
-                                Command="{Binding Install32Command}" Margin="8,8,0,0" Padding="16,4"/>
-                        <Button Grid.Row="1" Grid.Column="2" Content="Uninstall"
-                                Command="{Binding Uninstall32Command}" Margin="8,8,0,0" Padding="16,4"
-                                IsEnabled="{Binding Is32Installed}"/>
-                    </Grid>
-                </StackPanel>
-            </Border>
+                <!-- Adapter Installation -->
+                <Border Classes="Card">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Adapter Installation" Classes="CardHeader"/>
+                        <Grid ColumnDefinitions="*, Auto, Auto" RowDefinitions="Auto, Auto">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Status64Bit}" VerticalAlignment="Center"/>
+                            <Button Grid.Row="0" Grid.Column="1" Content="{Binding Install64Text}"
+                                    Command="{Binding Install64Command}" Margin="8,0,0,0" Padding="16,4"/>
+                            <Button Grid.Row="0" Grid.Column="2" Content="Uninstall"
+                                    Command="{Binding Uninstall64Command}" Margin="8,0,0,0" Padding="16,4"
+                                    IsEnabled="{Binding Is64Installed}"/>
 
-            <!-- Voice Engines -->
-            <Border Classes="Card">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="Voice Engines" Classes="CardHeader"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Status32Bit}" VerticalAlignment="Center" Margin="0,8,0,0"/>
+                            <Button Grid.Row="1" Grid.Column="1" Content="{Binding Install32Text}"
+                                    Command="{Binding Install32Command}" Margin="8,8,0,0" Padding="16,4"/>
+                            <Button Grid.Row="1" Grid.Column="2" Content="Uninstall"
+                                    Command="{Binding Uninstall32Command}" Margin="8,8,0,0" Padding="16,4"
+                                    IsEnabled="{Binding Is32Installed}"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
 
-                    <!-- Offline -->
-                    <StackPanel Spacing="4">
-                        <TextBlock Text="Offline Voices" Classes="SectionLabel"/>
-                        <CheckBox Content="SherpaOnnx Neural TTS (local, no internet required)"
-                                  IsChecked="{Binding SherpaEnabled}"
-                                  Margin="8,0,0,0"/>
-                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="24,0,0,0">
-                            <TextBlock Text="{Binding SherpaModelSummary}" Classes="Hint"/>
-                            <Button Content="Manage Models..." Command="{Binding OpenSherpaManagerCommand}"
-                                    Padding="12,2" FontSize="12"/>
+                <!-- Voice Engines -->
+                <Border Classes="Card">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Voice Engines" Classes="CardHeader"/>
+
+                        <!-- Offline -->
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Offline Voices" Classes="SectionLabel"/>
+                            <CheckBox Content="SherpaOnnx Neural TTS (local, no internet required)"
+                                      IsChecked="{Binding SherpaEnabled}"
+                                      Margin="8,0,0,0"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8" Margin="24,0,0,0">
+                                <TextBlock Text="{Binding SherpaModelSummary}" Classes="Hint"/>
+                                <Button Content="Manage Models..." Command="{Binding OpenSherpaManagerCommand}"
+                                        Padding="12,2" FontSize="12"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Separator/>
+
+                        <!-- Cloud -->
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Cloud Voices" Classes="SectionLabel"/>
+
+                            <ItemsControl ItemsSource="{Binding CloudEngines}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="models:CloudEngineSetting">
+                                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,2">
+                                            <CheckBox IsChecked="{Binding Enabled}" Content="{Binding DisplayName}" MinWidth="90"/>
+                                            <TextBox Text="{Binding ApiKey}" Watermark="API Key"
+                                                     PasswordChar="*" Width="160" FontSize="12"/>
+                                            <TextBox Text="{Binding Region}" Watermark="Region"
+                                                     IsVisible="{Binding NeedsRegion}" Width="80" FontSize="12"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <Button Content="Configure Voices..." Command="{Binding OpenVoiceConfigCommand}"
+                                    Margin="0,4,0,0" Padding="16,4" HorizontalAlignment="Left"/>
                         </StackPanel>
                     </StackPanel>
+                </Border>
 
-                    <Separator/>
-
-                    <!-- Cloud -->
-                    <StackPanel Spacing="4">
-                        <TextBlock Text="Cloud Voices" Classes="SectionLabel"/>
-
-                        <ItemsControl ItemsSource="{Binding CloudEngines}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,2">
-                                        <CheckBox IsChecked="{Binding Enabled}" Content="{Binding DisplayName}" MinWidth="90"/>
-                                        <TextBox Text="{Binding ApiKey}" Watermark="API Key"
-                                                 PasswordChar="*" Width="160" FontSize="12"/>
-                                        <TextBox Text="{Binding Region}" Watermark="Region"
-                                                 IsVisible="{Binding NeedsRegion}" Width="80" FontSize="12"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-
-                        <Button Content="Configure Voices..." Command="{Binding OpenVoiceConfigCommand}"
-                                Margin="0,4,0,0" Padding="16,4" HorizontalAlignment="Left"/>
+                <!-- Advanced (Collapsible) -->
+                <Border Classes="Card" IsVisible="{Binding ShowAdvanced}">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Advanced" Classes="CardHeader"/>
+                        <CheckBox Content="Enable Edge browser voices" IsChecked="{Binding EdgeEnabled}" Margin="0"/>
+                        <CheckBox Content="Enable Windows Narrator voices" IsChecked="{Binding NarratorEnabled}" Margin="0"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+                            <TextBlock Text="Log level:" VerticalAlignment="Center"/>
+                            <ComboBox SelectedIndex="{Binding LogLevelIndex}" MinWidth="100">
+                                <ComboBoxItem Content="Normal"/>
+                                <ComboBoxItem Content="Info"/>
+                                <ComboBoxItem Content="Trace"/>
+                            </ComboBox>
+                            <Button Content="Open Logs" Command="{Binding OpenLogsCommand}" Padding="12,2"/>
+                        </StackPanel>
                     </StackPanel>
+                </Border>
+
+                <!-- Advanced toggle -->
+                <ToggleButton Content="{Binding AdvancedToggleText}" IsChecked="{Binding ShowAdvanced}"
+                              Padding="12,4" HorizontalAlignment="Left" FontSize="12"/>
+
+                <!-- Bottom buttons -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,8,0,0">
+                    <Button Content="About" Command="{Binding ShowAboutCommand}" Padding="20,6"/>
+                    <Button Content="Close" Click="Close_Click" Classes="Primary" Padding="20,6"/>
                 </StackPanel>
-            </Border>
 
-            <!-- Advanced (Collapsible) -->
-            <Border Classes="Card" IsVisible="{Binding ShowAdvanced}">
-                <StackPanel Spacing="8">
-                    <TextBlock Text="Advanced" Classes="CardHeader"/>
-                    <CheckBox Content="Enable Edge browser voices" IsChecked="{Binding EdgeEnabled}" Margin="0"/>
-                    <CheckBox Content="Enable Windows Narrator voices" IsChecked="{Binding NarratorEnabled}" Margin="0"/>
-                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
-                        <TextBlock Text="Log level:" VerticalAlignment="Center"/>
-                        <ComboBox SelectedIndex="{Binding LogLevelIndex}" MinWidth="100">
-                            <ComboBoxItem Content="Normal"/>
-                            <ComboBoxItem Content="Info"/>
-                            <ComboBoxItem Content="Trace"/>
-                        </ComboBox>
-                        <Button Content="Open Logs" Command="{Binding OpenLogsCommand}" Padding="12,2"/>
-                    </StackPanel>
-                </StackPanel>
-            </Border>
+            </StackPanel>
+        </ScrollViewer>
 
-            <!-- Advanced toggle -->
-            <ToggleButton Content="{Binding AdvancedToggleText}" IsChecked="{Binding ShowAdvanced}"
-                          Padding="12,4" HorizontalAlignment="Left" FontSize="12"/>
+        <!-- Voice Configuration View -->
+        <Grid Grid.Row="0" IsVisible="{Binding IsVoiceConfigVisible}" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-            <!-- Bottom buttons -->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,8,0,0">
-                <Button Content="About" Command="{Binding ShowAboutCommand}" Padding="20,6"/>
-                <Button Content="Close" Click="Close_Click" Classes="Primary" Padding="20,6"/>
+            <!-- Back button + title -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,16">
+                <Button Content="← Back" Command="{Binding BackToMainCommand}" Padding="12,4"/>
+                <TextBlock Text="Configure Voices" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
             </StackPanel>
 
-        </StackPanel>
-    </ScrollViewer>
+            <!-- Voice config content -->
+            <views:VoiceConfigView Grid.Row="1" DataContext="{Binding VoiceConfig}"/>
+        </Grid>
+
+    </Grid>
 
     <Window.Styles>
         <Style Selector="Border.Card">

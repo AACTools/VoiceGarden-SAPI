@@ -95,6 +95,32 @@ public partial class MainViewModel : ObservableObject
     partial void OnLogLevelIndexChanged(int value) => RegistryService.SetDword("LogLevel", value);
     partial void OnShowAdvancedChanged(bool value) => OnPropertyChanged(nameof(AdvancedToggleText));
 
+    [ObservableProperty] private bool isVoiceConfigVisible = false;
+
+    public VoiceConfigViewModel VoiceConfig { get; } = new();
+
+    [RelayCommand]
+    private void OpenVoiceConfig()
+    {
+        // Find first enabled cloud engine and pre-fill its key
+        var firstEnabled = CloudEngines.FirstOrDefault(e => e.Enabled);
+        if (firstEnabled != null)
+        {
+            VoiceConfig.Initialize(firstEnabled.Id, firstEnabled.ApiKey, firstEnabled.Region);
+        }
+        else
+        {
+            VoiceConfig.Initialize("azure", "", "eastus");
+        }
+        IsVoiceConfigVisible = true;
+    }
+
+    [RelayCommand]
+    private void BackToMain()
+    {
+        IsVoiceConfigVisible = false;
+    }
+
     private void UpdateSherpaModelCount()
     {
         var modelsDir = Path.Combine(
@@ -161,17 +187,6 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
-    private void OpenVoiceConfig()
-    {
-        // Phase 2: Open voice configuration panel
-        // For now, launch EngineConfig.exe if available
-        var exePath = Path.Combine(ComRegistrationService.GetInstallDir(true), "EngineConfig.exe");
-        if (File.Exists(exePath))
-        {
-            Process.Start(new ProcessStartInfo(exePath) { UseShellExecute = true });
-        }
-    }
 
     [RelayCommand]
     private void OpenLogs()

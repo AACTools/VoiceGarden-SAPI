@@ -21,6 +21,11 @@ public static class CliDispatcher
                 "install" => RunInstall(args),
                 "uninstall" => RunUninstall(args),
                 "status" => RunStatus(),
+                "voices" => RunVoices(args),
+                "validate" => RunValidate(args),
+                "promote" => RunPromote(args),
+                "promoted" => RunListPromoted(),
+                "unpromote" => RunUnpromote(args),
                 "-h" or "--help" or "/?" => ShowHelp(),
                 _ => UnknownCommand(command)
             };
@@ -92,6 +97,22 @@ public static class CliDispatcher
         Console.WriteLine("    --platform X    x64, x86, or all");
         Console.WriteLine("  status            Show registration status");
         Console.WriteLine();
+        Console.WriteLine("  voices            List voices for an engine");
+        Console.WriteLine("    --engine <id>   azure, openai, elevenlabs, google, polly, cartesia, deepgram");
+        Console.WriteLine("    --key <key>     API key");
+        Console.WriteLine("    [--region <r>]  Region (Azure/Polly)");
+        Console.WriteLine("    [--json]        Output as JSON");
+        Console.WriteLine();
+        Console.WriteLine("  validate          Validate credentials");
+        Console.WriteLine("    --engine <id> --key <key> [--region <r>]");
+        Console.WriteLine();
+        Console.WriteLine("  promote           Install a voice as HKLM SAPI token");
+        Console.WriteLine("    --engine <id> --voice <voice-id> --key <key> [--region <r>]");
+        Console.WriteLine();
+        Console.WriteLine("  promoted          List all promoted voices");
+        Console.WriteLine("  unpromote         Remove a promoted voice");
+        Console.WriteLine("    --voice <token-name>");
+        Console.WriteLine();
         Console.WriteLine("Run without arguments to launch the GUI.");
         Console.WriteLine();
         return 0;
@@ -102,5 +123,164 @@ public static class CliDispatcher
         Console.Error.WriteLine($"Unknown command: '{command}'");
         ShowHelp();
         return 1;
+    }
+
+    private static Dictionary<string, string> ParseArgs(string[] args, int startIndex = 1)
+    {
+        var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        for (int i = startIndex; i < args.Length; i++)
+        {
+            if (args[i].StartsWith("--") && i + 1 < args.Length)
+            {
+                result[args[i].Substring(2)] = args[++i];
+            }
+        }
+        return result;
+    }
+
+    private static int RunVoices(string[] args)
+    {
+        var opts = ParseArgs(args);
+        if (!opts.TryGetValue("engine", out var engine) || !opts.TryGetValue("key", out var key))
+        {
+            Console.Error.WriteLine("Error: --engine and --key are required");
+            return 1;
+        }
+        opts.TryGetValue("region", out var region);
+        var asJson = args.Contains("--json");
+
+        var creds = BuildCredentials(engine, key, region ?? "");
+        if (creds == null) { Console.Error.WriteLine($"Unknown engine: {engine}"); return 1; }
+
+        var client = DotNetTtsWrapper.Models.TtsFactory.CreateClient(engine, creds);
+        if (client == null) { Console.Error.WriteLine($"Could not create client"); return 1; }
+
+        Console.WriteLine($"Fetching voices for {engine}...");
+        var voices = client.GetVoicesAsync().GetAwaiter().GetResult();
+        Console.WriteLine($"Found {voices.Count} voices");
+
+        if (asJson)
+        {
+            var json = System.Text.Json.JsonSerializer.Serialize(voices.Select(v => new
+            {
+                id = v.Id, name = v.Name,
+                language = v.LanguageCodes?.FirstOrDefault()?.Bcp47 ?? "en-US",
+                gender = v.Gender.ToString(),
+                provider = v.Provider ?? engine
+            }));
+            Console.WriteLine(json);
+        }
+        else
+        {
+            foreach (var v in voices)
+            {
+                var lang = v.LanguageCodes?.FirstOrDefault()?.Bcp47 ?? "en-US";
+                Console.WriteLine($"  {v.Id,-40} {v.Name,-30} {lang}");
+            }
+        }
+        return 0;
+    }
+
+    private static int RunValidate(string[] args)
+    {
+        var opts = ParseArgs(args);
+        if (!opts.TryGetValue("engine", out var engine) || !opts.TryGetValue("key", out var key))
+        {
+            Console.Error.WriteLine("Error: --engine and --key are required");
+            return 1;
+        }
+        opts.TryGetValue("region", out var region);
+
+        var creds = BuildCredentials(engine, key, region ?? "");
+        if (creds == null) { Console.Error.WriteLine($"Unknown engine: {engine}"); return 1; }
+
+        var client = DotNetTtsWrapper.Models.TtsFactory.CreateClient(engine, creds);
+        if (client == null) { Console.Error.WriteLine($"Could not create client"); return 1; }
+
+        Console.Write($"Validating {engine} credentials... ");
+        try
+        {
+            var result = client.CheckCredentialsAsync().GetAwaiter().GetResult();
+            if (result.IsValid)
+            {
+                Console.WriteLine($"OK ({result.AvailableVoiceCount} voices)");
+                return 0;
+            }
+            Console.WriteLine($"INVALID: {result.ErrorMessage}");
+            return 2;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"ERROR: {ex.Message}");
+            return 2;
+        }
+    }
+
+    private static int RunPromote(string[] args)
+    {
+        var opts = ParseArgs(args);
+        if (!opts.TryGetValue("engine", out var engine) || !opts.TryGetValue("voice", out var voice))
+        {
+            Console.Error.WriteLine("Error: --engine and --voice are required");
+            return 1;
+        }
+        opts.TryGetValue("key", out var key);
+        opts.TryGetValue("region", out var region);
+
+        if (Services.VoicePromotionService.Promote(engine, voice, key ?? "", region))
+        {
+            Console.WriteLine($"Promoted {engine}/{voice} to HKLM");
+            return 0;
+        }
+        Console.Error.WriteLine("Failed (admin required for HKLM)");
+        return 1;
+    }
+
+    private static int RunListPromoted()
+    {
+        var promoted = Services.VoicePromotionService.ListPromoted();
+        if (promoted.Count == 0)
+        {
+            Console.WriteLine("No promoted voices found.");
+            return 0;
+        }
+        Console.WriteLine("Promoted Voices (HKLM):");
+        foreach (var p in promoted)
+        {
+            Console.WriteLine($"  {p.TokenName,-50} {p.Engine,-15} {p.VoiceId}");
+        }
+        return 0;
+    }
+
+    private static int RunUnpromote(string[] args)
+    {
+        var opts = ParseArgs(args);
+        if (!opts.TryGetValue("voice", out var voice))
+        {
+            Console.Error.WriteLine("Error: --voice (token name) is required");
+            return 1;
+        }
+        if (Services.VoicePromotionService.Unpromote(voice))
+        {
+            Console.WriteLine($"Removed: {voice}");
+            return 0;
+        }
+        Console.Error.WriteLine($"Failed (admin required for HKLM)");
+        return 1;
+    }
+
+    private static DotNetTtsWrapper.Models.ITtsCredentials? BuildCredentials(string engine, string key, string region)
+    {
+        return engine.ToLowerInvariant() switch
+        {
+            "azure" => new DotNetTtsWrapper.Models.AzureCredentials { SubscriptionKey = key, Region = region },
+            "openai" => new DotNetTtsWrapper.Models.OpenAICredentials { ApiKey = key },
+            "elevenlabs" => new DotNetTtsWrapper.Models.ElevenLabsCredentials { ApiKey = key },
+            "google" => new DotNetTtsWrapper.Models.GoogleCredentials { ApiKey = key },
+            "polly" => new DotNetTtsWrapper.Models.PollyCredentials { AccessKeyId = key, Region = region },
+            "cartesia" => new DotNetTtsWrapper.Models.CartesiaCredentials { ApiKey = key },
+            "deepgram" => new DotNetTtsWrapper.Models.DeepgramCredentials { ApiKey = key },
+            _ => null,
+        };
     }
 }
