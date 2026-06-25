@@ -2,6 +2,7 @@
 #include "Installer.h"
 #include "RegKey.h"
 #include "SherpaManagerDlg.h"
+#include "CloudEnginesDlg.h"
 #include "../include/nlohmann/json.hpp"
 #include "../include/AppDataLayout.h"
 #include <algorithm>
@@ -449,6 +450,11 @@ INT_PTR CALLBACK MainDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
             case IDC_SHERPA_MODEL_MANAGER:
             {
                 DialogBoxParamW(nullptr, MAKEINTRESOURCEW(IDD_SHERPA_MANAGER), hDlg, SherpaManagerDlg, 0);
+                break;
+            }
+            case IDC_CLOUD_MANAGER:
+            {
+                DialogBoxParamW(nullptr, MAKEINTRESOURCEW(IDD_CLOUD_ENGINES), hDlg, CloudEnginesDlg, 0);
                 break;
             }
             }
