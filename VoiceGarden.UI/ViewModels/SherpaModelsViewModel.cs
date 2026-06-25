@@ -110,22 +110,32 @@ public partial class SherpaModelsViewModel : ObservableObject
         StatusText = $"Rescanned: {_installed.Count} models installed";
     }
 
+    [ObservableProperty] private bool addEnUsAlias = true;
+
     [RelayCommand]
     private async Task DownloadSelected()
     {
         var selected = AllModels.Where(m => m.IsSelected && !m.IsDownloaded).ToList();
         if (selected.Count == 0)
         {
-            StatusText = "Select models to download";
+            StatusText = "Select models to download first";
             return;
         }
 
+        // Load catalog for download URLs
+        var catalog = await SherpaModelService.LoadCatalogAsync();
+
         foreach (var model in selected)
         {
-            var catalogModel = _catalog.FirstOrDefault(c => c.Id == model.Id);
-            if (catalogModel == null) continue;
+            var catalogModel = catalog.FirstOrDefault(c => c.Id == model.Id);
+            if (catalogModel == null || string.IsNullOrEmpty(catalogModel.Url))
+            {
+                model.DownloadStatus = "No download URL";
+                continue;
+            }
 
-            model.DownloadStatus = "Downloading...";
+            model.DownloadStatus = "Starting download...";
+            model.DownloadProgress = 0;
             try
             {
                 var progress = new Progress<(int pct, string msg)>(p =>
@@ -136,30 +146,33 @@ public partial class SherpaModelsViewModel : ObservableObject
 
                 await SherpaModelService.DownloadModelAsync(catalogModel, (IProgress<(int, string)>)progress);
                 model.IsDownloaded = true;
+                model.DownloadProgress = 100;
                 model.DownloadStatus = "Downloaded";
             }
             catch (Exception ex)
             {
+                model.DownloadProgress = 0;
                 model.DownloadStatus = $"Failed: {ex.Message}";
             }
         }
 
         Rescan();
+        StatusText = "Download complete";
     }
 
     [RelayCommand]
     private void PromoteAll()
     {
         IsLoading = true;
-        StatusText = "Promoting models to HKLM...";
+        StatusText = "Installing models to SAPI (HKLM)...";
 
         try
         {
-            var (promoted, failed) = SherpaModelService.PromoteAll();
+            var (promoted, failed) = SherpaModelService.PromoteAll(AddEnUsAlias);
             Rescan();
             StatusText = failed == 0
-                ? $"Promoted {promoted} model(s) to HKLM"
-                : $"Promoted {promoted}, failed {failed}";
+                ? $"Installed {promoted} model(s) to SAPI"
+                : $"Installed {promoted}, failed {failed}";
         }
         catch (Exception ex)
         {
@@ -168,6 +181,66 @@ public partial class SherpaModelsViewModel : ObservableObject
         finally
         {
             IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task PreviewModel(SherpaModelItem model)
+    {
+        if (!model.IsDownloaded)
+        {
+            StatusText = "Download the model first";
+            return;
+        }
+
+        model.DownloadStatus = "Previewing...";
+        try
+        {
+            var installed = _installed.FirstOrDefault(i => i.Id == model.Id);
+            if (installed?.ModelPath == null)
+            {
+                StatusText = "Model files not found";
+                return;
+            }
+
+            var creds = new DotNetTtsWrapper.Models.SherpaOnnxCredentials
+            {
+                ModelFilePath = installed.ModelPath,
+                TokensFilePath = installed.TokensPath,
+                DataDirPath = installed.DataDir,
+            };
+            var client = DotNetTtsWrapper.Models.TtsFactory.CreateClient("sherpaonnx", creds);
+            if (client == null)
+            {
+                StatusText = "Could not create SherpaOnnx client";
+                return;
+            }
+
+            client.SetVoice(model.Id);
+            var result = await client.SynthToBytesAsync($"Hello, this is a {model.Name} voice.");
+            if (result?.AudioData?.Length > 0)
+            {
+                var tempFile = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"vg_sherpa_{Guid.NewGuid():N}.wav");
+                await System.IO.File.WriteAllBytesAsync(tempFile, result.AudioData);
+                _ = Task.Run(() =>
+                {
+                    try { using var p = new System.Media.SoundPlayer(tempFile); p.PlaySync(); }
+                    catch { }
+                    finally { try { System.IO.File.Delete(tempFile); } catch { } }
+                });
+                model.DownloadStatus = "Downloaded";
+                StatusText = $"Previewing {model.Name}";
+            }
+            else
+            {
+                model.DownloadStatus = "Downloaded";
+                StatusText = "No audio generated";
+            }
+        }
+        catch (Exception ex)
+        {
+            model.DownloadStatus = "Downloaded";
+            StatusText = $"Preview failed: {ex.Message}";
         }
     }
 

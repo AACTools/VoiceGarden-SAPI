@@ -164,12 +164,12 @@ public partial class MainViewModel : ObservableObject
 
     private void RefreshInstallStatus()
     {
-        is64Installed = ComRegistrationService.IsRegistered(true);
-        is32Installed = ComRegistrationService.IsRegistered(false);
-        Status64Bit = is64Installed ? "✓ 64-bit adapter registered" : "64-bit: not registered";
-        Status32Bit = is32Installed ? "✓ 32-bit adapter registered" : "32-bit: not registered";
-        Install64Text = is64Installed ? "Re-register" : "Register";
-        Install32Text = is32Installed ? "Re-register" : "Register";
+        Is64Installed = ComRegistrationService.IsRegistered(true);
+        Is32Installed = ComRegistrationService.IsRegistered(false);
+        Status64Bit = Is64Installed ? "✓ 64-bit adapter registered" : "64-bit: not registered";
+        Status32Bit = Is32Installed ? "✓ 32-bit adapter registered" : "32-bit: not registered";
+        Install64Text = Is64Installed ? "Re-register" : "Register";
+        Install32Text = Is32Installed ? "Re-register" : "Register";
     }
 
     [RelayCommand]

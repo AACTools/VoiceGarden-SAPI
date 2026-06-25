@@ -21,7 +21,7 @@
             <ListBox ItemsSource="{Binding FilteredModels}">
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="vm:SherpaModelItem">
-                        <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto">
+                        <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto, Auto">
                             <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" Margin="0,0,8,0"/>
                             <StackPanel Grid.Column="1" Spacing="2">
                                 <TextBlock Text="{Binding Name}" FontWeight="Medium"/>
@@ -39,6 +39,10 @@
                             <ProgressBar Grid.Column="4" Value="{Binding DownloadProgress}"
                                          IsVisible="{Binding !!DownloadStatus.Length}"
                                          Width="60" Margin="8,0"/>
+                            <Button Grid.Column="5" Content="▶" FontSize="10"
+                                    Click="PreviewModel_Click" Tag="{Binding Id}"
+                                    IsVisible="{Binding IsDownloaded}"
+                                    Padding="6,2" Margin="4,0,0,0" ToolTip.Tip="Preview voice"/>
                         </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
@@ -48,8 +52,10 @@
         <!-- Actions -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0" HorizontalAlignment="Left">
             <Button Content="Download Selected" Command="{Binding DownloadSelectedCommand}" Padding="16,4"/>
-            <Button Content="Install All to SAPI" Command="{Binding PromoteAllCommand}"
+            <Button Content="Install to SAPI" Command="{Binding PromoteAllCommand}"
                     Classes="Primary" Padding="16,4"/>
+            <CheckBox Content="Add en-US alias" IsChecked="{Binding AddEnUsAlias}"
+                      VerticalAlignment="Center" Margin="8,0,0,0"/>
             <Button Content="Open Models Folder" Command="{Binding OpenModelsFolderCommand}"
                     Padding="16,4" FontSize="12"/>
         </StackPanel>
