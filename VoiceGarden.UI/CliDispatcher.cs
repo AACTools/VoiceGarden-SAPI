@@ -114,6 +114,12 @@ public static class CliDispatcher
         Console.WriteLine("  unpromote         Remove a promoted voice");
         Console.WriteLine("    --voice <token-name>");
         Console.WriteLine();
+        Console.WriteLine("  models            SherpaOnnx model management");
+        Console.WriteLine("    list            Show installed models");
+        Console.WriteLine("    download <id>   Download a model from the catalog");
+        Console.WriteLine("    promote-all     Install all models to HKLM");
+        Console.WriteLine("    rescan          Refresh installed model status");
+        Console.WriteLine();
         Console.WriteLine("Run without arguments to launch the GUI.");
         Console.WriteLine();
         return 0;
