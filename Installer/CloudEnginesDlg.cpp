@@ -199,9 +199,27 @@ void OnFetchDone(HWND hDlg, CloudDialogState* st, std::wstring* output) {
         return;
     }
 
+    // Validation results contain "valid" — show as text, don't parse as JSON
+    std::string narrow(outputPtr->begin(), outputPtr->end());
+    if (narrow.find("Credentials valid") != std::string::npos ||
+        narrow.find("Credentials invalid") != std::string::npos ||
+        narrow.find("Validating") != std::string::npos) {
+        AppendLog(hDlg, *outputPtr + L"\r\n");
+        SetStatus(hDlg, narrow.find("valid!") != std::string::npos ? L"Valid" : L"Invalid");
+        return;
+    }
+
+    // Extract JSON array from output (skip any non-JSON prefix lines)
+    size_t jsonStart = narrow.find('[');
+    if (jsonStart == std::string::npos) {
+        AppendLog(hDlg, L"No voice data found\r\n");
+        SetStatus(hDlg, L"No voices");
+        return;
+    }
+
     st->voices.clear();
     try {
-        auto json = nlohmann::json::parse(*outputPtr);
+        auto json = nlohmann::json::parse(narrow.substr(jsonStart));
         for (const auto& v : json) {
             CloudVoiceItem item;
             auto id = v.value("id", "");
@@ -317,14 +335,29 @@ INT_PTR CALLBACK CloudEnginesDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
             return TRUE;
         }
 
-        // Populate engine dropdown
+        // Populate engine dropdown — all engines including Azure and Edge
         const wchar_t* engines[] = {
-            L"openai", L"elevenlabs", L"google", L"polly", L"cartesia", L"deepgram"
+            L"azure", L"openai", L"elevenlabs", L"google", L"polly", L"cartesia", L"deepgram"
         };
         for (auto e : engines) {
             SendMessageW(GetDlgItem(hDlg, IDC_CLOUD_ENGINE_COMBO), CB_ADDSTRING, 0, (LPARAM)e);
         }
         SendMessageW(GetDlgItem(hDlg, IDC_CLOUD_ENGINE_COMBO), CB_SETCURSEL, 0, 0);
+
+        // Pre-fill Azure key from existing registry if available
+        {
+            RegKey key;
+            if (key.Open(HKEY_CURRENT_USER, L"Software\\NaturalVoiceSAPIAdapter\\Enumerator", KEY_QUERY_VALUE)) {
+                auto azureKey = key.GetString(L"AzureVoiceKey");
+                auto azureRegion = key.GetString(L"AzureVoiceRegion");
+                if (!azureKey.empty()) {
+                    SetDlgItemTextW(hDlg, IDC_CLOUD_KEY, azureKey.c_str());
+                }
+                if (!azureRegion.empty()) {
+                    SetDlgItemTextW(hDlg, IDC_CLOUD_REGION, azureRegion.c_str());
+                }
+            }
+        }
 
         AppendLog(hDlg, L"Cloud Engines manager loaded.\r\n");
         return TRUE;
@@ -362,9 +395,20 @@ INT_PTR CALLBACK CloudEnginesDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
                 SendDlgItemMessageW(hDlg, IDC_CLOUD_ENGINE_COMBO, CB_GETLBTEXT, sel, (LPARAM)buf);
                 st->selectedEngine = buf;
 
-                // Show/hide region field for engines that need it
+                // Show region field for engines that need it
                 bool needsRegion = (st->selectedEngine == L"azure" || st->selectedEngine == L"polly");
                 ShowWindow(GetDlgItem(hDlg, IDC_CLOUD_REGION), needsRegion ? SW_SHOW : SW_HIDE);
+
+                // Pre-fill Azure key from registry when Azure selected
+                if (st->selectedEngine == L"azure") {
+                    RegKey key;
+                    if (key.Open(HKEY_CURRENT_USER, L"Software\\NaturalVoiceSAPIAdapter\\Enumerator", KEY_QUERY_VALUE)) {
+                        auto k = key.GetString(L"AzureVoiceKey");
+                        auto r = key.GetString(L"AzureVoiceRegion");
+                        if (!k.empty()) SetDlgItemTextW(hDlg, IDC_CLOUD_KEY, k.c_str());
+                        if (!r.empty()) SetDlgItemTextW(hDlg, IDC_CLOUD_REGION, r.c_str());
+                    }
+                }
             }
             break;
 

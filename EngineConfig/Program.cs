@@ -270,6 +270,20 @@ internal static class Program
             configKey.SetValue("Region", opts.Region, Microsoft.Win32.RegistryValueKind.String);
         configKey.SetValue("IsCloudVoice", 1, Microsoft.Win32.RegistryValueKind.DWord);
 
+        // For Azure, also save key/region to the old registry location so the
+        // C++ adapter's VoiceTokenEnumerator can enumerate Azure voices
+        if (opts.Engine.Equals("azure", StringComparison.OrdinalIgnoreCase))
+        {
+            using var enumKey = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(
+                @"SOFTWARE\NaturalVoiceSAPIAdapter\Enumerator");
+            if (enumKey != null && !string.IsNullOrEmpty(opts.Key))
+            {
+                enumKey.SetValue("AzureVoiceKey", opts.Key, Microsoft.Win32.RegistryValueKind.String);
+                if (!string.IsNullOrEmpty(opts.Region))
+                    enumKey.SetValue("AzureVoiceRegion", opts.Region, Microsoft.Win32.RegistryValueKind.String);
+            }
+        }
+
         using var attrsKey = key.CreateSubKey("Attributes");
         attrsKey.SetValue("Name", opts.VoiceId, Microsoft.Win32.RegistryValueKind.String);
         attrsKey.SetValue("Gender", "Neutral", Microsoft.Win32.RegistryValueKind.String);
