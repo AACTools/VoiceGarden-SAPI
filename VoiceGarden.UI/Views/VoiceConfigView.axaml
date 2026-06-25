@@ -7,7 +7,7 @@
         <vm:VoiceConfigViewModel/>
     </Design.DataContext>
 
-    <Grid RowDefinitions="Auto, Auto, *, Auto, Auto">
+    <Grid RowDefinitions="Auto, Auto, Auto, *, Auto">
 
         <!-- Engine + Key row -->
         <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto, *, Auto, Auto" Margin="0,0,0,8">
@@ -22,20 +22,20 @@
             <Button Grid.Column="5" Content="Validate" Command="{Binding ValidateKeyCommand}" Padding="12,4"/>
         </Grid>
 
-        <!-- Validation result + actions -->
-        <Grid Grid.Row="1" ColumnDefinitions="*, Auto, Auto, Auto" Margin="0,0,0,8">
-            <TextBlock Grid.Column="0" Text="{Binding ValidationResult}" VerticalAlignment="Center"
+        <!-- Validation result + action buttons -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,0,0,12">
+            <TextBlock Text="{Binding ValidationResult}" VerticalAlignment="Center"
                        Classes="Hint" IsVisible="{Binding IsValidated}"/>
-            <Button Grid.Column="1" Content="Fetch Voices" Command="{Binding FetchVoicesCommand}"
-                    Padding="16,4" Margin="0,0,8,0"/>
-            <Button Grid.Column="2" Content="Install Selected" Command="{Binding PromoteSelectedCommand}"
-                    Classes="Primary" Padding="16,4" Margin="0,0,8,0"/>
-            <Button Grid.Column="3" Content="Uninstall" Command="{Binding UnpromoteSelectedCommand}"
+            <Button Content="Fetch Voices" Command="{Binding FetchVoicesCommand}"
                     Padding="16,4"/>
-        </Grid>
+            <Button Content="Install Selected" Command="{Binding PromoteSelectedCommand}"
+                    Classes="Primary" Padding="16,4"/>
+            <Button Content="Uninstall" Command="{Binding UnpromoteSelectedCommand}"
+                    Padding="16,4"/>
+        </StackPanel>
 
         <!-- Search + select controls -->
-        <Grid Grid.Row="2" ColumnDefinitions="*, Auto, Auto" Margin="0,0,0,8" MinHeight="24">
+        <Grid Grid.Row="2" ColumnDefinitions="*, Auto, Auto" Margin="0,0,0,8">
             <TextBox Grid.Column="0" Text="{Binding SearchFilter}" Watermark="Search voices..."
                      MinWidth="200"/>
             <Button Grid.Column="1" Content="All" Command="{Binding SelectAllCommand}"
