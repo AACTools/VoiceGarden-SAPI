@@ -54,11 +54,17 @@ static void UpdateEnableStates(HWND hDlg)
     EnableWindow(GetDlgItem(hDlg, IDC_BROWSE_LOCAL_VOICE), localEnabled);
     BOOL edgeEnabled = IsDlgButtonChecked(hDlg, IDC_CHK_EDGE_VOICES) == BST_CHECKED;
     BOOL azureEnabled = IsDlgButtonChecked(hDlg, IDC_CHK_AZURE_VOICES) == BST_CHECKED;
-    EnableWindow(GetDlgItem(hDlg, IDC_SET_AZURE_KEY), azureEnabled);
-    BOOL onlineEnabled = edgeEnabled || azureEnabled;
-    EnableWindow(GetDlgItem(hDlg, IDC_STATIC_INCLUDED_LANGUAGES), onlineEnabled);
-    EnableWindow(GetDlgItem(hDlg, IDC_INCLUDED_LANGUAGES), onlineEnabled);
-    EnableWindow(GetDlgItem(hDlg, IDC_CHANGE_LANGUAGES), onlineEnabled);
+    BOOL anyCloudEngine = edgeEnabled || azureEnabled ||
+        IsDlgButtonChecked(hDlg, IDC_CHK_ENGINE_OPENAI) == BST_CHECKED ||
+        IsDlgButtonChecked(hDlg, IDC_CHK_ENGINE_ELEVENLABS) == BST_CHECKED ||
+        IsDlgButtonChecked(hDlg, IDC_CHK_ENGINE_GOOGLE) == BST_CHECKED ||
+        IsDlgButtonChecked(hDlg, IDC_CHK_ENGINE_POLLY) == BST_CHECKED ||
+        IsDlgButtonChecked(hDlg, IDC_CHK_ENGINE_CARTESIA) == BST_CHECKED ||
+        IsDlgButtonChecked(hDlg, IDC_CHK_ENGINE_DEEPGRAM) == BST_CHECKED ||
+        IsDlgButtonChecked(hDlg, IDC_CHK_ENGINE_WATSON) == BST_CHECKED;
+    EnableWindow(GetDlgItem(hDlg, IDC_STATIC_INCLUDED_LANGUAGES), anyCloudEngine);
+    EnableWindow(GetDlgItem(hDlg, IDC_INCLUDED_LANGUAGES), anyCloudEngine);
+    EnableWindow(GetDlgItem(hDlg, IDC_CHANGE_LANGUAGES), anyCloudEngine);
 }
 
 struct UiPolicyVisibility
@@ -237,9 +243,23 @@ static void UpdateDisplay(HWND hDlg)
     CheckDlgButton(hDlg, IDC_CHK_EDGE_VOICES,
         key.GetDword(L"NoEdgeVoices") ? BST_UNCHECKED : BST_CHECKED);
     CheckDlgButton(hDlg, IDC_CHK_AZURE_VOICES,
-        key.GetDword(L"NoAzureVoices")
-        || (key.GetString(L"AzureVoiceKey").empty() && key.GetString(L"AzureVoiceRegion").empty())
-        ? BST_UNCHECKED : BST_CHECKED);
+        key.GetDword(L"NoAzureVoices") ? BST_UNCHECKED : BST_CHECKED);
+
+    // Load cloud engine checkboxes from registry
+    static const struct { int controlId; const wchar_t* regName; } engineChecks[] = {
+        {IDC_CHK_ENGINE_OPENAI,     L"NoOpenAIVoices"},
+        {IDC_CHK_ENGINE_ELEVENLABS, L"NoElevenLabsVoices"},
+        {IDC_CHK_ENGINE_GOOGLE,     L"NoGoogleVoices"},
+        {IDC_CHK_ENGINE_POLLY,      L"NoPollyVoices"},
+        {IDC_CHK_ENGINE_CARTESIA,   L"NoCartesiaVoices"},
+        {IDC_CHK_ENGINE_DEEPGRAM,   L"NoDeepgramVoices"},
+        {IDC_CHK_ENGINE_WATSON,     L"NoWatsonVoices"},
+    };
+    for (const auto& ec : engineChecks)
+    {
+        CheckDlgButton(hDlg, ec.controlId,
+            key.GetDword(ec.regName) ? BST_UNCHECKED : BST_CHECKED);
+    }
     CheckDlgButton(hDlg, IDC_CHK_SHERPA_VOICES,
         key.GetDword(L"NoSherpaVoices", 1) ? BST_UNCHECKED : BST_CHECKED);
     SetDlgItemTextW(hDlg, IDC_LOCAL_VOICE_PATH, key.GetString(L"NarratorVoicePath").c_str());
@@ -338,6 +358,21 @@ static void SaveChanges(HWND hDlg)
     key.SetDword(L"NoEdgeVoices", IsDlgButtonChecked(hDlg, IDC_CHK_EDGE_VOICES) == BST_UNCHECKED);
     key.SetDword(L"NoAzureVoices", IsDlgButtonChecked(hDlg, IDC_CHK_AZURE_VOICES) == BST_UNCHECKED);
     key.SetDword(L"NoSherpaVoices", IsDlgButtonChecked(hDlg, IDC_CHK_SHERPA_VOICES) == BST_UNCHECKED);
+
+    // Save cloud engine checkboxes
+    static const struct { int controlId; const wchar_t* regName; } engineSaves[] = {
+        {IDC_CHK_ENGINE_OPENAI,     L"NoOpenAIVoices"},
+        {IDC_CHK_ENGINE_ELEVENLABS, L"NoElevenLabsVoices"},
+        {IDC_CHK_ENGINE_GOOGLE,     L"NoGoogleVoices"},
+        {IDC_CHK_ENGINE_POLLY,      L"NoPollyVoices"},
+        {IDC_CHK_ENGINE_CARTESIA,   L"NoCartesiaVoices"},
+        {IDC_CHK_ENGINE_DEEPGRAM,   L"NoDeepgramVoices"},
+        {IDC_CHK_ENGINE_WATSON,     L"NoWatsonVoices"},
+    };
+    for (const auto& es : engineSaves)
+    {
+        key.SetDword(es.regName, IsDlgButtonChecked(hDlg, es.controlId) == BST_UNCHECKED);
+    }
     WCHAR path[MAX_PATH];
     GetDlgItemTextW(hDlg, IDC_LOCAL_VOICE_PATH, path, MAX_PATH);
     key.SetString(L"NarratorVoicePath", path);
@@ -393,6 +428,13 @@ INT_PTR CALLBACK MainDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
             case IDC_CHK_NARRATOR_VOICES:
             case IDC_CHK_EDGE_VOICES:
             case IDC_CHK_AZURE_VOICES:
+            case IDC_CHK_ENGINE_OPENAI:
+            case IDC_CHK_ENGINE_ELEVENLABS:
+            case IDC_CHK_ENGINE_GOOGLE:
+            case IDC_CHK_ENGINE_POLLY:
+            case IDC_CHK_ENGINE_CARTESIA:
+            case IDC_CHK_ENGINE_DEEPGRAM:
+            case IDC_CHK_ENGINE_WATSON:
             case IDC_CHK_SHERPA_VOICES:
                 UpdateEnableStates(hDlg);
                 SaveChanges(hDlg);
@@ -403,8 +445,8 @@ INT_PTR CALLBACK MainDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
                     SaveChanges(hDlg);
                 break;
 
-            case IDC_SET_AZURE_KEY:
-                DialogBoxParamW(nullptr, MAKEINTRESOURCEW(IDD_AZUREKEY), hDlg, AzureKeyDlg, 0);
+            case IDC_CLOUD_CONFIGURE:
+                DialogBoxParamW(nullptr, MAKEINTRESOURCEW(IDD_CLOUD_ENGINES), hDlg, CloudEnginesDlg, 0);
                 break;
             case IDC_CHANGE_LANGUAGES:
                 DialogBoxParamW(nullptr, MAKEINTRESOURCEW(IDD_LANG), hDlg, LangDlg, 0);

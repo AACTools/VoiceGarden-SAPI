@@ -90,6 +90,14 @@
 #define IDC_CLOUD_STATUS                1060
 #define IDC_CLOUD_LOG                   1061
 #define IDC_CLOUD_VALIDATE              1062
+#define IDC_CHK_ENGINE_OPENAI           1063
+#define IDC_CHK_ENGINE_ELEVENLABS       1064
+#define IDC_CHK_ENGINE_GOOGLE           1065
+#define IDC_CHK_ENGINE_POLLY            1066
+#define IDC_CHK_ENGINE_CARTESIA         1067
+#define IDC_CHK_ENGINE_DEEPGRAM         1068
+#define IDC_CHK_ENGINE_WATSON           1069
+#define IDC_CLOUD_CONFIGURE             1070
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -99,7 +107,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        144
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1063
+#define _APS_NEXT_CONTROL_VALUE         1071
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif
