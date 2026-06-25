@@ -19,7 +19,7 @@ public partial class MainViewModel : ObservableObject
     {
         _branding = BrandingConfig.Load();
         AppName = _branding.AppName;
-        ShowAdvanced = _branding.ShowAdvancedSection;
+        ShowAdvanced = false; // Hidden by default
 
         // Load settings from registry
         SherpaEnabled = !RegistryService.GetFlag("NoSherpaVoices", !_branding.DefaultSherpaEnabled);
@@ -97,8 +97,9 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty] private bool isVoiceConfigVisible = false;
     [ObservableProperty] private bool isSherpaManagerVisible = false;
+    [ObservableProperty] private bool isEngineConfigVisible = false;
 
-    public bool IsMainViewVisible => !IsVoiceConfigVisible && !IsSherpaManagerVisible;
+    public bool IsMainViewVisible => !IsVoiceConfigVisible && !IsSherpaManagerVisible && !IsEngineConfigVisible;
 
     public VoiceConfigViewModel VoiceConfig { get; } = new();
     public SherpaModelsViewModel SherpaModels { get; } = new();
@@ -121,10 +122,18 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void OpenEngineConfig()
+    {
+        IsEngineConfigVisible = true;
+        OnPropertyChanged(nameof(IsMainViewVisible));
+    }
+
+    [RelayCommand]
     private void BackToMain()
     {
         IsVoiceConfigVisible = false;
         IsSherpaManagerVisible = false;
+        IsEngineConfigVisible = false;
         OnPropertyChanged(nameof(IsMainViewVisible));
     }
 

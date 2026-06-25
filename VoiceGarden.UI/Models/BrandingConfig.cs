@@ -48,9 +48,22 @@ public class EngineDefinition
         new() { Id = "openai", DisplayName = "OpenAI" },
         new() { Id = "elevenlabs", DisplayName = "ElevenLabs" },
         new() { Id = "google", DisplayName = "Google" },
-        new() { Id = "polly", DisplayName = "Polly", NeedsRegion = true, NeedsSecretKey = true },
+        new() { Id = "polly", DisplayName = "AWS Polly", NeedsRegion = true, NeedsSecretKey = true },
         new() { Id = "cartesia", DisplayName = "Cartesia" },
         new() { Id = "deepgram", DisplayName = "Deepgram" },
+        new() { Id = "watson", DisplayName = "IBM Watson" },
+        new() { Id = "playht", DisplayName = "PlayHT" },
+        new() { Id = "witai", DisplayName = "Wit.ai" },
+        new() { Id = "gemini", DisplayName = "Gemini" },
+        new() { Id = "hume", DisplayName = "Hume AI" },
+        new() { Id = "xai", DisplayName = "xAI Grok" },
+        new() { Id = "fishaudio", DisplayName = "Fish Audio" },
+        new() { Id = "mistral", DisplayName = "Mistral" },
+        new() { Id = "murf", DisplayName = "Murf" },
+        new() { Id = "unrealspeech", DisplayName = "Unreal Speech" },
+        new() { Id = "resemble", DisplayName = "Resemble" },
+        new() { Id = "upliftai", DisplayName = "Uplift AI" },
+        new() { Id = "modelslab", DisplayName = "Models Lab" },
     };
 }
 

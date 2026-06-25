@@ -24,6 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\SherpaOnnxConfig\merged_models.json" CopyToOutputDirectory="PreserveNewest" Link="merged_models.json"/>
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Update="Resources\Strings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>

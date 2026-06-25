@@ -5,8 +5,8 @@
         xmlns:views="using:VoiceGarden.UI.Views"
         x:Class="VoiceGarden.UI.MainWindow"
         Title="VoiceGarden"
-        Width="640" Height="700"
-        MinWidth="520" MinHeight="560"
+        Width="680" Height="720"
+        MinWidth="560" MinHeight="560"
         WindowStartupLocation="CenterScreen">
 
     <Design.DataContext>
@@ -15,9 +15,9 @@
 
     <Grid RowDefinitions="*">
 
-        <!-- Main View (visible when no sub-view) -->
-        <ScrollViewer Grid.Row="0" IsVisible="{Binding IsMainViewVisible}">
-            <StackPanel Margin="20" Spacing="16">
+        <!-- ========== MAIN VIEW ========== -->
+        <ScrollViewer Grid.Row="0" IsVisible="{Binding IsMainViewVisible}" Padding="0">
+            <StackPanel Margin="24" Spacing="16">
 
                 <!-- Adapter Installation -->
                 <Border Classes="Card">
@@ -26,16 +26,16 @@
                         <Grid ColumnDefinitions="*, Auto, Auto" RowDefinitions="Auto, Auto">
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Status64Bit}" VerticalAlignment="Center"/>
                             <Button Grid.Row="0" Grid.Column="1" Content="{Binding Install64Text}"
-                                    Command="{Binding Install64Command}" Margin="8,0,0,0" Padding="16,4"/>
+                                    Command="{Binding Install64Command}" Margin="8,0,0,0" Padding="20,4" MinWidth="90"/>
                             <Button Grid.Row="0" Grid.Column="2" Content="Uninstall"
-                                    Command="{Binding Uninstall64Command}" Margin="8,0,0,0" Padding="16,4"
+                                    Command="{Binding Uninstall64Command}" Margin="8,0,0,0" Padding="20,4" MinWidth="90"
                                     IsEnabled="{Binding Is64Installed}"/>
 
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Status32Bit}" VerticalAlignment="Center" Margin="0,8,0,0"/>
                             <Button Grid.Row="1" Grid.Column="1" Content="{Binding Install32Text}"
-                                    Command="{Binding Install32Command}" Margin="8,8,0,0" Padding="16,4"/>
+                                    Command="{Binding Install32Command}" Margin="8,8,0,0" Padding="20,4" MinWidth="90"/>
                             <Button Grid.Row="1" Grid.Column="2" Content="Uninstall"
-                                    Command="{Binding Uninstall32Command}" Margin="8,8,0,0" Padding="16,4"
+                                    Command="{Binding Uninstall32Command}" Margin="8,8,0,0" Padding="20,4" MinWidth="90"
                                     IsEnabled="{Binding Is32Installed}"/>
                         </Grid>
                     </StackPanel>
@@ -49,42 +49,51 @@
                         <!-- Offline -->
                         <StackPanel Spacing="4">
                             <TextBlock Text="Offline Voices" Classes="SectionLabel"/>
-                            <CheckBox Content="SherpaOnnx Neural TTS (local, no internet required)"
-                                      IsChecked="{Binding SherpaEnabled}" Margin="8,0,0,0"/>
-                            <StackPanel Orientation="Horizontal" Spacing="8" Margin="24,0,0,0">
-                                <TextBlock Text="{Binding SherpaModelSummary}" Classes="Hint"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,2,0,0">
+                                <CheckBox IsChecked="{Binding SherpaEnabled}" Content="SherpaOnnx Neural TTS" MinWidth="200" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding SherpaModelSummary}" Classes="Hint" VerticalAlignment="Center"/>
                                 <Button Content="Manage Models..." Command="{Binding OpenSherpaManagerCommand}"
                                         Padding="12,2" FontSize="12"/>
                             </StackPanel>
                         </StackPanel>
 
-                        <Separator/>
+                        <Separator Margin="0,4"/>
 
-                        <!-- Cloud -->
+                        <!-- Cloud Engines -->
                         <StackPanel Spacing="4">
                             <TextBlock Text="Cloud Voices" Classes="SectionLabel"/>
 
-                            <ItemsControl ItemsSource="{Binding CloudEngines}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="models:CloudEngineSetting">
-                                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,2">
-                                            <CheckBox IsChecked="{Binding Enabled}" Content="{Binding DisplayName}" MinWidth="90"/>
-                                            <TextBox Text="{Binding ApiKey}" Watermark="API Key"
-                                                     PasswordChar="*" Width="160" FontSize="12"/>
-                                            <TextBox Text="{Binding Region}" Watermark="Region"
-                                                     IsVisible="{Binding NeedsRegion}" Width="80" FontSize="12"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                            <!-- Scrollable engine checkbox grid -->
+                            <Border BorderBrush="{DynamicResource SystemControlDefaultChromeMediumLowBrush}"
+                                    BorderThickness="1" CornerRadius="4" Padding="8" MaxHeight="200">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding CloudEngines}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="models:CloudEngineSetting">
+                                                <CheckBox IsChecked="{Binding Enabled}" Content="{Binding DisplayName}"
+                                                          Margin="0,3" MinWidth="120"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Border>
 
-                            <Button Content="Configure Voices..." Command="{Binding OpenVoiceConfigCommand}"
-                                    Margin="0,4,0,0" Padding="16,4" HorizontalAlignment="Left"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+                                <Button Content="Configure Credentials..." Command="{Binding OpenEngineConfigCommand}"
+                                        Padding="16,4" MinWidth="160"/>
+                                <Button Content="Configure Voices..." Command="{Binding OpenVoiceConfigCommand}"
+                                        Padding="16,4" MinWidth="140"/>
+                            </StackPanel>
                         </StackPanel>
                     </StackPanel>
                 </Border>
 
-                <!-- Advanced (Collapsible) -->
+                <!-- Advanced (Collapsible, hidden by default) -->
                 <Border Classes="Card" IsVisible="{Binding ShowAdvanced}">
                     <StackPanel Spacing="8">
                         <TextBlock Text="Advanced" Classes="CardHeader"/>
@@ -113,30 +122,67 @@
             </StackPanel>
         </ScrollViewer>
 
-        <!-- Voice Configuration View -->
-        <Grid Grid.Row="0" IsVisible="{Binding IsVoiceConfigVisible}" Margin="20">
+        <!-- ========== VOICE CONFIG VIEW ========== -->
+        <Grid Grid.Row="0" IsVisible="{Binding IsVoiceConfigVisible}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,16">
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="24,16,24,8">
                 <Button Content="← Back" Command="{Binding BackToMainCommand}" Padding="12,4"/>
                 <TextBlock Text="Configure Voices" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
             </StackPanel>
-            <views:VoiceConfigView Grid.Row="1" DataContext="{Binding VoiceConfig}"/>
+            <views:VoiceConfigView Grid.Row="1" DataContext="{Binding VoiceConfig}" Margin="24,0,24,16"/>
         </Grid>
 
-        <!-- SherpaOnnx Models View -->
-        <Grid Grid.Row="0" IsVisible="{Binding IsSherpaManagerVisible}" Margin="20">
+        <!-- ========== ENGINE CONFIG VIEW ========== -->
+        <Grid Grid.Row="0" IsVisible="{Binding IsEngineConfigVisible}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,16">
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="24,16,24,8">
+                <Button Content="← Back" Command="{Binding BackToMainCommand}" Padding="12,4"/>
+                <TextBlock Text="Configure Credentials" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            </StackPanel>
+            <ScrollViewer Grid.Row="1" Margin="24,0,24,16">
+                <StackPanel Spacing="8">
+                    <ItemsControl ItemsSource="{Binding CloudEngines}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:CloudEngineSetting">
+                                <Border Classes="EngineRow" IsVisible="{Binding Enabled}" Margin="0,2">
+                                    <Grid ColumnDefinitions="120, *, 100, Auto">
+                                        <TextBlock Grid.Column="0" Text="{Binding DisplayName}"
+                                                   FontWeight="Medium" VerticalAlignment="Center"/>
+                                        <TextBox Grid.Column="1" Text="{Binding ApiKey}"
+                                                 Watermark="API Key" PasswordChar="*"
+                                                 Margin="8,0" VerticalAlignment="Center"/>
+                                        <TextBox Grid.Column="2" Text="{Binding Region}"
+                                                 Watermark="Region" IsVisible="{Binding NeedsRegion}"
+                                                 VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="3" Text="" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="Only enabled engines are shown. Toggle engines on the main page."
+                               Classes="Hint" Margin="0,8,0,0"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- ========== SHERPA MODELS VIEW ========== -->
+        <Grid Grid.Row="0" IsVisible="{Binding IsSherpaManagerVisible}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="24,16,24,8">
                 <Button Content="← Back" Command="{Binding BackToMainCommand}" Padding="12,4"/>
                 <TextBlock Text="SherpaOnnx Models" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
             </StackPanel>
-            <views:SherpaModelsView Grid.Row="1" DataContext="{Binding SherpaModels}"/>
+            <views:SherpaModelsView Grid.Row="1" DataContext="{Binding SherpaModels}" Margin="24,0,24,16"/>
         </Grid>
 
     </Grid>
@@ -148,6 +194,11 @@
             <Setter Property="Padding" Value="16"/>
             <Setter Property="BorderBrush" Value="{DynamicResource SystemControlDefaultChromeMediumLowBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style Selector="Border.EngineRow">
+            <Setter Property="Background" Value="{DynamicResource ControlExampleDisplayBrush}"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="12,6"/>
         </Style>
         <Style Selector="TextBlock.CardHeader">
             <Setter Property="FontWeight" Value="SemiBold"/>
