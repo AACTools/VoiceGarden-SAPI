@@ -3,10 +3,6 @@
              xmlns:vm="using:VoiceGarden.UI.ViewModels"
              x:Class="VoiceGarden.UI.Views.SherpaModelsView">
 
-    <Design.DataContext>
-        <vm:SherpaModelsViewModel/>
-    </Design.DataContext>
-
     <Grid RowDefinitions="Auto, Auto, *, Auto">
 
         <!-- Filter row -->

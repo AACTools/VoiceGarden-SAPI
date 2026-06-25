@@ -3,10 +3,6 @@
              xmlns:vm="using:VoiceGarden.UI.ViewModels"
              x:Class="VoiceGarden.UI.Views.VoiceConfigView">
 
-    <Design.DataContext>
-        <vm:VoiceConfigViewModel/>
-    </Design.DataContext>
-
     <Grid RowDefinitions="Auto, Auto, Auto, *, Auto">
 
         <!-- Engine + Key row -->
