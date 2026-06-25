@@ -2228,6 +2228,54 @@ namespace SherpaOnnxConfig
             return 0;
         }
 
+        public static int PromoteAllDownloadedToHklm(bool addEnUsCompatAlias, bool adminAll)
+        {
+            var modelsRoot = ModelsDir;
+            if (!Directory.Exists(modelsRoot))
+            {
+                Console.WriteLine($"ERROR: Models directory not found: {modelsRoot}");
+                return 1;
+            }
+
+            int promoted = 0, failed = 0;
+            foreach (var dir in Directory.GetDirectories(modelsRoot))
+            {
+                var modelId = Path.GetFileName(dir);
+                if (string.IsNullOrEmpty(modelId)) continue;
+
+                Console.Write($"Promoting {modelId}... ");
+                try
+                {
+                    int rc = PromoteModelTokenToHklm(modelId, dir, addEnUsCompatAlias);
+                    if (rc == 0)
+                    {
+                        Console.WriteLine("OK");
+                        promoted++;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"FAILED (exit {rc})");
+                        failed++;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"ERROR: {ex.Message}");
+                    failed++;
+                }
+            }
+
+            // Sync token state
+            if (promoted > 0)
+            {
+                var syncResult = new TokenSyncResult { RegistryScope = "HKLM" };
+                EnsurePersistentTokenMode(syncResult);
+            }
+
+            Console.WriteLine($"\nDone: {promoted} promoted, {failed} failed.");
+            return failed > 0 ? 1 : 0;
+        }
+
         private void ShowLastScanIssuesSummary()
         {
             var persistedIssues = LoadPersistedScanIssues();

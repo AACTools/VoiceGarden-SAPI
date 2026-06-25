@@ -747,28 +747,27 @@ void OnApplyGlobal(HWND hDlg, SherpaDialogState& st)
     if (useAdmin)
     {
         AppendLog(hDlg, L"Applying HKLM tokens for downloaded models...\r\n");
-        for (const auto& id : downloaded)
+        // Batch all promotions into a single SherpaOnnxConfig.exe call
+        std::wstring cmd = L"promote-all";
+        if (useAlias)
+            cmd += L" --compat-en-us";
+        try
         {
-            std::wstring cmd = L"promote-hklm \"" + id + L"\"";
-            if (useAlias)
-                cmd += L" --compat-en-us";
-            try
+            DWORD rc = RunProcess(st.sherpaExePath.c_str(), cmd, true);
+            if (rc != 0)
             {
-                DWORD rc = RunProcess(st.sherpaExePath.c_str(), cmd, true);
-                if (rc != 0)
-                {
-                    AppendLog(hDlg, L"Promotion failed for " + id + L" (exit " + std::to_wstring(rc) + L").\r\n");
-                    MessageBoxW(hDlg, L"Promotion failed. Check log details in this dialog.", L"Sherpa Models", MB_ICONEXCLAMATION);
-                    return;
-                }
+                AppendLog(hDlg, L"Promotion completed with errors (exit " + std::to_wstring(rc) + L").\r\n");
             }
-            catch (const std::exception& ex)
+            else
             {
-                ShowMessageBox(ex.what(), MB_ICONEXCLAMATION);
-                return;
+                AppendLog(hDlg, L"HKLM token promotion completed.\r\n");
             }
         }
-        AppendLog(hDlg, L"HKLM token promotion completed.\r\n");
+        catch (const std::exception& ex)
+        {
+            ShowMessageBox(ex.what(), MB_ICONEXCLAMATION);
+            return;
+        }
     }
 
     // Always rescan to sync token state and reflect alias changes.

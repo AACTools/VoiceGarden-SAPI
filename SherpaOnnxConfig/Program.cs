@@ -182,6 +182,20 @@ namespace SherpaOnnxConfig
                         return MainForm.PromoteModelTokenToHklm(promoteModelId, promoteModelDir, promoteCompatEnUs);
                     }
 
+                case "promote-all":
+                    {
+                        bool promoteCompatEnUs = false;
+                        bool adminAll = false;
+                        for (int i = 1; i < args.Length; i++)
+                        {
+                            if (args[i].Equals("--compat-en-us", StringComparison.OrdinalIgnoreCase))
+                                promoteCompatEnUs = true;
+                            if (args[i].Equals("--admin", StringComparison.OrdinalIgnoreCase))
+                                adminAll = true;
+                        }
+                        return MainForm.PromoteAllDownloadedToHklm(promoteCompatEnUs, adminAll);
+                    }
+
                 case "sapi-probe":
                     {
                         string? probeVoiceId = null;
@@ -244,7 +258,8 @@ namespace SherpaOnnxConfig
             Console.WriteLine("  download <model-id>       Download a model by ID");
             Console.WriteLine("  downloaded               List downloaded models");
             Console.WriteLine("  rescan                   Validate local model folders and show per-model errors");
-            Console.WriteLine("  promote-hklm <model-id> [--model-dir <path>] [--compat-en-us]  Install one model token to HKLM");
+                    Console.WriteLine("  promote-hklm <model-id> [--model-dir <path>] [--compat-en-us]  Install one model token to HKLM");
+                    Console.WriteLine("  promote-all [--compat-en-us] [--admin]                          Install all downloaded models to HKLM");
             Console.WriteLine("  sapi-probe --voice <id>   Probe SAPI activation/speak stages for one voice");
             Console.WriteLine();
             Console.WriteLine("Examples:");
