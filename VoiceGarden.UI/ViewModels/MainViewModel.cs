@@ -1,0 +1,194 @@
+using System;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using VoiceGarden.UI.Models;
+using VoiceGarden.UI.Services;
+
+namespace VoiceGarden.UI.ViewModels;
+
+public partial class MainViewModel : ObservableObject
+{
+    private readonly BrandingConfig _branding;
+
+    public MainViewModel()
+    {
+        _branding = BrandingConfig.Load();
+        AppName = _branding.AppName;
+        ShowAdvanced = _branding.ShowAdvancedSection;
+
+        // Load settings from registry
+        SherpaEnabled = !RegistryService.GetFlag("NoSherpaVoices", !_branding.DefaultSherpaEnabled);
+        EdgeEnabled = !RegistryService.GetFlag("NoEdgeVoices");
+        NarratorEnabled = !RegistryService.GetFlag("NoNarratorVoices");
+        LogLevelIndex = RegistryService.GetDword("LogLevel", 0);
+
+        // Load cloud engines
+        foreach (var def in EngineDefinition.All)
+        {
+            var setting = new CloudEngineSetting
+            {
+                Id = def.Id,
+                DisplayName = def.DisplayName,
+                NeedsRegion = def.NeedsRegion,
+                Enabled = !RegistryService.GetFlag($"No{Cap(def.Id)}Voices"),
+            };
+
+            // Pre-fill Azure key from legacy registry
+            if (def.Id == "azure")
+            {
+                setting.ApiKey = RegistryService.GetString("AzureVoiceKey") ?? "";
+                setting.Region = RegistryService.GetString("AzureVoiceRegion") ?? "eastus";
+            }
+
+            setting.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(CloudEngineSetting.Enabled))
+                {
+                    var eng = (CloudEngineSetting)s!;
+                    RegistryService.SetFlag(eng.NoVoicesRegName, !eng.Enabled);
+
+                    // Save Azure key to legacy location
+                    if (eng.Id == "azure" && !string.IsNullOrEmpty(eng.ApiKey))
+                    {
+                        RegistryService.SetString("AzureVoiceKey", eng.ApiKey);
+                        RegistryService.SetString("AzureVoiceRegion", eng.Region);
+                    }
+                }
+            };
+
+            CloudEngines.Add(setting);
+        }
+
+        // Count installed SherpaOnnx models
+        UpdateSherpaModelCount();
+
+        // Check adapter installation status
+        RefreshInstallStatus();
+    }
+
+    [ObservableProperty] private string appName = "VoiceGarden";
+    [ObservableProperty] private bool showAdvanced = true;
+    [ObservableProperty] private bool sherpaEnabled = true;
+    [ObservableProperty] private bool edgeEnabled = false;
+    [ObservableProperty] private bool narratorEnabled = false;
+    [ObservableProperty] private int logLevelIndex = 0;
+    [ObservableProperty] private string status64Bit = "Checking...";
+    [ObservableProperty] private string status32Bit = "Checking...";
+    [ObservableProperty] private bool is64Installed = false;
+    [ObservableProperty] private bool is32Installed = false;
+    [ObservableProperty] private string install64Text = "Install";
+    [ObservableProperty] private string install32Text = "Install";
+    [ObservableProperty] private string sherpaModelSummary = "";
+
+    public ObservableCollection<CloudEngineSetting> CloudEngines { get; } = new();
+
+    public string AdvancedToggleText => ShowAdvanced ? "▼ Hide Advanced" : "▶ Show Advanced";
+
+    partial void OnSherpaEnabledChanged(bool value) => RegistryService.SetFlag("NoSherpaVoices", !value);
+    partial void OnEdgeEnabledChanged(bool value) => RegistryService.SetFlag("NoEdgeVoices", !value);
+    partial void OnNarratorEnabledChanged(bool value) => RegistryService.SetFlag("NoNarratorVoices", !value);
+    partial void OnLogLevelIndexChanged(int value) => RegistryService.SetDword("LogLevel", value);
+    partial void OnShowAdvancedChanged(bool value) => OnPropertyChanged(nameof(AdvancedToggleText));
+
+    private void UpdateSherpaModelCount()
+    {
+        var modelsDir = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "NaturalVoiceSAPIAdapter", "models");
+        if (Directory.Exists(modelsDir))
+        {
+            var count = Directory.GetDirectories(modelsDir).Length;
+            SherpaModelSummary = $"{count} model(s) installed";
+        }
+        else
+        {
+            SherpaModelSummary = "No models installed";
+        }
+    }
+
+    private void RefreshInstallStatus()
+    {
+        is64Installed = ComRegistrationService.IsRegistered(true);
+        is32Installed = ComRegistrationService.IsRegistered(false);
+        Status64Bit = is64Installed ? "✓ 64-bit adapter registered" : "64-bit: not registered";
+        Status32Bit = is32Installed ? "✓ 32-bit adapter registered" : "32-bit: not registered";
+        Install64Text = is64Installed ? "Re-register" : "Register";
+        Install32Text = is32Installed ? "Re-register" : "Register";
+    }
+
+    [RelayCommand]
+    private void Install64()
+    {
+        ComRegistrationService.Register(true);
+        RefreshInstallStatus();
+    }
+
+    [RelayCommand]
+    private void Uninstall64()
+    {
+        ComRegistrationService.Unregister(true);
+        RefreshInstallStatus();
+    }
+
+    [RelayCommand]
+    private void Install32()
+    {
+        ComRegistrationService.Register(false);
+        RefreshInstallStatus();
+    }
+
+    [RelayCommand]
+    private void Uninstall32()
+    {
+        ComRegistrationService.Unregister(false);
+        RefreshInstallStatus();
+    }
+
+    [RelayCommand]
+    private void OpenSherpaManager()
+    {
+        // Phase 3: Open SherpaOnnx model manager panel
+        // For now, launch existing SherpaOnnxConfig.exe if available
+        var exePath = Path.Combine(ComRegistrationService.GetInstallDir(true), "SherpaOnnxConfig.exe");
+        if (File.Exists(exePath))
+        {
+            Process.Start(new ProcessStartInfo(exePath) { UseShellExecute = true });
+        }
+    }
+
+    [RelayCommand]
+    private void OpenVoiceConfig()
+    {
+        // Phase 2: Open voice configuration panel
+        // For now, launch EngineConfig.exe if available
+        var exePath = Path.Combine(ComRegistrationService.GetInstallDir(true), "EngineConfig.exe");
+        if (File.Exists(exePath))
+        {
+            Process.Start(new ProcessStartInfo(exePath) { UseShellExecute = true });
+        }
+    }
+
+    [RelayCommand]
+    private void OpenLogs()
+    {
+        var logDir = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "NaturalVoiceSAPIAdapter");
+        if (Directory.Exists(logDir))
+            Process.Start("explorer.exe", $"\"{logDir}\"");
+    }
+
+    [RelayCommand]
+    private void ShowAbout()
+    {
+        // Show about dialog
+    }
+
+    private static string Cap(string s) =>
+        System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(s);
+}
