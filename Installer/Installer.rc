@@ -115,7 +115,6 @@ BEGIN
     CONTROL         "启用 &SherpaOnnx 离线语音",IDC_CHK_SHERPA_VOICES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,226,150,10
     LTEXT           "模型目录: %LOCALAPPDATA%/NaturalVoiceSAPIAdapter/models/",IDC_STATIC,14,239,254,8
     PUSHBUTTON      "管理模型(&M)...",IDC_SHERPA_MODEL_MANAGER,220,225,84,14
-    PUSHBUTTON      "云引擎(&E)...",IDC_CLOUD_MANAGER,220,243,84,14
     GROUPBOX        "日志与故障排除",IDC_STATIC,7,267,305,34
     LTEXT           "日志级别(&L):",IDC_STATIC,14,282,47,8
     COMBOBOX        IDC_LOG_LEVEL,61,280,88,76,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
@@ -443,7 +442,6 @@ BEGIN
     CONTROL         "Enable &SherpaOnnx offline voices",IDC_CHK_SHERPA_VOICES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,226,150,10
     LTEXT           "Models are stored in %LOCALAPPDATA%/NaturalVoiceSAPIAdapter/models/",IDC_STATIC,14,239,254,8
     PUSHBUTTON      "Manage &Models...",IDC_SHERPA_MODEL_MANAGER,220,225,84,14
-    PUSHBUTTON      "Cloud &Engines...",IDC_CLOUD_MANAGER,220,243,84,14
     GROUPBOX        "Logs && Troubleshooting",IDC_STATIC,7,267,305,34
     LTEXT           "Log &level:",IDC_STATIC,14,282,47,8
     COMBOBOX        IDC_LOG_LEVEL,61,280,88,76,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
