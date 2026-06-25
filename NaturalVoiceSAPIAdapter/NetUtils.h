@@ -37,3 +37,9 @@ constexpr UrlComponents ParseUrl(std::string_view url) noexcept
 std::string GetProxyForUrl(std::string_view url);
 
 std::string DownloadToString(LPCSTR lpszUrl, LPCSTR lpszHeaders);
+
+// HTTP POST with custom headers, returns binary response body.
+// headers: newline-separated "Key: Value" lines, terminated by \r\n
+// Returns empty vector on failure.
+std::vector<uint8_t> PostToBytes(const std::string& url, const std::string& body,
+    const std::string& contentType, const std::string& headers);

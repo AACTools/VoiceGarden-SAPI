@@ -2,6 +2,7 @@
 
 #pragma once
 #include "resource.h"       // 主符号
+#include "GenericHttpTts.h"
 
 #include "pch.h"
 #include <speechapi_cxx.h>
@@ -123,6 +124,7 @@ private: // Member variables
 	std::shared_ptr<SpeechSynthesizer> m_synthesizer;
 	std::unique_ptr<SpeechRestAPI> m_restApi;
 	std::shared_ptr<SherpaOnnx::Engine> m_sherpaOnnx;
+	std::unique_ptr<GenericHttpTts> m_genericTts;
 	std::future<void> m_lastCancellingFuture;
 
 	ErrorMode m_errorMode = ErrorMode::ProbeForError;
@@ -169,6 +171,7 @@ private: // Private methods
 	bool InitSherpaOnnxVoice(ISpDataKey* pConfigKey);
 	bool InitCloudVoiceSynthesizer(ISpDataKey* pConfigKey);
 	bool InitCloudVoiceRestAPI(ISpDataKey* pConfigKey);
+	bool InitGenericHttpVoice(ISpDataKey* pConfigKey);
 	void SetupSynthesizerEvents(ULONGLONG interests);
 	void ClearSynthesizerEvents();
 	void SetupRestAPIEvents(ULONGLONG interests);

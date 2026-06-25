@@ -240,6 +240,36 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
             return S_OK;
         }
 
+        if (m_genericTts)
+        {
+            LogInfo("Speak: Generic HTTP TTS path selected");
+            std::wstring plainTextW = ExtractSherpaPlainText(pTextFragList);
+            if (plainTextW.empty())
+            {
+                FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
+                return S_OK;
+            }
+
+            m_compensatedSilenceWritten = false;
+            m_compensatedSilentBytes = 0;
+            m_lastSilentBytes = 0;
+            m_thisSpeakStartedTicks = _GetTickCount();
+
+            m_sherpaAbortRequested.store(false, std::memory_order_relaxed);
+            LogInfo("Speak: HTTP TTS generation begin");
+            try {
+                m_genericTts->Speak(WStringToUTF8(plainTextW),
+                    [this](const uint8_t* data, uint32_t len) {
+                        return OnAudioData(const_cast<uint8_t*>(data), len);
+                    });
+            } catch (const std::exception& ex) {
+                LogErr("HTTP TTS synthesis failed: {}", ex.what());
+            }
+            LogInfo("Speak: HTTP TTS generation end");
+            m_lastSpeakCompletedTicks = _GetTickCount();
+            return S_OK;
+        }
+
         ULONGLONG eventInterests = 0;
         pOutputSite->GetEventInterest(&eventInterests);
         if (m_synthesizer)
@@ -471,6 +501,8 @@ void CTTSEngine::InitVoice()
     }
     if (InitCloudVoiceRestAPI(pConfigKey))
         return;
+    if (InitGenericHttpVoice(pConfigKey))
+        return;
     
     throw std::invalid_argument("Invalid NaturalVoiceConfig configuration.");
 }
@@ -555,7 +587,8 @@ bool CTTSEngine::InitSherpaOnnxVoice(ISpDataKey* pConfigKey)
         // Model type is specified
     } else {
         // For backward compatibility, check if SherpaOnnxModelPath exists (old style)
-        if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxModelPath", nullptr))) {
+        CSpDynamicString pszDummy;
+        if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxModelPath", &pszDummy))) {
             return false; // Not a SherpaOnnx voice
         }
         // Old-style config is always VITS
@@ -873,6 +906,42 @@ bool CTTSEngine::InitCloudVoiceRestAPI(ISpDataKey* pConfigKey)
         return false;
 
     LogInfo("Cloud voice (Rest API) created: {}", pszVoice.m_psz);
+    return true;
+}
+
+bool CTTSEngine::InitGenericHttpVoice(ISpDataKey* pConfigKey)
+{
+    // Check for engine types that use generic HTTP TTS
+    CSpDynamicString pszEngineType;
+    if (CheckHrNotFound(pConfigKey->GetStringValue(L"EngineType", &pszEngineType)))
+        return false;
+
+    std::string engineType = pszEngineType.m_psz ? WStringToUTF8(std::wstring(pszEngineType.m_psz)) : "";
+
+    // Azure/Edge are handled by the existing REST API path
+    if (engineType == "Azure" || engineType == "Edge" || engineType == "Sherpa")
+        return false;
+
+    static const std::set<std::string> supportedEngines = {"OpenAI", "ElevenLabs", "Google", "Cartesia", "Deepgram"};
+    if (supportedEngines.find(engineType) == supportedEngines.end())
+        return false;
+
+    CSpDynamicString pszVoice, pszKey, pszRegion;
+    if (CheckHrNotFound(pConfigKey->GetStringValue(L"Voice", &pszVoice)))
+        return false;
+    CheckHrNotFound(pConfigKey->GetStringValue(L"Key", &pszKey));
+    CheckHrNotFound(pConfigKey->GetStringValue(L"Region", &pszRegion));
+
+    m_genericTts = std::make_unique<GenericHttpTts>();
+    m_genericTts->SetEngine(
+        engineType,
+        pszKey.m_psz ? WStringToUTF8(std::wstring(pszKey.m_psz)) : "",
+        pszVoice.m_psz ? WStringToUTF8(std::wstring(pszVoice.m_psz)) : "",
+        pszRegion.m_psz ? WStringToUTF8(std::wstring(pszRegion.m_psz)) : ""
+    );
+
+    m_onlineVoiceName = pszVoice;
+    LogInfo("Generic HTTP voice created: {} / {}", engineType, pszVoice.m_psz);
     return true;
 }
 

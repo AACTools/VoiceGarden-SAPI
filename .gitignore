@@ -395,3 +395,5 @@ NaturalVoiceSAPIAdapter.Net/.e2e-*.ps1
 
 # NuGet CLI (downloaded for local builds)
 nuget.exe
+
+engine-config/

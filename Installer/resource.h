@@ -79,6 +79,25 @@
 #define IDC_GROUP_ONLINE                1050
 #define IDC_SHERPA_INSTALLED_ONLY       1051
 #define IDC_SHERPA_UNINSTALL            1052
+#define IDC_CLOUD_MANAGER               1053
+#define IDD_CLOUD_ENGINES               143
+#define IDC_CLOUD_ENGINE_COMBO          1054
+#define IDC_CLOUD_KEY                   1055
+#define IDC_CLOUD_REGION                1056
+#define IDC_CLOUD_FETCH                 1057
+#define IDC_CLOUD_VOICES                1058
+#define IDC_CLOUD_APPLY                 1059
+#define IDC_CLOUD_STATUS                1060
+#define IDC_CLOUD_LOG                   1061
+#define IDC_CLOUD_VALIDATE              1062
+#define IDC_CHK_ENGINE_OPENAI           1063
+#define IDC_CHK_ENGINE_ELEVENLABS       1064
+#define IDC_CHK_ENGINE_GOOGLE           1065
+#define IDC_CHK_ENGINE_POLLY            1066
+#define IDC_CHK_ENGINE_CARTESIA         1067
+#define IDC_CHK_ENGINE_DEEPGRAM         1068
+#define IDC_CHK_ENGINE_WATSON           1069
+#define IDC_CLOUD_CONFIGURE             1070
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -86,9 +105,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        142
+#define _APS_NEXT_RESOURCE_VALUE        144
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1053
+#define _APS_NEXT_CONTROL_VALUE         1071
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

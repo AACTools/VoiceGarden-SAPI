@@ -451,3 +451,80 @@ std::string DownloadToString(LPCSTR lpszUrl, LPCSTR lpszHeaders)
 
 	return response;
 }
+
+std::vector<uint8_t> PostToBytes(const std::string& url, const std::string& body,
+    const std::string& contentType, const std::string& headers)
+{
+	if (url.size() < 8 || _strnicmp(url.c_str(), "https://", 8) != 0)
+		throw std::invalid_argument("Only HTTPS urls are supported");
+
+	asio::io_context ioctx;
+	asio::ssl::context sslctx(asio::ssl::context::sslv23_client);
+	asio::ssl::stream<asio::ip::tcp::socket> sslstream(ioctx, sslctx);
+
+	auto urlParts = ParseUrl(url);
+	if (!TryOpenProxiedConnection(url.c_str(), ioctx, sslstream))
+	{
+		auto resolveret = asio::ip::tcp::resolver(ioctx).resolve(urlParts.host, urlParts.port);
+		sslstream.next_layer().connect(*resolveret);
+		sslstream.handshake(asio::ssl::stream_base::client);
+	}
+
+	// Send POST request
+	asio::streambuf request;
+	std::ostream request_stream(&request);
+	request_stream <<
+		"POST " << urlParts.path << " HTTP/1.1\r\n"
+		"Host: " << urlParts.host << "\r\n"
+		"Connection: close\r\n"
+		"Content-Type: " << contentType << "\r\n"
+		"Content-Length: " << body.size() << "\r\n";
+	if (!headers.empty())
+		request_stream << headers;
+	request_stream << "\r\n";
+	request_stream << body;
+	asio::write(sslstream, request);
+
+	// Read full response
+	std::string response;
+	asio::error_code ec;
+	asio::read(sslstream, asio::dynamic_string_buffer(response), ec);
+	if (ec != asio::error::eof && ec != asio::ssl::error::stream_truncated)
+		asio::detail::throw_error(ec);
+
+	// Check status
+	if (!response.starts_with("HTTP/1.1 200"))
+		throw std::runtime_error("Server responded " + response.substr(0, response.find('\r')));
+
+	// Find body (after headers)
+	size_t headerEnd = response.find("\r\n\r\n");
+	if (headerEnd == response.npos)
+		throw std::runtime_error("Invalid server response");
+	headerEnd += 4;
+
+	// Check for chunked transfer encoding
+	size_t transferEncPos = response.find("Transfer-Encoding: chunked");
+	if (transferEncPos != std::string::npos && transferEncPos < headerEnd)
+	{
+		// De-chunk
+		std::string chunked = response.substr(headerEnd);
+		std::vector<uint8_t> result;
+		size_t pos = 0;
+		while (pos < chunked.size())
+		{
+			size_t lineEnd = chunked.find("\r\n", pos);
+			if (lineEnd == std::string::npos) break;
+			size_t chunkSize = std::stoul(chunked.substr(pos, lineEnd - pos), nullptr, 16);
+			if (chunkSize == 0) break;
+			pos = lineEnd + 2;
+			if (pos + chunkSize > chunked.size()) break;
+			result.insert(result.end(), chunked.begin() + pos, chunked.begin() + pos + chunkSize);
+			pos += chunkSize + 2;
+		}
+		return result;
+	}
+
+	// Return body as binary
+	const auto* start = reinterpret_cast<const uint8_t*>(response.data() + headerEnd);
+	return std::vector<uint8_t>(start, start + response.size() - headerEnd);
+}

@@ -49,10 +49,27 @@ jobs:
           sherpa-config/SherpaOnnxConfig.exe
           sherpa-config/merged_models.json
 
+  build-engine-config:
+    name: Build EngineConfig
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Build EngineConfig (self-contained, x64)
+        run: dotnet publish EngineConfig\EngineConfig.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o engine-config
+
+      - name: Upload EngineConfig artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: engine-config
+          path: engine-config/EngineConfig.exe
+
   build-utilities:
     name: Build submodules
     runs-on: windows-2022
-    needs: build-sherpa-config
+    needs: [build-sherpa-config, build-engine-config]
 
     permissions:
       contents: read
@@ -110,6 +127,13 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: sherpa-onnx-config
+        path: ${{github.workspace}}\out\
+
+    - name: Download EngineConfig and copy to utilities output
+      if: matrix.platform == 'x86' || matrix.platform == 'x64'
+      uses: actions/download-artifact@v4
+      with:
+        name: engine-config
         path: ${{github.workspace}}\out\
 
     - name: Download Sherpa model metadata for ARM64 utilities

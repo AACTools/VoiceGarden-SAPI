@@ -243,6 +243,24 @@ if (Test-Path $catalogSrc) {
 Write-Host "  SherpaOnnxConfig built successfully" -ForegroundColor Green
 Write-Host ""
 
+# Step 3.5: Build EngineConfig (multi-engine TTS voice manager)
+Write-Host "[Step 3.5/9] Building EngineConfig (Cloud Engine Manager)..." -ForegroundColor Cyan
+$engineConfigOutput = Join-Path $RepoRoot "engine-config"
+Ensure-Dir $engineConfigOutput
+dotnet publish (Join-Path $RepoRoot "EngineConfig\EngineConfig.csproj") `
+    -c $Configuration `
+    -r win-x64 `
+    --self-contained `
+    -p:PublishSingleFile=true `
+    -p:PublishReadyToRun=false `
+    -o $engineConfigOutput `
+    /nologo /v:q
+if ($LASTEXITCODE -ne 0) {
+    throw "dotnet publish failed for EngineConfig with exit code $LASTEXITCODE"
+}
+Write-Host "  EngineConfig built successfully" -ForegroundColor Green
+Write-Host ""
+
 # Step 4: Build Utilities per platform
 Write-Host "[Step 4/8] Building utilities..." -ForegroundColor Cyan
 Ensure-Dir $StageRoot
@@ -301,6 +319,12 @@ foreach ($Platform in $Platforms) {
         $models = Join-Path $sherpaConfigOutput "merged_models.json"
         if (Test-Path $models) {
             Copy-Item -Path $models -Destination $utilOut -Force
+        }
+
+        # Stage EngineConfig (cloud engine voice manager)
+        $engineConfigExe = Join-Path $engineConfigOutput "EngineConfig.exe"
+        if (Test-Path $engineConfigExe) {
+            Copy-Item -Path $engineConfigExe -Destination $utilOut -Force
         }
     }
 }
