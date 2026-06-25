@@ -249,7 +249,20 @@ public partial class VoiceConfigViewModel : ObservableObject
             {
                 var tempFile = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"voicegarden_preview_{Guid.NewGuid():N}.wav");
                 await System.IO.File.WriteAllBytesAsync(tempFile, result.AudioData);
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(tempFile) { UseShellExecute = true });
+                // Play without opening a media player window
+                _ = Task.Run(() =>
+                {
+                    try
+                    {
+                        using var player = new System.Media.SoundPlayer(tempFile);
+                        player.PlaySync();
+                    }
+                    catch { }
+                    finally
+                    {
+                        try { System.IO.File.Delete(tempFile); } catch { }
+                    }
+                });
                 StatusText = $"Previewing {voice.Name}";
             }
             else
