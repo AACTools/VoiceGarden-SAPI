@@ -1,6 +1,7 @@
-#include "pch.h"
+#include "framework.h"
 #include "Installer.h"
 #include "CloudEnginesDlg.h"
+#include <thread>
 #include <nlohmann/json.hpp>
 
 namespace {
@@ -88,10 +89,10 @@ std::wstring RunProcessCaptureOutput(const std::wstring& exePath, const std::wst
 
     std::wstring cmdLine = L"\"" + exePath + L"\" " + args;
 
+    std::string output;
     if (CreateProcessW(nullptr, cmdLine.data(), nullptr, nullptr, TRUE, 0, nullptr, nullptr, &si, &pi)) {
         CloseHandle(hWritePipe);
 
-        std::string output;
         char buf[4096];
         DWORD bytesRead;
         while (ReadFile(hReadPipe, buf, sizeof(buf), &bytesRead, nullptr) && bytesRead > 0) {
@@ -104,13 +105,13 @@ std::wstring RunProcessCaptureOutput(const std::wstring& exePath, const std::wst
     }
 
     CloseHandle(hReadPipe);
-    CloseHandle(hWritePipe);
+    if (hWritePipe) CloseHandle(hWritePipe);
 
     // Convert UTF-8 to wide
     if (output.empty()) return L"";
-    int wlen = MultiByteToWideChar(CP_UTF8, 0, output.c_str(), -1, nullptr, 0);
+    int wlen = MultiByteToWideChar(CP_UTF8, 0, output.c_str(), (int)output.size(), nullptr, 0);
     std::wstring result(wlen, L'\0');
-    MultiByteToWideChar(CP_UTF8, 0, output.c_str(), -1, result.data(), wlen);
+    MultiByteToWideChar(CP_UTF8, 0, output.c_str(), (int)output.size(), result.data(), wlen);
     if (!result.empty() && result.back() == L'\0') result.pop_back();
     return result;
 }
