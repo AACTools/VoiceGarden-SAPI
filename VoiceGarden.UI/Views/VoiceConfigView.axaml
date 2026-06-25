@@ -56,8 +56,8 @@
                                        IsVisible="{Binding IsInstalled}"
                                        Margin="8,0,8,0" VerticalAlignment="Center"/>
                             <Button Grid.Column="4" Content="▶" FontSize="10"
-                                    Command="{Binding $parent[ItemsControl].((vm:VoiceConfigViewModel)DataContext).PreviewVoiceCommand}"
-                                    CommandParameter="{Binding}"
+                                    Click="PreviewVoice_Click"
+                                    Tag="{Binding Id}"
                                     Padding="6,2" Margin="0,0,0,0" ToolTip.Tip="Preview voice"/>
                         </Grid>
                     </DataTemplate>
