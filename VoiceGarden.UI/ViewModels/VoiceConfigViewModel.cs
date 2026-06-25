@@ -226,6 +226,44 @@ public partial class VoiceConfigViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task PreviewVoice(VoiceItem voice)
+    {
+        if (string.IsNullOrWhiteSpace(CurrentKey))
+        {
+            StatusText = "Enter an API key first";
+            return;
+        }
+
+        StatusText = $"Previewing {voice.Name}...";
+        try
+        {
+            var creds = BuildCredentials();
+            if (creds == null) return;
+
+            var client = TtsFactory.CreateClient(CurrentEngine, creds);
+            if (client == null) return;
+
+            client.SetVoice(voice.Id);
+            var result = await client.SynthToBytesAsync($"Hello, my name is {voice.Name}.");
+            if (result?.AudioData?.Length > 0)
+            {
+                var tempFile = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"voicegarden_preview_{Guid.NewGuid():N}.wav");
+                await System.IO.File.WriteAllBytesAsync(tempFile, result.AudioData);
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(tempFile) { UseShellExecute = true });
+                StatusText = $"Previewing {voice.Name}";
+            }
+            else
+            {
+                StatusText = "No audio generated";
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"Preview failed: {ex.Message}";
+        }
+    }
+
+    [RelayCommand]
     private void SelectAll()
     {
         foreach (var v in FilteredVoices) v.IsSelected = true;

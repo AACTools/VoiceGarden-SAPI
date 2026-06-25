@@ -50,7 +50,7 @@
             <ListBox ItemsSource="{Binding FilteredVoices}">
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="vm:VoiceItem">
-                        <Grid ColumnDefinitions="Auto, *, Auto, Auto">
+                        <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto">
                             <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" Margin="0,0,8,0"/>
                             <TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center"/>
                             <TextBlock Grid.Column="2" Text="{Binding Language}"
@@ -58,7 +58,11 @@
                             <TextBlock Grid.Column="3" Text="Installed"
                                        Classes="Hint" Foreground="Green"
                                        IsVisible="{Binding IsInstalled}"
-                                       Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                       Margin="8,0,8,0" VerticalAlignment="Center"/>
+                            <Button Grid.Column="4" Content="▶" FontSize="10"
+                                    Command="{Binding $parent[ItemsControl].((vm:VoiceConfigViewModel)DataContext).PreviewVoiceCommand}"
+                                    CommandParameter="{Binding}"
+                                    Padding="6,2" Margin="0,0,0,0" ToolTip.Tip="Preview voice"/>
                         </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>

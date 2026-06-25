@@ -84,6 +84,14 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private string install64Text = "Install";
     [ObservableProperty] private string install32Text = "Install";
     [ObservableProperty] private string sherpaModelSummary = "";
+    [ObservableProperty] private bool isAboutVisible = false;
+    public string AboutText =>
+        $"VoiceGarden v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)}\n\n" +
+        "SAPI Voice Adapter Configuration Tool\n\n" +
+        $"DotNetTtsWrapper: {typeof(DotNetTtsWrapper.Models.TtsFactory).Assembly.GetName().Version}\n" +
+        "Engines: Azure, OpenAI, ElevenLabs, Google, Polly, Cartesia, Deepgram,\n" +
+        "SherpaOnnx (offline), Watson, PlayHT, Wit.ai, Gemini, and more\n\n" +
+        "https://github.com/AACTools/VoiceGarden-SAPI";
 
     public ObservableCollection<CloudEngineSetting> CloudEngines { get; } = new();
 
@@ -134,6 +142,7 @@ public partial class MainViewModel : ObservableObject
         IsVoiceConfigVisible = false;
         IsSherpaManagerVisible = false;
         IsEngineConfigVisible = false;
+        IsAboutVisible = false;
         OnPropertyChanged(nameof(IsMainViewVisible));
     }
 
@@ -213,7 +222,8 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void ShowAbout()
     {
-        // Show about dialog
+        IsAboutVisible = true;
+        OnPropertyChanged(nameof(IsMainViewVisible));
     }
 
     private static string Cap(string s) =>
