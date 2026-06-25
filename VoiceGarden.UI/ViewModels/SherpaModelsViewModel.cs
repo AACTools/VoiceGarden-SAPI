@@ -168,7 +168,9 @@ public partial class SherpaModelsViewModel : ObservableObject
             {
                 Id = cat.Id,
                 Name = cat.Name,
-                Language = cat.Language?.FirstOrDefault()?.Display ?? cat.Language?.FirstOrDefault()?.LangCode ?? "Unknown",
+                Language = cat.Language?.FirstOrDefault()?.LanguageName ??
+                           cat.Language?.FirstOrDefault()?.LangCode ??
+                           cat.Language?.FirstOrDefault()?.Country ?? "Unknown",
                 ModelType = cat.ModelType ?? "vits",
                 FileSizeMb = (long)(cat.FileSizeMb ?? 0),
                 Url = cat.Url ?? "",

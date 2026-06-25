@@ -36,8 +36,8 @@ public class SherpaModelService
     public class CatalogLanguage
     {
         [JsonPropertyName("lang_code")] public string LangCode { get; set; } = "";
-        [JsonPropertyName("Iso Code")] public string IsoCode { get; set; } = "";
-        [JsonPropertyName("Display")] public string Display { get; set; } = "";
+        [JsonPropertyName("language_name")] public string LanguageName { get; set; } = "";
+        [JsonPropertyName("country")] public string Country { get; set; } = "";
     }
 
     public class InstalledModel
@@ -59,6 +59,7 @@ public class SherpaModelService
         {
             Path.Combine(AppContext.BaseDirectory, "merged_models.json"),
             Path.Combine(AppContext.BaseDirectory, "..", "merged_models.json"),
+            Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "SherpaOnnxConfig", "merged_models.json"),
         };
 
         foreach (var path in candidates)
@@ -66,7 +67,15 @@ public class SherpaModelService
             if (File.Exists(path))
             {
                 var json = await File.ReadAllTextAsync(path);
-                return JsonSerializer.Deserialize<List<CatalogModel>>(json) ?? new();
+
+                // merged_models.json is a dict keyed by model ID: { "id": { ... }, ... }
+                var dict = JsonSerializer.Deserialize<Dictionary<string, CatalogModel>>(json);
+                if (dict != null && dict.Count > 0)
+                    return dict.Values.ToList();
+
+                // Fallback: try as array
+                var list = JsonSerializer.Deserialize<List<CatalogModel>>(json);
+                return list ?? new();
             }
         }
 
