@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DotNetTtsWrapper.Models;
+using DotNetTtsWrapper.Engines;
 using VoiceGarden.UI.Services;
 
 namespace VoiceGarden.UI.ViewModels;
@@ -55,10 +57,34 @@ public partial class SherpaModelsViewModel : ObservableObject
 
         try
         {
-            _catalog = await SherpaModelService.LoadCatalogAsync();
+            // Use DotNetTtsWrapper to get the unified voice list with proper BCP-47 codes
+            var client = TtsFactory.CreateClient("sherpaonnx", new SherpaOnnxCredentials());
+            var voices = await client.GetVoicesAsync();
+
+            AllModels.Clear();
+            foreach (var v in voices)
+            {
+                var langInfo = v.LanguageCodes?.FirstOrDefault();
+                var installed = _installed.FirstOrDefault(i => i.Id == v.Id);
+                var item = new SherpaModelItem
+                {
+                    Id = v.Id,
+                    Name = v.Description ?? v.Name ?? v.Id,
+                    Language = langInfo?.Display ?? langInfo?.Bcp47 ?? "Unknown",
+                    ModelType = v.Description?.Contains("kokoro") == true ? "kokoro"
+                             : v.Description?.Contains("matcha") == true ? "matcha"
+                             : "vits",
+                    Url = "", // URL not available from TtsVoice, would need catalog
+                    IsDownloaded = installed != null,
+                    IsPromoted = installed?.IsPromoted ?? false,
+                };
+                AllModels.Add(item);
+            }
+
             RefreshInstalled();
-            PopulateModels();
-            StatusText = $"Loaded {_catalog.Count} models, {_installed.Count} installed";
+            ApplyFilter();
+            UpdateCounts();
+            StatusText = $"Loaded {AllModels.Count} voices, {_installed.Count} installed";
         }
         catch (Exception ex)
         {
