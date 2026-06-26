@@ -168,11 +168,42 @@ public partial class SherpaModelsViewModel : ObservableObject
 
         try
         {
+            // Try direct first (works if already admin)
             var (promoted, failed) = SherpaModelService.PromoteAll(AddEnUsAlias);
-            Rescan();
-            StatusText = failed == 0
-                ? $"Installed {promoted} model(s) to SAPI"
-                : $"Installed {promoted}, failed {failed}";
+
+            if (promoted == 0 && failed > 0)
+            {
+                // Not admin — relaunch elevated via CLI
+                StatusText = "Requesting admin privileges...";
+                var exePath = Environment.ProcessPath ?? System.Reflection.Assembly.GetExecutingAssembly().Location;
+                var psi = new System.Diagnostics.ProcessStartInfo(exePath, "models promote-all")
+                {
+                    Verb = "runas",
+                    UseShellExecute = true,
+                    WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+                    CreateNoWindow = true,
+                };
+
+                try
+                {
+                    var p = System.Diagnostics.Process.Start(psi);
+                    p?.WaitForExit(30000);
+                    var rc = p?.ExitCode ?? -1;
+                    Rescan();
+                    StatusText = rc == 0 ? "Models installed to SAPI (elevated)" : $"Install failed (exit {rc})";
+                }
+                catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+                {
+                    StatusText = "Install cancelled (admin permission denied)";
+                }
+            }
+            else
+            {
+                Rescan();
+                StatusText = failed == 0
+                    ? $"Installed {promoted} model(s) to SAPI"
+                    : $"Installed {promoted}, failed {failed}";
+            }
         }
         catch (Exception ex)
         {
