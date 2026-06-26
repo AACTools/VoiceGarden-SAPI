@@ -40,7 +40,16 @@ public static class ComRegistrationService
     {
         var dir = GetInstallDir(is64Bit);
         var dll = System.IO.Path.Combine(dir, "NaturalVoiceSAPIAdapter.dll");
-        if (!System.IO.File.Exists(dll)) return -1;
+        if (!System.IO.File.Exists(dll))
+        {
+            // Check if the exe directory has the DLL (running from publish/debug)
+            var exeDir = System.IO.Path.GetDirectoryName(Environment.ProcessPath) ?? "";
+            var altDll = System.IO.Path.Combine(exeDir, "NaturalVoiceSAPIAdapter.dll");
+            if (System.IO.File.Exists(altDll))
+                dll = altDll;
+            else
+                return -1;
+        }
         return RunElevated("regsvr32", $"/s \"{dll}\"");
     }
 
@@ -48,27 +57,40 @@ public static class ComRegistrationService
     {
         var dir = GetInstallDir(is64Bit);
         var dll = System.IO.Path.Combine(dir, "NaturalVoiceSAPIAdapter.dll");
-        if (!System.IO.File.Exists(dll)) return -1;
+        if (!System.IO.File.Exists(dll))
+        {
+            var exeDir = System.IO.Path.GetDirectoryName(Environment.ProcessPath) ?? "";
+            var altDll = System.IO.Path.Combine(exeDir, "NaturalVoiceSAPIAdapter.dll");
+            if (System.IO.File.Exists(altDll))
+                dll = altDll;
+            else
+                return -1;
+        }
         return RunElevated("regsvr32", $"/u /s \"{dll}\"");
     }
 
     public static int RunElevated(string exe, string args)
     {
-        var psi = new ProcessStartInfo
-        {
-            FileName = exe,
-            Arguments = args,
-            UseShellExecute = true,
-            Verb = "runas",
-            WindowStyle = ProcessWindowStyle.Hidden,
-            CreateNoWindow = true,
-        };
-
         try
         {
+            var psi = new ProcessStartInfo
+            {
+                FileName = exe,
+                Arguments = args,
+                UseShellExecute = true,
+                Verb = "runas",
+                WindowStyle = ProcessWindowStyle.Hidden,
+                CreateNoWindow = true,
+            };
+
             var p = Process.Start(psi);
-            p?.WaitForExit(30000);
-            return p?.ExitCode ?? -1;
+            if (p == null) return -1;
+            p.WaitForExit(60000); // Wait up to 60 seconds for UAC + regsvr32
+            return p.ExitCode;
+        }
+        catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+        {
+            return -2; // User cancelled UAC
         }
         catch
         {

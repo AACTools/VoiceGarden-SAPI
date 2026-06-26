@@ -259,6 +259,30 @@ if ($LASTEXITCODE -ne 0) {
     throw "dotnet publish failed for EngineConfig with exit code $LASTEXITCODE"
 }
 Write-Host "  EngineConfig built successfully" -ForegroundColor Green
+
+# Step 3.6: Build VoiceGarden.UI (Avalonia configuration app)
+Write-Host "[Step 3.6/10] Building VoiceGarden.UI (Avalonia Config App)..." -ForegroundColor Cyan
+$voiceGardenUiOutput = Join-Path $RepoRoot "voicegarden-ui"
+Ensure-Dir $voiceGardenUiOutput
+dotnet publish (Join-Path $RepoRoot "VoiceGarden.UI\VoiceGarden.UI.csproj") `
+    -c $Configuration `
+    -r win-x64 `
+    --self-contained `
+    -p:PublishSingleFile=true `
+    -p:PublishReadyToRun=false `
+    -o $voiceGardenUiOutput `
+    /nologo /v:q
+if ($LASTEXITCODE -ne 0) {
+    throw "dotnet publish failed for VoiceGarden.UI with exit code $LASTEXITCODE"
+}
+
+# Copy merged_models.json
+$catalogSrc = Join-Path $RepoRoot "SherpaOnnxConfig\merged_models.json"
+if (Test-Path $catalogSrc) {
+    Copy-Item -Path $catalogSrc -Destination $voiceGardenUiOutput -Force
+}
+
+Write-Host "  VoiceGarden.UI built successfully" -ForegroundColor Green
 Write-Host ""
 
 # Step 4: Build Utilities per platform
@@ -450,6 +474,13 @@ if (Test-Path (Join-Path $PayloadDir "x86\Installer.exe")) {
 }
 if (Test-Path (Join-Path $PayloadDir "x86\InstallPlanRunner.exe")) {
     Copy-Item (Join-Path $PayloadDir "x86\InstallPlanRunner.exe") (Join-Path $PayloadDir "InstallPlanRunner.exe") -Force
+}
+
+# Stage VoiceGarden.UI.exe at payload root (replaces Installer.exe as main entry point)
+$vgUiExe = Join-Path $voiceGardenUiOutput "VoiceGarden.UI.exe"
+if (Test-Path $vgUiExe) {
+    Copy-Item $vgUiExe (Join-Path $PayloadDir "VoiceGarden.UI.exe") -Force
+    Write-Host "  VoiceGarden.UI.exe staged at payload root" -ForegroundColor DarkGray
 }
 
 $brandingSource = ""

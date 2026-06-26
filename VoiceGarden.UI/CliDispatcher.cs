@@ -162,9 +162,9 @@ public static class CliDispatcher
         var client = DotNetTtsWrapper.Models.TtsFactory.CreateClient(engine, creds);
         if (client == null) { Console.Error.WriteLine($"Could not create client"); return 1; }
 
-        Console.WriteLine($"Fetching voices for {engine}...");
+        Console.Error.WriteLine($"Fetching voices for {engine}...");
         var voices = client.GetVoicesAsync().GetAwaiter().GetResult();
-        Console.WriteLine($"Found {voices.Count} voices");
+        Console.Error.WriteLine($"Found {voices.Count} voices");
 
         if (asJson)
         {

@@ -175,7 +175,9 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void Install64()
     {
-        ComRegistrationService.Register(true);
+        var rc = ComRegistrationService.Register(true);
+        if (rc == -2) return; // User cancelled UAC
+        System.Threading.Thread.Sleep(500);
         RefreshInstallStatus();
     }
 
@@ -183,13 +185,16 @@ public partial class MainViewModel : ObservableObject
     private void Uninstall64()
     {
         ComRegistrationService.Unregister(true);
+        System.Threading.Thread.Sleep(500);
         RefreshInstallStatus();
     }
 
     [RelayCommand]
     private void Install32()
     {
-        ComRegistrationService.Register(false);
+        var rc = ComRegistrationService.Register(false);
+        if (rc == -2) return;
+        System.Threading.Thread.Sleep(500);
         RefreshInstallStatus();
     }
 
@@ -197,6 +202,7 @@ public partial class MainViewModel : ObservableObject
     private void Uninstall32()
     {
         ComRegistrationService.Unregister(false);
+        System.Threading.Thread.Sleep(500);
         RefreshInstallStatus();
     }
 
