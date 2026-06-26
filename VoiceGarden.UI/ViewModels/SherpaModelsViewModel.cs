@@ -134,25 +134,31 @@ public partial class SherpaModelsViewModel : ObservableObject
                 continue;
             }
 
-            model.DownloadStatus = "Starting download...";
+            var sizeMb = catalogModel.FileSizeMb > 0 ? $"{catalogModel.FileSizeMb:F0}MB" : "??MB";
+            model.DownloadStatus = $"Downloading {model.Id} ({sizeMb})...";
             model.DownloadProgress = 0;
+            StatusText = $"Downloading {model.Name} ({sizeMb})...";
+
             try
             {
                 var progress = new Progress<(int pct, string msg)>(p =>
                 {
                     model.DownloadProgress = p.pct;
-                    model.DownloadStatus = p.msg;
+                    model.DownloadStatus = $"{p.pct}% - {model.Id}";
+                    StatusText = $"Downloading {model.Name}: {p.pct}% ({sizeMb})";
                 });
 
                 await SherpaModelService.DownloadModelAsync(catalogModel, (IProgress<(int, string)>)progress);
                 model.IsDownloaded = true;
                 model.DownloadProgress = 100;
                 model.DownloadStatus = "Downloaded";
+                StatusText = $"Downloaded {model.Name} ({sizeMb})";
             }
             catch (Exception ex)
             {
                 model.DownloadProgress = 0;
                 model.DownloadStatus = $"Failed: {ex.Message}";
+                StatusText = $"Download failed: {model.Name}";
             }
         }
 

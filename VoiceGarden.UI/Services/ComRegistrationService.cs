@@ -27,13 +27,13 @@ public static class ComRegistrationService
 
     public static bool IsRegistered(bool is64Bit)
     {
-        using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(
-            $@"SOFTWARE\Classes\CLSID\{TtsEngineClsid}\InprocServer32");
-        if (key?.GetValue("") is string dllPath)
-        {
-            return dllPath.Contains(is64Bit ? @"\x64\" : @"\x86\");
-        }
-        return false;
+        // 64-bit: HKLM\SOFTWARE\Classes\CLSID\...
+        // 32-bit: HKLM\SOFTWARE\WOW6432Node\Classes\CLSID\...
+        var basePath = is64Bit
+            ? $@"SOFTWARE\Classes\CLSID\{TtsEngineClsid}\InprocServer32"
+            : $@"SOFTWARE\WOW6432Node\Classes\CLSID\{TtsEngineClsid}\InprocServer32";
+        using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(basePath);
+        return key?.GetValue("") is string dllPath && !string.IsNullOrEmpty(dllPath);
     }
 
     public static int Register(bool is64Bit)
@@ -50,7 +50,9 @@ public static class ComRegistrationService
             else
                 return -1;
         }
-        return RunElevated("regsvr32", $"/s \"{dll}\"");
+        // Use 32-bit regsvr32 for 32-bit DLLs
+        var regsvr = is64Bit ? "regsvr32" : @"C:\Windows\SysWOW64\regsvr32.exe";
+        return RunElevated(regsvr, $"/s \"{dll}\"");
     }
 
     public static int Unregister(bool is64Bit)
@@ -66,7 +68,8 @@ public static class ComRegistrationService
             else
                 return -1;
         }
-        return RunElevated("regsvr32", $"/u /s \"{dll}\"");
+        var regsvr = is64Bit ? "regsvr32" : @"C:\Windows\SysWOW64\regsvr32.exe";
+        return RunElevated(regsvr, $"/u /s \"{dll}\"");
     }
 
     public static int RunElevated(string exe, string args)
