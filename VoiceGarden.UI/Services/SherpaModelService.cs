@@ -139,19 +139,21 @@ public class SherpaModelService
         var fileName = model.Url.Split('/').Last();
         var destFile = Path.Combine(destDir, fileName);
 
-        progress?.Report((0, $"Downloading {fileName}..."));
+        progress?.Report((0, $"Connecting to {fileName}..."));
 
-        using var http = new HttpClient();
-        using var response = await http.GetAsync(model.Url);
+        using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(30) };
+        using var response = await http.GetAsync(model.Url, HttpCompletionOption.ResponseHeadersRead);
         response.EnsureSuccessStatusCode();
 
         var totalBytes = response.Content.Headers.ContentLength ?? 0;
+        var totalMb = totalBytes > 0 ? totalBytes / (1024.0 * 1024.0) : 0;
         using var contentStream = await response.Content.ReadAsStreamAsync();
         using var fileStream = File.Create(destFile);
 
         var buffer = new byte[81920];
         long bytesRead = 0;
         int read;
+        var lastReport = DateTime.UtcNow;
 
         while ((read = await contentStream.ReadAsync(buffer)) > 0)
         {
@@ -159,8 +161,26 @@ public class SherpaModelService
             bytesRead += read;
             if (totalBytes > 0)
             {
-                var pct = (int)(bytesRead * 100 / totalBytes);
-                progress?.Report((pct, $"Downloading... {pct}%"));
+                // Throttle progress reports to 4/sec to avoid flooding UI thread
+                var now = DateTime.UtcNow;
+                if ((now - lastReport).TotalMilliseconds >= 250 || bytesRead == totalBytes)
+                {
+                    lastReport = now;
+                    var pct = (int)(bytesRead * 100 / totalBytes);
+                    var doneMb = bytesRead / (1024.0 * 1024.0);
+                    progress?.Report((pct, $"{pct}% ({doneMb:F0}/{totalMb:F0}MB)"));
+                }
+            }
+            else
+            {
+                // Unknown size - report bytes downloaded
+                var doneMb = bytesRead / (1024.0 * 1024.0);
+                var now = DateTime.UtcNow;
+                if ((now - lastReport).TotalMilliseconds >= 500)
+                {
+                    lastReport = now;
+                    progress?.Report((0, $"{doneMb:F0}MB downloaded"));
+                }
             }
         }
 

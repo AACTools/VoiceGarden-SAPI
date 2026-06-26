@@ -24,6 +24,7 @@ public partial class SherpaModelItem : ObservableObject
     [ObservableProperty] private bool isDownloaded;
     [ObservableProperty] private bool isPromoted;
     [ObservableProperty] private bool isSelected;
+    [ObservableProperty] private bool isDownloading;
     [ObservableProperty] private int downloadProgress;
     [ObservableProperty] private string downloadStatus = "";
 }
@@ -137,6 +138,7 @@ public partial class SherpaModelsViewModel : ObservableObject
             var sizeMb = catalogModel.FileSizeMb > 0 ? $"{catalogModel.FileSizeMb:F0}MB" : "??MB";
             model.DownloadStatus = $"Downloading {model.Id} ({sizeMb})...";
             model.DownloadProgress = 0;
+            model.IsDownloading = true;
             StatusText = $"Downloading {model.Name} ({sizeMb})...";
 
             try
@@ -145,17 +147,19 @@ public partial class SherpaModelsViewModel : ObservableObject
                 {
                     model.DownloadProgress = p.pct;
                     model.DownloadStatus = $"{p.pct}% - {model.Id}";
-                    StatusText = $"Downloading {model.Name}: {p.pct}% ({sizeMb})";
+                    StatusText = $"Downloading {model.Name}: {p.msg}";
                 });
 
                 await SherpaModelService.DownloadModelAsync(catalogModel, (IProgress<(int, string)>)progress);
                 model.IsDownloaded = true;
+                model.IsDownloading = false;
                 model.DownloadProgress = 100;
                 model.DownloadStatus = "Downloaded";
                 StatusText = $"Downloaded {model.Name} ({sizeMb})";
             }
             catch (Exception ex)
             {
+                model.IsDownloading = false;
                 model.DownloadProgress = 0;
                 model.DownloadStatus = $"Failed: {ex.Message}";
                 StatusText = $"Download failed: {model.Name}";
