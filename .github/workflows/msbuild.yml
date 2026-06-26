@@ -72,8 +72,10 @@ jobs:
       run: |
         $repoDir = Join-Path (Get-Location) ".." "dotnet-tts-wrapper"
         git clone --depth 1 https://github.com/AACTools/dotnet-tts-wrapper.git $repoDir
+        $csproj = Join-Path $repoDir "src/DotNetTtsWrapper.Core/DotNetTtsWrapper.Core.csproj"
         $artifactsDir = Join-Path $repoDir "artifacts"
-        dotnet pack (Join-Path $repoDir "src/DotNetTtsWrapper.Core/DotNetTtsWrapper.Core.csproj") -c Release -o $artifactsDir
+        dotnet build $csproj -c Release
+        dotnet pack $csproj -c Release -o $artifactsDir --no-build
         Write-Host "Artifacts at: $artifactsDir"
         Get-ChildItem $artifactsDir -Filter "*.nupkg" | ForEach-Object { Write-Host "  $($_.Name)" }
         dotnet nuget add source $artifactsDir --name local-tts
