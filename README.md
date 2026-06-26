@@ -1,8 +1,6 @@
 # VoiceGarden-SAPI
 
-[查看中文文档请点击这里](README.zh.md)
-
-> This project was forked from [VoiceGardenSAPIAdapter](https://github.com/gexgd0419/VoiceGardenSAPIAdapter) and is now developed at [AACTools/VoiceGarden-SAPI](https://github.com/AACTools/VoiceGarden-SAPI).
+> This project was forked from [NaturalVoiceSAPIAdapter](https://github.com/gexgd0419/NaturalVoiceSAPIAdapter) and is now developed at [AACTools/VoiceGarden-SAPI](https://github.com/AACTools/VoiceGarden-SAPI).
 
 A [SAPI 5 text-to-speech (TTS) engine][1] that connects **20+ cloud TTS engines** and **offline SherpaOnnx models** to any Windows application that supports SAPI voices — including Grid 3, The Grid, Clicker, and any software using `System.Speech`.
 
