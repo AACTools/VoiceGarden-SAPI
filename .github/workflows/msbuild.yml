@@ -341,7 +341,7 @@ jobs:
         ver="${{github.ref_name}}"
         ver="${ver//\//_}"
 
-        # Compose x86 + x64 payload
+        # Compose platform directories
         mkdir -p x86 x64 ARM64
         cp -r utilities-x86/* x86/ 2>/dev/null || true
         cp -r main-x86/* x86/ 2>/dev/null || true
@@ -361,7 +361,11 @@ jobs:
         # Debug symbols
         zip -r debug_symbols.zip x86 x64 ARM64 -i "*.pdb"
 
-        # Release payload
+        # Per-platform ZIPs
+        zip -r VoiceGardenSAPIAdapter_${ver}_x86.zip x86 -i "*.exe" "*.dll" "*.json"
+        zip -r VoiceGardenSAPIAdapter_${ver}_x64.zip x64 -i "*.exe" "*.dll" "*.json"
+
+        # Full release layout (everything)
         zip -r VoiceGardenSAPIAdapter_${ver}_release-layout.zip \
           x86 x64 ARM64 VoiceGarden.UI.exe setup.exe VoiceGardenSAPIAdapter.msi \
           branding.json \
@@ -373,6 +377,10 @@ jobs:
         body_path: ${{github.workspace}}/release_notes.md
         files: |
           ${{github.workspace}}/artifacts/VoiceGardenSAPIAdapter_*_release-layout.zip
+          ${{github.workspace}}/artifacts/VoiceGardenSAPIAdapter_*_x86.zip
+          ${{github.workspace}}/artifacts/VoiceGardenSAPIAdapter_*_x64.zip
+          ${{github.workspace}}/artifacts/VoiceGardenSAPIAdapter.msi
+          ${{github.workspace}}/artifacts/setup.exe
           ${{github.workspace}}/artifacts/debug_symbols.zip
 
     - uses: actions/upload-artifact@v4
