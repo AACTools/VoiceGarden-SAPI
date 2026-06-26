@@ -96,6 +96,10 @@ public class SherpaModelService
         foreach (var dir in Directory.GetDirectories(ModelsDir))
         {
             var modelId = Path.GetFileName(dir);
+
+            // Auto-extract any orphaned .tar.bz2 left from a failed/aborted extraction
+            TryExtractArchives(dir);
+
             var installed = new InstalledModel
             {
                 Id = modelId,
@@ -123,6 +127,76 @@ public class SherpaModelService
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// If a .tar.bz2 or .tar exists in the directory but no .onnx is present yet,
+    /// extract it with 7-Zip. Self-heals downloads that completed but never extracted.
+    /// </summary>
+    private static void TryExtractArchives(string dir)
+    {
+        // Already extracted — has an onnx file
+        if (Directory.GetFiles(dir, "*.onnx", SearchOption.AllDirectories).Length > 0)
+        {
+            // Clean up any leftover archives from a partial extraction
+            foreach (var f in Directory.GetFiles(dir, "*.tar.bz2", SearchOption.TopDirectoryOnly))
+                TryDelete(f);
+            foreach (var f in Directory.GetFiles(dir, "*.tar", SearchOption.TopDirectoryOnly))
+                TryDelete(f);
+            return;
+        }
+
+        var sevenZip = @"C:\Program Files\7-Zip\7z.exe";
+        if (!File.Exists(sevenZip)) return;
+
+        // Stage 1: tar.bz2 -> tar
+        var bz2 = Directory.GetFiles(dir, "*.tar.bz2", SearchOption.TopDirectoryOnly).FirstOrDefault();
+        if (bz2 != null)
+        {
+            var tar = bz2.Replace(".tar.bz2", ".tar");
+            if (!File.Exists(tar))
+            {
+                RunSevenZip(sevenZip, $"x \"{bz2}\" -o\"{dir}\" -y");
+            }
+            // Stage 2: tar -> contents
+            if (File.Exists(tar))
+            {
+                RunSevenZip(sevenZip, $"x \"{tar}\" -o\"{dir}\" -y");
+                TryDelete(tar);
+            }
+            TryDelete(bz2);
+        }
+        else
+        {
+            // Lone .tar
+            var tar = Directory.GetFiles(dir, "*.tar", SearchOption.TopDirectoryOnly).FirstOrDefault();
+            if (tar != null)
+            {
+                RunSevenZip(sevenZip, $"x \"{tar}\" -o\"{dir}\" -y");
+                TryDelete(tar);
+            }
+        }
+    }
+
+    private static void RunSevenZip(string exe, string args)
+    {
+        try
+        {
+            var psi = new System.Diagnostics.ProcessStartInfo(exe, args)
+            {
+                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+                CreateNoWindow = true,
+                UseShellExecute = false,
+            };
+            var p = System.Diagnostics.Process.Start(psi);
+            p?.WaitForExit(120000); // 2-min cap per stage
+        }
+        catch { /* best-effort */ }
+    }
+
+    private static void TryDelete(string path)
+    {
+        try { if (File.Exists(path)) File.Delete(path); } catch { }
     }
 
     /// <summary>
@@ -184,12 +258,31 @@ public class SherpaModelService
             }
         }
 
-        // Extract if tar.bz2
-        if (fileName.EndsWith(".tar.bz2"))
+        // Extract if tar.bz2 (the rescan path will also self-heal if this fails)
+        if (fileName.EndsWith(".tar.bz2") || fileName.EndsWith(".tar"))
         {
             progress?.Report((100, "Extracting..."));
-            ExtractTarBz2(destFile, destDir);
-            File.Delete(destFile);
+            var sevenZip = @"C:\Program Files\7-Zip\7z.exe";
+            if (File.Exists(sevenZip))
+            {
+                if (fileName.EndsWith(".tar.bz2"))
+                {
+                    var tarFile = destFile.Replace(".tar.bz2", ".tar");
+                    RunSevenZip(sevenZip, $"x \"{destFile}\" -o\"{destDir}\" -y");
+                    if (File.Exists(tarFile))
+                        RunSevenZip(sevenZip, $"x \"{tarFile}\" -o\"{destDir}\" -y");
+                }
+                else
+                {
+                    RunSevenZip(sevenZip, $"x \"{destFile}\" -o\"{destDir}\" -y");
+                }
+                TryDelete(destFile);
+            }
+            else
+            {
+                throw new PlatformNotSupportedException(
+                    "7-Zip is required for model extraction. Install 7-Zip from https://7-zip.org then click Rescan.");
+            }
         }
 
         progress?.Report((100, "Done"));
@@ -282,36 +375,4 @@ public class SherpaModelService
     }
 
     public static string GetModelsDir() => ModelsDir;
-
-    /// <summary>
-    /// Minimal tar.bz2 extraction using 7-Zip if available, otherwise falls back to .NET tar.
-    /// </summary>
-    private static void ExtractTarBz2(string archivePath, string destDir)
-    {
-        // Try 7z
-        var sevenZip = @"C:\Program Files\7-Zip\7z.exe";
-        if (File.Exists(sevenZip))
-        {
-            // Extract bz2 → tar
-            var tarFile = archivePath.Replace(".tar.bz2", ".tar");
-            var psi1 = new System.Diagnostics.ProcessStartInfo(sevenZip, $"x \"{archivePath}\" -o\"{Path.GetDirectoryName(archivePath)}\" -y")
-            { WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden, CreateNoWindow = true };
-            var p1 = System.Diagnostics.Process.Start(psi1);
-            p1?.WaitForExit();
-
-            // Extract tar
-            if (File.Exists(tarFile))
-            {
-                var psi2 = new System.Diagnostics.ProcessStartInfo(sevenZip, $"x \"{tarFile}\" -o\"{destDir}\" -y")
-                { WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden, CreateNoWindow = true };
-                var p2 = System.Diagnostics.Process.Start(psi2);
-                p2?.WaitForExit();
-                File.Delete(tarFile);
-            }
-            return;
-        }
-
-        // Fallback: .NET 8 tar + bz2 decompression
-        throw new PlatformNotSupportedException("7-Zip required for model extraction. Install 7-Zip or extract manually.");
-    }
 }

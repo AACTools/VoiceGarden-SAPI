@@ -181,6 +181,15 @@ public partial class SherpaModelsViewModel : ObservableObject
             // Try direct first (works if already admin)
             var (promoted, failed) = SherpaModelService.PromoteAll(AddEnUsAlias);
 
+            // Nothing promoted AND nothing failed means no .onnx models were found at all
+            if (promoted == 0 && failed == 0)
+            {
+                Rescan();
+                StatusText = "No downloaded models found. Download a model first, then click Rescan if needed.";
+                IsLoading = false;
+                return;
+            }
+
             if (promoted == 0 && failed > 0)
             {
                 // Not admin — relaunch elevated via CLI
