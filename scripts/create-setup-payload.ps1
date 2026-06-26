@@ -25,8 +25,6 @@ if (Test-Path $OutputDir) {
 New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
 
 $rootAllow = @(
-    "Installer.exe",
-    "InstallPlanRunner.exe",
     "VoiceGarden.UI.exe",
     "install-plan.json",
     "branding.json",

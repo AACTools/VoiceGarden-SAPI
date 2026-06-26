@@ -330,11 +330,7 @@ foreach ($Platform in $Platforms) {
     }
 
     if ($Platform -eq "x86") {
-        Write-Host "  Installer (Win32)..." -ForegroundColor Cyan
-        Invoke-Restore -InputPath (Join-Path $RepoRoot "Installer") -SolutionDirectory $RepoRoot
-        & $msbuild /m /p:Configuration=$Configuration /p:Platform=Win32 /p:OutDir="$utilOut\" (Join-Path $RepoRoot "Installer\Installer.vcxproj")
-        if ($LASTEXITCODE -ne 0) { throw "Installer build failed" }
-        Copy-Item -Path (Join-Path $utilOut "Installer.exe") -Destination (Join-Path $utilOut "InstallPlanRunner.exe") -Force
+        # Installer.exe removed — VoiceGarden.UI.exe is the main app
     }
 
     # Stage SherpaOnnxConfig for x86/x64 utilities (matches CI behavior)
@@ -469,14 +465,7 @@ foreach ($Platform in $Platforms) {
     }
 }
 
-if (Test-Path (Join-Path $PayloadDir "x86\Installer.exe")) {
-    Copy-Item (Join-Path $PayloadDir "x86\Installer.exe") (Join-Path $PayloadDir "Installer.exe") -Force
-}
-if (Test-Path (Join-Path $PayloadDir "x86\InstallPlanRunner.exe")) {
-    Copy-Item (Join-Path $PayloadDir "x86\InstallPlanRunner.exe") (Join-Path $PayloadDir "InstallPlanRunner.exe") -Force
-}
-
-# Stage VoiceGarden.UI.exe at payload root (replaces Installer.exe as main entry point)
+# Stage VoiceGarden.UI.exe at payload root (main entry point)
 $vgUiExe = Join-Path $voiceGardenUiOutput "VoiceGarden.UI.exe"
 if (Test-Path $vgUiExe) {
     Copy-Item $vgUiExe (Join-Path $PayloadDir "VoiceGarden.UI.exe") -Force

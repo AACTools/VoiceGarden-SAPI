@@ -72,7 +72,7 @@ static class Program
                     {
                         if (!TryLaunchInstalledInstaller(branding))
                         {
-                            Notify("Install completed, but Installer.exe was not found in the install location.", branding.SetupCaption, quiet, error: true);
+                            Notify("Install completed, but VoiceGarden.UI.exe was not found in the install location.", branding.SetupCaption, quiet, error: true);
                             return 4;
                         }
                     }
@@ -181,13 +181,10 @@ static class Program
 
     static bool TryLaunchInstalledInstaller(Branding branding)
     {
-        // Prefer VoiceGarden.UI.exe (Avalonia), fall back to Installer.exe (C++)
         var candidates = new[]
         {
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), branding.InstallFolderName, "VoiceGarden.UI.exe"),
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), branding.InstallFolderName, "VoiceGarden.UI.exe"),
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), branding.InstallFolderName, "Installer.exe"),
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), branding.InstallFolderName, "Installer.exe")
         };
 
         foreach (string p in candidates.Distinct(StringComparer.OrdinalIgnoreCase))
