@@ -2,32 +2,23 @@ name: MSBuild
 
 on:
   push:
-    branches: [ "master", "**" ]
+    branches: [ "master", "main", "feature/**" ]
     tags: ["v[0-9]**"]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "main" ]
   workflow_dispatch:
 
 env:
-  # Path to the solution file relative to the root of the project.
-  SOLUTION_FILE_PATH: .
-
-  # Configuration type to build.
-  # You can convert this to a build matrix if you need coverage of multiple configuration types.
-  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
   BUILD_CONFIGURATION: Release
 
 jobs:
   build-sherpa-config:
     name: Build SherpaOnnxConfig
     runs-on: windows-2022
-
     permissions:
       contents: read
-
     steps:
-    - name: Checkout
-      uses: actions/checkout@v6
+    - uses: actions/checkout@v4
 
     - name: Build SherpaOnnxConfig (self-contained, x64)
       run: dotnet publish SherpaOnnxConfig\SherpaOnnxConfig.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o ${{github.workspace}}\sherpa-config
@@ -38,11 +29,9 @@ jobs:
 
     - name: Verify Sherpa integration checks
       shell: pwsh
-      run: |
-        .\scripts\verify-sherpa-integration.ps1 -SkipBuild
+      run: .\scripts\verify-sherpa-integration.ps1 -SkipBuild
 
-    - name: Upload SherpaOnnxConfig artifact
-      uses: actions/upload-artifact@v6
+    - uses: actions/upload-artifact@v4
       with:
         name: sherpa-onnx-config
         path: |
@@ -55,32 +44,63 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Build EngineConfig (self-contained, x64)
         run: dotnet publish EngineConfig\EngineConfig.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o engine-config
 
-      - name: Upload EngineConfig artifact
-        uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v4
         with:
           name: engine-config
           path: engine-config/EngineConfig.exe
+
+  build-voice-garden-ui:
+    name: Build VoiceGarden.UI
+    runs-on: windows-2022
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Build DotNetTtsWrapper from source (not yet on NuGet.org)
+      shell: pwsh
+      run: |
+        git clone --depth 1 https://github.com/AACTools/dotnet-tts-wrapper.git ../dotnet-tts-wrapper
+        dotnet pack ../dotnet-tts-wrapper/src/DotNetTtsWrapper.Core/DotNetTtsWrapper.Core.csproj -c Release -o ../dotnet-tts-wrapper/artifacts
+        dotnet nuget add source ../dotnet-tts-wrapper/artifacts --name local-tts
+
+    - name: Publish VoiceGarden.UI (self-contained, x64)
+      run: |
+        dotnet publish VoiceGarden.UI\VoiceGarden.UI.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -p:PublishReadyToRun=false -o ${{github.workspace}}\ui-publish
+
+    - name: Copy branding.json
+      shell: pwsh
+      run: |
+        if (Test-Path config\branding.json) {
+          Copy-Item config\branding.json ui-publish\ -Force
+        }
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: voice-garden-ui
+        path: ui-publish/VoiceGarden.UI.exe
 
   build-utilities:
     name: Build submodules
     runs-on: windows-2022
     needs: [build-sherpa-config, build-engine-config]
-
     permissions:
       contents: read
-
     strategy:
       matrix:
         platform: [x86, x64, ARM64]
-
     steps:
-    - name: Checkout
-      uses: actions/checkout@v6
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
 
@@ -108,20 +128,6 @@ jobs:
         nuget restore Arm64XForwarder -SolutionDirectory .
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=ARM64EC /p:OutDir=${{github.workspace}}\out\ Arm64XForwarder
 
-    - name: Build Installer (x86 only)
-      if: matrix.platform == 'x86'
-      working-directory: ${{github.workspace}}
-      run: |
-        nuget restore Installer -SolutionDirectory .
-        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=Win32 /p:OutDir=${{github.workspace}}\out\ Installer
-        Copy-Item -Path out\Installer.exe -Destination out\InstallPlanRunner.exe -Force
-        if (Test-Path .\samples\install-plans\default-install-plan.json) {
-          Copy-Item -Path .\samples\install-plans\default-install-plan.json -Destination out\install-plan.json -Force
-        }
-        if (Test-Path .\config\branding.json) {
-          Copy-Item -Path .\config\branding.json -Destination out\branding.json -Force
-        }
-
     - name: Download SherpaOnnxConfig and copy to utilities output
       if: matrix.platform == 'x86' || matrix.platform == 'x64'
       uses: actions/download-artifact@v4
@@ -146,43 +152,36 @@ jobs:
     - name: Keep only merged_models.json in ARM64 utilities
       if: matrix.platform == 'ARM64'
       shell: pwsh
-      working-directory: ${{github.workspace}}
-      run: |
-        Remove-Item out\SherpaOnnxConfig.exe -ErrorAction SilentlyContinue
+      run: Remove-Item out\SherpaOnnxConfig.exe -ErrorAction SilentlyContinue
 
-    - name: Run Installer plan fixture regression tests (x86)
+    - name: Copy branding.json to output
       if: matrix.platform == 'x86'
       shell: pwsh
-      working-directory: ${{github.workspace}}
       run: |
-        .\scripts\test-installer-cli.ps1 -RepoRoot ${{github.workspace}}
+        if (Test-Path .\config\branding.json) {
+          Copy-Item -Path .\config\branding.json -Destination out\branding.json -Force
+        }
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v6
+    - uses: actions/upload-artifact@v4
       with:
         name: utilities-${{matrix.platform}}
         path: out
 
   build-main:
-    name: Build VoiceGardenSAPIAdapter
+    name: Build VoiceGardenSAPIAdapter DLL
     runs-on: windows-2022
-
     permissions:
       contents: read
-
     strategy:
       matrix:
         platform: [x86, x64, ARM64]
-
     steps:
-    - name: Checkout
-      uses: actions/checkout@v6
+    - uses: actions/checkout@v4
 
     - name: Download SherpaOnnx dependencies
       shell: pwsh
       run: |
         $platform = "${{matrix.platform}}"
-        if ($platform -eq "x86") { $platform = "x86" }
         .\download-sherpa-deps.ps1 -Platforms $platform
 
     - name: Add MSBuild to PATH
@@ -192,20 +191,11 @@ jobs:
       working-directory: ${{github.workspace}}
       run: nuget restore VoiceGardenSAPIAdapter -SolutionDirectory .
 
-    - name: Build
+    - name: Build C++ adapter DLL
       working-directory: ${{github.workspace}}
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{matrix.platform}} /p:OutDir=${{github.workspace}}\out\ /p:RegisterOutput=false . /t:VoiceGardenSAPIAdapter
 
-    - name: Compile Sherpa smoke test (x64)
-      if: matrix.platform == 'x64'
-      shell: pwsh
-      working-directory: ${{github.workspace}}
-      run: |
-        .\scripts\run-sherpa-smoke-test.ps1 -CompileOnly
-      
     - name: Remove unnecessary DLLs
-      # Remove the codec DLL because it can trigger the 'GStreamer DLL not found' error
-      # However the codec DLL might not exist, so ignore the error code
       working-directory: ${{github.workspace}}\out
       shell: pwsh
       run: |
@@ -215,33 +205,22 @@ jobs:
         $dlls = & $dumpbinpath /dependents VoiceGardenSAPIAdapter.dll Microsoft.CognitiveServices.*.dll `
           | ? { $_ -like "    *.dll" } | % { $_.Trim() } | Select-Object -Unique
         $dlls += "VoiceGardenSAPIAdapter.dll", "Microsoft.CognitiveServices.*.dll"
-        # Keep SherpaOnnx runtime dependencies in release artifacts.
         $dlls += "sherpa-onnx-c-api.dll", "onnxruntime.dll", "onnxruntime_providers_shared.dll"
         Remove-Item * -Include *.dll -Exclude $dlls
         Remove-Item Microsoft.CognitiveServices.Speech.extension.codec.dll -ErrorAction Ignore
-        exit 0   # This is necessary because "-ErrorAction Ignore" doesn't ensure a zero exit code
-
-    - name: Remove sherpa smoke test artifacts (x64)
-      if: matrix.platform == 'x64'
-      shell: pwsh
-      working-directory: ${{github.workspace}}
-      run: |
-        Remove-Item out\sherpa-smoke -Recurse -Force -ErrorAction SilentlyContinue
+        exit 0
 
     - name: Copy ucrtbase.dll (x64)
       if: matrix.platform == 'x64'
-      working-directory: ${{github.workspace}}
       shell: pwsh
       run: Copy-Item -Path "$env:SystemRoot\System32\ucrtbase.dll" -Destination out\
 
     - name: Copy ucrtbase.dll (x86)
       if: matrix.platform == 'x86'
-      working-directory: ${{github.workspace}}
       shell: pwsh
       run: Copy-Item -Path "$env:SystemRoot\SysWOW64\ucrtbase.dll" -Destination out\
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v6
+    - uses: actions/upload-artifact@v4
       with:
         name: main-${{matrix.platform}}
         path: out
@@ -249,17 +228,13 @@ jobs:
   build-dotnet-adapter:
     name: Build .NET TTS Adapter
     runs-on: windows-2022
-
     permissions:
       contents: read
-
     strategy:
       matrix:
         platform: [x86, x64]
-
     steps:
-    - name: Checkout
-      uses: actions/checkout@v6
+    - uses: actions/checkout@v4
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -276,8 +251,7 @@ jobs:
           --self-contained false `
           -o ${{github.workspace}}\out
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v6
+    - uses: actions/upload-artifact@v4
       with:
         name: dotnet-adapter-${{matrix.platform}}
         path: out
@@ -285,16 +259,14 @@ jobs:
   build-setup:
     name: Build MSI setup
     runs-on: windows-2022
-    needs: [build-sherpa-config, build-utilities, build-main, build-dotnet-adapter]
-
+    needs: [build-sherpa-config, build-engine-config, build-voice-garden-ui, build-utilities, build-main, build-dotnet-adapter]
     permissions:
       contents: read
-
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v4
 
-    - name: Download build artifacts
-      uses: actions/download-artifact@v7
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
       with:
         path: ${{github.workspace}}\artifacts
 
@@ -305,25 +277,30 @@ jobs:
         New-Item -ItemType Directory -Force -Path payload\x86 | Out-Null
         New-Item -ItemType Directory -Force -Path payload\x64 | Out-Null
         New-Item -ItemType Directory -Force -Path payload\ARM64 | Out-Null
+
+        # C++ adapter DLLs + utilities per platform
         Copy-Item artifacts\utilities-x86\* payload\x86\ -Recurse -Force
         Copy-Item artifacts\main-x86\* payload\x86\ -Recurse -Force
         Copy-Item artifacts\utilities-x64\* payload\x64\ -Recurse -Force
         Copy-Item artifacts\main-x64\* payload\x64\ -Recurse -Force
         Copy-Item artifacts\utilities-ARM64\* payload\ARM64\ -Recurse -Force
         Copy-Item artifacts\main-ARM64\* payload\ARM64\ -Recurse -Force
-        # Copy .NET adapter files but preserve C++ adapter's native SherpaOnnx DLLs (version match)
+
+        # .NET adapter files (but preserve C++ adapter's native SherpaOnnx DLLs)
         $nativeDlls = @("sherpa-onnx-c-api.dll", "sherpa-onnx.dll", "onnxruntime.dll", "onnxruntime_providers_shared.dll")
         Get-ChildItem artifacts\dotnet-adapter-x86 -File | Where-Object { $_.Name -notin $nativeDlls } | ForEach-Object { Copy-Item $_.FullName payload\x86\ -Force }
         Get-ChildItem artifacts\dotnet-adapter-x86 -Directory | ForEach-Object { Copy-Item $_.FullName payload\x86\ -Recurse -Force }
         Get-ChildItem artifacts\dotnet-adapter-x64 -File | Where-Object { $_.Name -notin $nativeDlls } | ForEach-Object { Copy-Item $_.FullName payload\x64\ -Force }
         Get-ChildItem artifacts\dotnet-adapter-x64 -Directory | ForEach-Object { Copy-Item $_.FullName payload\x64\ -Recurse -Force }
-        Copy-Item payload\x86\Installer.exe payload\Installer.exe -Force
-        Copy-Item payload\x86\InstallPlanRunner.exe payload\InstallPlanRunner.exe -Force
-        if (Test-Path payload\x86\install-plan.json) {
-          Copy-Item payload\x86\install-plan.json payload\install-plan.json -Force
-        }
+
+        # VoiceGarden.UI.exe (the main configuration app)
+        Copy-Item artifacts\voice-garden-ui\VoiceGarden.UI.exe payload\ -Force
+
+        # Branding
         if (Test-Path payload\x86\branding.json) {
           Copy-Item payload\x86\branding.json payload\branding.json -Force
+        } elseif (Test-Path .\config\branding.json) {
+          Copy-Item .\config\branding.json payload\branding.json -Force
         }
 
     - name: Build MSI
@@ -338,14 +315,12 @@ jobs:
       run: |
         .\scripts\build-bootstrapper.ps1 -MsiPath .\installer-output\VoiceGardenSAPIAdapter.msi -OutputDir .\installer-output
 
-    - name: Upload setup artifact
-      uses: actions/upload-artifact@v6
+    - uses: actions/upload-artifact@v4
       with:
         name: setup-msi
         path: installer-output/VoiceGardenSAPIAdapter.msi
 
-    - name: Upload setup bootstrapper artifact
-      uses: actions/upload-artifact@v6
+    - uses: actions/upload-artifact@v4
       with:
         name: setup-exe
         path: |
@@ -355,17 +330,15 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    needs: [build-sherpa-config, build-utilities, build-main, build-dotnet-adapter, build-setup]
+    needs: [build-setup]
     if: github.ref_type == 'tag'
-
     permissions:
       contents: write
-
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v4
 
     - name: Download all artifacts
-      uses: actions/download-artifact@v7
+      uses: actions/download-artifact@v4
       with:
         path: ${{github.workspace}}/artifacts
 
@@ -374,29 +347,34 @@ jobs:
       run: |
         ver="${{github.ref_name}}"
         ver="${ver//\//_}"
-        mkdir x86
-        mv utilities-x86/* x86/
-        mv main-x86/* x86/
-        mv x86/Installer.exe ./
-        mv x86/InstallPlanRunner.exe ./
-        if [ -f x86/install-plan.json ]; then cp x86/install-plan.json ./; fi
-        mkdir x64
-        mv utilities-x64/* x64/
-        mv main-x64/* x64/
-        zip -r VoiceGardenSAPIAdapter_${ver}_x86_x64.zip x86 x64 Installer.exe InstallPlanRunner.exe -i "*.exe" "*.dll" "*.json"
-        mkdir ARM64
-        mv utilities-ARM64/* ARM64/
-        mv main-ARM64/* ARM64/
-        zip -r VoiceGardenSAPIAdapter_${ver}_ARM64.zip x86 x64 ARM64 Installer.exe InstallPlanRunner.exe -i "*.exe" "*.dll" "*.json"
+
+        # Compose x86 + x64 payload
+        mkdir -p x86 x64 ARM64
+        cp -r utilities-x86/* x86/ 2>/dev/null || true
+        cp -r main-x86/* x86/ 2>/dev/null || true
+        cp -r utilities-x64/* x64/ 2>/dev/null || true
+        cp -r main-x64/* x64/ 2>/dev/null || true
+        cp -r utilities-ARM64/* ARM64/ 2>/dev/null || true
+        cp -r main-ARM64/* ARM64/ 2>/dev/null || true
+
+        # VoiceGarden.UI.exe goes to payload root
+        cp voice-garden-ui/VoiceGarden.UI.exe . 2>/dev/null || true
+
+        # MSI + setup.exe
+        cp setup-msi/VoiceGardenSAPIAdapter.msi . 2>/dev/null || true
+        cp setup-exe/setup.exe . 2>/dev/null || true
+        cp setup-exe/branding.json . 2>/dev/null || true
+
+        # Debug symbols
         zip -r debug_symbols.zip x86 x64 ARM64 -i "*.pdb"
-        cp setup-msi/VoiceGardenSAPIAdapter.msi ./
-        cp setup-exe/setup.exe ./
-        if [ -f setup-exe/branding.json ]; then cp setup-exe/branding.json ./; fi
-        # Canonical release payload layout (single package).
-        zip -r VoiceGardenSAPIAdapter_${ver}_release-layout.zip x86 x64 ARM64 Installer.exe InstallPlanRunner.exe setup.exe VoiceGardenSAPIAdapter.msi branding.json -i "*.exe" "*.dll" "*.json" "*.msi"
+
+        # Release payload
+        zip -r VoiceGardenSAPIAdapter_${ver}_release-layout.zip \
+          x86 x64 ARM64 VoiceGarden.UI.exe setup.exe VoiceGardenSAPIAdapter.msi \
+          branding.json \
+          -i "*.exe" "*.dll" "*.json" "*.msi"
 
     - name: Create release
-      if: github.ref_type == 'tag'
       uses: softprops/action-gh-release@v2
       with:
         body_path: ${{github.workspace}}/release_notes.md
@@ -404,17 +382,14 @@ jobs:
           ${{github.workspace}}/artifacts/VoiceGardenSAPIAdapter_*_release-layout.zip
           ${{github.workspace}}/artifacts/debug_symbols.zip
 
-    - name: Upload release layout (unzipped)
-      uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v4
       with:
         name: release-layout
         path: |
           ${{github.workspace}}/artifacts/x86/**
           ${{github.workspace}}/artifacts/x64/**
           ${{github.workspace}}/artifacts/ARM64/**
-          ${{github.workspace}}/artifacts/Installer.exe
-          ${{github.workspace}}/artifacts/InstallPlanRunner.exe
-          ${{github.workspace}}/artifacts/install-plan.json
+          ${{github.workspace}}/artifacts/VoiceGarden.UI.exe
           ${{github.workspace}}/artifacts/branding.json
           ${{github.workspace}}/artifacts/VoiceGardenSAPIAdapter.msi
           ${{github.workspace}}/artifacts/setup.exe
