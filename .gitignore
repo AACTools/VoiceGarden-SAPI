@@ -400,3 +400,5 @@ VoiceGardenSAPIAdapter.Net/.e2e-*.ps1
 nuget.exe
 
 engine-config/
+
+lib/
