@@ -199,6 +199,16 @@ public class SherpaModelService
         try { if (File.Exists(path)) File.Delete(path); } catch { }
     }
 
+    private static void SafeDeleteDir(string dir)
+    {
+        try
+        {
+            if (Directory.Exists(dir) && Directory.GetFiles(dir, "*", SearchOption.AllDirectories).Length == 0)
+                Directory.Delete(dir, recursive: true);
+        }
+        catch { }
+    }
+
     /// <summary>
     /// Download a model from the catalog URL.
     /// </summary>
@@ -208,8 +218,6 @@ public class SherpaModelService
             throw new InvalidOperationException($"Model {model.Id} has no download URL");
 
         var destDir = Path.Combine(ModelsDir, model.Id);
-        Directory.CreateDirectory(destDir);
-
         var fileName = model.Url.Split('/').Last();
         var destFile = Path.Combine(destDir, fileName);
 
@@ -217,10 +225,19 @@ public class SherpaModelService
 
         using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(30) };
         using var response = await http.GetAsync(model.Url, HttpCompletionOption.ResponseHeadersRead);
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            // Clean up: remove the dest dir if we created it and it's empty/partial
+            SafeDeleteDir(destDir);
+            throw new HttpRequestException(
+                $"HTTP {(int)response.StatusCode} {response.StatusCode} for {fileName}");
+        }
 
         var totalBytes = response.Content.Headers.ContentLength ?? 0;
         var totalMb = totalBytes > 0 ? totalBytes / (1024.0 * 1024.0) : 0;
+
+        // Only create the directory once we know the download is actually starting
+        Directory.CreateDirectory(destDir);
         using var contentStream = await response.Content.ReadAsStreamAsync();
         using var fileStream = File.Create(destFile);
 

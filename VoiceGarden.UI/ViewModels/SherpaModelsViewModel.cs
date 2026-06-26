@@ -98,18 +98,18 @@ public partial class SherpaModelsViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void Rescan()
-    {
-        RefreshInstalled();
-        foreach (var item in AllModels)
+        private void Rescan()
         {
-            var installed = _installed.FirstOrDefault(i => i.Id == item.Id);
-            item.IsDownloaded = installed != null;
-            item.IsPromoted = installed?.IsPromoted ?? false;
+            RefreshInstalled();
+            foreach (var item in AllModels)
+            {
+                var installed = _installed.FirstOrDefault(i => i.Id == item.Id);
+                item.IsDownloaded = installed != null;
+                item.IsPromoted = installed?.IsPromoted ?? false;
+            }
+            UpdateCounts();
+            StatusText = $"Rescanned: {_installed.Count} model(s) ready";
         }
-        UpdateCounts();
-        StatusText = $"Rescanned: {_installed.Count} models installed";
-    }
 
     [ObservableProperty] private bool addEnUsAlias = true;
 
@@ -126,12 +126,15 @@ public partial class SherpaModelsViewModel : ObservableObject
         // Load catalog for download URLs
         var catalog = await SherpaModelService.LoadCatalogAsync();
 
+        int okCount = 0, failCount = 0;
+
         foreach (var model in selected)
         {
             var catalogModel = catalog.FirstOrDefault(c => c.Id == model.Id);
             if (catalogModel == null || string.IsNullOrEmpty(catalogModel.Url))
             {
                 model.DownloadStatus = "No download URL";
+                failCount++;
                 continue;
             }
 
@@ -155,19 +158,31 @@ public partial class SherpaModelsViewModel : ObservableObject
                 model.IsDownloading = false;
                 model.DownloadProgress = 100;
                 model.DownloadStatus = "Downloaded";
-                StatusText = $"Downloaded {model.Name} ({sizeMb})";
+                okCount++;
             }
             catch (Exception ex)
             {
                 model.IsDownloading = false;
                 model.DownloadProgress = 0;
                 model.DownloadStatus = $"Failed: {ex.Message}";
-                StatusText = $"Download failed: {model.Name}";
+                failCount++;
             }
         }
 
-        Rescan();
-        StatusText = "Download complete";
+        RefreshInstalled();
+        foreach (var item in AllModels)
+        {
+            var installed = _installed.FirstOrDefault(i => i.Id == item.Id);
+            item.IsDownloaded = installed != null;
+            item.IsPromoted = installed?.IsPromoted ?? false;
+        }
+        UpdateCounts();
+
+        StatusText = failCount == 0
+            ? $"Downloaded {okCount} model(s)"
+            : okCount > 0
+                ? $"Downloaded {okCount}, failed {failCount}"
+                : $"Download failed: {failCount} model(s)";
     }
 
     [RelayCommand]
@@ -304,7 +319,9 @@ public partial class SherpaModelsViewModel : ObservableObject
 
     private void RefreshInstalled()
     {
-        _installed = SherpaModelService.ScanInstalledModels();
+        _installed = SherpaModelService.ScanInstalledModels()
+            .Where(m => !string.IsNullOrEmpty(m.ModelPath))
+            .ToList();
     }
 
     private void PopulateModels()
