@@ -66,6 +66,8 @@ public class SherpaModelService
         {
             Path.Combine(AppContext.BaseDirectory, "merged_models.json"),
             Path.Combine(AppContext.BaseDirectory, "..", "merged_models.json"),
+            Path.Combine(AppContext.BaseDirectory, "x64", "merged_models.json"),
+            Path.Combine(AppContext.BaseDirectory, "x86", "merged_models.json"),
             Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "SherpaOnnxConfig", "merged_models.json"),
         };
 

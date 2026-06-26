@@ -244,11 +244,14 @@ public partial class VoiceConfigViewModel : ObservableObject
             if (client == null) return;
 
             client.SetVoice(voice.Id);
-            var result = await client.SynthToBytesAsync($"Hello, my name is {voice.Name}.");
-            if (result?.AudioData?.Length > 0)
+            var tempFile = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"voicegarden_preview_{Guid.NewGuid():N}.wav");
+            
+            // Use SynthToFileAsync with WAV format — SynthToBytesAsync returns MP3
+            // for some engines (Azure, OpenAI) which SoundPlayer can't play.
+            await client.SynthToFileAsync($"Hello, my name is {voice.Name}.", tempFile, DotNetTtsWrapper.Models.AudioFormat.Wav);
+            
+            if (System.IO.File.Exists(tempFile) && new System.IO.FileInfo(tempFile).Length > 0)
             {
-                var tempFile = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"voicegarden_preview_{Guid.NewGuid():N}.wav");
-                await System.IO.File.WriteAllBytesAsync(tempFile, result.AudioData);
                 // Play without opening a media player window
                 _ = Task.Run(() =>
                 {
