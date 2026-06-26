@@ -1,0 +1,7 @@
+Models dir: C:\Users\zxy_64\AppData\Local\VoiceGardenSAPIAdapter\models
+Exists: False
+LOCALAPPDATA: C:\Users\zxy_64\AppData\Local
+USERPROFILE: C:\Users\zxy_64
+USERNAME: zxy_64
+Model dirs: 0
+Done

@@ -19,11 +19,15 @@ $tokensRoot = "HKLM:\SOFTWARE\Microsoft\Speech\Voices\Tokens"
 # Also check WOW6432Node for 32-bit registrations
 $wowTokensRoot = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Speech\Voices\Tokens"
 
-$prefixes = @("Sherpa-", "Cloud-", "NaturalVoice-")
+# Also check HKCU (promoted voices can end up here too)
+$hkcuTokensRoot = "HKCU:\SOFTWARE\Microsoft\Speech\Voices\Tokens"
+
+$prefixes = @("Sherpa-", "Cloud-", "NaturalVoice-", "eSpeak")
+# Note: eSpeak voices are also from our adapter in 32-bit land
 $deleted = 0
 $kept = 0
 
-foreach ($root in @($tokensRoot, $wowTokensRoot)) {
+foreach ($root in @($tokensRoot, $wowTokensRoot, $hkcuTokensRoot)) {
     if (-not (Test-Path $root)) { continue }
 
     $children = Get-ChildItem $root -ErrorAction SilentlyContinue
@@ -35,7 +39,9 @@ foreach ($root in @($tokensRoot, $wowTokensRoot)) {
         }
 
         if ($isOurs) {
-            $hive = if ($root -like "*WOW6432Node*") { "WOW6432Node" } else { "Native" }
+            $hive = if ($root -like "*WOW6432Node*") { "WOW6432Node" }
+                    elseif ($root -like "*HKCU*") { "HKCU" }
+                    else { "HKLM" }
             if ($DryRun) {
                 Write-Host "  [DRY-RUN] Would delete: $name ($hive)" -ForegroundColor Yellow
             } else {

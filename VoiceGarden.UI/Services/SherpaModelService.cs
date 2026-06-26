@@ -47,7 +47,14 @@ public class SherpaModelService
         public string? ModelPath { get; set; }
         public string? TokensPath { get; set; }
         public string? DataDir { get; set; }
+        public string? VoicesPath { get; set; }
+        public string? LexiconPath { get; set; }
         public bool IsPromoted { get; set; }
+
+        /// <summary>
+        /// 0=VITS, 1=Matcha, 2=Kokoro
+        /// </summary>
+        public int ModelType { get; set; } = 0;
     }
 
     /// <summary>
@@ -108,10 +115,12 @@ public class SherpaModelService
             };
 
             // Find model.onnx (could be in nested dir for Piper)
-            var onnxFiles = Directory.GetFiles(dir, "*.onnx", SearchOption.AllDirectories);
+            var onnxFiles = System.IO.Directory.GetFiles(dir, "*.onnx", SearchOption.AllDirectories);
             if (onnxFiles.Length > 0)
             {
-                installed.ModelPath = onnxFiles[0];
+                // Prefer model.onnx over other names
+                installed.ModelPath = onnxFiles.FirstOrDefault(f => Path.GetFileName(f).Equals("model.onnx", StringComparison.OrdinalIgnoreCase))
+                    ?? onnxFiles[0];
                 var modelDir = Path.GetDirectoryName(installed.ModelPath)!;
 
                 var tokensPath = Path.Combine(modelDir, "tokens.txt");
@@ -121,6 +130,22 @@ public class SherpaModelService
                 var dataDir = Path.Combine(modelDir, "espeak-ng-data");
                 if (Directory.Exists(dataDir))
                     installed.DataDir = dataDir;
+
+                var voicesPath = Path.Combine(modelDir, "voices.bin");
+                if (File.Exists(voicesPath))
+                    installed.VoicesPath = voicesPath;
+
+                var lexiconPath = Path.Combine(modelDir, "lexicon.txt");
+                if (File.Exists(lexiconPath))
+                    installed.LexiconPath = lexiconPath;
+
+                // Detect model type: Kokoro has voices.bin, Matcha has vocoder.onnx
+                if (installed.VoicesPath != null || modelId.StartsWith("kokoro-"))
+                    installed.ModelType = 2; // Kokoro
+                else if (onnxFiles.Any(f => Path.GetFileName(f).Contains("vocoder")))
+                    installed.ModelType = 1; // Matcha
+                else
+                    installed.ModelType = 0; // VITS
             }
 
             result.Add(installed);
@@ -454,8 +479,11 @@ public class SherpaModelService
         if (models.Count == 0)
             return (0, 0, "No downloaded models found with a valid model.onnx");
 
-        // Generate .reg file
-        var regPath = Path.Combine(Path.GetTempPath(), "VoiceGarden_promote.reg");
+        // Generate .reg file in a shared location (C:\ProgramData) so the elevated
+        // process (which may run as a different admin user) can read it.
+        var regDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "VoiceGardenSAPIAdapter");
+        Directory.CreateDirectory(regDir);
+        var regPath = Path.Combine(regDir, "promote.reg");
         var lines = new List<string> { "Windows Registry Editor Version 5.00", "" };
 
         foreach (var model in models)
@@ -510,12 +538,16 @@ public class SherpaModelService
         // VoiceGardenConfig subkey
         lines.Add($"[{tokenPath}\\VoiceGardenConfig]");
         lines.Add("\"EngineType\"=\"Sherpa\"");
-        lines.Add("\"SherpaOnnxModelType\"=dword:00000000");
+        lines.Add($"\"SherpaOnnxModelType\"=dword:{model.ModelType:X8}");
         lines.Add($"\"SherpaOnnxModelPath\"=\"{EscapeRegPath(model.ModelPath!)}\"");
         if (model.TokensPath != null)
             lines.Add($"\"SherpaOnnxTokens\"=\"{EscapeRegPath(model.TokensPath)}\"");
         if (model.DataDir != null)
             lines.Add($"\"SherpaOnnxDataDir\"=\"{EscapeRegPath(model.DataDir)}\"");
+        if (model.VoicesPath != null)
+            lines.Add($"\"SherpaOnnxVoices\"=\"{EscapeRegPath(model.VoicesPath)}\"");
+        if (model.LexiconPath != null)
+            lines.Add($"\"SherpaOnnxLexicon\"=\"{EscapeRegPath(model.LexiconPath)}\"");
 
         // Attributes subkey
         lines.Add($"[{tokenPath}\\Attributes]");
@@ -549,12 +581,16 @@ public class SherpaModelService
 
         using var config = key.CreateSubKey("VoiceGardenConfig", writable: true);
         config.SetValue("EngineType", "Sherpa", Microsoft.Win32.RegistryValueKind.String);
-        config.SetValue("SherpaOnnxModelType", 0, Microsoft.Win32.RegistryValueKind.DWord); // VITS
+        config.SetValue("SherpaOnnxModelType", model.ModelType, Microsoft.Win32.RegistryValueKind.DWord);
         config.SetValue("SherpaOnnxModelPath", model.ModelPath, Microsoft.Win32.RegistryValueKind.String);
         if (model.TokensPath != null)
             config.SetValue("SherpaOnnxTokens", model.TokensPath, Microsoft.Win32.RegistryValueKind.String);
         if (model.DataDir != null)
             config.SetValue("SherpaOnnxDataDir", model.DataDir, Microsoft.Win32.RegistryValueKind.String);
+        if (model.VoicesPath != null)
+            config.SetValue("SherpaOnnxVoices", model.VoicesPath, Microsoft.Win32.RegistryValueKind.String);
+        if (model.LexiconPath != null)
+            config.SetValue("SherpaOnnxLexicon", model.LexiconPath, Microsoft.Win32.RegistryValueKind.String);
 
         using var attrs = key.CreateSubKey("Attributes", writable: true);
         attrs.SetValue("Name", model.Id, Microsoft.Win32.RegistryValueKind.String);
