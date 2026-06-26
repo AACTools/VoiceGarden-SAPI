@@ -211,6 +211,10 @@ public class SherpaModelService
 
     /// <summary>
     /// Download a model from the catalog URL.
+    /// Handles two URL patterns:
+    ///   1. Archive URL (ends in .tar.bz2 or .tar) — download + extract with 7-Zip
+    ///   2. HuggingFace directory URL (no file extension) — download individual files
+    ///      (model.onnx, tokens.txt) from that directory. Used by MMS models.
     /// </summary>
     public static async Task DownloadModelAsync(CatalogModel model, IProgress<(int percent, string status)>? progress = null)
     {
@@ -218,25 +222,32 @@ public class SherpaModelService
             throw new InvalidOperationException($"Model {model.Id} has no download URL");
 
         var destDir = Path.Combine(ModelsDir, model.Id);
-        var fileName = model.Url.Split('/').Last();
-        var destFile = Path.Combine(destDir, fileName);
+        var lastSegment = model.Url.Split('/').Last();
 
-        progress?.Report((0, $"Connecting to {fileName}..."));
+        // Route 1: HuggingFace directory (MMS models) — no archive extension
+        var isArchive = lastSegment.EndsWith(".tar.bz2") || lastSegment.EndsWith(".tar");
+        if (!isArchive)
+        {
+            await DownloadHfDirectoryAsync(model.Url, destDir, model.Id, progress);
+            return;
+        }
+
+        // Route 2: Single archive download + extract
+        var destFile = Path.Combine(destDir, lastSegment);
+        progress?.Report((0, $"Connecting to {lastSegment}..."));
 
         using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(30) };
         using var response = await http.GetAsync(model.Url, HttpCompletionOption.ResponseHeadersRead);
         if (!response.IsSuccessStatusCode)
         {
-            // Clean up: remove the dest dir if we created it and it's empty/partial
             SafeDeleteDir(destDir);
             throw new HttpRequestException(
-                $"HTTP {(int)response.StatusCode} {response.StatusCode} for {fileName}");
+                $"HTTP {(int)response.StatusCode} {response.StatusCode} for {lastSegment}");
         }
 
         var totalBytes = response.Content.Headers.ContentLength ?? 0;
         var totalMb = totalBytes > 0 ? totalBytes / (1024.0 * 1024.0) : 0;
 
-        // Only create the directory once we know the download is actually starting
         Directory.CreateDirectory(destDir);
         using var contentStream = await response.Content.ReadAsStreamAsync();
         using var fileStream = File.Create(destFile);
@@ -252,7 +263,6 @@ public class SherpaModelService
             bytesRead += read;
             if (totalBytes > 0)
             {
-                // Throttle progress reports to 4/sec to avoid flooding UI thread
                 var now = DateTime.UtcNow;
                 if ((now - lastReport).TotalMilliseconds >= 250 || bytesRead == totalBytes)
                 {
@@ -264,7 +274,6 @@ public class SherpaModelService
             }
             else
             {
-                // Unknown size - report bytes downloaded
                 var doneMb = bytesRead / (1024.0 * 1024.0);
                 var now = DateTime.UtcNow;
                 if ((now - lastReport).TotalMilliseconds >= 500)
@@ -275,34 +284,127 @@ public class SherpaModelService
             }
         }
 
-        // Extract if tar.bz2 (the rescan path will also self-heal if this fails)
-        if (fileName.EndsWith(".tar.bz2") || fileName.EndsWith(".tar"))
+        // Extract the archive
+        progress?.Report((100, "Extracting..."));
+        var sevenZip = @"C:\Program Files\7-Zip\7z.exe";
+        if (!File.Exists(sevenZip))
         {
-            progress?.Report((100, "Extracting..."));
-            var sevenZip = @"C:\Program Files\7-Zip\7z.exe";
-            if (File.Exists(sevenZip))
+            throw new PlatformNotSupportedException(
+                "7-Zip is required for model extraction. Install 7-Zip from https://7-zip.org then click Rescan.");
+        }
+
+        if (lastSegment.EndsWith(".tar.bz2"))
+        {
+            var tarFile = destFile.Replace(".tar.bz2", ".tar");
+            RunSevenZip(sevenZip, $"x \"{destFile}\" -o\"{destDir}\" -y");
+            if (File.Exists(tarFile))
+                RunSevenZip(sevenZip, $"x \"{tarFile}\" -o\"{destDir}\" -y");
+            TryDelete(tarFile);
+        }
+        else
+        {
+            RunSevenZip(sevenZip, $"x \"{destFile}\" -o\"{destDir}\" -y");
+        }
+        TryDelete(destFile);
+
+        progress?.Report((100, "Done"));
+    }
+
+    /// <summary>
+    /// Download individual files from a HuggingFace directory URL.
+    /// MMS models are stored as directories with model.onnx, tokens.txt, etc.
+    /// </summary>
+    private static async Task DownloadHfDirectoryAsync(string baseUrl, string destDir, string modelId,
+        IProgress<(int percent, string status)>? progress)
+    {
+        // Files to download for MMS models (in priority order)
+        var files = new[] { "model.onnx", "tokens.txt", "lexicon.txt", "espeak-ng-data" };
+
+        Directory.CreateDirectory(destDir);
+        using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(30) };
+
+        // First, probe which files exist by trying to download model.onnx (required)
+        var modelUrl = $"{baseUrl}/model.onnx";
+        progress?.Report((0, $"Connecting to {modelId}/model.onnx..."));
+
+        using var modelResp = await http.GetAsync(modelUrl, HttpCompletionOption.ResponseHeadersRead);
+        if (!modelResp.IsSuccessStatusCode)
+        {
+            SafeDeleteDir(destDir);
+            throw new HttpRequestException(
+                $"HTTP {(int)modelResp.StatusCode} {modelResp.StatusCode} for {modelId}/model.onnx");
+        }
+
+        // Download model.onnx with progress (this is the big file)
+        await DownloadFileWithProgressAsync(http, modelResp, Path.Combine(destDir, "model.onnx"),
+            "model.onnx", progress);
+
+        // Download tokens.txt (required for MMS)
+        var tokensUrl = $"{baseUrl}/tokens.txt";
+        progress?.Report((100, "Downloading tokens.txt..."));
+        try
+        {
+            await DownloadFileAsync(http, tokensUrl, Path.Combine(destDir, "tokens.txt"));
+        }
+        catch
+        {
+            // tokens.txt might not exist for all models — non-fatal
+        }
+
+        // Try optional files: lexicon.txt
+        foreach (var optFile in new[] { "lexicon.txt" })
+        {
+            try
             {
-                if (fileName.EndsWith(".tar.bz2"))
-                {
-                    var tarFile = destFile.Replace(".tar.bz2", ".tar");
-                    RunSevenZip(sevenZip, $"x \"{destFile}\" -o\"{destDir}\" -y");
-                    if (File.Exists(tarFile))
-                        RunSevenZip(sevenZip, $"x \"{tarFile}\" -o\"{destDir}\" -y");
-                }
-                else
-                {
-                    RunSevenZip(sevenZip, $"x \"{destFile}\" -o\"{destDir}\" -y");
-                }
-                TryDelete(destFile);
+                progress?.Report((100, $"Checking {optFile}..."));
+                await DownloadFileAsync(http, $"{baseUrl}/{optFile}", Path.Combine(destDir, optFile));
             }
-            else
-            {
-                throw new PlatformNotSupportedException(
-                    "7-Zip is required for model extraction. Install 7-Zip from https://7-zip.org then click Rescan.");
-            }
+            catch { /* optional */ }
         }
 
         progress?.Report((100, "Done"));
+    }
+
+    private static async Task DownloadFileWithProgressAsync(
+        HttpClient http, HttpResponseMessage response, string destPath, string fileName,
+        IProgress<(int percent, string status)>? progress)
+    {
+        var totalBytes = response.Content.Headers.ContentLength ?? 0;
+        var totalMb = totalBytes > 0 ? totalBytes / (1024.0 * 1024.0) : 0;
+
+        using var contentStream = await response.Content.ReadAsStreamAsync();
+        using var fileStream = File.Create(destPath);
+
+        var buffer = new byte[81920];
+        long bytesRead = 0;
+        int read;
+        var lastReport = DateTime.UtcNow;
+
+        while ((read = await contentStream.ReadAsync(buffer)) > 0)
+        {
+            await fileStream.WriteAsync(buffer.AsMemory(0, read));
+            bytesRead += read;
+            if (totalBytes > 0)
+            {
+                var now = DateTime.UtcNow;
+                if ((now - lastReport).TotalMilliseconds >= 250 || bytesRead == totalBytes)
+                {
+                    lastReport = now;
+                    var pct = (int)(bytesRead * 100 / totalBytes);
+                    var doneMb = bytesRead / (1024.0 * 1024.0);
+                    progress?.Report((pct, $"{pct}% ({doneMb:F0}/{totalMb:F0}MB)"));
+                }
+            }
+        }
+    }
+
+    private static async Task DownloadFileAsync(HttpClient http, string url, string destPath)
+    {
+        using var resp = await http.GetAsync(url);
+        resp.EnsureSuccessStatusCode();
+        await using var stream = await resp.Content.ReadAsStreamAsync();
+        using var file = File.Create(destPath);
+        await stream.CopyToAsync(file);
     }
 
     /// <summary>
