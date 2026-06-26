@@ -414,6 +414,7 @@ public class SherpaModelService
     {
         var models = ScanInstalledModels();
         int promoted = 0, failed = 0;
+        var errors = new List<string>();
 
         foreach (var model in models.Where(m => m.ModelPath != null))
         {
@@ -422,14 +423,113 @@ public class SherpaModelService
                 PromoteSherpaModel(model);
                 promoted++;
             }
-            catch
+            catch (Exception ex)
             {
                 failed++;
+                errors.Add($"{model.Id}: {ex.Message}");
             }
+        }
+
+        if (errors.Count > 0)
+        {
+            try
+            {
+                var logPath = Path.Combine(Path.GetTempPath(), "VoiceGarden_promote_errors.log");
+                File.WriteAllLines(logPath, errors);
+            }
+            catch { }
         }
 
         return (promoted, failed);
     }
+
+    /// <summary>
+    /// Generate a .reg file for all installed models and import it elevated.
+    /// Much faster than relaunching the 116MB single-file exe.
+    /// Returns (promoted, failed, errorMessage).
+    /// </summary>
+    public static (int promoted, int failed, string error) PromoteAllElevated()
+    {
+        var models = ScanInstalledModels().Where(m => m.ModelPath != null).ToList();
+        if (models.Count == 0)
+            return (0, 0, "No downloaded models found with a valid model.onnx");
+
+        // Generate .reg file
+        var regPath = Path.Combine(Path.GetTempPath(), "VoiceGarden_promote.reg");
+        var lines = new List<string> { "Windows Registry Editor Version 5.00", "" };
+
+        foreach (var model in models)
+        {
+            AppendModelToReg(lines, model);
+        }
+
+        File.WriteAllLines(regPath, lines);
+
+        // Import with reg.exe elevated
+        try
+        {
+            var psi = new System.Diagnostics.ProcessStartInfo("reg.exe", $"import \"{regPath}\"")
+            {
+                Verb = "runas",
+                UseShellExecute = true,
+                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+                CreateNoWindow = true,
+            };
+            var p = System.Diagnostics.Process.Start(psi);
+            p?.WaitForExit(30000);
+            var rc = p?.ExitCode ?? -1;
+
+            TryDelete(regPath);
+
+            if (rc == 0)
+                return (models.Count, 0, "");
+            return (0, models.Count, $"reg import exited with code {rc}");
+        }
+        catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+        {
+            TryDelete(regPath);
+            return (0, 0, "UAC cancelled");
+        }
+        catch (Exception ex)
+        {
+            TryDelete(regPath);
+            return (0, models.Count, ex.Message);
+        }
+    }
+
+    private static void AppendModelToReg(List<string> lines, InstalledModel model)
+    {
+        var tokenName = $"Sherpa-{model.Id}";
+        var tokenPath = $@"HKEY_LOCAL_MACHINE\{SapiTokensRoot}\{tokenName}";
+
+        // Main token key
+        lines.Add($"[{tokenPath}]");
+        lines.Add($"@=\"Sherpa {model.Id}\"");
+        lines.Add($"\"CLSID\"=\"{TtsEngineClsid}\"");
+
+        // VoiceGardenConfig subkey
+        lines.Add($"[{tokenPath}\\VoiceGardenConfig]");
+        lines.Add("\"EngineType\"=\"Sherpa\"");
+        lines.Add("\"SherpaOnnxModelType\"=dword:00000000");
+        lines.Add($"\"SherpaOnnxModelPath\"=\"{EscapeRegPath(model.ModelPath!)}\"");
+        if (model.TokensPath != null)
+            lines.Add($"\"SherpaOnnxTokens\"=\"{EscapeRegPath(model.TokensPath)}\"");
+        if (model.DataDir != null)
+            lines.Add($"\"SherpaOnnxDataDir\"=\"{EscapeRegPath(model.DataDir)}\"");
+
+        // Attributes subkey
+        lines.Add($"[{tokenPath}\\Attributes]");
+        lines.Add($"\"Name\"=\"{model.Id}\"");
+        lines.Add("\"Gender\"=\"Neutral\"");
+        lines.Add("\"Age\"=\"Adult\"");
+        lines.Add("\"Language\"=\"409\"");
+        lines.Add("\"Locale\"=\"en-US\"");
+        lines.Add("\"Vendor\"=\"K2FSA\"");
+        lines.Add("\"VoiceGardenType\"=\"Sherpa;Offline\"");
+        lines.Add("");
+    }
+
+    private static string EscapeRegPath(string path) => path.Replace("\\", "\\\\");
 
     /// <summary>
     /// Promote a single SherpaOnnx model to HKLM.

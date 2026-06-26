@@ -344,6 +344,13 @@ public static class CliDispatcher
 
     private static int RunModelsPromoteAll()
     {
+        try
+        {
+            File.WriteAllText(Path.Combine(Path.GetTempPath(), "VoiceGarden_elevated_test.log"),
+                $"Running elevated at {DateTime.Now}\nUser: {Environment.UserName}\n");
+        }
+        catch { }
+
         var (promoted, failed) = Services.SherpaModelService.PromoteAll();
         Console.WriteLine($"Promoted {promoted} model(s), failed {failed}");
         return failed > 0 ? 1 : 0;
