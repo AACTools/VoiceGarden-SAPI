@@ -67,19 +67,6 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
-    - name: Build DotNetTtsWrapper from source (v1.3.0 not yet on NuGet.org)
-      shell: pwsh
-      run: |
-        $repoDir = Join-Path (Get-Location) ".." "dotnet-tts-wrapper"
-        git clone --depth 1 https://github.com/AACTools/dotnet-tts-wrapper.git $repoDir
-        $csproj = Join-Path $repoDir "src/DotNetTtsWrapper.Core/DotNetTtsWrapper.Core.csproj"
-        $artifactsDir = Join-Path $repoDir "artifacts"
-        dotnet build $csproj -c Release
-        dotnet pack $csproj -c Release -o $artifactsDir --no-build
-        Write-Host "Artifacts at: $artifactsDir"
-        Get-ChildItem $artifactsDir -Filter "*.nupkg" | ForEach-Object { Write-Host "  $($_.Name)" }
-        dotnet nuget add source $artifactsDir --name local-tts
-
     - name: Publish VoiceGarden.UI (self-contained, x64)
       run: |
         dotnet publish VoiceGarden.UI\VoiceGarden.UI.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -p:PublishReadyToRun=false -o ${{github.workspace}}\ui-publish

@@ -20,13 +20,13 @@
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.7" />
     <PackageReference Include="Avalonia.Diagnostics" Version="11.2.7" Condition="'$(Configuration)' == 'Debug'" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="DotNetTtsWrapper" Version="1.3.0" />
+    <PackageReference Include="DotNetTtsWrapper" Version="1.1.8" />
     <PackageReference Include="System.Speech" Version="8.0.0" />
     <PackageReference Include="System.Windows.Extensions" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\SherpaOnnxConfig\merged_models.json" CopyToOutputDirectory="PreserveNewest" Link="merged_models.json"/>
+    <None Include="..\SherpaOnnxConfig\merged_models.json" CopyToOutputDirectory="PreserveNewest" Link="merged_models.json" />
   </ItemGroup>
 
   <ItemGroup>
