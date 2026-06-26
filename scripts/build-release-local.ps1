@@ -98,9 +98,9 @@ function Trim-Dlls {
 
     Push-Location $DirPath
     try {
-        $dlls = & $dumpbinpath /dependents NaturalVoiceSAPIAdapter.dll Microsoft.CognitiveServices.*.dll `
+        $dlls = & $dumpbinpath /dependents VoiceGardenSAPIAdapter.dll Microsoft.CognitiveServices.*.dll `
             | Where-Object { $_ -like "    *.dll" } | ForEach-Object { $_.Trim() } | Select-Object -Unique
-        $dlls += "NaturalVoiceSAPIAdapter.dll", "Microsoft.CognitiveServices.*.dll"
+        $dlls += "VoiceGardenSAPIAdapter.dll", "Microsoft.CognitiveServices.*.dll"
         $dlls += "sherpa-onnx-c-api.dll", "onnxruntime.dll", "onnxruntime_providers_shared.dll"
         Remove-Item * -Include *.dll -Exclude $dlls
         Remove-Item Microsoft.CognitiveServices.Speech.extension.codec.dll -ErrorAction Ignore
@@ -168,7 +168,7 @@ if ($Platforms -contains "all") {
 }
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "NaturalVoiceSAPIAdapter CI-Parity Build" -ForegroundColor Cyan
+Write-Host "VoiceGardenSAPIAdapter CI-Parity Build" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Configuration: $Configuration" -ForegroundColor Yellow
@@ -259,6 +259,30 @@ if ($LASTEXITCODE -ne 0) {
     throw "dotnet publish failed for EngineConfig with exit code $LASTEXITCODE"
 }
 Write-Host "  EngineConfig built successfully" -ForegroundColor Green
+
+# Step 3.6: Build VoiceGarden.UI (Avalonia configuration app)
+Write-Host "[Step 3.6/10] Building VoiceGarden.UI (Avalonia Config App)..." -ForegroundColor Cyan
+$voiceGardenUiOutput = Join-Path $RepoRoot "voicegarden-ui"
+Ensure-Dir $voiceGardenUiOutput
+dotnet publish (Join-Path $RepoRoot "VoiceGarden.UI\VoiceGarden.UI.csproj") `
+    -c $Configuration `
+    -r win-x64 `
+    --self-contained `
+    -p:PublishSingleFile=true `
+    -p:PublishReadyToRun=false `
+    -o $voiceGardenUiOutput `
+    /nologo /v:q
+if ($LASTEXITCODE -ne 0) {
+    throw "dotnet publish failed for VoiceGarden.UI with exit code $LASTEXITCODE"
+}
+
+# Copy merged_models.json
+$catalogSrc = Join-Path $RepoRoot "SherpaOnnxConfig\merged_models.json"
+if (Test-Path $catalogSrc) {
+    Copy-Item -Path $catalogSrc -Destination $voiceGardenUiOutput -Force
+}
+
+Write-Host "  VoiceGarden.UI built successfully" -ForegroundColor Green
 Write-Host ""
 
 # Step 4: Build Utilities per platform
@@ -306,11 +330,7 @@ foreach ($Platform in $Platforms) {
     }
 
     if ($Platform -eq "x86") {
-        Write-Host "  Installer (Win32)..." -ForegroundColor Cyan
-        Invoke-Restore -InputPath (Join-Path $RepoRoot "Installer") -SolutionDirectory $RepoRoot
-        & $msbuild /m /p:Configuration=$Configuration /p:Platform=Win32 /p:OutDir="$utilOut\" (Join-Path $RepoRoot "Installer\Installer.vcxproj")
-        if ($LASTEXITCODE -ne 0) { throw "Installer build failed" }
-        Copy-Item -Path (Join-Path $utilOut "Installer.exe") -Destination (Join-Path $utilOut "InstallPlanRunner.exe") -Force
+        # Installer.exe removed — VoiceGarden.UI.exe is the main app
     }
 
     # Stage SherpaOnnxConfig for x86/x64 utilities (matches CI behavior)
@@ -332,33 +352,33 @@ Write-Host "  Utilities built successfully" -ForegroundColor Green
 Write-Host ""
 
 # Step 5: Build main adapter per platform
-Write-Host "[Step 5/8] Building NaturalVoiceSAPIAdapter per platform..." -ForegroundColor Cyan
+Write-Host "[Step 5/8] Building VoiceGardenSAPIAdapter per platform..." -ForegroundColor Cyan
 foreach ($Platform in $Platforms) {
     $mainOut = Join-Path $StageRoot "main-$Platform"
     Ensure-Dir $mainOut
 
     Write-Host "  Building main adapter ($Platform)..." -ForegroundColor Cyan
-    & $msbuild (Join-Path $RepoRoot "NaturalVoiceSAPIAdapter.sln") `
+    & $msbuild (Join-Path $RepoRoot "VoiceGardenSAPIAdapter.sln") `
         /m /maxcpucount `
         /p:Configuration=$Configuration `
         /p:Platform=$Platform `
         /nologo /v:minimal `
-        /t:NaturalVoiceSAPIAdapter:Clean
+        /t:VoiceGardenSAPIAdapter:Clean
     if ($LASTEXITCODE -ne 0) {
-        throw "Clean failed for NaturalVoiceSAPIAdapter ($Platform)"
+        throw "Clean failed for VoiceGardenSAPIAdapter ($Platform)"
     }
 
-    & $msbuild (Join-Path $RepoRoot "NaturalVoiceSAPIAdapter.sln") `
+    & $msbuild (Join-Path $RepoRoot "VoiceGardenSAPIAdapter.sln") `
         /m /maxcpucount `
         /p:Configuration=$Configuration `
         /p:Platform=$Platform `
         /p:OutDir="$mainOut\" `
         /p:RegisterOutput=false `
         /nologo /v:minimal `
-        /t:NaturalVoiceSAPIAdapter
+        /t:VoiceGardenSAPIAdapter
 
     if ($LASTEXITCODE -ne 0) {
-        throw "MSBuild failed for NaturalVoiceSAPIAdapter ($Platform)"
+        throw "MSBuild failed for VoiceGardenSAPIAdapter ($Platform)"
     }
 
     # Trim DLLs for x86/x64 like CI
@@ -385,7 +405,7 @@ if ($dotnetAdapterPlatforms.Count -gt 0) {
         Ensure-Dir $dotnetOut
         $rid = if ($Platform -eq "x86") { "win-x86" } else { "win-x64" }
         Write-Host "  Publishing .NET adapter ($Platform)..." -ForegroundColor Cyan
-        dotnet publish (Join-Path $RepoRoot "NaturalVoiceSAPIAdapter.Net\NaturalVoiceSAPIAdapter.Net.csproj") `
+        dotnet publish (Join-Path $RepoRoot "VoiceGardenSAPIAdapter.Net\VoiceGardenSAPIAdapter.Net.csproj") `
             -c $Configuration `
             -r $rid `
             --self-contained false `
@@ -445,11 +465,11 @@ foreach ($Platform in $Platforms) {
     }
 }
 
-if (Test-Path (Join-Path $PayloadDir "x86\Installer.exe")) {
-    Copy-Item (Join-Path $PayloadDir "x86\Installer.exe") (Join-Path $PayloadDir "Installer.exe") -Force
-}
-if (Test-Path (Join-Path $PayloadDir "x86\InstallPlanRunner.exe")) {
-    Copy-Item (Join-Path $PayloadDir "x86\InstallPlanRunner.exe") (Join-Path $PayloadDir "InstallPlanRunner.exe") -Force
+# Stage VoiceGarden.UI.exe at payload root (main entry point)
+$vgUiExe = Join-Path $voiceGardenUiOutput "VoiceGarden.UI.exe"
+if (Test-Path $vgUiExe) {
+    Copy-Item $vgUiExe (Join-Path $PayloadDir "VoiceGarden.UI.exe") -Force
+    Write-Host "  VoiceGarden.UI.exe staged at payload root" -ForegroundColor DarkGray
 }
 
 $brandingSource = ""
@@ -471,7 +491,7 @@ if ($BuildSetup) {
     Write-Host "[Step 8/8] Building MSI and setup.exe..." -ForegroundColor Cyan
     & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\build-setup.ps1") -PayloadDir $PayloadDir -OutputDir $InstallerOutputDir -BrandingFile $brandingSource
     if ($LASTEXITCODE -ne 0) { throw "MSI build failed" }
-    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\build-bootstrapper.ps1") -MsiPath (Join-Path $InstallerOutputDir "NaturalVoiceSAPIAdapter.msi") -OutputDir $InstallerOutputDir -BrandingFile $brandingSource
+    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\build-bootstrapper.ps1") -MsiPath (Join-Path $InstallerOutputDir "VoiceGardenSAPIAdapter.msi") -OutputDir $InstallerOutputDir -BrandingFile $brandingSource
     if ($LASTEXITCODE -ne 0) { throw "Bootstrapper build failed" }
     Write-Host "  MSI + setup.exe built in $InstallerOutputDir" -ForegroundColor Green
 } else {

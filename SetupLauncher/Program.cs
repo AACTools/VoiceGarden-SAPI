@@ -8,9 +8,9 @@ static class Program
 {
     sealed class Branding
     {
-        public string ProductName { get; set; } = "NaturalVoiceSAPIAdapter";
-        public string SetupCaption { get; set; } = "NaturalVoiceSAPIAdapter Setup";
-        public string InstallFolderName { get; set; } = "NaturalVoiceSAPIAdapter";
+        public string ProductName { get; set; } = "VoiceGardenSAPIAdapter";
+        public string SetupCaption { get; set; } = "VoiceGardenSAPIAdapter Setup";
+        public string InstallFolderName { get; set; } = "VoiceGardenSAPIAdapter";
     }
 
     static int Main(string[] args)
@@ -24,7 +24,7 @@ static class Program
             bool removeAppData = HasArg(args, "--remove-appdata");
 
             string baseDir = AppContext.BaseDirectory;
-            string msiPath = Path.Combine(baseDir, "NaturalVoiceSAPIAdapter.msi");
+            string msiPath = Path.Combine(baseDir, "VoiceGardenSAPIAdapter.msi");
 
             if (!File.Exists(msiPath))
             {
@@ -72,7 +72,7 @@ static class Program
                     {
                         if (!TryLaunchInstalledInstaller(branding))
                         {
-                            Notify("Install completed, but Installer.exe was not found in the install location.", branding.SetupCaption, quiet, error: true);
+                            Notify("Install completed, but VoiceGarden.UI.exe was not found in the install location.", branding.SetupCaption, quiet, error: true);
                             return 4;
                         }
                     }
@@ -183,8 +183,8 @@ static class Program
     {
         var candidates = new[]
         {
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), branding.InstallFolderName, "Installer.exe"),
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), branding.InstallFolderName, "Installer.exe")
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), branding.InstallFolderName, "VoiceGarden.UI.exe"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), branding.InstallFolderName, "VoiceGarden.UI.exe"),
         };
 
         foreach (string p in candidates.Distinct(StringComparer.OrdinalIgnoreCase))

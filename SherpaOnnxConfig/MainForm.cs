@@ -48,11 +48,11 @@ namespace SherpaOnnxConfig
         private static readonly string ModelsDir = AppDataLayout.ModelsDir;
         private static readonly string ScanErrorsPath = Path.Combine(AdapterDataDir, "sherpa_model_scan_errors.json");
         private const string SapiTokensRoot = @"SOFTWARE\Microsoft\Speech\Voices\Tokens";
-        private const string EnumeratorConfigKeyPath = @"Software\NaturalVoiceSAPIAdapter\Enumerator";
+        private const string EnumeratorConfigKeyPath = @"Software\VoiceGardenSAPIAdapter\Enumerator";
         private const string TtsEngineClsid = "{013ab33b-ad1a-401c-8bee-f6e2b046a94e}";
         private const string VoiceEnumClsid = "{b8b9e38f-e5a2-4661-9fde-4ac7377aa6f6}";
-        private const string TokenEnumKeyPath = @"SOFTWARE\Microsoft\Speech\Voices\TokenEnums\NaturalVoiceEnumerator";
-        private const string SherpaCompatKeyPath = @"Software\NaturalVoiceSAPIAdapter\SherpaCompat";
+        private const string TokenEnumKeyPath = @"SOFTWARE\Microsoft\Speech\Voices\TokenEnums\VoiceGardenEnumerator";
+        private const string SherpaCompatKeyPath = @"Software\VoiceGardenSAPIAdapter\SherpaCompat";
         private const string AllLanguagesOption = "All Languages";
         private const string CompatibilityAliasSuffix = "-enUS";
         private bool suppressComboEvents;
@@ -75,7 +75,7 @@ namespace SherpaOnnxConfig
 
         private void InitializeComponent()
         {
-            this.Text = "NaturalVoice SAPI - SherpaOnnx Model Manager";
+            this.Text = "VoiceGarden SAPI - SherpaOnnx Model Manager";
             this.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
             this.AutoScaleMode = AutoScaleMode.Dpi;
             this.Size = new Size(1080, 920);
@@ -1365,7 +1365,7 @@ namespace SherpaOnnxConfig
                         }
                     }
 
-                    // Enumerate only NaturalVoice Sherpa tokens to avoid unrelated broken tokens.
+                    // Enumerate only VoiceGarden Sherpa tokens to avoid unrelated broken tokens.
                     voices = InvokeComMethod(voiceObjRaw, "GetVoices", "Vendor=K2FSA", "");
                     if (voices == null)
                     {
@@ -1564,7 +1564,7 @@ namespace SherpaOnnxConfig
             string tokenEnumClsid = ReadRegistryString(RegistryHive.LocalMachine, RegistryView.Registry64,
                 TokenEnumKeyPath, "CLSID");
             string userTokenEnumClsid = ReadRegistryString(RegistryHive.CurrentUser, RegistryView.Default,
-                @"Software\Microsoft\Speech\Voices\TokenEnums\NaturalVoiceEnumerator", "CLSID");
+                @"Software\Microsoft\Speech\Voices\TokenEnums\VoiceGardenEnumerator", "CLSID");
 
             if (string.IsNullOrWhiteSpace(ttsInproc) || string.IsNullOrWhiteSpace(enumInproc))
             {
@@ -1604,7 +1604,7 @@ namespace SherpaOnnxConfig
             string tokenEnumClsid = ReadRegistryString(RegistryHive.LocalMachine, RegistryView.Registry64,
                 TokenEnumKeyPath, "CLSID");
             string userTokenEnumClsid = ReadRegistryString(RegistryHive.CurrentUser, RegistryView.Default,
-                @"Software\Microsoft\Speech\Voices\TokenEnums\NaturalVoiceEnumerator", "CLSID");
+                @"Software\Microsoft\Speech\Voices\TokenEnums\VoiceGardenEnumerator", "CLSID");
 
             var sb = new StringBuilder();
             sb.Append("(reg: ");
@@ -2750,13 +2750,13 @@ namespace SherpaOnnxConfig
                     using RegistryKey? hkcuSpeech = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Speech\Voices\TokenEnums", writable: true);
                     if (hkcuSpeech != null)
                     {
-                        using RegistryKey? hkcuEnum = hkcuSpeech.OpenSubKey("NaturalVoiceEnumerator", writable: false);
+                        using RegistryKey? hkcuEnum = hkcuSpeech.OpenSubKey("VoiceGardenEnumerator", writable: false);
                         if (hkcuEnum != null)
                         {
                             try
                             {
-                                hkcuSpeech.DeleteSubKeyTree("NaturalVoiceEnumerator", throwOnMissingSubKey: false);
-                                result.Warnings.Add("Removed HKCU TokenEnums\\NaturalVoiceEnumerator to avoid duplicate enumerator registration.");
+                                hkcuSpeech.DeleteSubKeyTree("VoiceGardenEnumerator", throwOnMissingSubKey: false);
+                                result.Warnings.Add("Removed HKCU TokenEnums\\VoiceGardenEnumerator to avoid duplicate enumerator registration.");
                             }
                             catch
                             {
@@ -3183,11 +3183,11 @@ namespace SherpaOnnxConfig
                 attrs.SetValue("Language", m.LanguageHexChain, RegistryValueKind.String);
                 attrs.SetValue("Locale", m.Locale, RegistryValueKind.String);
                 attrs.SetValue("Vendor", "K2FSA", RegistryValueKind.String);
-                attrs.SetValue("NaturalVoiceType", "Sherpa;Offline", RegistryValueKind.String);
+                attrs.SetValue("VoiceGardenType", "Sherpa;Offline", RegistryValueKind.String);
                 attrs.SetValue("SherpaModelName", m.ModelName, RegistryValueKind.String);
             }
 
-            using (RegistryKey cfg = tokenKey.CreateSubKey("NaturalVoiceConfig", writable: true)!)
+            using (RegistryKey cfg = tokenKey.CreateSubKey("VoiceGardenConfig", writable: true)!)
             {
                 cfg.SetValue("EngineType", "Sherpa", RegistryValueKind.String);
                 cfg.SetValue("SherpaOnnxModelType", m.ModelType, RegistryValueKind.DWord);

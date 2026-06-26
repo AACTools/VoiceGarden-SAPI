@@ -1,11 +1,11 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-    Download SherpaOnnx dependencies for NaturalVoiceSAPIAdapter
+    Download SherpaOnnx dependencies for VoiceGardenSAPIAdapter
 
 .DESCRIPTION
     Downloads the required SherpaOnnx static libraries for building
-    NaturalVoiceSAPIAdapter. Supports x86 (32-bit), x64 (64-bit), and ARM64 builds.
+    VoiceGardenSAPIAdapter. Supports x86 (32-bit), x64 (64-bit), and ARM64 builds.
     Supports both Debug and Release configurations.
 
     Downloads from official GitHub releases at:
@@ -49,7 +49,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# Script directory (should be NaturalVoiceSAPIAdapter)
+# Script directory (should be VoiceGardenSAPIAdapter)
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 # SherpaOnnx libs are in the project directory: SherpaOnnx/libs
 $LibsDir = Join-Path $ScriptDir "SherpaOnnx\libs"
@@ -308,7 +308,7 @@ Write-Host "========================================" -ForegroundColor Cyan
 
 if ($SuccessCount -eq $TotalCount) {
     Write-Host ""
-    Write-Host "Dependencies ready! You can now build NaturalVoiceSAPIAdapter." -ForegroundColor Green
+    Write-Host "Dependencies ready! You can now build VoiceGardenSAPIAdapter." -ForegroundColor Green
     exit 0
 }
 else {

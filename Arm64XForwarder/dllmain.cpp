@@ -1,5 +1,5 @@
-﻿// This is a forwarder DLL that forwards function calls to either the x64 version or the ARM64 version
-// of the main NaturalVoiceSAPIAdapter.dll, depending on the architecture of the process that loads this DLL.
+// This is a forwarder DLL that forwards function calls to either the x64 version or the ARM64 version
+// of the main VoiceGardenSAPIAdapter.dll, depending on the architecture of the process that loads this DLL.
 // This DLL project will be built with ARM64 and ARM64EC configurations, then merged together to form an ARM64X DLL.
 // More about ARM64X DLLs: https://learn.microsoft.com/windows/arm/arm64x-build
 // Note that we didn't choose to use a simple "pure forwarder DLL" described in the link above,

@@ -1,6 +1,6 @@
 # SherpaOnnx Dependencies
 
-This directory contains the SherpaOnnx static libraries required for building NaturalVoiceSAPIAdapter with offline TTS support.
+This directory contains the SherpaOnnx static libraries required for building VoiceGardenSAPIAdapter with offline TTS support.
 
 ## Downloading Dependencies
 
@@ -8,7 +8,7 @@ The SherpaOnnx libraries are large (~200MB per platform per configuration) and a
 
 ### Quick Start
 
-From the `NaturalVoiceSAPIAdapter` directory, run:
+From the `VoiceGardenSAPIAdapter` directory, run:
 
 ```powershell
 # Download x64 Release libraries (for CI/CD and production builds)
@@ -73,16 +73,16 @@ SherpaOnnx/
 
 ## Building After Download
 
-Once dependencies are downloaded, build NaturalVoiceSAPIAdapter normally in Visual Studio or using MSBuild:
+Once dependencies are downloaded, build VoiceGardenSAPIAdapter normally in Visual Studio or using MSBuild:
 
 ### Release Build (CI/CD)
 ```cmd
-msbuild NaturalVoiceSAPIAdapter.sln /p:Configuration=Release /p:Platform=x64
+msbuild VoiceGardenSAPIAdapter.sln /p:Configuration=Release /p:Platform=x64
 ```
 
 ### Debug Build (Local Development)
 ```cmd
-msbuild NaturalVoiceSAPIAdapter.sln /p:Configuration=Debug /p:Platform=x64
+msbuild VoiceGardenSAPIAdapter.sln /p:Configuration=Debug /p:Platform=x64
 ```
 
 **Important**: The project configuration must match the downloaded SherpaOnnx configuration:

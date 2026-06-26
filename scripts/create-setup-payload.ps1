@@ -25,11 +25,11 @@ if (Test-Path $OutputDir) {
 New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
 
 $rootAllow = @(
-    "Installer.exe",
-    "InstallPlanRunner.exe",
+    "VoiceGarden.UI.exe",
     "install-plan.json",
     "branding.json",
     "SherpaOnnxConfig.exe",
+    "EngineConfig.exe",
     "merged_models.json",
     "LICENSE.txt",
     "README.md"
@@ -82,7 +82,7 @@ if (-not $hasAnyArch) {
     New-Item -ItemType Directory -Path $fallbackArch -Force | Out-Null
 
     $fallbackNames = @(
-        "NaturalVoiceSAPIAdapter.dll",
+        "VoiceGardenSAPIAdapter.dll",
         "sherpa-onnx-c-api.dll",
         "onnxruntime.dll",
         "onnxruntime_providers_shared.dll",

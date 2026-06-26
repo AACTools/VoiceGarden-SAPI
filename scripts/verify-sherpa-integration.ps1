@@ -24,9 +24,8 @@ if ($exitCode -ne 0 -and $exitCode -ne 2) {
 
 Write-Host '[3/3] Verifying path consistency...' -ForegroundColor Yellow
 $pathChecks = @(
-    'SherpaOnnxConfig\\MainForm.cs',
-    'SherpaOnnx\\SherpaOnnxModels.cpp',
-    'Installer\\Installer.rc'
+    'SherpaOnnxConfig\MainForm.cs',
+    'SherpaOnnx\SherpaOnnxModels.cpp'
 )
 foreach ($f in $pathChecks) {
     $content = Get-Content $f -Raw

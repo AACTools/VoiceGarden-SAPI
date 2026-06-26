@@ -1,11 +1,11 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-Build setup.exe bootstrapper for NaturalVoiceSAPIAdapter MSI.
+Build setup.exe bootstrapper for VoiceGardenSAPIAdapter MSI.
 #>
 
 param(
-    [string]$MsiPath = ".\installer-output\NaturalVoiceSAPIAdapter.msi",
+    [string]$MsiPath = ".\installer-output\VoiceGardenSAPIAdapter.msi",
     [string]$Configuration = "Release",
     [string]$OutputDir = ".\installer-output",
     [string]$Version = "",
@@ -74,7 +74,7 @@ if (-not $builtExe) {
 
 $targetExe = Join-Path $outputFull "setup.exe"
 Copy-Item -Path $builtExe.FullName -Destination $targetExe -Force
-$targetMsi = Join-Path $outputFull "NaturalVoiceSAPIAdapter.msi"
+$targetMsi = Join-Path $outputFull "VoiceGardenSAPIAdapter.msi"
 if ([System.IO.Path]::GetFullPath($msiFull) -ne [System.IO.Path]::GetFullPath($targetMsi)) {
     Copy-Item -Path $msiFull -Destination $targetMsi -Force
 }

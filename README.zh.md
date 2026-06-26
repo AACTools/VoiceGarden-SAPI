@@ -2,7 +2,7 @@
 
 [For the English version, click here](README.md)
 
-> **注意：** 本项目最初 fork 自 [NaturalVoiceSAPIAdapter](https://github.com/gexgd0419/NaturalVoiceSAPIAdapter)，现已迁移至 [AACTools/VoiceGarden-SAPI](https://github.com/AACTools/VoiceGarden-SAPI) 作为独立项目。
+> **注意：** 本项目最初 fork 自 [VoiceGardenSAPIAdapter](https://github.com/gexgd0419/VoiceGardenSAPIAdapter)，现已迁移至 [AACTools/VoiceGarden-SAPI](https://github.com/AACTools/VoiceGarden-SAPI) 作为独立项目。
 >
 > 本 fork 与上游项目有以下重要差异：
 > - **内置 SherpaOnnx 支持**，可使用 SherpaOnnx 模型进行完全本地的离线 TTS，无需云服务。

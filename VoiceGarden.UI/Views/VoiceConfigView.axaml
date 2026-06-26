@@ -1,0 +1,90 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:VoiceGarden.UI.ViewModels"
+             x:Class="VoiceGarden.UI.Views.VoiceConfigView">
+
+    <Grid RowDefinitions="Auto, Auto, Auto, *, Auto">
+
+        <!-- Engine + Key row -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto, *, Auto, Auto" Margin="0,0,0,8">
+            <TextBlock Grid.Column="0" Text="Engine:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <ComboBox Grid.Column="1" SelectedItem="{Binding CurrentEngine}"
+                      ItemsSource="{Binding AvailableEngines}" MinWidth="100" Margin="0,0,8,0"/>
+            <TextBlock Grid.Column="2" Text="Key:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <TextBox Grid.Column="3" Text="{Binding CurrentKey}" PasswordChar="*"
+                     Watermark="API Key" MinWidth="160" Margin="0,0,8,0"/>
+            <TextBox Grid.Column="4" Text="{Binding CurrentRegion}" Watermark="Region"
+                     IsVisible="{Binding NeedsRegion}" Width="80" Margin="0,0,8,0"/>
+            <Button Grid.Column="5" Content="Validate" Command="{Binding ValidateKeyCommand}" Padding="12,4"/>
+        </Grid>
+
+        <!-- Validation result + action buttons -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,0,0,12">
+            <TextBlock Text="{Binding ValidationResult}" VerticalAlignment="Center"
+                       Classes="Hint" IsVisible="{Binding IsValidated}"/>
+            <Button Content="Fetch Voices" Command="{Binding FetchVoicesCommand}"
+                    Padding="16,4"/>
+            <Button Content="Install Selected" Command="{Binding PromoteSelectedCommand}"
+                    Classes="Primary" Padding="16,4"/>
+            <Button Content="Uninstall" Command="{Binding UnpromoteSelectedCommand}"
+                    Padding="16,4"/>
+        </StackPanel>
+
+        <!-- Search + select controls -->
+        <Grid Grid.Row="2" ColumnDefinitions="*, Auto, Auto" Margin="0,0,0,8">
+            <TextBox Grid.Column="0" Text="{Binding SearchFilter}" Watermark="Search voices..."
+                     MinWidth="200"/>
+            <Button Grid.Column="1" Content="All" Command="{Binding SelectAllCommand}"
+                    Padding="12,2" Margin="8,0,4,0" FontSize="12"/>
+            <Button Grid.Column="2" Content="None" Command="{Binding SelectNoneCommand}"
+                    Padding="12,2" Margin="4,0,0,0" FontSize="12"/>
+        </Grid>
+
+        <!-- Voice list -->
+        <Border Grid.Row="3" BorderBrush="{DynamicResource SystemControlDefaultChromeMediumLowBrush}"
+                BorderThickness="1" CornerRadius="4" MinHeight="200">
+            <ListBox ItemsSource="{Binding FilteredVoices}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:VoiceItem">
+                        <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto">
+                            <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" Margin="0,0,8,0"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="{Binding Language}"
+                                       Classes="Hint" Margin="16,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Text="Installed"
+                                       Classes="Hint" Foreground="Green"
+                                       IsVisible="{Binding IsInstalled}"
+                                       Margin="8,0,8,0" VerticalAlignment="Center"/>
+                            <Button Grid.Column="4" Content="▶" FontSize="10"
+                                    Click="PreviewVoice_Click"
+                                    Tag="{Binding Id}"
+                                    Padding="6,2" Margin="0,0,0,0" ToolTip.Tip="Preview voice"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+
+        <!-- Status bar -->
+        <Grid Grid.Row="4" ColumnDefinitions="*, Auto" Margin="0,8,0,0">
+            <TextBlock Grid.Column="0" Text="{Binding StatusText}" Classes="Hint"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16">
+                <TextBlock Text="{Binding SelectedCount, StringFormat='{}{0} selected'}" Classes="Hint"/>
+                <TextBlock Text="{Binding InstalledCount, StringFormat='{}{0} installed'}" Classes="Hint"/>
+                <TextBlock Text="{Binding TotalVoices, StringFormat='{}{0} total'}" Classes="Hint"/>
+            </StackPanel>
+        </Grid>
+
+    </Grid>
+
+    <UserControl.Styles>
+        <Style Selector="TextBlock.Hint">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Opacity" Value="0.6"/>
+        </Style>
+        <Style Selector="Button.Primary">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+    </UserControl.Styles>
+
+</UserControl>

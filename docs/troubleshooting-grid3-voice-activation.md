@@ -56,7 +56,7 @@ Registry-backed tokens (HKLM or HKCU) work correctly because System.Speech can r
 ### Step 1: Check the C++ adapter log
 
 ```
-%LOCALAPPDATA%\NaturalVoiceSAPIAdapter\log.txt
+%LOCALAPPDATA%\VoiceGardenSAPIAdapter\log.txt
 ```
 
 - **Voice enumeration only, no "TTS init: begin"** → SelectVoice is failing. Check for duplicate voice tokens.
@@ -113,7 +113,7 @@ if ($dupes) { Write-Host "Duplicate IDs found!" }
 
 ## Related Files
 
-- `NaturalVoiceSAPIAdapter/VoiceTokenEnumerator.cpp` — SherpaOnnx voice enumeration + HKLM dedup check
+- `VoiceGardenSAPIAdapter/VoiceTokenEnumerator.cpp` — SherpaOnnx voice enumeration + HKLM dedup check
 - `SherpaOnnxConfig/MainForm.cs` — `PromoteModelTokenToHklm()` writes HKLM tokens
 - `scripts/build-release-local.ps1` — Prevents .NET adapter DLL overwrite
 - `.github/workflows/msbuild.yml` — CI equivalent of the build script fix

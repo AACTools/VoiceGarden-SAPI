@@ -26,7 +26,7 @@ Write-Host "Using MSBuild: $msbuild"
 $sln = Get-ChildItem -Path '.' -Filter '*.sln' | Select-Object -First 1
 if ($sln) {
     Write-Host "Building solution: $($sln.Name)"
-    & $msbuild "$($sln.FullName)" /p:Configuration=Release /p:Platform=x64 /t:NaturalVoiceSAPIAdapter /m /v:minimal
+    & $msbuild "$($sln.FullName)" /p:Configuration=Release /p:Platform=x64 /t:VoiceGardenSAPIAdapter /m /v:minimal
 } else {
     Write-Host "No solution file found"
 }
