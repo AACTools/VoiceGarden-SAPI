@@ -254,6 +254,12 @@ static DWORD LaunchProcess(LPCWSTR pszApp, LPCWSTR pszCmdLine, bool asAdmin)
 
 static void AddUninstallRegistryKey()
 {
+    // Skip if running from Program Files (MSI handles ARP entry)
+    WCHAR modulePath[MAX_PATH] = {};
+    GetModuleFileNameW(nullptr, modulePath, MAX_PATH);
+    if (wcsstr(modulePath, L"Program Files"))
+        return;
+
     RegKey key;
     if (key.Create(HKEY_CURRENT_USER,
         L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\NaturalVoiceSAPIAdapter",
