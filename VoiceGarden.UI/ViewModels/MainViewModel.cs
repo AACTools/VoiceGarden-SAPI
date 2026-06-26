@@ -150,7 +150,7 @@ public partial class MainViewModel : ObservableObject
     {
         var modelsDir = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "NaturalVoiceSAPIAdapter", "models");
+            "VoiceGardenSAPIAdapter", "models");
         if (Directory.Exists(modelsDir))
         {
             var count = Directory.GetDirectories(modelsDir).Length;
@@ -220,7 +220,7 @@ public partial class MainViewModel : ObservableObject
     {
         var logDir = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "NaturalVoiceSAPIAdapter");
+            "VoiceGardenSAPIAdapter");
         if (Directory.Exists(logDir))
             Process.Start("explorer.exe", $"\"{logDir}\"");
     }

@@ -118,11 +118,11 @@ bool VerifyComClassRegistration(bool is64Bit, const wchar_t* clsid, const std::w
 bool VerifyTokenEnumeratorRegistration(bool is64Bit, std::wstring& reason)
 {
     const REGSAM wowView = is64Bit ? KEY_WOW64_64KEY : KEY_WOW64_32KEY;
-    constexpr wchar_t key[] = L"SOFTWARE\\Microsoft\\Speech\\Voices\\TokenEnums\\NaturalVoiceEnumerator";
+    constexpr wchar_t key[] = L"SOFTWARE\\Microsoft\\Speech\\Voices\\TokenEnums\\VoiceGardenEnumerator";
     std::wstring clsid = ReadRegistryString(HKEY_LOCAL_MACHINE, key, L"CLSID", wowView);
     if (clsid.empty())
     {
-        reason = L"Missing TokenEnums registration at HKLM\\SOFTWARE\\Microsoft\\Speech\\Voices\\TokenEnums\\NaturalVoiceEnumerator";
+        reason = L"Missing TokenEnums registration at HKLM\\SOFTWARE\\Microsoft\\Speech\\Voices\\TokenEnums\\VoiceGardenEnumerator";
         return false;
     }
     if (_wcsicmp(clsid.c_str(), kVoiceTokenEnumeratorClsid) != 0)
@@ -262,7 +262,7 @@ static void AddUninstallRegistryKey()
 
     RegKey key;
     if (key.Create(HKEY_CURRENT_USER,
-        L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\NaturalVoiceSAPIAdapter",
+        L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\VoiceGardenSAPIAdapter",
         KEY_SET_VALUE | KEY_WOW64_64KEY) != ERROR_SUCCESS)
         return;
 
@@ -273,18 +273,18 @@ static void AddUninstallRegistryKey()
     PathQuoteSpacesW(uninstallCmdLine);
     wcscat_s(uninstallCmdLine, L" -uninstall");
 
-    key.SetString(L"DisplayName", L"NaturalVoiceSAPIAdapter");
+    key.SetString(L"DisplayName", L"VoiceGardenSAPIAdapter");
     key.SetString(L"DisplayVersion", L"0.2");
     key.SetString(L"Publisher", L"gexgd0419 on GitHub");
     key.SetString(L"UninstallString", uninstallCmdLine);
-    key.SetString(L"HelpLink", L"https://github.com/gexgd0419/NaturalVoiceSAPIAdapter");
-    key.SetString(L"URLInfoAbout", L"https://github.com/gexgd0419/NaturalVoiceSAPIAdapter");
-    key.SetString(L"URLUpdateInfo", L"https://github.com/gexgd0419/NaturalVoiceSAPIAdapter/releases");
+    key.SetString(L"HelpLink", L"https://github.com/gexgd0419/VoiceGardenSAPIAdapter");
+    key.SetString(L"URLInfoAbout", L"https://github.com/gexgd0419/VoiceGardenSAPIAdapter");
+    key.SetString(L"URLUpdateInfo", L"https://github.com/gexgd0419/VoiceGardenSAPIAdapter/releases");
 }
 
 static void RemoveUninstallRegistryKey()
 {
-    RegDeleteKeyW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\NaturalVoiceSAPIAdapter");
+    RegDeleteKeyW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\VoiceGardenSAPIAdapter");
 }
 
 static bool CombinePath(const std::wstring& base, const std::wstring& leaf, std::wstring& out)
@@ -375,7 +375,7 @@ static bool FindPayloadDirectory(bool is64Bit, std::wstring& payloadDir)
     for (const auto& candidate : candidates)
     {
         std::wstring dllPath;
-        if (CombinePath(candidate, L"NaturalVoiceSAPIAdapter.dll", dllPath)
+        if (CombinePath(candidate, L"VoiceGardenSAPIAdapter.dll", dllPath)
             && PathFileExistsW(dllPath.c_str())
             && IsDllArchitectureCompatible(dllPath, is64Bit))
         {
@@ -440,7 +440,7 @@ void Register(bool is64Bit)
     }
 
     std::wstring dllPath;
-    if (!CombinePath(payloadDir, L"NaturalVoiceSAPIAdapter.dll", dllPath))
+    if (!CombinePath(payloadDir, L"VoiceGardenSAPIAdapter.dll", dllPath))
         throw std::system_error(ERROR_FILENAME_EXCED_RANGE, std::system_category());
     if (!PathFileExistsW(dllPath.c_str()))
         throw std::system_error(ERROR_FILE_NOT_FOUND, std::system_category());

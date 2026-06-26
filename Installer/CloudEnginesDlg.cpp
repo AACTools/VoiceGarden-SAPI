@@ -347,7 +347,7 @@ INT_PTR CALLBACK CloudEnginesDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
         // Pre-fill Azure key from existing registry if available
         {
             RegKey key;
-            if (key.Open(HKEY_CURRENT_USER, L"Software\\NaturalVoiceSAPIAdapter\\Enumerator", KEY_QUERY_VALUE)) {
+            if (key.Open(HKEY_CURRENT_USER, L"Software\\VoiceGardenSAPIAdapter\\Enumerator", KEY_QUERY_VALUE)) {
                 auto azureKey = key.GetString(L"AzureVoiceKey");
                 auto azureRegion = key.GetString(L"AzureVoiceRegion");
                 if (!azureKey.empty()) {
@@ -402,7 +402,7 @@ INT_PTR CALLBACK CloudEnginesDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
                 // Pre-fill Azure key from registry when Azure selected
                 if (st->selectedEngine == L"azure") {
                     RegKey key;
-                    if (key.Open(HKEY_CURRENT_USER, L"Software\\NaturalVoiceSAPIAdapter\\Enumerator", KEY_QUERY_VALUE)) {
+                    if (key.Open(HKEY_CURRENT_USER, L"Software\\VoiceGardenSAPIAdapter\\Enumerator", KEY_QUERY_VALUE)) {
                         auto k = key.GetString(L"AzureVoiceKey");
                         auto r = key.GetString(L"AzureVoiceRegion");
                         if (!k.empty()) SetDlgItemTextW(hDlg, IDC_CLOUD_KEY, k.c_str());

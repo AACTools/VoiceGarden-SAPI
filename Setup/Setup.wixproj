@@ -3,11 +3,11 @@
     <OutputType>Package</OutputType>
     <ProductVersion Condition="'$(ProductVersion)'==''">0.3.0.0</ProductVersion>
     <PayloadDir Condition="'$(PayloadDir)'==''">$(MSBuildProjectDirectory)\..\out</PayloadDir>
-    <ProductName Condition="'$(ProductName)'==''">NaturalVoiceSAPIAdapter</ProductName>
-    <Manufacturer Condition="'$(Manufacturer)'==''">NaturalVoiceSAPIAdapter</Manufacturer>
-    <InstallFolderName Condition="'$(InstallFolderName)'==''">NaturalVoiceSAPIAdapter</InstallFolderName>
-    <InstallerShortcutName Condition="'$(InstallerShortcutName)'==''">NaturalVoiceSAPIAdapter Installer</InstallerShortcutName>
-    <ProjectUrl Condition="'$(ProjectUrl)'==''">https://github.com/gexgd0419/NaturalVoiceSAPIAdapter</ProjectUrl>
+    <ProductName Condition="'$(ProductName)'==''">VoiceGardenSAPIAdapter</ProductName>
+    <Manufacturer Condition="'$(Manufacturer)'==''">VoiceGardenSAPIAdapter</Manufacturer>
+    <InstallFolderName Condition="'$(InstallFolderName)'==''">VoiceGardenSAPIAdapter</InstallFolderName>
+    <InstallerShortcutName Condition="'$(InstallerShortcutName)'==''">VoiceGardenSAPIAdapter Installer</InstallerShortcutName>
+    <ProjectUrl Condition="'$(ProjectUrl)'==''">https://github.com/gexgd0419/VoiceGardenSAPIAdapter</ProjectUrl>
     <DefineConstants>ProductVersion=$(ProductVersion);PayloadDir=$(PayloadDir);ProductName=$(ProductName);Manufacturer=$(Manufacturer);InstallFolderName=$(InstallFolderName);InstallerShortcutName=$(InstallerShortcutName);ProjectUrl=$(ProjectUrl)</DefineConstants>
   </PropertyGroup>
 </Project>

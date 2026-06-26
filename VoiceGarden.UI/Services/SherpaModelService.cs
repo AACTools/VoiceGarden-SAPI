@@ -17,7 +17,7 @@ public class SherpaModelService
 {
     private static readonly string ModelsDir = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "NaturalVoiceSAPIAdapter", "models");
+        "VoiceGardenSAPIAdapter", "models");
 
     private const string SapiTokensRoot = @"SOFTWARE\Microsoft\Speech\Voices\Tokens";
     private const string TtsEngineClsid = "{013AB33B-AD1A-401C-8BEE-F6E2B046A94E}";
@@ -215,7 +215,7 @@ public class SherpaModelService
         key.SetValue("", $"Sherpa {model.Id}", Microsoft.Win32.RegistryValueKind.String);
         key.SetValue("CLSID", TtsEngineClsid, Microsoft.Win32.RegistryValueKind.String);
 
-        using var config = key.CreateSubKey("NaturalVoiceConfig", writable: true);
+        using var config = key.CreateSubKey("VoiceGardenConfig", writable: true);
         config.SetValue("EngineType", "Sherpa", Microsoft.Win32.RegistryValueKind.String);
         config.SetValue("SherpaOnnxModelType", 0, Microsoft.Win32.RegistryValueKind.DWord); // VITS
         config.SetValue("SherpaOnnxModelPath", model.ModelPath, Microsoft.Win32.RegistryValueKind.String);
@@ -231,7 +231,7 @@ public class SherpaModelService
         attrs.SetValue("Language", "409", Microsoft.Win32.RegistryValueKind.String);
         attrs.SetValue("Locale", "en-US", Microsoft.Win32.RegistryValueKind.String);
         attrs.SetValue("Vendor", "K2FSA", Microsoft.Win32.RegistryValueKind.String);
-        attrs.SetValue("NaturalVoiceType", "Sherpa;Offline", Microsoft.Win32.RegistryValueKind.String);
+        attrs.SetValue("VoiceGardenType", "Sherpa;Offline", Microsoft.Win32.RegistryValueKind.String);
     }
 
     /// <summary>

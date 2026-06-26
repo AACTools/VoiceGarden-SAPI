@@ -237,7 +237,7 @@ static BOOL LangDlgInit(HWND hDlg)
 static void LangDlgOnOK(HWND hDlg)
 {
     RegKey key;
-    key.Create(HKEY_CURRENT_USER, L"Software\\NaturalVoiceSAPIAdapter\\Enumerator", KEY_SET_VALUE);
+    key.Create(HKEY_CURRENT_USER, L"Software\\VoiceGardenSAPIAdapter\\Enumerator", KEY_SET_VALUE);
     if (IsDlgButtonChecked(hDlg, IDC_LANG_ALL) == BST_CHECKED)
     {
         key.SetDword(L"EdgeVoiceAllLanguages", 1);

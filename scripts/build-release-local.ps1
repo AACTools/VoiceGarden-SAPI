@@ -98,9 +98,9 @@ function Trim-Dlls {
 
     Push-Location $DirPath
     try {
-        $dlls = & $dumpbinpath /dependents NaturalVoiceSAPIAdapter.dll Microsoft.CognitiveServices.*.dll `
+        $dlls = & $dumpbinpath /dependents VoiceGardenSAPIAdapter.dll Microsoft.CognitiveServices.*.dll `
             | Where-Object { $_ -like "    *.dll" } | ForEach-Object { $_.Trim() } | Select-Object -Unique
-        $dlls += "NaturalVoiceSAPIAdapter.dll", "Microsoft.CognitiveServices.*.dll"
+        $dlls += "VoiceGardenSAPIAdapter.dll", "Microsoft.CognitiveServices.*.dll"
         $dlls += "sherpa-onnx-c-api.dll", "onnxruntime.dll", "onnxruntime_providers_shared.dll"
         Remove-Item * -Include *.dll -Exclude $dlls
         Remove-Item Microsoft.CognitiveServices.Speech.extension.codec.dll -ErrorAction Ignore
@@ -168,7 +168,7 @@ if ($Platforms -contains "all") {
 }
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "NaturalVoiceSAPIAdapter CI-Parity Build" -ForegroundColor Cyan
+Write-Host "VoiceGardenSAPIAdapter CI-Parity Build" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Configuration: $Configuration" -ForegroundColor Yellow
@@ -356,33 +356,33 @@ Write-Host "  Utilities built successfully" -ForegroundColor Green
 Write-Host ""
 
 # Step 5: Build main adapter per platform
-Write-Host "[Step 5/8] Building NaturalVoiceSAPIAdapter per platform..." -ForegroundColor Cyan
+Write-Host "[Step 5/8] Building VoiceGardenSAPIAdapter per platform..." -ForegroundColor Cyan
 foreach ($Platform in $Platforms) {
     $mainOut = Join-Path $StageRoot "main-$Platform"
     Ensure-Dir $mainOut
 
     Write-Host "  Building main adapter ($Platform)..." -ForegroundColor Cyan
-    & $msbuild (Join-Path $RepoRoot "NaturalVoiceSAPIAdapter.sln") `
+    & $msbuild (Join-Path $RepoRoot "VoiceGardenSAPIAdapter.sln") `
         /m /maxcpucount `
         /p:Configuration=$Configuration `
         /p:Platform=$Platform `
         /nologo /v:minimal `
-        /t:NaturalVoiceSAPIAdapter:Clean
+        /t:VoiceGardenSAPIAdapter:Clean
     if ($LASTEXITCODE -ne 0) {
-        throw "Clean failed for NaturalVoiceSAPIAdapter ($Platform)"
+        throw "Clean failed for VoiceGardenSAPIAdapter ($Platform)"
     }
 
-    & $msbuild (Join-Path $RepoRoot "NaturalVoiceSAPIAdapter.sln") `
+    & $msbuild (Join-Path $RepoRoot "VoiceGardenSAPIAdapter.sln") `
         /m /maxcpucount `
         /p:Configuration=$Configuration `
         /p:Platform=$Platform `
         /p:OutDir="$mainOut\" `
         /p:RegisterOutput=false `
         /nologo /v:minimal `
-        /t:NaturalVoiceSAPIAdapter
+        /t:VoiceGardenSAPIAdapter
 
     if ($LASTEXITCODE -ne 0) {
-        throw "MSBuild failed for NaturalVoiceSAPIAdapter ($Platform)"
+        throw "MSBuild failed for VoiceGardenSAPIAdapter ($Platform)"
     }
 
     # Trim DLLs for x86/x64 like CI
@@ -409,7 +409,7 @@ if ($dotnetAdapterPlatforms.Count -gt 0) {
         Ensure-Dir $dotnetOut
         $rid = if ($Platform -eq "x86") { "win-x86" } else { "win-x64" }
         Write-Host "  Publishing .NET adapter ($Platform)..." -ForegroundColor Cyan
-        dotnet publish (Join-Path $RepoRoot "NaturalVoiceSAPIAdapter.Net\NaturalVoiceSAPIAdapter.Net.csproj") `
+        dotnet publish (Join-Path $RepoRoot "VoiceGardenSAPIAdapter.Net\VoiceGardenSAPIAdapter.Net.csproj") `
             -c $Configuration `
             -r $rid `
             --self-contained false `
@@ -502,7 +502,7 @@ if ($BuildSetup) {
     Write-Host "[Step 8/8] Building MSI and setup.exe..." -ForegroundColor Cyan
     & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\build-setup.ps1") -PayloadDir $PayloadDir -OutputDir $InstallerOutputDir -BrandingFile $brandingSource
     if ($LASTEXITCODE -ne 0) { throw "MSI build failed" }
-    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\build-bootstrapper.ps1") -MsiPath (Join-Path $InstallerOutputDir "NaturalVoiceSAPIAdapter.msi") -OutputDir $InstallerOutputDir -BrandingFile $brandingSource
+    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\build-bootstrapper.ps1") -MsiPath (Join-Path $InstallerOutputDir "VoiceGardenSAPIAdapter.msi") -OutputDir $InstallerOutputDir -BrandingFile $brandingSource
     if ($LASTEXITCODE -ne 0) { throw "Bootstrapper build failed" }
     Write-Host "  MSI + setup.exe built in $InstallerOutputDir" -ForegroundColor Green
 } else {

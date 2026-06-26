@@ -52,7 +52,7 @@ public static class VoicePromotionService
             if (tokenKey?.GetValue("") is string desc)
                 pv.DisplayName = desc;
 
-            using var cfgKey = tokenKey?.OpenSubKey("NaturalVoiceConfig");
+            using var cfgKey = tokenKey?.OpenSubKey("VoiceGardenConfig");
             if (cfgKey != null)
             {
                 pv.Engine = cfgKey.GetValue("EngineType") as string ?? "";
@@ -80,7 +80,7 @@ public static class VoicePromotionService
             token.SetValue("", $"{Cap(engine)} {voiceId}", RegistryValueKind.String);
             token.SetValue("CLSID", TtsEngineClsid, RegistryValueKind.String);
 
-            using var config = token.CreateSubKey("NaturalVoiceConfig", writable: true);
+            using var config = token.CreateSubKey("VoiceGardenConfig", writable: true);
             config.SetValue("EngineType", Cap(engine), RegistryValueKind.String);
             config.SetValue("Voice", voiceId, RegistryValueKind.String);
             config.SetValue("Key", key ?? "", RegistryValueKind.String);
@@ -95,13 +95,13 @@ public static class VoicePromotionService
             attrs.SetValue("Language", "409", RegistryValueKind.String);
             attrs.SetValue("Locale", locale ?? "en-US", RegistryValueKind.String);
             attrs.SetValue("Vendor", Cap(engine), RegistryValueKind.String);
-            attrs.SetValue("NaturalVoiceType", "Cloud", RegistryValueKind.String);
+            attrs.SetValue("VoiceGardenType", "Cloud", RegistryValueKind.String);
 
             // Azure backward compatibility: also save to Enumerator
             if (engine.Equals("azure", StringComparison.OrdinalIgnoreCase))
             {
                 using var enumKey = Registry.CurrentUser.CreateSubKey(
-                    @"SOFTWARE\NaturalVoiceSAPIAdapter\Enumerator", writable: true);
+                    @"SOFTWARE\VoiceGardenSAPIAdapter\Enumerator", writable: true);
                 enumKey?.SetValue("AzureVoiceKey", key, RegistryValueKind.String);
                 if (!string.IsNullOrEmpty(region))
                     enumKey?.SetValue("AzureVoiceRegion", region, RegistryValueKind.String);

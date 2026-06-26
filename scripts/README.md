@@ -31,10 +31,10 @@ These are useful for engine parity/debugging, but not required for normal instal
 .\build-all.ps1 -Configuration Release -Platform x64
 
 # 3) Register adapter (elevated shell)
-& "$env:WINDIR\System32\regsvr32.exe" /s "C:\github\NaturalVoiceSAPIAdapter\out\NaturalVoiceSAPIAdapter.dll"
+& "$env:WINDIR\System32\regsvr32.exe" /s "C:\github\VoiceGardenSAPIAdapter\out\VoiceGardenSAPIAdapter.dll"
 
 # 4) Sync model tokens
-C:\github\NaturalVoiceSAPIAdapter\out\SherpaOnnxConfig.exe rescan
+C:\github\VoiceGardenSAPIAdapter\out\SherpaOnnxConfig.exe rescan
 
 # 5) Probe
 .\scripts\sapi-probe.ps1 -VoiceId piper-en-alan-low -TimeoutSeconds 20

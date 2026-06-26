@@ -45,12 +45,12 @@ BEGIN
     BEGIN
         BLOCK "000404b0"
         BEGIN
-            VALUE "FileDescription", "NaturalVoiceSAPIAdapter 安装程序"
+            VALUE "FileDescription", "VoiceGardenSAPIAdapter 安装程序"
             VALUE "FileVersion", "0.2.9.0"
             VALUE "InternalName", "Installer.exe"
             VALUE "LegalCopyright", "Copyright (C) 2025 by gexgd0419 on GitHub, MIT license"
             VALUE "OriginalFilename", "Installer.exe"
-            VALUE "ProductName", "NaturalVoiceSAPIAdapter"
+            VALUE "ProductName", "VoiceGardenSAPIAdapter"
             VALUE "ProductVersion", "0.2.9.0"
         END
     END
@@ -72,13 +72,13 @@ CAPTION "关于此程序"
 FONT 9, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "确定",IDOK,60,41,50,14,WS_GROUP
-    CONTROL         "NaturalVoiceSAPIAdapter 安装程序 v0.2\r\n<a>此项目的 GitHub 页面</a>",IDC_LINK,
+    CONTROL         "VoiceGardenSAPIAdapter 安装程序 v0.2\r\n<a>此项目的 GitHub 页面</a>",IDC_LINK,
                     "SysLink",WS_TABSTOP,7,7,156,25
 END
 
 IDD_MAIN DIALOGEX 0, 0, 319, 327
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "NaturalVoiceSAPIAdapter 安装程序"
+CAPTION "VoiceGardenSAPIAdapter 安装程序"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     GROUPBOX        "安装状态",IDC_STATIC,7,7,305,45
@@ -110,7 +110,7 @@ BEGIN
     PUSHBUTTON      "Configure Cloud Voices",IDC_CLOUD_CONFIGURE,14,186,160,14
     GROUPBOX        "SherpaOnnx 离线语音",IDC_STATIC,7,212,305,50
     CONTROL         "启用 &SherpaOnnx 离线语音",IDC_CHK_SHERPA_VOICES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,226,150,10
-    LTEXT           "模型目录: %LOCALAPPDATA%/NaturalVoiceSAPIAdapter/models/",IDC_STATIC,14,239,254,8
+    LTEXT           "模型目录: %LOCALAPPDATA%/VoiceGardenSAPIAdapter/models/",IDC_STATIC,14,239,254,8
     PUSHBUTTON      "管理模型(&M)...",IDC_SHERPA_MODEL_MANAGER,220,225,84,14
     GROUPBOX        "日志与故障排除",IDC_STATIC,7,267,305,34
     LTEXT           "日志级别(&L):",IDC_STATIC,14,282,47,8
@@ -378,12 +378,12 @@ BEGIN
     BEGIN
         BLOCK "000904b0"
         BEGIN
-            VALUE "FileDescription", "Installer for NaturalVoiceSAPIAdapter"
+            VALUE "FileDescription", "Installer for VoiceGardenSAPIAdapter"
             VALUE "FileVersion", "0.2.9.0"
             VALUE "InternalName", "Installer.exe"
             VALUE "LegalCopyright", "Copyright (C) 2025 by gexgd0419 on GitHub, MIT license"
             VALUE "OriginalFilename", "Installer.exe"
-            VALUE "ProductName", "NaturalVoiceSAPIAdapter"
+            VALUE "ProductName", "VoiceGardenSAPIAdapter"
             VALUE "ProductVersion", "0.2.9.0"
         END
     END
@@ -401,7 +401,7 @@ END
 
 IDD_MAIN DIALOGEX 0, 0, 319, 327
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "NaturalVoiceSAPIAdapter Installer"
+CAPTION "VoiceGardenSAPIAdapter Installer"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     GROUPBOX        "Installation Status",IDC_STATIC,7,7,305,45
@@ -434,7 +434,7 @@ BEGIN
     PUSHBUTTON      "Configure Cloud Voices",IDC_CLOUD_CONFIGURE,14,186,160,14
     GROUPBOX        "SherpaOnnx Offline Voices",IDC_STATIC,7,212,305,50
     CONTROL         "Enable &SherpaOnnx offline voices",IDC_CHK_SHERPA_VOICES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,226,150,10
-    LTEXT           "Models are stored in %LOCALAPPDATA%/NaturalVoiceSAPIAdapter/models/",IDC_STATIC,14,239,254,8
+    LTEXT           "Models are stored in %LOCALAPPDATA%/VoiceGardenSAPIAdapter/models/",IDC_STATIC,14,239,254,8
     PUSHBUTTON      "Manage &Models...",IDC_SHERPA_MODEL_MANAGER,220,225,84,14
     GROUPBOX        "Logs && Troubleshooting",IDC_STATIC,7,267,305,34
     LTEXT           "Log &level:",IDC_STATIC,14,282,47,8
@@ -450,7 +450,7 @@ CAPTION "About this program"
 FONT 9, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,60,41,50,14,WS_GROUP
-    CONTROL         "NaturalVoiceSAPIAdapter Installer v0.2\r\n<a>This project's GitHub page</a>",IDC_LINK,
+    CONTROL         "VoiceGardenSAPIAdapter Installer v0.2\r\n<a>This project's GitHub page</a>",IDC_LINK,
                     "SysLink",WS_TABSTOP,7,7,156,25
 END
 

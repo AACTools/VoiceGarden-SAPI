@@ -134,10 +134,10 @@ public:
 
 inline RegKey RegOpenConfigKey() noexcept
 {
-	return RegKey::OpenForRead(HKEY_CURRENT_USER, L"Software\\NaturalVoiceSAPIAdapter");
+	return RegKey::OpenForRead(HKEY_CURRENT_USER, L"Software\\VoiceGardenSAPIAdapter");
 }
 
 inline RegKey RegOpenEnumeratorConfigKey() noexcept
 {
-	return RegKey::OpenForRead(HKEY_CURRENT_USER, L"Software\\NaturalVoiceSAPIAdapter\\Enumerator");
+	return RegKey::OpenForRead(HKEY_CURRENT_USER, L"Software\\VoiceGardenSAPIAdapter\\Enumerator");
 }

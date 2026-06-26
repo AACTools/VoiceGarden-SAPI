@@ -49,8 +49,8 @@ struct AsyncDownloadResult
     std::wstring errorText;
 };
 
-constexpr LPCWSTR kInstallerSherpaPrefs = L"Software\\NaturalVoiceSAPIAdapter\\Installer";
-constexpr LPCWSTR kSherpaCompatPrefs = L"Software\\NaturalVoiceSAPIAdapter\\SherpaCompat";
+constexpr LPCWSTR kInstallerSherpaPrefs = L"Software\\VoiceGardenSAPIAdapter\\Installer";
+constexpr LPCWSTR kSherpaCompatPrefs = L"Software\\VoiceGardenSAPIAdapter\\SherpaCompat";
 constexpr UINT WM_SHERPA_DOWNLOAD_DONE = WM_APP + 201;
 std::vector<int> GetSelectedModelIndexes(HWND hDlg, SherpaDialogState& st);
 void UpdateSelectionState(HWND hDlg, SherpaDialogState& st);

@@ -8,8 +8,8 @@ namespace SherpaOnnxConfig
 {
     internal static class AppDataLayout
     {
-        private const string LegacyRootName = "NaturalVoiceSAPIAdapter";
-        private const string LegacyAltRootName = "NaturalVoicesSAPIAdapter";
+        private const string LegacyRootName = "VoiceGardenSAPIAdapter";
+        private const string LegacyAltRootName = "VoiceGardensSAPIAdapter";
 
         public static string AdapterDataDir { get; } = ResolveAdapterDataDir();
         public static string ModelsDir { get; } = Path.Combine(AdapterDataDir, "models");

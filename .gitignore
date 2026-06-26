@@ -382,7 +382,7 @@ FodyWeavers.xsd
 
 # Folder for released files
 /releasepack
-/NaturalVoiceSAPIAdapter/NaturalVoiceSAPIAdapter_i.h
+/VoiceGardenSAPIAdapter/VoiceGardenSAPIAdapter_i.h
 
 # SherpaOnnx dependencies (downloaded via download-sherpa-deps.ps1)
 SherpaOnnx/libs/
@@ -393,8 +393,8 @@ SherpaOnnx/dlls/
 e2e-result.txt
 e2e-test-bin/
 nul
-NaturalVoiceSAPIAdapter.Net/.e2e-*.json
-NaturalVoiceSAPIAdapter.Net/.e2e-*.ps1
+VoiceGardenSAPIAdapter.Net/.e2e-*.json
+VoiceGardenSAPIAdapter.Net/.e2e-*.ps1
 
 # NuGet CLI (downloaded for local builds)
 nuget.exe

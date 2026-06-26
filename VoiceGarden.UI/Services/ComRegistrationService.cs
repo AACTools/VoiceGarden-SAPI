@@ -21,7 +21,7 @@ public static class ComRegistrationService
     public static bool IsInstalled(bool is64Bit)
     {
         var dir = GetInstallDir(is64Bit);
-        var dll = System.IO.Path.Combine(dir, "NaturalVoiceSAPIAdapter.dll");
+        var dll = System.IO.Path.Combine(dir, "VoiceGardenSAPIAdapter.dll");
         return System.IO.File.Exists(dll);
     }
 
@@ -39,12 +39,12 @@ public static class ComRegistrationService
     public static int Register(bool is64Bit)
     {
         var dir = GetInstallDir(is64Bit);
-        var dll = System.IO.Path.Combine(dir, "NaturalVoiceSAPIAdapter.dll");
+        var dll = System.IO.Path.Combine(dir, "VoiceGardenSAPIAdapter.dll");
         if (!System.IO.File.Exists(dll))
         {
             // Check if the exe directory has the DLL (running from publish/debug)
             var exeDir = System.IO.Path.GetDirectoryName(Environment.ProcessPath) ?? "";
-            var altDll = System.IO.Path.Combine(exeDir, "NaturalVoiceSAPIAdapter.dll");
+            var altDll = System.IO.Path.Combine(exeDir, "VoiceGardenSAPIAdapter.dll");
             if (System.IO.File.Exists(altDll))
                 dll = altDll;
             else
@@ -56,11 +56,11 @@ public static class ComRegistrationService
     public static int Unregister(bool is64Bit)
     {
         var dir = GetInstallDir(is64Bit);
-        var dll = System.IO.Path.Combine(dir, "NaturalVoiceSAPIAdapter.dll");
+        var dll = System.IO.Path.Combine(dir, "VoiceGardenSAPIAdapter.dll");
         if (!System.IO.File.Exists(dll))
         {
             var exeDir = System.IO.Path.GetDirectoryName(Environment.ProcessPath) ?? "";
-            var altDll = System.IO.Path.Combine(exeDir, "NaturalVoiceSAPIAdapter.dll");
+            var altDll = System.IO.Path.Combine(exeDir, "VoiceGardenSAPIAdapter.dll");
             if (System.IO.File.Exists(altDll))
                 dll = altDll;
             else

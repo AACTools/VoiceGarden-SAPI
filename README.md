@@ -2,7 +2,7 @@
 
 [查看中文文档请点击这里](README.zh.md)
 
-> **Note:** This project was originally forked from [NaturalVoiceSAPIAdapter](https://github.com/gexgd0419/NaturalVoiceSAPIAdapter). It has moved to [AACTools/VoiceGarden-SAPI](https://github.com/AACTools/VoiceGarden-SAPI) as a standalone project.
+> **Note:** This project was originally forked from [VoiceGardenSAPIAdapter](https://github.com/gexgd0419/VoiceGardenSAPIAdapter). It has moved to [AACTools/VoiceGarden-SAPI](https://github.com/AACTools/VoiceGarden-SAPI) as a standalone project.
 >
 > This fork diverges from the upstream project in important ways:
 > - **SherpaOnnx support** is built in, enabling fully local, offline TTS using SherpaOnnx models with no cloud services required.
@@ -81,10 +81,10 @@ Silent/declarative install (work in progress):
 MSI setup packaging:
 
 - Build from staged payload (default `out/`): `powershell -ExecutionPolicy Bypass -File .\scripts\build-setup.ps1`
-- Output: `installer-output/NaturalVoiceSAPIAdapter.msi`
+- Output: `installer-output/VoiceGardenSAPIAdapter.msi`
 - Optional appdata cleanup during uninstall:
   - `msiexec /x {PRODUCT-CODE} REMOVE_APPDATA=1`
-  - (default keeps `%LOCALAPPDATA%\NaturalVoiceSAPIAdapter`)
+  - (default keeps `%LOCALAPPDATA%\VoiceGardenSAPIAdapter`)
 
 setup.exe bootstrapper packaging:
 
@@ -114,7 +114,7 @@ Or, you can go to Control Panel > Speech (Windows XP), or Control Panel > Speech
 
 ## SherpaOnnx Notes
 
-- SherpaOnnx local models are loaded from `%LOCALAPPDATA%\\NaturalVoiceSAPIAdapter\\models\\`.
+- SherpaOnnx local models are loaded from `%LOCALAPPDATA%\\VoiceGardenSAPIAdapter\\models\\`.
 - SherpaOnnx synthesis currently supports plain text only. SAPI/SSML tags are converted to plain text before offline generation.
 - Use `SherpaOnnxConfig.exe rescan` (or the **Rescan Models** button) to validate local model folders and view per-model scan errors.
 - Installer/CLI orchestration contract draft: `docs/install-plan-and-cli-contract.md`.

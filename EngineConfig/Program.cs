@@ -262,7 +262,7 @@ internal static class Program
         key.SetValue("", $"{opts.Engine} {opts.VoiceId}", Microsoft.Win32.RegistryValueKind.String);
         key.SetValue("CLSID", TtsEngineClsid, Microsoft.Win32.RegistryValueKind.String);
 
-        using var configKey = key.CreateSubKey("NaturalVoiceConfig");
+        using var configKey = key.CreateSubKey("VoiceGardenConfig");
         configKey.SetValue("EngineType", CapitalizeEngine(opts.Engine), Microsoft.Win32.RegistryValueKind.String);
         configKey.SetValue("Voice", opts.VoiceId, Microsoft.Win32.RegistryValueKind.String);
         configKey.SetValue("Key", opts.Key ?? "", Microsoft.Win32.RegistryValueKind.String);
@@ -275,7 +275,7 @@ internal static class Program
         if (opts.Engine.Equals("azure", StringComparison.OrdinalIgnoreCase))
         {
             using var enumKey = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(
-                @"SOFTWARE\NaturalVoiceSAPIAdapter\Enumerator");
+                @"SOFTWARE\VoiceGardenSAPIAdapter\Enumerator");
             if (enumKey != null && !string.IsNullOrEmpty(opts.Key))
             {
                 enumKey.SetValue("AzureVoiceKey", opts.Key, Microsoft.Win32.RegistryValueKind.String);
@@ -291,7 +291,7 @@ internal static class Program
         attrsKey.SetValue("Language", "0409", Microsoft.Win32.RegistryValueKind.String);
         attrsKey.SetValue("Locale", opts.Locale ?? "en-US", Microsoft.Win32.RegistryValueKind.String);
         attrsKey.SetValue("Vendor", CapitalizeEngine(opts.Engine), Microsoft.Win32.RegistryValueKind.String);
-        attrsKey.SetValue("NaturalVoiceType", "Cloud", Microsoft.Win32.RegistryValueKind.String);
+        attrsKey.SetValue("VoiceGardenType", "Cloud", Microsoft.Win32.RegistryValueKind.String);
 
         Console.WriteLine($"Promoted {opts.Engine}/{opts.VoiceId} to HKLM token: {tokenName}");
         return 0;
@@ -344,7 +344,7 @@ internal static class Program
         foreach (var name in cloudTokens)
         {
             using var tk = tokens.OpenSubKey(name);
-            using var cfg = tk?.OpenSubKey("NaturalVoiceConfig");
+            using var cfg = tk?.OpenSubKey("VoiceGardenConfig");
             var engine = cfg?.GetValue("EngineType") as string ?? "?";
             var voiceId = cfg?.GetValue("VoiceId") as string ?? "?";
             Console.WriteLine($"  {name,-50} {engine,-15} {voiceId}");

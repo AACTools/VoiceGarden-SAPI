@@ -8,9 +8,9 @@ static class Program
 {
     sealed class Branding
     {
-        public string ProductName { get; set; } = "NaturalVoiceSAPIAdapter";
-        public string SetupCaption { get; set; } = "NaturalVoiceSAPIAdapter Setup";
-        public string InstallFolderName { get; set; } = "NaturalVoiceSAPIAdapter";
+        public string ProductName { get; set; } = "VoiceGardenSAPIAdapter";
+        public string SetupCaption { get; set; } = "VoiceGardenSAPIAdapter Setup";
+        public string InstallFolderName { get; set; } = "VoiceGardenSAPIAdapter";
     }
 
     static int Main(string[] args)
@@ -24,7 +24,7 @@ static class Program
             bool removeAppData = HasArg(args, "--remove-appdata");
 
             string baseDir = AppContext.BaseDirectory;
-            string msiPath = Path.Combine(baseDir, "NaturalVoiceSAPIAdapter.msi");
+            string msiPath = Path.Combine(baseDir, "VoiceGardenSAPIAdapter.msi");
 
             if (!File.Exists(msiPath))
             {
@@ -181,8 +181,11 @@ static class Program
 
     static bool TryLaunchInstalledInstaller(Branding branding)
     {
+        // Prefer VoiceGarden.UI.exe (Avalonia), fall back to Installer.exe (C++)
         var candidates = new[]
         {
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), branding.InstallFolderName, "VoiceGarden.UI.exe"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), branding.InstallFolderName, "VoiceGarden.UI.exe"),
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), branding.InstallFolderName, "Installer.exe"),
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), branding.InstallFolderName, "Installer.exe")
         };

@@ -70,7 +70,7 @@ void AppendLoaderLog(const std::string& line)
     DWORD len = GetEnvironmentVariableA("LOCALAPPDATA", appData, MAX_PATH);
     if (len != 0 && len < MAX_PATH) {
         std::filesystem::path logPath(appData);
-        logPath /= "NaturalVoiceSAPIAdapter";
+        logPath /= "VoiceGardenSAPIAdapter";
         logPath /= "sherpa_loader.log";
         AppendLoaderLogTo(logPath, line);
     }
@@ -83,7 +83,7 @@ void AppendLoaderLog(const std::string& line)
     char tempPath[MAX_PATH] = {};
     DWORD tempLen = GetTempPathA(MAX_PATH, tempPath);
     if (tempLen != 0 && tempLen < MAX_PATH) {
-        AppendLoaderLogTo(std::filesystem::path(tempPath) / "NaturalVoiceSAPIAdapter-sherpa_loader.log", line);
+        AppendLoaderLogTo(std::filesystem::path(tempPath) / "VoiceGardenSAPIAdapter-sherpa_loader.log", line);
     }
 }
 }

@@ -350,10 +350,10 @@ static void SaveChanges(HWND hDlg)
 {
     RegKey key;
 
-    key.Create(HKEY_CURRENT_USER, L"Software\\NaturalVoiceSAPIAdapter", KEY_SET_VALUE);
+    key.Create(HKEY_CURRENT_USER, L"Software\\VoiceGardenSAPIAdapter", KEY_SET_VALUE);
     key.SetDword(L"LogLevel", SendDlgItemMessageW(hDlg, IDC_LOG_LEVEL, CB_GETCURSEL, 0, 0));
 
-    key.Create(HKEY_CURRENT_USER, L"Software\\NaturalVoiceSAPIAdapter\\Enumerator", KEY_SET_VALUE);
+    key.Create(HKEY_CURRENT_USER, L"Software\\VoiceGardenSAPIAdapter\\Enumerator", KEY_SET_VALUE);
     key.SetDword(L"NoNarratorVoices", IsDlgButtonChecked(hDlg, IDC_CHK_NARRATOR_VOICES) == BST_UNCHECKED);
     key.SetDword(L"NoEdgeVoices", IsDlgButtonChecked(hDlg, IDC_CHK_EDGE_VOICES) == BST_UNCHECKED);
     key.SetDword(L"NoAzureVoices", IsDlgButtonChecked(hDlg, IDC_CHK_AZURE_VOICES) == BST_UNCHECKED);
@@ -512,11 +512,11 @@ INT_PTR CALLBACK MainDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
                 if (wcscmp(item.szID, L"narrator") == 0)
                     ShellExecuteW(hDlg, nullptr, L"ms-settings:easeofaccess-narrator", nullptr, nullptr, SW_SHOWNORMAL);
                 else if (wcscmp(item.szID, L"download") == 0)
-                    ShellExecuteW(hDlg, nullptr, L"https://github.com/gexgd0419/NaturalVoiceSAPIAdapter/wiki/Narrator-natural-voice-download-links",
+                    ShellExecuteW(hDlg, nullptr, L"https://github.com/gexgd0419/VoiceGardenSAPIAdapter/wiki/Narrator-natural-voice-download-links",
                         nullptr, nullptr, SW_SHOWNORMAL);
                 else if (wcscmp(item.szID, L"download-zh") == 0)
                     ShellExecuteW(hDlg, nullptr,
-                        L"https://github.com/gexgd0419/NaturalVoiceSAPIAdapter/wiki/%E8%AE%B2%E8%BF%B0%E4%BA%BA%E8%87%AA%E7%84%B6%E8%AF%AD%E9%9F%B3%E4%B8%8B%E8%BD%BD%E9%93%BE%E6%8E%A5",
+                        L"https://github.com/gexgd0419/VoiceGardenSAPIAdapter/wiki/%E8%AE%B2%E8%BF%B0%E4%BA%BA%E8%87%AA%E7%84%B6%E8%AF%AD%E9%9F%B3%E4%B8%8B%E8%BD%BD%E9%93%BE%E6%8E%A5",
                         nullptr, nullptr, SW_SHOWNORMAL);
                 break;
             }

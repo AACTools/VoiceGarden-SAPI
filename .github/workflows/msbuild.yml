@@ -164,7 +164,7 @@ jobs:
         path: out
 
   build-main:
-    name: Build NaturalVoiceSAPIAdapter
+    name: Build VoiceGardenSAPIAdapter
     runs-on: windows-2022
 
     permissions:
@@ -190,11 +190,11 @@ jobs:
 
     - name: Restore NuGet packages
       working-directory: ${{github.workspace}}
-      run: nuget restore NaturalVoiceSAPIAdapter -SolutionDirectory .
+      run: nuget restore VoiceGardenSAPIAdapter -SolutionDirectory .
 
     - name: Build
       working-directory: ${{github.workspace}}
-      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{matrix.platform}} /p:OutDir=${{github.workspace}}\out\ /p:RegisterOutput=false . /t:NaturalVoiceSAPIAdapter
+      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{matrix.platform}} /p:OutDir=${{github.workspace}}\out\ /p:RegisterOutput=false . /t:VoiceGardenSAPIAdapter
 
     - name: Compile Sherpa smoke test (x64)
       if: matrix.platform == 'x64'
@@ -212,9 +212,9 @@ jobs:
         $vspath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -property installationPath -latest
         $msvcpath = (Get-ChildItem "$vspath\VC\Tools\MSVC" | Sort-Object Name -Descending | Select-Object -First 1).FullName
         $dumpbinpath = "$msvcpath\bin\Hostx86\x86\dumpbin.exe"
-        $dlls = & $dumpbinpath /dependents NaturalVoiceSAPIAdapter.dll Microsoft.CognitiveServices.*.dll `
+        $dlls = & $dumpbinpath /dependents VoiceGardenSAPIAdapter.dll Microsoft.CognitiveServices.*.dll `
           | ? { $_ -like "    *.dll" } | % { $_.Trim() } | Select-Object -Unique
-        $dlls += "NaturalVoiceSAPIAdapter.dll", "Microsoft.CognitiveServices.*.dll"
+        $dlls += "VoiceGardenSAPIAdapter.dll", "Microsoft.CognitiveServices.*.dll"
         # Keep SherpaOnnx runtime dependencies in release artifacts.
         $dlls += "sherpa-onnx-c-api.dll", "onnxruntime.dll", "onnxruntime_providers_shared.dll"
         Remove-Item * -Include *.dll -Exclude $dlls
@@ -270,7 +270,7 @@ jobs:
       shell: pwsh
       run: |
         $rid = "${{matrix.platform}}" -eq "x86" ? "win-x86" : "win-x64"
-        dotnet publish NaturalVoiceSAPIAdapter.Net\NaturalVoiceSAPIAdapter.Net.csproj `
+        dotnet publish VoiceGardenSAPIAdapter.Net\VoiceGardenSAPIAdapter.Net.csproj `
           -c ${{env.BUILD_CONFIGURATION}} `
           -r $rid `
           --self-contained false `
@@ -336,13 +336,13 @@ jobs:
       shell: pwsh
       working-directory: ${{github.workspace}}
       run: |
-        .\scripts\build-bootstrapper.ps1 -MsiPath .\installer-output\NaturalVoiceSAPIAdapter.msi -OutputDir .\installer-output
+        .\scripts\build-bootstrapper.ps1 -MsiPath .\installer-output\VoiceGardenSAPIAdapter.msi -OutputDir .\installer-output
 
     - name: Upload setup artifact
       uses: actions/upload-artifact@v6
       with:
         name: setup-msi
-        path: installer-output/NaturalVoiceSAPIAdapter.msi
+        path: installer-output/VoiceGardenSAPIAdapter.msi
 
     - name: Upload setup bootstrapper artifact
       uses: actions/upload-artifact@v6
@@ -350,7 +350,7 @@ jobs:
         name: setup-exe
         path: |
           installer-output/setup.exe
-          installer-output/NaturalVoiceSAPIAdapter.msi
+          installer-output/VoiceGardenSAPIAdapter.msi
           installer-output/branding.json
 
   release:
@@ -383,17 +383,17 @@ jobs:
         mkdir x64
         mv utilities-x64/* x64/
         mv main-x64/* x64/
-        zip -r NaturalVoiceSAPIAdapter_${ver}_x86_x64.zip x86 x64 Installer.exe InstallPlanRunner.exe -i "*.exe" "*.dll" "*.json"
+        zip -r VoiceGardenSAPIAdapter_${ver}_x86_x64.zip x86 x64 Installer.exe InstallPlanRunner.exe -i "*.exe" "*.dll" "*.json"
         mkdir ARM64
         mv utilities-ARM64/* ARM64/
         mv main-ARM64/* ARM64/
-        zip -r NaturalVoiceSAPIAdapter_${ver}_ARM64.zip x86 x64 ARM64 Installer.exe InstallPlanRunner.exe -i "*.exe" "*.dll" "*.json"
+        zip -r VoiceGardenSAPIAdapter_${ver}_ARM64.zip x86 x64 ARM64 Installer.exe InstallPlanRunner.exe -i "*.exe" "*.dll" "*.json"
         zip -r debug_symbols.zip x86 x64 ARM64 -i "*.pdb"
-        cp setup-msi/NaturalVoiceSAPIAdapter.msi ./
+        cp setup-msi/VoiceGardenSAPIAdapter.msi ./
         cp setup-exe/setup.exe ./
         if [ -f setup-exe/branding.json ]; then cp setup-exe/branding.json ./; fi
         # Canonical release payload layout (single package).
-        zip -r NaturalVoiceSAPIAdapter_${ver}_release-layout.zip x86 x64 ARM64 Installer.exe InstallPlanRunner.exe setup.exe NaturalVoiceSAPIAdapter.msi branding.json -i "*.exe" "*.dll" "*.json" "*.msi"
+        zip -r VoiceGardenSAPIAdapter_${ver}_release-layout.zip x86 x64 ARM64 Installer.exe InstallPlanRunner.exe setup.exe VoiceGardenSAPIAdapter.msi branding.json -i "*.exe" "*.dll" "*.json" "*.msi"
 
     - name: Create release
       if: github.ref_type == 'tag'
@@ -401,7 +401,7 @@ jobs:
       with:
         body_path: ${{github.workspace}}/release_notes.md
         files: |
-          ${{github.workspace}}/artifacts/NaturalVoiceSAPIAdapter_*_release-layout.zip
+          ${{github.workspace}}/artifacts/VoiceGardenSAPIAdapter_*_release-layout.zip
           ${{github.workspace}}/artifacts/debug_symbols.zip
 
     - name: Upload release layout (unzipped)
@@ -416,5 +416,5 @@ jobs:
           ${{github.workspace}}/artifacts/InstallPlanRunner.exe
           ${{github.workspace}}/artifacts/install-plan.json
           ${{github.workspace}}/artifacts/branding.json
-          ${{github.workspace}}/artifacts/NaturalVoiceSAPIAdapter.msi
+          ${{github.workspace}}/artifacts/VoiceGardenSAPIAdapter.msi
           ${{github.workspace}}/artifacts/setup.exe

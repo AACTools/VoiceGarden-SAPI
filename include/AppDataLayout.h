@@ -14,8 +14,8 @@
 
 namespace AppDataLayout
 {
-constexpr wchar_t kLegacyRootName[] = L"NaturalVoiceSAPIAdapter";
-constexpr wchar_t kLegacyAltRootName[] = L"NaturalVoicesSAPIAdapter";
+constexpr wchar_t kLegacyRootName[] = L"VoiceGardenSAPIAdapter";
+constexpr wchar_t kLegacyAltRootName[] = L"VoiceGardensSAPIAdapter";
 
 inline std::wstring Trim(const std::wstring& value)
 {

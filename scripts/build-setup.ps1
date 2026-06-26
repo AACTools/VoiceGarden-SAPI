@@ -1,11 +1,11 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-Build MSI package for NaturalVoiceSAPIAdapter.
+Build MSI package for VoiceGardenSAPIAdapter.
 
 .DESCRIPTION
 Generates a WiX payload manifest from a staged payload directory and builds:
-- NaturalVoiceSAPIAdapter.msi
+- VoiceGardenSAPIAdapter.msi
 
 Optional uninstall data cleanup is controlled via MSI property:
   msiexec /x {ProductCode} REMOVE_APPDATA=1
@@ -38,11 +38,11 @@ if (!(Test-Path $setupDir -PathType Container)) {
     throw "Setup project directory not found: $setupDir"
 }
 
-$productName = "NaturalVoiceSAPIAdapter"
-$manufacturer = "NaturalVoiceSAPIAdapter"
-$installFolderName = "NaturalVoiceSAPIAdapter"
-$installerShortcutName = "NaturalVoiceSAPIAdapter Installer"
-$projectUrl = "https://github.com/gexgd0419/NaturalVoiceSAPIAdapter"
+$productName = "VoiceGardenSAPIAdapter"
+$manufacturer = "VoiceGardenSAPIAdapter"
+$installFolderName = "VoiceGardenSAPIAdapter"
+$installerShortcutName = "VoiceGardenSAPIAdapter Installer"
+$projectUrl = "https://github.com/gexgd0419/VoiceGardenSAPIAdapter"
 
 $brandingPath = $null
 if (![string]::IsNullOrWhiteSpace($BrandingFile)) {
@@ -119,7 +119,7 @@ if (-not $builtMsi) {
     throw "MSI output was not produced in $outputFull"
 }
 
-$targetMsi = Join-Path $outputFull "NaturalVoiceSAPIAdapter.msi"
+$targetMsi = Join-Path $outputFull "VoiceGardenSAPIAdapter.msi"
 Copy-Item -Path $builtMsi.FullName -Destination $targetMsi -Force
 
 # Keep only the canonical MSI filename in output to avoid user confusion.

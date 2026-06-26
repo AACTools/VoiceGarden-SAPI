@@ -4,11 +4,11 @@ using Microsoft.Win32;
 namespace VoiceGarden.UI.Services;
 
 /// <summary>
-/// Reads/writes adapter configuration in HKCU\SOFTWARE\NaturalVoiceSAPIAdapter
+/// Reads/writes adapter configuration in HKCU\SOFTWARE\VoiceGardenSAPIAdapter
 /// </summary>
 public static class RegistryService
 {
-    private const string EnumeratorPath = @"SOFTWARE\NaturalVoiceSAPIAdapter\Enumerator";
+    private const string EnumeratorPath = @"SOFTWARE\VoiceGardenSAPIAdapter\Enumerator";
     private const string SapiTokensRoot = @"SOFTWARE\Microsoft\Speech\Voices\Tokens";
 
     public static bool GetFlag(string name, bool defaultValue = false)

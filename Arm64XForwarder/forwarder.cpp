@@ -20,9 +20,9 @@ static void LoadTargetModule()
 	PathRemoveFileSpecW(path);
 #ifdef _M_X64  // forward to X64
 	PathRemoveFileSpecW(path);
-	if (!PathAppendW(path, L"x64\\NaturalVoiceSAPIAdapter.dll"))
+	if (!PathAppendW(path, L"x64\\VoiceGardenSAPIAdapter.dll"))
 #else  // forward to ARM64
-	if (!PathAppendW(path, L"NaturalVoiceSAPIAdapter.dll"))
+	if (!PathAppendW(path, L"VoiceGardenSAPIAdapter.dll"))
 #endif
 	{
 		throw std::system_error(ERROR_FILENAME_EXCED_RANGE, std::system_category());

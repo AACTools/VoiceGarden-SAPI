@@ -22,7 +22,7 @@ INT_PTR CALLBACK AboutDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
         {
         case NM_CLICK:
         case NM_RETURN:
-            ShellExecuteW(nullptr, nullptr, L"https://github.com/gexgd0419/NaturalVoiceSAPIAdapter",
+            ShellExecuteW(nullptr, nullptr, L"https://github.com/gexgd0419/VoiceGardenSAPIAdapter",
                 nullptr, nullptr, SW_SHOW);
             break;
         }

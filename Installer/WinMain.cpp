@@ -91,7 +91,7 @@ std::wstring Utf8ToWide(const std::string& value)
 void PrintUsage()
 {
     std::wcout
-        << L"NaturalVoice Installer CLI\n\n"
+        << L"VoiceGarden Installer CLI\n\n"
         << L"Usage:\n"
         << L"  Installer.exe\n"
         << L"  Installer.exe -uninstall\n"
@@ -281,7 +281,7 @@ int SetupEmbeddedMsix(const InstallPlan& plan, std::wstring& err)
     }
 
     RegKey key;
-    key.Create(HKEY_CURRENT_USER, L"Software\\NaturalVoiceSAPIAdapter\\Enumerator", KEY_SET_VALUE);
+    key.Create(HKEY_CURRENT_USER, L"Software\\VoiceGardenSAPIAdapter\\Enumerator", KEY_SET_VALUE);
     key.SetString(L"NarratorVoicePath", narratorPath.c_str());
     key.SetDword(L"NoNarratorVoices", 0);
 
@@ -705,7 +705,7 @@ bool ValidateInstallPlan(const InstallPlan& plan, std::wstring& err)
 void ApplyEnumeratorSettings(const InstallPlan& plan)
 {
     RegKey key;
-    key.Create(HKEY_CURRENT_USER, L"Software\\NaturalVoiceSAPIAdapter\\Enumerator", KEY_SET_VALUE);
+    key.Create(HKEY_CURRENT_USER, L"Software\\VoiceGardenSAPIAdapter\\Enumerator", KEY_SET_VALUE);
     key.SetDword(L"NoAzureVoices", plan.enableAzure ? 0 : 1);
     key.SetDword(L"NoEdgeVoices", plan.enableEdge ? 0 : 1);
     key.SetDword(L"NoNarratorVoices", plan.enableNarrator ? 0 : 1);

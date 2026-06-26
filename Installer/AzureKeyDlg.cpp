@@ -10,7 +10,7 @@ INT_PTR CALLBACK AzureKeyDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
     case WM_INITDIALOG:
     {
         RegKey key;
-        key.Open(HKEY_CURRENT_USER, L"Software\\NaturalVoiceSAPIAdapter\\Enumerator", KEY_QUERY_VALUE);
+        key.Open(HKEY_CURRENT_USER, L"Software\\VoiceGardenSAPIAdapter\\Enumerator", KEY_QUERY_VALUE);
         
         SetDlgItemTextW(hDlg, IDC_AZURE_KEY, key.GetString(L"AzureVoiceKey").c_str());
         SetDlgItemTextW(hDlg, IDC_AZURE_REGION, key.GetString(L"AzureVoiceRegion").c_str());
@@ -24,7 +24,7 @@ INT_PTR CALLBACK AzureKeyDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
         case IDOK:
         {
             RegKey key;
-            key.Create(HKEY_CURRENT_USER, L"Software\\NaturalVoiceSAPIAdapter\\Enumerator", KEY_SET_VALUE);
+            key.Create(HKEY_CURRENT_USER, L"Software\\VoiceGardenSAPIAdapter\\Enumerator", KEY_SET_VALUE);
 
             WCHAR buf[256];
             GetDlgItemTextW(hDlg, IDC_AZURE_KEY, buf, 256);

@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-Replace the C++ Installer.exe, SherpaOnnxConfig.exe, and EngineConfig.exe with a single Avalonia UI application (`VoiceGarden.UI.exe`). The C++ SAPI adapter DLL (`NaturalVoiceSAPIAdapter.dll`) stays unchanged. The WiX MSI continues to deploy files. The Avalonia app handles all configuration, model management, and voice promotion.
+Replace the C++ Installer.exe, SherpaOnnxConfig.exe, and EngineConfig.exe with a single Avalonia UI application (`VoiceGarden.UI.exe`). The C++ SAPI adapter DLL (`VoiceGardenSAPIAdapter.dll`) stays unchanged. The WiX MSI continues to deploy files. The Avalonia app handles all configuration, model management, and voice promotion.
 
 ## Goals
 
@@ -18,14 +18,14 @@ Replace the C++ Installer.exe, SherpaOnnxConfig.exe, and EngineConfig.exe with a
 VoiceGarden.UI.exe (Avalonia, self-contained, single-file)
 ├── References DotNetTtsWrapper NuGet (voice listing, validation, synthesis test)
 ├── Calls regsvr32 for COM registration (elevated via Process.Start)
-├── Reads/writes HKCU\SOFTWARE\NaturalVoiceSAPIAdapter\* registry
+├── Reads/writes HKCU\SOFTWARE\VoiceGardenSAPIAdapter\* registry
 ├── Promotes voices to HKLM\SOFTWARE\Microsoft\Speech\Voices\Tokens\* (elevated)
 ├── Manages SherpaOnnx models (downloads, scans, promotes)
 └── Saves config to registry + optional JSON export/import
 
 Files deployed:
-├── NaturalVoiceSAPIAdapter.dll (+ deps)     ← C++ SAPI adapter (unchanged)
-├── NaturalVoiceSAPIAdapter.Net.*            ← .NET adapter (unchanged)
+├── VoiceGardenSAPIAdapter.dll (+ deps)     ← C++ SAPI adapter (unchanged)
+├── VoiceGardenSAPIAdapter.Net.*            ← .NET adapter (unchanged)
 ├── VoiceGarden.UI.exe (+ deps)              ← NEW: replaces Installer.exe + SherpaOnnxConfig + EngineConfig
 ├── merged_models.json                       ← SherpaOnnx catalog
 └── branding.json                            ← UI feature flags
@@ -59,11 +59,11 @@ Attributes\Name = <short name for SelectVoice>
 Attributes\Language = <hex lang ID, e.g. "409">
 Attributes\Locale = <BCP-47, e.g. "en-US">
 Attributes\Vendor = K2FSA
-NaturalVoiceConfig\EngineType = Sherpa
-NaturalVoiceConfig\SherpaOnnxModelType = <0=Vits, 1=Matcha, 2=Kokoro>
-NaturalVoiceConfig\SherpaOnnxModelPath = <full path to .onnx file>
-NaturalVoiceConfig\SherpaOnnxTokens = <full path to tokens.txt>
-NaturalVoiceConfig\SherpaOnnxDataDir = <path to espeak-ng-data, if present>
+VoiceGardenConfig\EngineType = Sherpa
+VoiceGardenConfig\SherpaOnnxModelType = <0=Vits, 1=Matcha, 2=Kokoro>
+VoiceGardenConfig\SherpaOnnxModelPath = <full path to .onnx file>
+VoiceGardenConfig\SherpaOnnxTokens = <full path to tokens.txt>
+VoiceGardenConfig\SherpaOnnxDataDir = <path to espeak-ng-data, if present>
 ```
 
 ### 5. Cloud Engine Token Format
@@ -75,14 +75,14 @@ Attributes\Name = <voice name>
 Attributes\Language = 409
 Attributes\Locale = <locale>
 Attributes\Vendor = <EngineName>
-NaturalVoiceConfig\EngineType = <OpenAI|ElevenLabs|Google|Cartesia|DeepGram>
-NaturalVoiceConfig\Voice = <voice ID>
-NaturalVoiceConfig\Key = <API key>
-NaturalVoiceConfig\Region = <region, if applicable>
+VoiceGardenConfig\EngineType = <OpenAI|ElevenLabs|Google|Cartesia|DeepGram>
+VoiceGardenConfig\Voice = <voice ID>
+VoiceGardenConfig\Key = <API key>
+VoiceGardenConfig\Region = <region, if applicable>
 ```
 
 ### 6. Azure Key Backward Compatibility
-- Azure keys must also be saved to `HKCU\SOFTWARE\NaturalVoiceSAPIAdapter\Enumerator\AzureVoiceKey` and `AzureVoiceRegion`
+- Azure keys must also be saved to `HKCU\SOFTWARE\VoiceGardenSAPIAdapter\Enumerator\AzureVoiceKey` and `AzureVoiceRegion`
 - The C++ VoiceTokenEnumerator reads these to enumerate Azure voices via WebSocket
 - EngineConfig promote already handles this; the Avalonia app must do the same
 
@@ -95,7 +95,7 @@ TTSEngine::SetObjectToken()
     → InitCloudVoiceSynthesizer() (Azure SDK, checks "Key"+"Region"+"Voice")
     → InitCloudVoiceRestAPI()   (Azure/Edge REST, checks "Voice"+"Key"+"Region")
     → InitGenericHttpVoice()    (OpenAI/ElevenLabs/etc., checks "EngineType"+"Voice"+"Key")
-    → throw "Invalid NaturalVoiceConfig"
+    → throw "Invalid VoiceGardenConfig"
 ```
 **Gotcha**: `GetStringValue(L"SherpaOnnxModelPath", nullptr)` throws STG_E_INVALIDPOINTER on registry-backed tokens. Must use a valid buffer. Already fixed on the branch.
 
@@ -332,7 +332,7 @@ Examples:
 
 ## Registry Schema (Consolidated)
 
-### HKCU\SOFTWARE\NaturalVoiceSAPIAdapter\Enumerator
+### HKCU\SOFTWARE\VoiceGardenSAPIAdapter\Enumerator
 ```
 NoSherpaVoices = 0|1          (0 = SherpaOnnx enumerator enabled)
 NoAzureVoices = 0|1           (0 = Azure enumerator enabled)
@@ -354,7 +354,7 @@ Sherpa-<modelId>              (SherpaOnnx voices, promoted by app)
 Cloud-<engine>-<voiceId>      (Cloud engine voices, promoted by app)
 ```
 
-### HKCU\SOFTWARE\NaturalVoiceSAPIAdapter\CloudEngines (NEW)
+### HKCU\SOFTWARE\VoiceGardenSAPIAdapter\CloudEngines (NEW)
 ```
 <EngineName>\ApiKey = <key>
 <EngineName>\Region = <region>
@@ -376,7 +376,7 @@ Users with existing installs keep working — the registry format and HKLM token
 Step 3:   Build SherpaOnnxConfig
 Step 3.5: Build EngineConfig
 Step 4:   Build C++ Installer.exe + utilities
-Step 5:   Build NaturalVoiceSAPIAdapter.dll
+Step 5:   Build VoiceGardenSAPIAdapter.dll
 Step 5.5: Build .NET adapter
 Step 7:   Compose payload
 Step 8:   Build MSI
@@ -386,7 +386,7 @@ Step 8:   Build MSI
 ```
 Step 3:   Build VoiceGarden.UI (Avalonia, self-contained single-file)
 Step 4:   Build C++ utilities (AzureSpeechSDKShim only)
-Step 5:   Build NaturalVoiceSAPIAdapter.dll
+Step 5:   Build VoiceGardenSAPIAdapter.dll
 Step 5.5: Build .NET adapter
 Step 7:   Compose payload (VoiceGarden.UI.exe replaces Installer.exe + SherpaOnnxConfig + EngineConfig)
 Step 8:   Build MSI
@@ -405,7 +405,7 @@ Step 8:   Build MSI
 
 ## Non-Goals (Explicitly Out of Scope)
 
-- Rewriting the C++ SAPI adapter (NaturalVoiceSAPIAdapter.dll)
+- Rewriting the C++ SAPI adapter (VoiceGardenSAPIAdapter.dll)
 - Changing the COM CLSIDs or token format
 - Supporting non-Windows SAPI (the adapter is Windows-only)
 - Building a SAPI voice synthesis engine in .NET (the .NET adapter comhost issue is unresolved)
