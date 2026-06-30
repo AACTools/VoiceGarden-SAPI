@@ -81,9 +81,17 @@ static class Program
                 {
                     Notify("Operation completed. A reboot is required.", branding.SetupCaption, quiet, error: false);
                 }
-                else if (rc == 1618)
+                else if (rc == 1602)
                 {
-                    Notify("Another installer is currently running. Please wait and try again.", branding.SetupCaption, quiet, error: true);
+                    Notify("Installation was cancelled.", branding.SetupCaption, quiet, error: false);
+                }
+                else if (rc == 1625)
+                {
+                    Notify("Installation blocked by system policy (error 1625).\n\n" +
+                           "This can happen if Windows Installer is restricted by your administrator.\n" +
+                           "Try right-clicking setup.exe → 'Run as administrator'.\n\n" +
+                           "On managed devices (e.g., Grid Pad), you may need to ask your " +
+                           "administrator to allow MSI installations.", branding.SetupCaption, quiet, error: true);
                 }
                 else
                 {
@@ -134,14 +142,23 @@ static class Program
         {
             FileName = "msiexec.exe",
             Arguments = arguments,
-            UseShellExecute = true
+            UseShellExecute = true,
+            Verb = "runas", // Always elevate — MSI installs to ProgramFiles
         };
 
-        using Process? p = Process.Start(psi);
-        if (p == null)
-            return 1;
-        p.WaitForExit();
-        return p.ExitCode;
+        try
+        {
+            using Process? p = Process.Start(psi);
+            if (p == null)
+                return 1;
+            p.WaitForExit();
+            return p.ExitCode;
+        }
+        catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+        {
+            // User cancelled UAC
+            return 1602; // ERROR_INSTALL_USEREXIT
+        }
     }
 
     static string? FindInstalledProductCode(string displayName)
