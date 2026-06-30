@@ -1,33 +1,23 @@
-## What's New
+## What's New in v0.3.4
 
-### VoiceGarden.UI — Avalonia Configuration App
-- Replaced the old C++ Installer with a modern Avalonia UI app
-- Download and manage SherpaOnnx offline models
-- Configure 20+ cloud TTS engines (Azure, Google, OpenAI, ElevenLabs, Polly, and more)
-- Register/unregister 32-bit and 64-bit SAPI adapter DLLs
-- Preview voices before installing
-- Full CLI mode for automation
+### Installation Fixes
+- **setup.exe now requests elevation via UAC** — fixes error 1625 ("installation forbidden by system policy") on devices where Windows Installer requires admin
+- **No more 7-Zip dependency** — model extraction now uses built-in SharpCompress library. Works on locked-down devices (Grid Pads) without needing 7-Zip installed
+- **merged_models.json search paths fixed** — resolves "No Download URL" error when running from an MSI install
 
-### SherpaOnnx Offline TTS
-- Supports Kokoro, Piper, MMS, VITS, and Matcha model types
-- Auto-detection of model type from directory contents (voices.bin, vocoder.onnx)
-- MMS models download individual files from HuggingFace directories
-- Auto-extraction of orphaned .tar.bz2 archives on rescan
-- Download progress with file size and percentage
+### Voice Engine Fixes
+- **Azure voice preview** — fixed silent preview (Azure returns MP3, SoundPlayer needs WAV; now uses SynthToFileAsync with WAV format)
+- **Kokoro model type detection** — voices.bin presence now correctly sets SherpaOnnxModelType=2 (Kokoro) in registry tokens
+- **MMS models** — download individual files from HuggingFace directories instead of trying to fetch a directory URL (was 404)
+- **Download progress** — streaming download with percentage, file size (MB), and throttled UI updates
+- **SherpaOnnx model promotion** — uses .reg file import for fast, reliable elevation instead of relaunching the 116MB exe
 
-### Cloud Engine Support
-- Azure Cognitive Services (REST + Speech SDK)
-- Edge browser voices (WebSocket)
-- Google Cloud TTS, OpenAI, ElevenLabs, AWS Polly, Cartesia, Deepgram
-- 15+ additional cloud engines via generic HTTP TTS
+### SAPI Compatibility
+- **32-bit registration** — correctly checks WOW6432Node registry hive and uses SysWOW64\regsvr32.exe
+- **Grid 3 / System.Speech** — model type-aware HKLM token promotion with SherpaOnnxVoices for Kokoro models
+- **HKCU voice cleanup** — cleanup-voices.ps1 now covers HKLM, WOW6432Node, AND HKCU voice tokens
 
-### SAPI Voice Management
-- Model type-aware promotion to HKLM (Kokoro=type 2, Matcha=type 1, VITS=type 0)
-- .reg file import for fast, reliable elevation (no slow exe relaunch)
-- 32-bit and 64-bit COM registration (WOW6432Node aware)
-- Grid 3 / System.Speech compatibility (HKLM token promotion)
-
-### Build & CI
-- Full GitHub Actions CI pipeline (12 jobs, all green)
-- MSI setup + setup.exe bootstrapper
-- Per-platform release ZIPs (x86, x64, ARM64)
+### CI / Build
+- **Full CI pipeline** — all 12 jobs green (C++ DLL, VoiceGarden.UI, CLI tools, .NET adapter, MSI)
+- **Release assets** — MSI, setup.exe, per-platform ZIPs (x86/x64), debug symbols, full release layout
+- **DotNetTtsWrapper from NuGet.org** — no longer clones from source during CI
