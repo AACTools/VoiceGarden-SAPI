@@ -164,7 +164,11 @@ public partial class SherpaModelsViewModel : ObservableObject
             {
                 model.IsDownloading = false;
                 model.DownloadProgress = 0;
-                model.DownloadStatus = $"Failed: {ex.Message}";
+                var msg = ex.Message;
+                // Unwrap inner exceptions for SSL/TLS errors
+                if (ex.InnerException != null)
+                    msg += $" → {ex.InnerException.Message}";
+                model.DownloadStatus = $"Failed: {msg}";
                 failCount++;
             }
         }
