@@ -280,7 +280,11 @@ public partial class SherpaModelsViewModel : ObservableObject
             }
 
             client.SetVoice(model.Id);
-            var result = await client.SynthToBytesAsync($"Hello, this is a {model.Name} voice.");
+            // Use language-appropriate preview text — MMS models only recognize
+            // characters from their target language (e.g., Persian model can't
+            // synthesize English text).
+            var previewText = GetPreviewText(model);
+            var result = await client.SynthToBytesAsync(previewText);
             if (result?.AudioData?.Length > 0)
             {
                 var tempFile = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"vg_sherpa_{Guid.NewGuid():N}.wav");
@@ -297,7 +301,7 @@ public partial class SherpaModelsViewModel : ObservableObject
             else
             {
                 model.DownloadStatus = "Downloaded";
-                StatusText = "No audio generated";
+                StatusText = $"No audio — {model.Name} may need {model.Language} text. Voice is still installed and usable.";
             }
         }
         catch (Exception ex)
@@ -305,6 +309,50 @@ public partial class SherpaModelsViewModel : ObservableObject
             model.DownloadStatus = "Downloaded";
             StatusText = $"Preview failed: {ex.Message}";
         }
+    }
+
+    /// <summary>
+    /// Get language-appropriate preview text. MMS models are character-based and
+    /// only recognize characters from their target language script.
+    /// </summary>
+    private static string GetPreviewText(SherpaModelItem model)
+    {
+        var id = model.Id.ToLowerInvariant();
+
+        // English models — use English
+        if (id.Contains("eng") || id.StartsWith("piper-en") || id.StartsWith("kokoro-en"))
+            return $"Hello, this is a {model.Name} voice.";
+
+        // MMS models — extract the ISO 639-3 code and try a native greeting
+        if (id.StartsWith("mms_"))
+        {
+            var langCode = id.Substring(4); // e.g., "fas", "hyw", "ara"
+            return langCode switch
+            {
+                "fas" => "سلام، این یک صدای فارسی است.",           // Persian
+                "ara" => "مرحبا، هذه تجربة صوتية.",                // Arabic
+                "hyw" or "hye" => "Բարեւ, սա ձայնային փորձարկում է:", // Armenian
+                "hin" => "नमस्ते, यह एक आवाज परीक्षण है।",            // Hindi
+                "ben" => "হ্যালো, এটি একটি ভয়েস পরীক্ষা।",           // Bengali
+                "urd" => "ہیلو، یہ ایک آواز کا ٹیسٹ ہے۔",              // Urdu
+                "rus" => "Привет, это тестовое озвучивание.",         // Russian
+                "zho" or "cmn" => "你好，这是一个语音测试。",           // Chinese
+                "jpn" => "こんにちは、これは音声テストです。",          // Japanese
+                "kor" => "안녕하세요, 음성 테스트입니다.",              // Korean
+                "tur" => "Merhaba, bu bir ses testidir.",             // Turkish
+                "vie" => "Xin chào, đây là một bài kiểm tra giọng nói.", // Vietnamese
+                "tha" => "สวัสดีนี่คือการทดสอบเสียงพูด",              // Thai
+                "fra" or "fre" => "Bonjour, ceci est un test vocal.", // French
+                "deu" or "ger" => "Hallo, dies ist ein Sprachtest.",  // German
+                "spa" => "Hola, esta es una prueba de voz.",         // Spanish
+                "por" => "Olá, este é um teste de voz.",             // Portuguese
+                "ita" => "Ciao, questo è un test vocale.",           // Italian
+                _ => $"[test] {langCode}", // Fallback — may produce no audio
+            };
+        }
+
+        // Piper/Kokoro non-English — try English (Piper models often support it)
+        return $"Hello. {model.Name}.";
     }
 
     [RelayCommand]
