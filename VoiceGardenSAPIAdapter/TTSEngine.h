@@ -127,6 +127,7 @@ private: // Member variables
 	std::shared_ptr<SherpaOnnx::Engine> m_sherpaOnnx;
 	std::unique_ptr<GenericHttpTts> m_genericTts;
 	std::unique_ptr<RustTts::Engine> m_rustTts;
+	bool m_rustTtsUseSsml = false; // true for Azure (needs SSML from BuildSSML)
 	std::future<void> m_lastCancellingFuture;
 
 	ErrorMode m_errorMode = ErrorMode::ProbeForError;

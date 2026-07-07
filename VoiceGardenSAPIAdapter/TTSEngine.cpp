@@ -242,26 +242,56 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
 
         if (m_rustTts)
         {
-            LogInfo("Speak: RustTts path selected");
-            std::wstring plainTextW = ExtractSherpaPlainText(pTextFragList);
-            if (plainTextW.empty())
-            {
-                FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
-                return S_OK;
-            }
+            LogInfo("Speak: RustTts path selected (ssml={})", m_rustTtsUseSsml ? 1 : 0);
 
             m_compensatedSilenceWritten = false;
             m_compensatedSilentBytes = 0;
             m_lastSilentBytes = 0;
             m_thisSpeakStartedTicks = _GetTickCount();
-
             m_sherpaAbortRequested.store(false, std::memory_order_relaxed);
-            LogInfo("Speak: RustTts generation begin");
-            try {
-                m_rustTts->Speak(WStringToUTF8(plainTextW));
-            } catch (const std::exception& ex) {
-                LogErr("RustTts synthesis failed: {}", ex.what());
+
+            if (m_rustTtsUseSsml)
+            {
+                // Azure path: build SSML from SAPI text fragments, pass to RustTts
+                ULONGLONG eventInterests = 0;
+                pOutputSite->GetEventInterest(&eventInterests);
+                bool wantBoundaries = (eventInterests & SVEWordBoundary) != 0;
+                bool wantVisemes = (eventInterests & SVEViseme) != 0;
+                (void)wantVisemes; // RustTts always fires visemes if available
+
+                if (!BuildSSML(pTextFragList))
+                {
+                    LogDebug("Speak: RustTts SSML built with no speech content");
+                    FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
+                    return S_OK;
+                }
+                LogDebug("Speak: RustTts built SSML: {}", WStringToUTF8(m_ssml));
+
+                LogInfo("Speak: RustTts SSML generation begin");
+                try {
+                    m_rustTts->SpeakSsml(WStringToUTF8(m_ssml));
+                } catch (const std::exception& ex) {
+                    LogErr("RustTts SSML synthesis failed: {}", ex.what());
+                }
             }
+            else
+            {
+                // Non-Azure path: plain text (OpenAI, Google, ElevenLabs, Edge, etc.)
+                std::wstring plainTextW = ExtractSherpaPlainText(pTextFragList);
+                if (plainTextW.empty())
+                {
+                    FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
+                    return S_OK;
+                }
+
+                LogInfo("Speak: RustTts generation begin");
+                try {
+                    m_rustTts->Speak(WStringToUTF8(plainTextW));
+                } catch (const std::exception& ex) {
+                    LogErr("RustTts synthesis failed: {}", ex.what());
+                }
+            }
+
             LogInfo("Speak: RustTts generation end");
             m_lastSpeakCompletedTicks = _GetTickCount();
             return S_OK;
@@ -517,6 +547,12 @@ void CTTSEngine::InitVoice()
     if (InitSherpaOnnxVoice(pConfigKey))
         return;
 
+    // Try RustTts before the C++ cloud paths. When tts_wrapper.dll is present,
+    // it handles Edge, Azure, and all other cloud engines with streaming +
+    // word boundaries + visemes. Falls through to the C++ paths below when absent.
+    if (InitRustTtsVoice(pConfigKey))
+        return;
+
     if (IsWindows7OrGreater() // Azure Speech SDK requires at least Win 7
         || key.GetDword(L"ForceEnableAzureSpeechSDK"))
     {
@@ -527,8 +563,6 @@ void CTTSEngine::InitVoice()
             return;
     }
     if (InitCloudVoiceRestAPI(pConfigKey))
-        return;
-    if (InitRustTtsVoice(pConfigKey))
         return;
     if (InitGenericHttpVoice(pConfigKey))
         return;
@@ -997,13 +1031,17 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
     std::string lowerType = engineType;
     std::transform(lowerType.begin(), lowerType.end(), lowerType.begin(), ::tolower);
 
-    // Supported by rust-tts-wrapper (Azure and Sherpa handled by existing paths
-    // for now — Phase 2/3 will route them here too)
+    // Supported by rust-tts-wrapper. Azure/Edge go through Rust for streaming
+    // + word boundaries + visemes + connection pooling. Sherpa goes through
+    // Rust for model auto-detection + cancellation (Phase 4).
     static const std::set<std::string> rustSupported = {
         "openai", "elevenlabs", "google", "cartesia", "deepgram",
         "watson", "playht", "fishaudio", "hume", "mistral",
         "murf", "resemble", "unrealspeech", "upliftai",
-        "witai", "xai", "modelslab", "edge"
+        "witai", "xai", "modelslab",
+        "edge",    // Phase 2: Edge voices via Rust (Sec-MS-GEC + WS streaming)
+        "azure",   // Phase 3: Azure voices via Rust (SSML + word boundaries)
+        "sherpa",  // Phase 4: SherpaOnnx via Rust (model auto-detection)
     };
     if (rustSupported.find(lowerType) == rustSupported.end())
         return false;
@@ -1053,6 +1091,30 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
         // Edge is credential-free
         credsJson = "{}";
     }
+    else if (lowerType == "sherpa")
+    {
+        // Phase 4: SherpaOnnx via Rust. Derive modelId and modelPath from
+        // the registry config. RustTts auto-detects model type and caches
+        // the ONNX engine instance.
+        CSpDynamicString pszModelPath;
+        if (!CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxModelPath", &pszModelPath)))
+        {
+            std::wstring modelPathW(pszModelPath.m_psz);
+            // Derive: model dir = parent of model.onnx, model id = grandparent dir name
+            std::filesystem::path onnxPath(modelPathW);
+            auto modelDir = onnxPath.parent_path();       // .../kokoro-en-v0_19/
+            auto modelIdDir = modelDir.parent_path();      // .../kokoro-en-en-19/
+            auto baseDir = modelIdDir.parent_path();       // .../models/
+            std::string modelId = modelIdDir.filename().string();
+            std::string basePath = baseDir.string();
+            credsJson = "{\"modelId\":\"" + modelId + "\",\"modelPath\":\"" + basePath + "\"}";
+        }
+        else
+        {
+            // No model path — can't create Sherpa engine via Rust
+            return false;
+        }
+    }
     else
     {
         // Generic: pass apiKey
@@ -1098,6 +1160,7 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
     });
 
     m_onlineVoiceName = pszVoice.m_psz ? pszVoice.m_psz : L"";
+    m_rustTtsUseSsml = (lowerType == "azure"); // Azure needs SSML from BuildSSML
     LogInfo("RustTts voice created: {} / {}", engineType, pszVoice.m_psz ? pszVoice.m_psz : L"(default)");
     return true;
 }

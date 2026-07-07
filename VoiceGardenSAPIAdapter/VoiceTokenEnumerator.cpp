@@ -601,7 +601,8 @@ static std::shared_ptr<DataKeyData> MakeEdgeVoiceToken(
                     { L"ErrorMode", std::to_wstring(static_cast<UINT>(errorMode)) },
                     { L"WebsocketURL", EDGE_WEBSOCKET_URL },
                     { L"Voice", shortName },
-                    { L"IsEdgeVoice", L"1" }
+                    { L"IsEdgeVoice", L"1" },
+                    { L"EngineType", L"Edge" }
                 }
             } }
         }
