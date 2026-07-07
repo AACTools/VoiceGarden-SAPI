@@ -12,6 +12,7 @@
 #include "Mp3Decoder.h"
 
 #include "../SherpaOnnx/SherpaOnnxEngine.h"
+#include "RustTts/RustTtsEngine.h"
 #include "VoiceGardenSAPIAdapter_i.h"
 
 
@@ -125,6 +126,7 @@ private: // Member variables
 	std::unique_ptr<SpeechRestAPI> m_restApi;
 	std::shared_ptr<SherpaOnnx::Engine> m_sherpaOnnx;
 	std::unique_ptr<GenericHttpTts> m_genericTts;
+	std::unique_ptr<RustTts::Engine> m_rustTts;
 	std::future<void> m_lastCancellingFuture;
 
 	ErrorMode m_errorMode = ErrorMode::ProbeForError;
@@ -172,6 +174,7 @@ private: // Private methods
 	bool InitCloudVoiceSynthesizer(ISpDataKey* pConfigKey);
 	bool InitCloudVoiceRestAPI(ISpDataKey* pConfigKey);
 	bool InitGenericHttpVoice(ISpDataKey* pConfigKey);
+	bool InitRustTtsVoice(ISpDataKey* pConfigKey);
 	void SetupSynthesizerEvents(ULONGLONG interests);
 	void ClearSynthesizerEvents();
 	void SetupRestAPIEvents(ULONGLONG interests);

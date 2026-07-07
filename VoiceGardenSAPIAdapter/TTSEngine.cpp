@@ -240,6 +240,33 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
             return S_OK;
         }
 
+        if (m_rustTts)
+        {
+            LogInfo("Speak: RustTts path selected");
+            std::wstring plainTextW = ExtractSherpaPlainText(pTextFragList);
+            if (plainTextW.empty())
+            {
+                FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
+                return S_OK;
+            }
+
+            m_compensatedSilenceWritten = false;
+            m_compensatedSilentBytes = 0;
+            m_lastSilentBytes = 0;
+            m_thisSpeakStartedTicks = _GetTickCount();
+
+            m_sherpaAbortRequested.store(false, std::memory_order_relaxed);
+            LogInfo("Speak: RustTts generation begin");
+            try {
+                m_rustTts->Speak(WStringToUTF8(plainTextW));
+            } catch (const std::exception& ex) {
+                LogErr("RustTts synthesis failed: {}", ex.what());
+            }
+            LogInfo("Speak: RustTts generation end");
+            m_lastSpeakCompletedTicks = _GetTickCount();
+            return S_OK;
+        }
+
         if (m_genericTts)
         {
             LogInfo("Speak: Generic HTTP TTS path selected");
@@ -500,6 +527,8 @@ void CTTSEngine::InitVoice()
             return;
     }
     if (InitCloudVoiceRestAPI(pConfigKey))
+        return;
+    if (InitRustTtsVoice(pConfigKey))
         return;
     if (InitGenericHttpVoice(pConfigKey))
         return;
@@ -942,6 +971,134 @@ bool CTTSEngine::InitGenericHttpVoice(ISpDataKey* pConfigKey)
 
     m_onlineVoiceName = pszVoice;
     LogInfo("Generic HTTP voice created: {} / {}", engineType, pszVoice.m_psz);
+    return true;
+}
+
+bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
+{
+    // Try to use rust-tts-wrapper for cloud engines.
+    // Falls through (returns false) if tts_wrapper.dll isn't loaded,
+    // so the existing GenericHttpTts / SpeechRestAPI paths are used instead.
+
+    auto& loader = RustTts::Loader::Instance();
+    if (!loader.Initialize() || !loader.IsLoaded())
+        return false;
+
+    CSpDynamicString pszEngineType;
+    if (CheckHrNotFound(pConfigKey->GetStringValue(L"EngineType", &pszEngineType)))
+        return false;
+
+    std::string engineType = pszEngineType.m_psz ? WStringToUTF8(std::wstring(pszEngineType.m_psz)) : "";
+    if (engineType.empty())
+        return false;
+
+    // Map VoiceGarden engine types to rust-tts-wrapper engine IDs
+    // Lowercase the engine type for comparison
+    std::string lowerType = engineType;
+    std::transform(lowerType.begin(), lowerType.end(), lowerType.begin(), ::tolower);
+
+    // Supported by rust-tts-wrapper (Azure and Sherpa handled by existing paths
+    // for now — Phase 2/3 will route them here too)
+    static const std::set<std::string> rustSupported = {
+        "openai", "elevenlabs", "google", "cartesia", "deepgram",
+        "watson", "playht", "fishaudio", "hume", "mistral",
+        "murf", "resemble", "unrealspeech", "upliftai",
+        "witai", "xai", "modelslab", "edge"
+    };
+    if (rustSupported.find(lowerType) == rustSupported.end())
+        return false;
+
+    // Read credentials from the token config
+    CSpDynamicString pszVoice, pszKey, pszRegion;
+    CheckHrNotFound(pConfigKey->GetStringValue(L"Voice", &pszVoice));
+    CheckHrNotFound(pConfigKey->GetStringValue(L"Key", &pszKey));
+    CheckHrNotFound(pConfigKey->GetStringValue(L"Region", &pszRegion));
+
+    // Build credentials JSON for rust-tts-wrapper
+    std::string credsJson;
+    if (lowerType == "google" || lowerType == "openai" || lowerType == "elevenlabs" ||
+        lowerType == "cartesia" || lowerType == "deepgram" || lowerType == "fishaudio" ||
+        lowerType == "hume" || lowerType == "mistral" || lowerType == "murf" ||
+        lowerType == "resemble" || lowerType == "unrealspeech" || lowerType == "upliftai" ||
+        lowerType == "xai" || lowerType == "modelslab")
+    {
+        std::string key = pszKey.m_psz ? WStringToUTF8(std::wstring(pszKey.m_psz)) : "";
+        credsJson = "{\"apiKey\":\"" + key + "\"}";
+    }
+    else if (lowerType == "azure")
+    {
+        std::string key = pszKey.m_psz ? WStringToUTF8(std::wstring(pszKey.m_psz)) : "";
+        std::string region = pszRegion.m_psz ? WStringToUTF8(std::wstring(pszRegion.m_psz)) : "";
+        credsJson = "{\"subscriptionKey\":\"" + key + "\",\"region\":\"" + region + "\"}";
+    }
+    else if (lowerType == "watson")
+    {
+        std::string key = pszKey.m_psz ? WStringToUTF8(std::wstring(pszKey.m_psz)) : "";
+        std::string region = pszRegion.m_psz ? WStringToUTF8(std::wstring(pszRegion.m_psz)) : "";
+        credsJson = "{\"apiKey\":\"" + key + "\",\"region\":\"" + region + "\"}";
+    }
+    else if (lowerType == "playht")
+    {
+        std::string key = pszKey.m_psz ? WStringToUTF8(std::wstring(pszKey.m_psz)) : "";
+        std::string userId = pszRegion.m_psz ? WStringToUTF8(std::wstring(pszRegion.m_psz)) : "";
+        credsJson = "{\"apiKey\":\"" + key + "\",\"userId\":\"" + userId + "\"}";
+    }
+    else if (lowerType == "witai")
+    {
+        std::string key = pszKey.m_psz ? WStringToUTF8(std::wstring(pszKey.m_psz)) : "";
+        credsJson = "{\"token\":\"" + key + "\"}";
+    }
+    else if (lowerType == "edge")
+    {
+        // Edge is credential-free
+        credsJson = "{}";
+    }
+    else
+    {
+        // Generic: pass apiKey
+        std::string key = pszKey.m_psz ? WStringToUTF8(std::wstring(pszKey.m_psz)) : "";
+        credsJson = "{\"apiKey\":\"" + key + "\"}";
+    }
+
+    // Create the RustTts engine
+    m_rustTts = std::make_unique<RustTts::Engine>();
+    if (!m_rustTts->Create(lowerType, credsJson))
+    {
+        LogWarn("RustTts: failed to create engine '{}', falling back", lowerType);
+        m_rustTts.reset();
+        return false;
+    }
+
+    // Set voice if specified
+    if (pszVoice.m_psz && *pszVoice.m_psz)
+    {
+        m_rustTts->SetVoice(WStringToUTF8(std::wstring(pszVoice.m_psz)));
+    }
+
+    // Register callbacks that route audio and events back to CTTSEngine
+    m_rustTts->SetOnAudio([this](const uint8_t* data, uint32_t len) {
+        if (m_pOutputSite && len > 0)
+        {
+            // Write audio to the SAPI output site
+            OnAudioData(const_cast<uint8_t*>(data), len);
+        }
+    });
+
+    m_rustTts->SetOnBoundary([this](const char* word, int32_t charOffset,
+                                    int32_t charLen, float startS, float endS) {
+        // Convert seconds to 100ns ticks for SAPI
+        uint64_t offsetTicks = static_cast<uint64_t>(startS * 1e7);
+        OnBoundary(offsetTicks, static_cast<uint32_t>(charOffset),
+                   static_cast<uint32_t>(charLen), SPEI_WORD_BOUNDARY);
+    });
+
+    m_rustTts->SetOnViseme([this](int32_t visemeId, float offsetS) {
+        uint64_t offsetTicks = static_cast<uint64_t>(offsetS * 1e7);
+        OnViseme(offsetTicks, static_cast<uint32_t>(visemeId));
+    });
+
+    m_onlineVoiceName = pszVoice.m_psz ? pszVoice.m_psz : L"";
+    LogInfo("RustTts voice created: {} / {}", engineType, pszVoice.m_psz ? pszVoice.m_psz : L"(default)");
     return true;
 }
 

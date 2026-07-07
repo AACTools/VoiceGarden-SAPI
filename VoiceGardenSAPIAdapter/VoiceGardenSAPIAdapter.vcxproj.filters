@@ -44,6 +44,12 @@
     <Filter Include="Source Files\Framework">
       <UniqueIdentifier>{37d56345-4034-4b17-b3b8-154417d00e4e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\RustTts">
+      <UniqueIdentifier>{a1b2c3d4-e5f6-7890-abcd-ef0123456789}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\RustTts">
+      <UniqueIdentifier>{b2c3d4e5-f6a7-8901-bcde-f01234567890}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VoiceGardenSAPIAdapter_i.h">
@@ -69,6 +75,15 @@
     </ClInclude>
     <ClInclude Include="TTSEngine.h">
       <Filter>Header Files\SAPI Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="RustTts\RustTtsLoader.h">
+      <Filter>Header Files\RustTts</Filter>
+    </ClInclude>
+    <ClInclude Include="RustTts\RustTtsEngine.h">
+      <Filter>Header Files\RustTts</Filter>
+    </ClInclude>
+    <ClInclude Include="RustTts\tts_wrapper.h">
+      <Filter>Header Files\RustTts</Filter>
     </ClInclude>
     <ClInclude Include="TokenEnumerator.h">
       <Filter>Header Files\SAPI Classes</Filter>
@@ -140,6 +155,12 @@
     </ClCompile>
     <ClCompile Include="TTSEngine.cpp">
       <Filter>Source Files\SAPI Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="RustTts\RustTtsLoader.cpp">
+      <Filter>Source Files\RustTts</Filter>
+    </ClCompile>
+    <ClCompile Include="RustTts\RustTtsEngine.cpp">
+      <Filter>Source Files\RustTts</Filter>
     </ClCompile>
     <ClCompile Include="LangUtils.cpp">
       <Filter>Source Files\Utils</Filter>
