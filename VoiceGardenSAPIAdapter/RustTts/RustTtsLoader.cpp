@@ -31,7 +31,12 @@ bool Loader::Initialize() {
     if (m_hModule) return true; // already loaded
 
     // Try multiple locations: exe directory, system paths
-    const char* dllName = "tts_wrapper.dll";
+    // The Rust DLL may be named tts_wrapper.dll or rust_tts_wrapper.dll
+    // depending on the build/source (local build vs NuGet package)
+    const char* dllNames[] = {
+        "tts_wrapper.dll",
+        "rust_tts_wrapper.dll",
+    };
 
     // Search alongside the adapter DLL itself
     wchar_t modulePath[MAX_PATH] = {};
@@ -39,27 +44,34 @@ bool Loader::Initialize() {
     std::filesystem::path dir = std::filesystem::path(modulePath).parent_path();
 
     // Try x64/x86 subdirs (MSI layout) then the same dir (flat layout)
-    std::vector<std::filesystem::path> candidates = {
-        dir / dllName,
-        dir / "x64" / dllName,
-        dir / "x86" / dllName,
+    std::vector<std::filesystem::path> searchDirs = {
+        dir,
+        dir / "x64",
+        dir / "x86",
     };
 
-    for (const auto& path : candidates) {
-        if (std::filesystem::exists(path)) {
-            m_hModule = LoadLibraryW(path.wstring().c_str());
-            if (m_hModule) {
-                spdlog::info("RustTts: loaded {}", path.string());
-                break;
+    for (const auto& searchDir : searchDirs) {
+        for (const char* dllName : dllNames) {
+            auto path = searchDir / dllName;
+            if (std::filesystem::exists(path)) {
+                m_hModule = LoadLibraryW(path.wstring().c_str());
+                if (m_hModule) {
+                    spdlog::info("RustTts: loaded {}", path.string());
+                    break;
+                }
             }
         }
+        if (m_hModule) break;
     }
 
     // Fallback to default search path
     if (!m_hModule) {
-        m_hModule = LoadLibraryA(dllName);
-        if (m_hModule) {
-            spdlog::info("RustTts: loaded from system path");
+        for (const char* dllName : dllNames) {
+            m_hModule = LoadLibraryA(dllName);
+            if (m_hModule) {
+                spdlog::info("RustTts: loaded {} from system path", dllName);
+                break;
+            }
         }
     }
 
