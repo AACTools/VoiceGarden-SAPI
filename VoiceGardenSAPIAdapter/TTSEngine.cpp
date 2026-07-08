@@ -968,16 +968,30 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
 
     m_rustTts->SetOnBoundary([this](const char* word, int32_t charOffset,
                                     int32_t charLen, float startS, float endS) {
-        // Convert seconds to 100ns ticks for SAPI
+        LogInfo("RustTts boundary: word='{}' offset={} len={} startS={:.3f} endS={:.3f}",
+                word ? word : "(null)", charOffset, charLen, startS, endS);
         uint64_t offsetTicks = static_cast<uint64_t>(startS * 1e7);
-
-        // Rust sends -1 for charOffset/charLen when the engine doesn't provide
-        // text position info (most engines). Pass 0/0 so SAPI fires the event
-        // with the correct audio position but no text highlighting.
         uint32_t safeOffset = (charOffset >= 0) ? static_cast<uint32_t>(charOffset) : 0;
         uint32_t safeLen = (charLen >= 0) ? static_cast<uint32_t>(charLen) : 0;
 
-        OnBoundary(offsetTicks, safeOffset, safeLen, SPEI_WORD_BOUNDARY);
+        if (m_rustTtsUseSsml)
+        {
+            // SSML path: offsets are relative to SSML text, need mapping to SAPI text
+            OnBoundary(offsetTicks, safeOffset, safeLen, SPEI_WORD_BOUNDARY);
+        }
+        else
+        {
+            // Plain text path: offsets are already relative to SAPI text — no mapping needed
+            std::lock_guard lock(m_outputSiteMutex);
+            if (!m_pOutputSite) return;
+            SPEVENT ev = { 0 };
+            ev.ullAudioStreamOffset = WaveTicksToBytes(offsetTicks);
+            ev.eEventId = SPEI_WORD_BOUNDARY;
+            ev.elParamType = SPET_LPARAM_IS_UNDEFINED;
+            ev.lParam = safeOffset;
+            ev.wParam = safeLen;
+            m_pOutputSite->AddEvents(&ev, 1);
+        }
     });
 
     m_rustTts->SetOnViseme([this](int32_t visemeId, float offsetS) {
@@ -990,7 +1004,7 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
     });
 
     m_onlineVoiceName = pszVoice.m_psz ? pszVoice.m_psz : L"";
-    m_rustTtsUseSsml = (lowerType == "azure" || lowerType == "edge");
+    m_rustTtsUseSsml = false; // All engines use plain text — Rust builds SSML internally
     LogInfo("RustTts voice created: {} / {}", engineType, pszVoice.m_psz ? pszVoice.m_psz : L"(default)");
     return true;
 }
