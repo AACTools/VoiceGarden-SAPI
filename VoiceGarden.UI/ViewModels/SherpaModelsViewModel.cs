@@ -181,6 +181,9 @@ public partial class SherpaModelsViewModel : ObservableObject
         }
         UpdateCounts();
 
+        if (okCount > 0)
+            Services.AnalyticsService.Track("model_downloaded", ("count", okCount), ("failed", failCount));
+
         StatusText = failCount == 0
             ? $"Downloaded {okCount} model(s)"
             : okCount > 0
@@ -227,6 +230,7 @@ public partial class SherpaModelsViewModel : ObservableObject
 
             if (elevPromoted > 0)
             {
+                Services.AnalyticsService.Track("voices_promoted", ("engine", "sherpaonnx"), ("count", elevPromoted));
                 StatusText = elevFailed == 0
                     ? $"Installed {elevPromoted} model(s) to SAPI"
                     : $"Installed {elevPromoted}, failed {elevFailed}";

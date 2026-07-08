@@ -18,9 +18,13 @@ public partial class MainViewModel : ObservableObject
         AppName = BrandingConfig.AppName;
         ShowAdvanced = false;
 
+        // Track app launch (only if opted in)
+        AnalyticsService.Track("app_launched");
+
         // Load settings from registry
         SherpaEnabled = !RegistryService.GetFlag("NoSherpaVoices", !BrandingConfig.DefaultSherpaEnabled);
         EdgeEnabled = !RegistryService.GetFlag("NoEdgeVoices");
+        AnalyticsEnabled = Services.AnalyticsService.IsEnabled;
         LogLevelIndex = RegistryService.GetDword("LogLevel", 0);
 
         // Load cloud engines
@@ -47,6 +51,7 @@ public partial class MainViewModel : ObservableObject
                 {
                     var eng = (CloudEngineSetting)s!;
                     RegistryService.SetFlag(eng.NoVoicesRegName, !eng.Enabled);
+                    AnalyticsService.Track("engine_toggled", ("engine", eng.Id), ("enabled", eng.Enabled));
 
                     // Save Azure key to legacy location
                     if (eng.Id == "azure" && !string.IsNullOrEmpty(eng.ApiKey))
@@ -71,6 +76,13 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private bool showAdvanced = true;
     [ObservableProperty] private bool sherpaEnabled = true;
     [ObservableProperty] private bool edgeEnabled = false;
+    [ObservableProperty] private bool analyticsEnabled = false;
+
+    partial void OnAnalyticsEnabledChanged(bool value)
+    {
+        Services.AnalyticsService.IsEnabled = value;
+        if (value) Services.AnalyticsService.Track("analytics_opted_in");
+    }
     [ObservableProperty] private int logLevelIndex = 0;
     [ObservableProperty] private string status64Bit = "Checking...";
     [ObservableProperty] private string status32Bit = "Checking...";
@@ -93,7 +105,11 @@ public partial class MainViewModel : ObservableObject
     public string AdvancedToggleText => ShowAdvanced ? "▼ Hide Advanced" : "▶ Show Advanced";
 
     partial void OnSherpaEnabledChanged(bool value) => RegistryService.SetFlag("NoSherpaVoices", !value);
-    partial void OnEdgeEnabledChanged(bool value) => RegistryService.SetFlag("NoEdgeVoices", !value);
+    partial void OnEdgeEnabledChanged(bool value)
+    {
+        RegistryService.SetFlag("NoEdgeVoices", !value);
+        AnalyticsService.Track("engine_toggled", ("engine", "edge"), ("enabled", value));
+    }
     partial void OnLogLevelIndexChanged(int value) => RegistryService.SetDword("LogLevel", value);
     partial void OnShowAdvancedChanged(bool value) => OnPropertyChanged(nameof(AdvancedToggleText));
 
@@ -173,6 +189,7 @@ public partial class MainViewModel : ObservableObject
         if (rc == -2) return; // User cancelled UAC
         System.Threading.Thread.Sleep(500);
         RefreshInstallStatus();
+        if (rc == 0) AnalyticsService.Track("adapter_registered", ("arch", "x64"));
     }
 
     [RelayCommand]
@@ -190,6 +207,7 @@ public partial class MainViewModel : ObservableObject
         if (rc == -2) return;
         System.Threading.Thread.Sleep(500);
         RefreshInstallStatus();
+        if (rc == 0) AnalyticsService.Track("adapter_registered", ("arch", "x86"));
     }
 
     [RelayCommand]

@@ -98,6 +98,9 @@
                     <StackPanel Spacing="8">
                         <TextBlock Text="Advanced" Classes="CardHeader"/>
                         <CheckBox Content="Enable Edge browser voices" IsChecked="{Binding EdgeEnabled}" Margin="0"/>
+                        <CheckBox Content="Send anonymous usage analytics (opt-in)" IsChecked="{Binding AnalyticsEnabled}" Margin="0"/>
+                        <TextBlock Text="Helps us understand which engines are used. No text, keys, or PII sent."
+                                   Classes="Hint" Opacity="0.5" Margin="16,0,0,0" TextWrapping="Wrap"/>
                         <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
                             <TextBlock Text="Log level:" VerticalAlignment="Center"/>
                             <ComboBox SelectedIndex="{Binding LogLevelIndex}" MinWidth="100">
