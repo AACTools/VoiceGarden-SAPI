@@ -221,51 +221,17 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
             speakText = WStringToUTF8(plainTextW);
         }
 
-        // Run synthesis in a background thread. This allows SAPI to consume
-        // audio chunks gradually via the output site, which is essential for
-        // word boundary events to fire at the correct playback position.
-        // The polling loop checks for SPVES_ABORT so the user can stop speech.
-        LogInfo("Speak: RustTts generation begin (async)");
-        std::atomic_bool synthDone(false);
-        std::exception_ptr synthException;
-
-        std::thread synthThread([&] {
-            try {
-                if (m_rustTtsUseSsml)
-                    m_rustTts->SpeakSsml(speakText);
-                else
-                    m_rustTts->Speak(speakText);
-            } catch (...) {
-                synthException = std::current_exception();
-            }
-            synthDone.store(true, std::memory_order_release);
-        });
-
-        // Poll until synthesis completes or the user requests stop
-        while (!synthDone.load(std::memory_order_acquire))
-        {
-            if (pOutputSite->GetActions() & SPVES_ABORT)
-            {
-                LogDebug("Speak: Requested stop");
-                m_rustTts->Stop();
-                break;
-            }
-            if (pOutputSite->GetActions() & SPVES_SKIP)
-            {
-                pOutputSite->CompleteSkip(0);
-            }
-            Sleep(10);
-        }
-
-        if (synthThread.joinable())
-            synthThread.join();
-
-        if (synthException)
-        {
-            try { std::rethrow_exception(synthException); }
-            catch (const std::exception& ex) {
-                LogErr("RustTts synthesis failed: {}", ex.what());
-            }
+        // Synchronous synthesis — prevents race condition where boundary events
+        // from a previous Speak() are processed against new text by System.Speech.
+        // Abort checking via SPVES_ABORT is not possible during synthesis.
+        LogInfo("Speak: RustTts generation begin");
+        try {
+            if (m_rustTtsUseSsml)
+                m_rustTts->SpeakSsml(speakText);
+            else
+                m_rustTts->Speak(speakText);
+        } catch (const std::exception& ex) {
+            LogErr("RustTts synthesis failed: {}", ex.what());
         }
 
         LogInfo("Speak: RustTts generation end");
@@ -568,25 +534,32 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
 
     m_rustTts->SetOnBoundary([this](const char* word, int32_t charOffset,
                                     int32_t charLen, float startS, float endS) {
-        LogInfo("RustTts boundary: word='{}' offset={} len={} startS={:.3f} endS={:.3f}",
-                word ? word : "(null)", charOffset, charLen, startS, endS);
+        // Skip events with invalid text offsets — System.Speech crashes
+        // (Substring with negative length) if we pass bad values.
+        // Estimated boundaries (SherpaOnnx) send -1 when offsets are unknown.
+        if (charOffset < 0 || charLen <= 0)
+        {
+            LogInfo("RustTts boundary: SKIPPED word='{}' offset={} len={} (invalid)",
+                    word ? word : "(null)", charOffset, charLen);
+            return;
+        }
+
+        LogInfo("RustTts boundary: word='{}' offset={} len={} startS={:.3f}",
+                word ? word : "(null)", charOffset, charLen, startS);
+
         uint64_t offsetTicks = static_cast<uint64_t>(startS * 1e7);
         ULONGLONG audioBytes = WaveTicksToBytes(offsetTicks);
-        uint32_t safeOffset = (charOffset >= 0) ? static_cast<uint32_t>(charOffset) : 0;
-        uint32_t safeLen = (charLen >= 0) ? static_cast<uint32_t>(charLen) : 0;
 
-        // Add the event immediately to SAPI's event queue. SAPI will
-        // deliver it when audio playback reaches ullAudioStreamOffset.
-        // This works even if boundaries fire before the corresponding
-        // audio chunk has been written — SAPI queues events.
         std::lock_guard lock(m_outputSiteMutex);
         if (!m_pOutputSite) return;
-        SPEVENT ev = { 0 };
+
+        SPEVENT ev;
+        ZeroMemory(&ev, sizeof(ev));
         ev.ullAudioStreamOffset = audioBytes;
         ev.eEventId = SPEI_WORD_BOUNDARY;
         ev.elParamType = SPET_LPARAM_IS_UNDEFINED;
-        ev.lParam = safeOffset;
-        ev.wParam = safeLen;
+        ev.lParam = static_cast<LPARAM>(charOffset);
+        ev.wParam = static_cast<WPARAM>(charLen);
         m_pOutputSite->AddEvents(&ev, 1);
     });
 
