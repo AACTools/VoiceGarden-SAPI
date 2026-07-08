@@ -30,26 +30,24 @@
       Impersonate="yes"
       Return="ignore" />
 
-    <!-- Register COM DLL during install -->
+    <!-- Register COM DLLs during install -->
     <CustomAction
       Id="RegisterDlls"
-      Directory="SystemFolder"
+      Directory="INSTALLFOLDER"
       ExeCommand='regsvr32 /s "[INSTALLFOLDER]x64\VoiceGardenSAPIAdapter.dll"'
-      Execute="deferred"
-      Impersonate="no"
+      Execute="immediate"
       Return="ignore" />
 
-    <!-- Unregister COM DLLs and clean voice tokens on uninstall -->
+    <!-- Unregister COM DLL on uninstall -->
     <CustomAction
       Id="UnregisterDlls"
-      Directory="SystemFolder"
-      ExeCommand='powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "regsvr32 /u /s ''[INSTALLFOLDER]x64\VoiceGardenSAPIAdapter.dll'' 2>$null; Get-ChildItem ''HKLM:\SOFTWARE\Microsoft\Speech\Voices\Tokens'',''HKLM:\SOFTWARE\WOW6432Node\Microsoft\Speech\Voices\Tokens'' -EA SilentlyContinue | ? { $_.PSChildName -match ''Sherpa-|Cloud-|Edge-|NaturalVoice-'' } | Remove-Item -Recurse -Force -EA SilentlyContinue; Remove-Item ''HKCU:\SOFTWARE\VoiceGardenSAPIAdapter'' -Recurse -Force -EA SilentlyContinue"'
-      Execute="deferred"
-      Impersonate="no"
+      Directory="INSTALLFOLDER"
+      ExeCommand='cmd.exe /c "if exist x64\VoiceGardenSAPIAdapter.dll regsvr32 /u /s x64\VoiceGardenSAPIAdapter.dll"'
+      Execute="immediate"
       Return="ignore" />
 
     <InstallExecuteSequence>
-      <Custom Action="RegisterDlls" After="InstallFiles" Condition='NOT Installed' />
+      <Custom Action="RegisterDlls" After="InstallFinalize" Condition='NOT Installed' />
       <Custom Action="CleanupAppData" Before="RemoveFiles" Condition='REMOVE="ALL" AND REMOVE_APPDATA=1' />
       <Custom Action="UnregisterDlls" Before="RemoveFiles" Condition='REMOVE="ALL"' />
     </InstallExecuteSequence>
