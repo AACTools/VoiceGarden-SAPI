@@ -320,7 +320,9 @@ public partial class VoiceConfigViewModel : ObservableObject
             if (string.IsNullOrEmpty(filter) ||
                 v.Name.ToLowerInvariant().Contains(filter) ||
                 v.Id.ToLowerInvariant().Contains(filter) ||
-                v.Language.ToLowerInvariant().Contains(filter))
+                v.Language.ToLowerInvariant().Contains(filter) ||
+                MatchesLanguageName(filter, v.Id) ||
+                MatchesLanguageName(filter, v.Language))
             {
                 FilteredVoices.Add(v);
             }
@@ -328,6 +330,47 @@ public partial class VoiceConfigViewModel : ObservableObject
         StatusText = string.IsNullOrEmpty(filter)
             ? $"{TotalVoices} voices"
             : $"Showing {FilteredVoices.Count} of {TotalVoices} voices";
+    }
+
+    /// <summary>
+    /// Match common language names against BCP-47 locale codes.
+    /// e.g. "arabic" matches "ar-EG", "gujarati" matches "gu-IN".
+    /// This is a temporary workaround until rust-tts-wrapper exposes
+    /// display names through the C ABI.
+    /// </summary>
+    private static bool MatchesLanguageName(string filter, string field)
+    {
+        if (string.IsNullOrEmpty(field)) return false;
+        var f = field.ToLowerInvariant();
+        return filter switch
+        {
+            "arabic" => f.StartsWith("ar-") || f.StartsWith("ar_"),
+            "bengali" => f.StartsWith("bn-") || f.StartsWith("bn_"),
+            "chinese" => f.StartsWith("zh-") || f.StartsWith("zh_") || f.StartsWith("cmn-") || f.StartsWith("yue-"),
+            "dutch" => f.StartsWith("nl-") || f.StartsWith("nl_"),
+            "english" => f.StartsWith("en-") || f.StartsWith("en_"),
+            "french" => f.StartsWith("fr-") || f.StartsWith("fr_"),
+            "german" => f.StartsWith("de-") || f.StartsWith("de_"),
+            "gujarati" => f.StartsWith("gu-") || f.StartsWith("gu_"),
+            "hindi" => f.StartsWith("hi-") || f.StartsWith("hi_"),
+            "italian" => f.StartsWith("it-") || f.StartsWith("it_"),
+            "japanese" => f.StartsWith("ja-") || f.StartsWith("ja_"),
+            "korean" => f.StartsWith("ko-") || f.StartsWith("ko_"),
+            "persian" => f.StartsWith("fa-") || f.StartsWith("fa_"),
+            "polish" => f.StartsWith("pl-") || f.StartsWith("pl_"),
+            "portuguese" => f.StartsWith("pt-") || f.StartsWith("pt_"),
+            "russian" => f.StartsWith("ru-") || f.StartsWith("ru_"),
+            "spanish" => f.StartsWith("es-") || f.StartsWith("es_"),
+            "swedish" => f.StartsWith("sv-") || f.StartsWith("sv_"),
+            "tamil" => f.StartsWith("ta-") || f.StartsWith("ta_"),
+            "telugu" => f.StartsWith("te-") || f.StartsWith("te_"),
+            "thai" => f.StartsWith("th-") || f.StartsWith("th_"),
+            "turkish" => f.StartsWith("tr-") || f.StartsWith("tr_"),
+            "urdu" => f.StartsWith("ur-") || f.StartsWith("ur_"),
+            "vietnamese" => f.StartsWith("vi-") || f.StartsWith("vi_"),
+            "welsh" => f.StartsWith("cy-") || f.StartsWith("cy_"),
+            _ => false,
+        };
     }
 
     private async Task RefreshInstalledStatus()
