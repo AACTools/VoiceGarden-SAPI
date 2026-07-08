@@ -894,6 +894,9 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
         engineType = pszEngineType.m_psz ? WStringToUTF8(std::wstring(pszEngineType.m_psz)) : "";
         lowerType = engineType;
         std::transform(lowerType.begin(), lowerType.end(), lowerType.begin(), ::tolower);
+        // Sherpa EngineType maps to "sherpaonnx" in rust-tts-wrapper
+        if (lowerType == "sherpa")
+            lowerType = "sherpaonnx";
     }
     else if (hasSherpaPath)
     {
@@ -954,27 +957,44 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
         // Edge is credential-free
         credsJson = "{}";
     }
-    else if (lowerType == "sherpa")
+    else if (lowerType == "sherpaonnx")
     {
-        // Phase 4: SherpaOnnx via Rust. Derive modelId and modelPath from
-        // the registry config. RustTts auto-detects model type and caches
-        // the ONNX engine instance.
-        CSpDynamicString pszModelPath;
-        if (!CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxModelPath", &pszModelPath)))
+        // SherpaOnnx via Rust. Derive modelId and modelPath from the registry.
+        // The Rust wrapper expects: modelPath=<base dir containing modelId dirs>,
+        // modelId=<directory name matching the registry entry>.
+        //
+        // Path structures:
+        //   MMS:    models/mms_eng/model.onnx          (flat — modelId = mms_eng)
+        //   Kokoro: models/kokoro-en-en-19/sub/model.onnx  (nested — modelId = kokoro-en-en-19)
+        //   Piper:  models/piper-en-amy-low/sub/file.onnx  (nested — modelId = piper-en-amy-low)
+        //
+        // Solution: walk up from the .onnx file to find the "models" directory,
+        // then the first directory after it is the modelId.
+        if (hasSherpaPath && pszSherpaModelPath.m_psz)
         {
-            std::wstring modelPathW(pszModelPath.m_psz);
-            // Derive: model dir = parent of model.onnx, model id = grandparent dir name
-            std::filesystem::path onnxPath(modelPathW);
-            auto modelDir = onnxPath.parent_path();       // .../kokoro-en-v0_19/
-            auto modelIdDir = modelDir.parent_path();      // .../kokoro-en-en-19/
-            auto baseDir = modelIdDir.parent_path();       // .../models/
-            std::string modelId = modelIdDir.filename().string();
-            std::string basePath = baseDir.string();
-            credsJson = "{\"modelId\":\"" + modelId + "\",\"modelPath\":\"" + basePath + "\"}";
+            std::filesystem::path onnxPath(pszSherpaModelPath.m_psz);
+            auto p = onnxPath.parent_path();
+            while (p.has_parent_path() && p.filename() != L"models")
+                p = p.parent_path();
+
+            if (p.filename() == L"models")
+            {
+                auto rel = std::filesystem::relative(onnxPath.parent_path(), p);
+                std::string modelId = rel.begin()->string();
+                std::string basePath = p.string();
+                std::replace(basePath.begin(), basePath.end(), '\\', '/');
+                credsJson = "{\"modelId\":\"" + modelId + "\",\"modelPath\":\"" + basePath + "\"}";
+                LogInfo("RustTts: SherpaOnnx credentials: {}", credsJson);
+            }
+            else
+            {
+                LogWarn("RustTts: Could not find 'models' directory in path: {}", onnxPath.string());
+                return false;
+            }
         }
         else
         {
-            // No model path — can't create Sherpa engine via Rust
+            LogWarn("RustTts: SherpaOnnx voice has no SherpaOnnxModelPath");
             return false;
         }
     }
