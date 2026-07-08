@@ -288,6 +288,7 @@ public partial class SherpaModelsViewModel : ObservableObject
             // characters from their target language (e.g., Persian model can't
             // synthesize English text).
             var previewText = GetPreviewText(model);
+            StatusText = $"Previewing {model.Name}...";
             var result = await client.SynthToBytesAsync(previewText);
             if (result?.AudioData?.Length > 0)
             {
@@ -296,7 +297,7 @@ public partial class SherpaModelsViewModel : ObservableObject
                 _ = Task.Run(() =>
                 {
                     try { using var p = new System.Media.SoundPlayer(tempFile); p.PlaySync(); }
-                    catch { }
+                    catch (Exception playEx) { System.Diagnostics.Debug.WriteLine($"SoundPlayer: {playEx.Message}"); }
                     finally { try { System.IO.File.Delete(tempFile); } catch { } }
                 });
                 model.DownloadStatus = "Downloaded";
@@ -305,13 +306,18 @@ public partial class SherpaModelsViewModel : ObservableObject
             else
             {
                 model.DownloadStatus = "Downloaded";
-                StatusText = $"No audio — {model.Name} may need {model.Language} text. Voice is still installed and usable.";
+                StatusText = $"No audio generated for {model.Name}";
+                System.Diagnostics.Debug.WriteLine($"Preview: {result?.AudioData?.Length ?? 0} bytes for {model.Id}");
             }
         }
         catch (Exception ex)
         {
             model.DownloadStatus = "Downloaded";
-            StatusText = $"Preview failed: {ex.Message}";
+            var msg = ex.Message;
+            if (ex.InnerException != null)
+                msg += $" -> {ex.InnerException.Message}";
+            StatusText = $"Preview failed: {msg}";
+            System.Diagnostics.Debug.WriteLine($"Preview exception for {model.Id}: {ex}");
         }
     }
 

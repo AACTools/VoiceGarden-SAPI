@@ -30,8 +30,18 @@
       Impersonate="yes"
       Return="ignore" />
 
+    <!-- Unregister COM DLLs on uninstall -->
+    <CustomAction
+      Id="UnregisterDlls"
+      Directory="SystemFolder"
+      ExeCommand='regsvr32 /u /s "[INSTALLFOLDER]x64\VoiceGardenSAPIAdapter.dll"'
+      Execute="deferred"
+      Impersonate="no"
+      Return="ignore" />
+
     <InstallExecuteSequence>
       <Custom Action="CleanupAppData" Before="RemoveFiles" Condition='REMOVE="ALL" AND REMOVE_APPDATA=1' />
+      <Custom Action="UnregisterDlls" Before="RemoveFiles" Condition='REMOVE="ALL"' />
     </InstallExecuteSequence>
 
     <Feature Id="MainFeature" Title="$(var.ProductName)" Level="1">
