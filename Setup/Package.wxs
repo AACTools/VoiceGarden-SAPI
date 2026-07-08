@@ -39,11 +39,11 @@
       Impersonate="no"
       Return="ignore" />
 
-    <!-- Unregister COM DLLs on uninstall -->
+    <!-- Unregister COM DLLs and clean voice tokens on uninstall -->
     <CustomAction
       Id="UnregisterDlls"
       Directory="SystemFolder"
-      ExeCommand='regsvr32 /u /s "[INSTALLFOLDER]x64\VoiceGardenSAPIAdapter.dll"'
+      ExeCommand='powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "regsvr32 /u /s ''[INSTALLFOLDER]x64\VoiceGardenSAPIAdapter.dll'' 2>$null; Get-ChildItem ''HKLM:\SOFTWARE\Microsoft\Speech\Voices\Tokens'',''HKLM:\SOFTWARE\WOW6432Node\Microsoft\Speech\Voices\Tokens'' -EA SilentlyContinue | ? { $_.PSChildName -match ''Sherpa-|Cloud-|Edge-|NaturalVoice-'' } | Remove-Item -Recurse -Force -EA SilentlyContinue; Remove-Item ''HKCU:\SOFTWARE\VoiceGardenSAPIAdapter'' -Recurse -Force -EA SilentlyContinue"'
       Execute="deferred"
       Impersonate="no"
       Return="ignore" />
