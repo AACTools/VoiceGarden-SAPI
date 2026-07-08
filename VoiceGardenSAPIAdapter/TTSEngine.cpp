@@ -195,38 +195,76 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
         m_thisSpeakStartedTicks = _GetTickCount();
         m_sherpaAbortRequested.store(false, std::memory_order_relaxed);
 
+        // Clear boundary queue for this utterance
+        m_pendingBoundaries.clear();
+        m_boundaryIndex = 0;
+        m_totalAudioBytesWritten = 0;
+
+        std::string speakText;
         if (m_rustTtsUseSsml)
         {
-            // Azure path: build SSML from SAPI text fragments, pass to RustTts
             if (!BuildSSML(pTextFragList))
             {
                 LogDebug("Speak: RustTts SSML built with no speech content");
                 FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
                 return S_OK;
             }
-            LogDebug("Speak: RustTts built SSML: {}", WStringToUTF8(m_ssml));
-
-            LogInfo("Speak: RustTts SSML generation begin");
-            try {
-                m_rustTts->SpeakSsml(WStringToUTF8(m_ssml));
-            } catch (const std::exception& ex) {
-                LogErr("RustTts SSML synthesis failed: {}", ex.what());
-            }
+            speakText = WStringToUTF8(m_ssml);
         }
         else
         {
-            // All other engines: plain text
             std::wstring plainTextW = ExtractSherpaPlainText(pTextFragList);
             if (plainTextW.empty())
             {
                 FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
                 return S_OK;
             }
+            speakText = WStringToUTF8(plainTextW);
+        }
 
-            LogInfo("Speak: RustTts generation begin");
+        // Run synthesis in a background thread. This allows SAPI to consume
+        // audio chunks gradually via the output site, which is essential for
+        // word boundary events to fire at the correct playback position.
+        // The polling loop checks for SPVES_ABORT so the user can stop speech.
+        LogInfo("Speak: RustTts generation begin (async)");
+        std::atomic_bool synthDone(false);
+        std::exception_ptr synthException;
+
+        std::thread synthThread([&] {
             try {
-                m_rustTts->Speak(WStringToUTF8(plainTextW));
-            } catch (const std::exception& ex) {
+                if (m_rustTtsUseSsml)
+                    m_rustTts->SpeakSsml(speakText);
+                else
+                    m_rustTts->Speak(speakText);
+            } catch (...) {
+                synthException = std::current_exception();
+            }
+            synthDone.store(true, std::memory_order_release);
+        });
+
+        // Poll until synthesis completes or the user requests stop
+        while (!synthDone.load(std::memory_order_acquire))
+        {
+            if (pOutputSite->GetActions() & SPVES_ABORT)
+            {
+                LogDebug("Speak: Requested stop");
+                m_rustTts->Stop();
+                break;
+            }
+            if (pOutputSite->GetActions() & SPVES_SKIP)
+            {
+                pOutputSite->CompleteSkip(0);
+            }
+            Sleep(10);
+        }
+
+        if (synthThread.joinable())
+            synthThread.join();
+
+        if (synthException)
+        {
+            try { std::rethrow_exception(synthException); }
+            catch (const std::exception& ex) {
                 LogErr("RustTts synthesis failed: {}", ex.what());
             }
         }
@@ -971,27 +1009,23 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
         LogInfo("RustTts boundary: word='{}' offset={} len={} startS={:.3f} endS={:.3f}",
                 word ? word : "(null)", charOffset, charLen, startS, endS);
         uint64_t offsetTicks = static_cast<uint64_t>(startS * 1e7);
+        ULONGLONG audioBytes = WaveTicksToBytes(offsetTicks);
         uint32_t safeOffset = (charOffset >= 0) ? static_cast<uint32_t>(charOffset) : 0;
         uint32_t safeLen = (charLen >= 0) ? static_cast<uint32_t>(charLen) : 0;
 
-        if (m_rustTtsUseSsml)
-        {
-            // SSML path: offsets are relative to SSML text, need mapping to SAPI text
-            OnBoundary(offsetTicks, safeOffset, safeLen, SPEI_WORD_BOUNDARY);
-        }
-        else
-        {
-            // Plain text path: offsets are already relative to SAPI text — no mapping needed
-            std::lock_guard lock(m_outputSiteMutex);
-            if (!m_pOutputSite) return;
-            SPEVENT ev = { 0 };
-            ev.ullAudioStreamOffset = WaveTicksToBytes(offsetTicks);
-            ev.eEventId = SPEI_WORD_BOUNDARY;
-            ev.elParamType = SPET_LPARAM_IS_UNDEFINED;
-            ev.lParam = safeOffset;
-            ev.wParam = safeLen;
-            m_pOutputSite->AddEvents(&ev, 1);
-        }
+        // Add the event immediately to SAPI's event queue. SAPI will
+        // deliver it when audio playback reaches ullAudioStreamOffset.
+        // This works even if boundaries fire before the corresponding
+        // audio chunk has been written — SAPI queues events.
+        std::lock_guard lock(m_outputSiteMutex);
+        if (!m_pOutputSite) return;
+        SPEVENT ev = { 0 };
+        ev.ullAudioStreamOffset = audioBytes;
+        ev.eEventId = SPEI_WORD_BOUNDARY;
+        ev.elParamType = SPET_LPARAM_IS_UNDEFINED;
+        ev.lParam = safeOffset;
+        ev.wParam = safeLen;
+        m_pOutputSite->AddEvents(&ev, 1);
     });
 
     m_rustTts->SetOnViseme([this](int32_t visemeId, float offsetS) {
@@ -1098,6 +1132,7 @@ int CTTSEngine::OnAudioData(uint8_t* data, uint32_t len)
     }
 
     HRESULT hr = m_pOutputSite->Write(data, len - m_lastSilentBytes, &written);
+
     // Assumes that the data can be either entirely written or not written at all
     // because some implementations do not set the written bytes correctly
     if (SUCCEEDED(hr))

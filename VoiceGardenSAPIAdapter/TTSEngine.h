@@ -122,6 +122,18 @@ private: // Member variables
 	bool m_rustTtsUseSsml = false; // true for Azure (needs SSML from BuildSSML)
 	std::future<void> m_lastCancellingFuture;
 
+	// Pending boundary events from RustTts, queued by audio byte offset.
+	// Delivered progressively as OnAudioData writes PCM chunks, so that
+	// SAPI word highlighting fires at the correct playback position.
+	struct PendingBoundary {
+		ULONGLONG audioByteOffset;
+		ULONG textOffset;
+		ULONG textLen;
+	};
+	std::vector<PendingBoundary> m_pendingBoundaries;
+	size_t m_boundaryIndex = 0;
+	ULONGLONG m_totalAudioBytesWritten = 0;
+
 	ErrorMode m_errorMode = ErrorMode::ProbeForError;
 	bool m_isEdgeVoice = false;
 	bool m_onlineDelayOptimization = false;
