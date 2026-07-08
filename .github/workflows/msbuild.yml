@@ -299,7 +299,7 @@ jobs:
           Write-Host "WARNING: rust_tts_wrapper.dll not found in NuGet cache"
         }
 
-        - name: Build MSI
+    - name: Build MSI
       shell: pwsh
       working-directory: ${{github.workspace}}
       run: |
