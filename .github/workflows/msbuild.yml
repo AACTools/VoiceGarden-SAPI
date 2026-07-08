@@ -71,11 +71,11 @@ jobs:
       run: |
         dotnet publish VoiceGarden.UI\VoiceGarden.UI.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -p:PublishReadyToRun=false -o ${{github.workspace}}\ui-publish
 
-    - name: Copy branding.json
+    - name: Copy
       shell: pwsh
       run: |
-        if (Test-Path config\branding.json) {
-          Copy-Item config\branding.json ui-publish\ -Force
+        if (Test-Path config\) {
+          Copy-Item config\ ui-publish\ -Force
         }
 
     - uses: actions/upload-artifact@v4
@@ -147,12 +147,12 @@ jobs:
       shell: pwsh
       run: Remove-Item out\SherpaOnnxConfig.exe -ErrorAction SilentlyContinue
 
-    - name: Copy branding.json to output
+    - name: Copy to output
       if: matrix.platform == 'x86'
       shell: pwsh
       run: |
-        if (Test-Path .\config\branding.json) {
-          Copy-Item -Path .\config\branding.json -Destination out\branding.json -Force
+        if (Test-Path .\config\) {
+          Copy-Item -Path .\config\ -Destination out\ -Force
         }
 
     - uses: actions/upload-artifact@v4
@@ -299,14 +299,7 @@ jobs:
           Write-Host "WARNING: rust_tts_wrapper.dll not found in NuGet cache"
         }
 
-        # Branding
-        if (Test-Path payload\x86\branding.json) {
-          Copy-Item payload\x86\branding.json payload\branding.json -Force
-        } elseif (Test-Path .\config\branding.json) {
-          Copy-Item .\config\branding.json payload\branding.json -Force
-        }
-
-    - name: Build MSI
+        - name: Build MSI
       shell: pwsh
       working-directory: ${{github.workspace}}
       run: |
@@ -329,7 +322,6 @@ jobs:
         path: |
           installer-output/setup.exe
           installer-output/VoiceGardenSAPIAdapter.msi
-          installer-output/branding.json
 
   release:
     runs-on: ubuntu-latest
@@ -366,7 +358,7 @@ jobs:
         # MSI + setup.exe
         cp setup-msi/VoiceGardenSAPIAdapter.msi . 2>/dev/null || true
         cp setup-exe/setup.exe . 2>/dev/null || true
-        cp setup-exe/branding.json . 2>/dev/null || true
+        cp setup-exe/ . 2>/dev/null || true
 
         # Debug symbols
         zip -r debug_symbols.zip x86 x64 ARM64 -i "*.pdb"
@@ -377,8 +369,7 @@ jobs:
 
         # Full release layout (everything)
         zip -r VoiceGardenSAPIAdapter_${ver}_release-layout.zip \
-          x86 x64 ARM64 VoiceGarden.UI.exe setup.exe VoiceGardenSAPIAdapter.msi \
-          branding.json \
+          x86 x64 ARM64 VoiceGarden.UI.exe setup.exe VoiceGardenSAPIAdapter.msi \ \
           -i "*.exe" "*.dll" "*.json" "*.msi"
 
     - name: Create release
@@ -401,6 +392,8 @@ jobs:
           ${{github.workspace}}/artifacts/x64/**
           ${{github.workspace}}/artifacts/ARM64/**
           ${{github.workspace}}/artifacts/VoiceGarden.UI.exe
-          ${{github.workspace}}/artifacts/branding.json
+          ${{github.workspace}}/artifacts/
           ${{github.workspace}}/artifacts/VoiceGardenSAPIAdapter.msi
           ${{github.workspace}}/artifacts/setup.exe
+
+

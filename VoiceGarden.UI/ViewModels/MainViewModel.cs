@@ -13,16 +13,13 @@ namespace VoiceGarden.UI.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
-    private readonly BrandingConfig _branding;
-
     public MainViewModel()
     {
-        _branding = BrandingConfig.Load();
-        AppName = _branding.AppName;
-        ShowAdvanced = false; // Hidden by default
+        AppName = BrandingConfig.AppName;
+        ShowAdvanced = false;
 
         // Load settings from registry
-        SherpaEnabled = !RegistryService.GetFlag("NoSherpaVoices", !_branding.DefaultSherpaEnabled);
+        SherpaEnabled = !RegistryService.GetFlag("NoSherpaVoices", !BrandingConfig.DefaultSherpaEnabled);
         EdgeEnabled = !RegistryService.GetFlag("NoEdgeVoices");
         NarratorEnabled = !RegistryService.GetFlag("NoNarratorVoices");
         LogLevelIndex = RegistryService.GetDword("LogLevel", 0);

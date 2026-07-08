@@ -1,8 +1,0 @@
-{
-  "product_name": "VoiceGardenSAPI",
-  "manufacturer": "VoiceGarden",
-  "app_caption": "VoiceGardenSAPI Installer",
-  "install_folder_name": "VoiceGardenSAPI",
-  "installer_shortcut_name": "VoiceGardenSAPI Installer",
-  "project_url": "https://github.com/your-org/VoiceGardenSAPI"
-}

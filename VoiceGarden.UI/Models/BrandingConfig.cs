@@ -1,38 +1,19 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.IO;
-using System.Text.Json;
 
 namespace VoiceGarden.UI.Models;
 
-public class BrandingConfig
+/// <summary>
+/// Hardcoded configuration constants (was branding.json).
+/// Edge and Narrator voices are always available via registry flags.
+/// </summary>
+public static class BrandingConfig
 {
-    public string AppName { get; set; } = "VoiceGarden";
-    public string InstallDir { get; set; } = "VoiceGardenSAPI";
-    public bool ShowEdgeVoices { get; set; } = false;
-    public bool ShowNarratorVoices { get; set; } = false;
-    public bool ShowAdvancedSection { get; set; } = true;
-    public bool DefaultSherpaEnabled { get; set; } = true;
-    public bool DefaultAzureEnabled { get; set; } = false;
-
-    public static BrandingConfig Load(string? path = null)
-    {
-        path ??= Path.Combine(System.AppContext.BaseDirectory, "branding.json");
-        if (!File.Exists(path))
-            return new BrandingConfig();
-
-        try
-        {
-            var json = File.ReadAllText(path);
-            var config = JsonSerializer.Deserialize<BrandingConfig>(json);
-            return config ?? new BrandingConfig();
-        }
-        catch
-        {
-            return new BrandingConfig();
-        }
-    }
+    public const string AppName = "VoiceGarden";
+    public const string InstallDir = "VoiceGardenSAPI";
+    public const bool DefaultSherpaEnabled = true;
+    public const bool DefaultAzureEnabled = false;
 }
 
 public class EngineDefinition

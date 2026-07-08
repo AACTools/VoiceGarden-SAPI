@@ -27,7 +27,7 @@ New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
 $rootAllow = @(
     "VoiceGarden.UI.exe",
     "install-plan.json",
-    "branding.json",
+    "_branding.json.removed",
     "SherpaOnnxConfig.exe",
     "EngineConfig.exe",
     "merged_models.json",
@@ -109,3 +109,4 @@ if (-not $hasAnyArch) {
 $count = (Get-ChildItem -Path $OutputDir -Recurse -File | Measure-Object).Count
 Write-Host "Curated payload created: $OutputDir" -ForegroundColor Green
 Write-Host "Payload files: $count"
+
