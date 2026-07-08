@@ -57,33 +57,6 @@ static std::wstring ExtractSherpaPlainText(const SPVTEXTFRAG* pTextFragList)
     return TrimWhitespace(out);
 }
 
-namespace {
-std::mutex g_sherpaInitMutex;
-std::mutex g_sherpaGenerateMutex;
-std::string g_cachedSherpaKey;
-std::shared_ptr<SherpaOnnx::Engine> g_cachedSherpaEngine;
-
-std::string BuildSherpaEngineKey(const SherpaOnnx::ModelConfig& cfg)
-{
-    std::string key = std::to_string(static_cast<int>(cfg.modelType)) + "|";
-    switch (cfg.modelType)
-    {
-    case SherpaOnnx::TtsModelType::Matcha:
-        key += cfg.matcha.acousticModel + "|" + cfg.matcha.vocoder + "|" + cfg.matcha.tokens + "|" + cfg.matcha.dataDir;
-        break;
-    case SherpaOnnx::TtsModelType::Kokoro:
-        key += cfg.kokoro.model + "|" + cfg.kokoro.voices + "|" + cfg.kokoro.tokens + "|" + cfg.kokoro.dataDir + "|" + cfg.kokoro.lang;
-        break;
-    case SherpaOnnx::TtsModelType::Vits:
-    default:
-        key += cfg.vits.model + "|" + cfg.vits.tokens + "|" + cfg.vits.dataDir;
-        break;
-    }
-    key += "|" + cfg.provider + "|" + std::to_string(cfg.numThreads);
-    return key;
-}
-}
-
 // ISpObjectWithToken Implementation
 
 // Initializes this instance of CTTSEngine to use the voice specified in registry
@@ -104,11 +77,10 @@ STDMETHODIMP CTTSEngine::SetObjectToken(ISpObjectToken* pToken) noexcept
         InitVoice();
         LogInfo("TTS init: InitVoice completed");
 
-        if (m_isSherpaOnnxVoice)
+        if (m_rustTtsUseSsml == false && m_rustTts)
         {
-            // Sherpa path synthesizes plain text directly and does not require
-            // SAPI phone converter initialization.
-            LogInfo("TTS init: skipping InitPhoneConverter for Sherpa voice");
+            // Sherpa/cloud non-Azure path synthesizes plain text directly.
+            LogInfo("TTS init: skipping InitPhoneConverter for non-SSML voice");
         }
         else
         {
@@ -156,9 +128,8 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
     LogInfo("Speak: entered");
     try
     {
-        LogInfo("Speak: state rustTts={} sherpa={} cancelFuture={}",
+        LogInfo("Speak: state rustTts={} cancelFuture={}",
             m_rustTts ? 1 : 0,
-            m_sherpaOnnx ? 1 : 0,
             m_lastCancellingFuture.valid() ? 1 : 0);
         LogErr("SpeakDiag: stage=after-state-log");
 
@@ -170,12 +141,12 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
         }
         LogInfo("Speak: pointer validation passed");
 
-        if (!m_rustTts && !m_sherpaOnnx)
+        if (!m_rustTts)
         {
-            LogErr("Speak: no engine initialized (neither RustTts nor SherpaOnnx)");
+            LogErr("Speak: no RustTts engine initialized");
             return SPERR_UNINITIALIZED;
         }
-        LogInfo("Speak: engine presence check passed");
+        LogInfo("Speak: engine presence check passed (RustTts)");
 
         if (m_lastCancellingFuture.valid())
         {
@@ -206,29 +177,6 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
         LogErr("SpeakDiag: stage=after-scopeguard");
         m_pOutputSite = pOutputSite;
         LogInfo("Speak: output site assigned");
-
-        // SherpaOnnx via C++ direct path (fallback when Rust DLL lacks sherpaonnx)
-        if (m_sherpaOnnx)
-        {
-            LogInfo("Speak: SherpaOnnx (C++) path selected");
-            std::wstring plainTextW = ExtractSherpaPlainText(pTextFragList);
-            if (plainTextW.empty())
-            {
-                FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
-                return S_OK;
-            }
-
-            m_compensatedSilenceWritten = false;
-            m_compensatedSilentBytes = 0;
-            m_lastSilentBytes = 0;
-            m_thisSpeakStartedTicks = _GetTickCount();
-            m_sherpaAbortRequested.store(false, std::memory_order_relaxed);
-            LogInfo("Speak: Sherpa generation begin");
-            GenerateSherpaOnnxAudio(WStringToUTF8(plainTextW));
-            LogInfo("Speak: Sherpa generation end");
-            m_lastSpeakCompletedTicks = _GetTickCount();
-            return S_OK;
-        }
 
         LogInfo("Speak: pre-branch RustTts");
         LogErr("SpeakDiag: stage=before-rusttts-branch");
@@ -311,58 +259,51 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
 STDMETHODIMP CTTSEngine::GetOutputFormat(const GUID* /*pTargetFormatId*/, const WAVEFORMATEX* /*pTargetWaveFormatEx*/,
     GUID* pDesiredFormatId, WAVEFORMATEX** ppCoMemDesiredWaveFormatEx) noexcept
 {
-    // For Sherpa voices, prefer model sample rate to avoid speed/pitch distortion.
-    if (m_isSherpaOnnxVoice)
+    // For offline voices, prefer model sample rate from registry metadata.
     {
         DWORD sampleRate = 0;
 
-        // First choice: active Sherpa engine output format (ground truth).
-        if (m_sherpaOnnx)
-        {
-            const int sr = m_sherpaOnnx->GetSampleRate();
-            if (sr > 0)
-                sampleRate = static_cast<DWORD>(sr);
-        }
-
-        // Fallback: token metadata from model catalog.
-        if (sampleRate == 0 && m_cpToken)
+        // Token metadata from model catalog.
+        if (m_cpToken)
         {
             CComPtr<ISpDataKey> pConfigKey;
             if (SUCCEEDED(m_cpToken->OpenKey(L"VoiceGardenConfig", &pConfigKey)) && pConfigKey)
                 (void)pConfigKey->GetDWORD(L"SampleRate", &sampleRate);
         }
 
-        auto pickFormat = [](DWORD sr) -> SPSTREAMFORMAT {
-            switch (sr)
-            {
-            case 8000: return SPSF_8kHz16BitMono;
-            case 11025: return SPSF_11kHz16BitMono;
-            case 12000: return SPSF_12kHz16BitMono;
-            case 16000: return SPSF_16kHz16BitMono;
-            case 22050: return SPSF_22kHz16BitMono;
-            case 24000: return SPSF_24kHz16BitMono;
-            case 32000: return SPSF_32kHz16BitMono;
-            case 44100: return SPSF_44kHz16BitMono;
-            case 48000: return SPSF_48kHz16BitMono;
-            default:
-                // Nearest commonly supported mono 16-bit PCM format.
-                if (sr <= 9512) return SPSF_8kHz16BitMono;
-                if (sr <= 11512) return SPSF_11kHz16BitMono;
-                if (sr <= 14000) return SPSF_12kHz16BitMono;
-                if (sr <= 19025) return SPSF_16kHz16BitMono;
-                if (sr <= 23025) return SPSF_22kHz16BitMono;
-                if (sr <= 28000) return SPSF_24kHz16BitMono;
-                if (sr <= 38050) return SPSF_32kHz16BitMono;
-                if (sr <= 46050) return SPSF_44kHz16BitMono;
-                return SPSF_48kHz16BitMono;
-            }
-        };
+        if (sampleRate > 0)
+        {
+            auto pickFormat = [](DWORD sr) -> SPSTREAMFORMAT {
+                switch (sr)
+                {
+                case 8000: return SPSF_8kHz16BitMono;
+                case 11025: return SPSF_11kHz16BitMono;
+                case 12000: return SPSF_12kHz16BitMono;
+                case 16000: return SPSF_16kHz16BitMono;
+                case 22050: return SPSF_22kHz16BitMono;
+                case 24000: return SPSF_24kHz16BitMono;
+                case 32000: return SPSF_32kHz16BitMono;
+                case 44100: return SPSF_44kHz16BitMono;
+                case 48000: return SPSF_48kHz16BitMono;
+                default:
+                    if (sr <= 9512) return SPSF_8kHz16BitMono;
+                    if (sr <= 11512) return SPSF_11kHz16BitMono;
+                    if (sr <= 14000) return SPSF_12kHz16BitMono;
+                    if (sr <= 19025) return SPSF_16kHz16BitMono;
+                    if (sr <= 23025) return SPSF_22kHz16BitMono;
+                    if (sr <= 28000) return SPSF_24kHz16BitMono;
+                    if (sr <= 38050) return SPSF_32kHz16BitMono;
+                    if (sr <= 46050) return SPSF_44kHz16BitMono;
+                    return SPSF_48kHz16BitMono;
+                }
+            };
 
-        const SPSTREAMFORMAT fmt = pickFormat(sampleRate == 0 ? 24000 : sampleRate);
-        return SpConvertStreamFormatEnum(fmt, pDesiredFormatId, ppCoMemDesiredWaveFormatEx);
+            const SPSTREAMFORMAT fmt = pickFormat(sampleRate);
+            return SpConvertStreamFormatEnum(fmt, pDesiredFormatId, ppCoMemDesiredWaveFormatEx);
+        }
     }
 
-    // Embedded/cloud default
+    // Default
     return SpConvertStreamFormatEnum(SPSF_24kHz16BitMono, pDesiredFormatId, ppCoMemDesiredWaveFormatEx);
 }
 
@@ -407,13 +348,7 @@ void CTTSEngine::InitVoice()
     m_errorMode = (ErrorMode)std::clamp(dwErrorMode, 0UL, 2UL);
 
     // All voices route through rust-tts-wrapper (tts_wrapper.dll).
-    // SherpaOnnx falls back to the C++ direct path when the Rust DLL
-    // doesn't include the sherpaonnx feature.
     if (InitRustTtsVoice(pConfigKey))
-        return;
-
-    // Fallback: C++ SherpaOnnx for offline voices (when Rust DLL lacks sherpaonnx)
-    if (InitSherpaOnnxVoice(pConfigKey))
         return;
 
     throw std::invalid_argument("Invalid VoiceGardenConfig configuration.");
@@ -491,6 +426,7 @@ bool CTTSEngine::InitLocalVoice(ISpDataKey* pConfigKey)
 }
 
 #endif // 0 (dead code)
+#if 0 // dead code — SherpaOnnx C++ removed
 bool CTTSEngine::InitSherpaOnnxVoice(ISpDataKey* pConfigKey)
 {
     LogInfo("Sherpa init: probing token for Sherpa config");
@@ -865,6 +801,7 @@ bool CTTSEngine::InitGenericHttpVoice(ISpDataKey* pConfigKey)
 }
 
 #endif // 0 (dead code)
+#endif // 0 (dead code — SherpaOnnx C++ removed)
 bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
 {
     // Try to use rust-tts-wrapper for cloud engines.
@@ -1040,6 +977,10 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
     m_rustTts->SetOnViseme([this](int32_t visemeId, float offsetS) {
         uint64_t offsetTicks = static_cast<uint64_t>(offsetS * 1e7);
         OnViseme(offsetTicks, static_cast<uint32_t>(visemeId));
+    });
+
+    m_rustTts->SetOnError([](const char* msg) {
+        LogErr("RustTts engine error: {}", msg ? msg : "(null)");
     });
 
     m_onlineVoiceName = pszVoice.m_psz ? pszVoice.m_psz : L"";
@@ -1858,6 +1799,7 @@ std::wstring CTTSEngine::StripSSML(const std::wstring& ssml)
     return result.substr(start, end - start + 1);
 }
 
+#if 0 // dead code — SherpaOnnx C++ removed
 void CTTSEngine::GenerateSherpaOnnxAudio(const std::string& plainText)
 {
     if (plainText.empty())
@@ -1923,6 +1865,7 @@ void CTTSEngine::GenerateSherpaOnnxAudio(const std::string& plainText)
     }
 }
 
+#endif // 0 (dead code — SherpaOnnx C++ removed)
 void CTTSEngine::FinishSimulatingBookmarkEvents(ULONGLONG streamOffset)
 {
     const auto size = m_bookmarks.size();

@@ -101,6 +101,10 @@ void Engine::SetOnViseme(VisemeCallback cb) {
     m_onViseme = std::move(cb);
 }
 
+void Engine::SetOnError(ErrorCallback cb) {
+    m_onError = std::move(cb);
+}
+
 std::string Engine::GetLastError() const {
     if (!m_ctx) return {};
     const char* err = Loader::Instance().getLastError(m_ctx);
@@ -112,6 +116,7 @@ void Engine::RegisterCallbacks() {
     loader.setOnAudio(m_ctx, &Engine::OnAudioThunk, this);
     loader.setOnBoundary2(m_ctx, &Engine::OnBoundaryThunk, this);
     loader.setOnViseme(m_ctx, &Engine::OnVisemeThunk, this);
+    loader.setOnError(m_ctx, &Engine::OnErrorThunk, this);
 }
 
 // Static thunks — called by the Rust side during synthesis.
@@ -137,6 +142,13 @@ void Engine::OnVisemeThunk(int32_t visemeId, float offsetS, void* ud) {
     auto* self = static_cast<Engine*>(ud);
     if (self && self->m_onViseme) {
         self->m_onViseme(visemeId, offsetS);
+    }
+}
+
+void Engine::OnErrorThunk(const char* msg, void* ud) {
+    auto* self = static_cast<Engine*>(ud);
+    if (self && self->m_onError) {
+        self->m_onError(msg);
     }
 }
 

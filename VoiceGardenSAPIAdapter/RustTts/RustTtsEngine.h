@@ -20,6 +20,9 @@ using BoundaryCallback = std::function<void(const char*, int32_t, int32_t, float
 // Viseme callback: (visemeId, offsetSec)
 using VisemeCallback = std::function<void(int32_t, float)>;
 
+// Error callback: (errorMessage)
+using ErrorCallback = std::function<void(const char*)>;
+
 class Engine {
 public:
     Engine();
@@ -58,6 +61,7 @@ public:
     void SetOnAudio(AudioCallback cb);
     void SetOnBoundary(BoundaryCallback cb);
     void SetOnViseme(VisemeCallback cb);
+    void SetOnError(ErrorCallback cb);
 
     // Get the last error message from the Rust side.
     std::string GetLastError() const;
@@ -69,6 +73,7 @@ private:
     AudioCallback m_onAudio;
     BoundaryCallback m_onBoundary;
     VisemeCallback m_onViseme;
+    ErrorCallback m_onError;
 
     // Register the static thunk callbacks with the Rust side.
     void RegisterCallbacks();
@@ -79,6 +84,7 @@ private:
                                 int32_t charLen, float startS, float endS,
                                 void* ud);
     static void OnVisemeThunk(int32_t visemeId, float offsetS, void* ud);
+    static void OnErrorThunk(const char* msg, void* ud);
 };
 
 } // namespace RustTts

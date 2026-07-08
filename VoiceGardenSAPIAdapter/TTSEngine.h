@@ -9,7 +9,6 @@
 #include "SapiException.h"
 
 #include "RustTts/RustTtsEngine.h"
-#include "../SherpaOnnx/SherpaOnnxEngine.h"
 #include "VoiceGardenSAPIAdapter_i.h"
 
 
@@ -119,14 +118,12 @@ private: // Member variables
 
 	CComPtr<ISpObjectToken> m_cpToken;
 	CComPtr<ISpPhoneConverter> m_phoneConverter;
-	std::shared_ptr<SherpaOnnx::Engine> m_sherpaOnnx;    // SherpaOnnx offline voices (C++ fallback)
 	std::unique_ptr<RustTts::Engine> m_rustTts;
 	bool m_rustTtsUseSsml = false; // true for Azure (needs SSML from BuildSSML)
 	std::future<void> m_lastCancellingFuture;
 
 	ErrorMode m_errorMode = ErrorMode::ProbeForError;
 	bool m_isEdgeVoice = false;
-	bool m_isSherpaOnnxVoice = false;
 	bool m_onlineDelayOptimization = false;
 	bool m_compensatedSilenceWritten = false;
 	std::atomic_bool m_synthesizerStarted = false;
@@ -165,8 +162,6 @@ private: // Private methods
 	void InitPhoneConverter();
 	void InitVoice();
 	bool InitRustTtsVoice(ISpDataKey* pConfigKey);
-	bool InitSherpaOnnxVoice(ISpDataKey* pConfigKey);  // C++ fallback for offline voices
-	void GenerateSherpaOnnxAudio(const std::string& plainText);
 
 	void FinishSimulatingBookmarkEvents(ULONGLONG streamOffset);
 
