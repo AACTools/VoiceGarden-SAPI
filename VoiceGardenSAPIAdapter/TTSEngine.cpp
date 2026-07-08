@@ -984,7 +984,7 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
     });
 
     m_onlineVoiceName = pszVoice.m_psz ? pszVoice.m_psz : L"";
-    m_rustTtsUseSsml = (lowerType == "azure"); // Azure needs SSML from BuildSSML
+    m_rustTtsUseSsml = (lowerType == "azure" || lowerType == "edge");
     LogInfo("RustTts voice created: {} / {}", engineType, pszVoice.m_psz ? pszVoice.m_psz : L"(default)");
     return true;
 }
