@@ -224,8 +224,10 @@ public partial class VoiceConfigViewModel : ObservableObject
             var audioData = client.SynthToBytes($"Hello, my name is {voice.Name}.");
             if (audioData.Length > 0)
             {
+                // Rust returns raw PCM16 mono — wrap in WAV header for SoundPlayer
+                var wavData = WrapPcmInWav(audioData, 24000);
                 var tempFile = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"voicegarden_preview_{Guid.NewGuid():N}.wav");
-                await System.IO.File.WriteAllBytesAsync(tempFile, audioData);
+                await System.IO.File.WriteAllBytesAsync(tempFile, wavData);
                 _ = Task.Run(() =>
                 {
                     try { using var player = new System.Media.SoundPlayer(tempFile); player.PlaySync(); }
@@ -276,22 +278,91 @@ public partial class VoiceConfigViewModel : ObservableObject
         };
     }
 
+    /// <summary>
+    /// Wrap raw PCM16 mono samples in a WAV header so SoundPlayer can play them.
+    /// Rust's SynthToBytes returns raw PCM16, not WAV.
+    /// </summary>
+    private static byte[] WrapPcmInWav(byte[] pcm, int sampleRate)
+    {
+        using var ms = new System.IO.MemoryStream();
+        using var bw = new System.IO.BinaryWriter(ms);
+        short channels = 1;
+        short bitsPerSample = 16;
+        int byteRate = sampleRate * channels * bitsPerSample / 8;
+        short blockAlign = (short)(channels * bitsPerSample / 8);
+        int dataLen = pcm.Length;
+        int riffLen = 36 + dataLen;
+
+        bw.Write(System.Text.Encoding.ASCII.GetBytes("RIFF"));
+        bw.Write(riffLen);
+        bw.Write(System.Text.Encoding.ASCII.GetBytes("WAVE"));
+        bw.Write(System.Text.Encoding.ASCII.GetBytes("fmt "));
+        bw.Write(16); // PCM chunk size
+        bw.Write((short)1); // PCM format
+        bw.Write(channels);
+        bw.Write(sampleRate);
+        bw.Write(byteRate);
+        bw.Write(blockAlign);
+        bw.Write(bitsPerSample);
+        bw.Write(System.Text.Encoding.ASCII.GetBytes("data"));
+        bw.Write(dataLen);
+        bw.Write(pcm);
+        return ms.ToArray();
+    }
+
     private void ApplyFilter()
     {
         FilteredVoices.Clear();
         var filter = SearchFilter?.Trim().ToLowerInvariant() ?? "";
+
+        // Map common language names to locale prefixes for fuzzy matching
+        var localeHints = new Dictionary<string, string[]>
+        {
+            ["arabic"] = new[] { "ar-", "ar_" },
+            ["bengali"] = new[] { "bn-", "bn_" },
+            ["chinese"] = new[] { "zh-", "zh_", "cmn-", "yue-" },
+            ["dutch"] = new[] { "nl-", "nl_" },
+            ["french"] = new[] { "fr-", "fr_" },
+            ["german"] = new[] { "de-", "de_" },
+            ["gujarati"] = new[] { "gu-", "gu_" },
+            ["hindi"] = new[] { "hi-", "hi_" },
+            ["italian"] = new[] { "it-", "it_" },
+            ["japanese"] = new[] { "ja-", "ja_" },
+            ["korean"] = new[] { "ko-", "ko_" },
+            ["persian"] = new[] { "fa-", "fa_" },
+            ["polish"] = new[] { "pl-", "pl_" },
+            ["portuguese"] = new[] { "pt-", "pt_" },
+            ["russian"] = new[] { "ru-", "ru_" },
+            ["spanish"] = new[] { "es-", "es_" },
+            ["swedish"] = new[] { "sv-", "sv_" },
+            ["tamil"] = new[] { "ta-", "ta_" },
+            ["telugu"] = new[] { "te-", "te_" },
+            ["thai"] = new[] { "th-", "th_" },
+            ["turkish"] = new[] { "tr-", "tr_" },
+            ["urdu"] = new[] { "ur-", "ur_" },
+            ["vietnamese"] = new[] { "vi-", "vi_" },
+            ["welsh"] = new[] { "cy-", "cy_" },
+        };
+
+        string[]? localePrefixes = null;
+        if (!string.IsNullOrEmpty(filter) && localeHints.TryGetValue(filter, out var hints))
+            localePrefixes = hints;
+
         foreach (var v in AllVoices)
         {
             if (string.IsNullOrEmpty(filter) ||
                 v.Name.ToLowerInvariant().Contains(filter) ||
                 v.Id.ToLowerInvariant().Contains(filter) ||
-                v.Language.ToLowerInvariant().Contains(filter))
+                v.Language.ToLowerInvariant().Contains(filter) ||
+                (localePrefixes != null && localePrefixes.Any(p =>
+                    v.Id.ToLowerInvariant().StartsWith(p) ||
+                    v.Language.ToLowerInvariant().StartsWith(p))))
             {
                 FilteredVoices.Add(v);
             }
         }
         StatusText = string.IsNullOrEmpty(filter)
-            ? $"Showing {TotalVoices} voices"
+            ? $"{TotalVoices} voices"
             : $"Showing {FilteredVoices.Count} of {TotalVoices} voices";
     }
 

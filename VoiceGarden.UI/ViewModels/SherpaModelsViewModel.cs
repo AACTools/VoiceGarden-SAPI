@@ -304,8 +304,10 @@ public partial class SherpaModelsViewModel : ObservableObject
             var audioData = client.SynthToBytes(previewText);
             if (audioData.Length > 0)
             {
+                // Rust returns raw PCM16 mono — wrap in WAV header for SoundPlayer
+                var wavData = WrapPcmInWav(audioData, 24000);
                 var tempFile = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"vg_sherpa_{Guid.NewGuid():N}.wav");
-                await System.IO.File.WriteAllBytesAsync(tempFile, audioData);
+                await System.IO.File.WriteAllBytesAsync(tempFile, wavData);
                 _ = Task.Run(() =>
                 {
                     try { using var p = new System.Media.SoundPlayer(tempFile); p.PlaySync(); }
@@ -349,7 +351,7 @@ public partial class SherpaModelsViewModel : ObservableObject
             {
                 "fas" => "سلام، این یک صدای فارسی است.",           // Persian
                 "ara" => "مرحبا، هذه تجربة صوتية.",                // Arabic
-                "hyw" or "hye" => "Բարեւ, սա ձայնային փորձարկում է:", // Armenian
+                "hyw" or "hye" => "Բարև, սա ձայնային փորձարկում է:", // Armenian
                 "hin" => "नमस्ते, यह एक आवाज परीक्षण है।",            // Hindi
                 "ben" => "হ্যালো, এটি একটি ভয়েস পরীক্ষা।",           // Bengali
                 "urd" => "ہیلو، یہ ایک آواز کا ٹیسٹ ہے۔",              // Urdu
@@ -365,12 +367,42 @@ public partial class SherpaModelsViewModel : ObservableObject
                 "spa" => "Hola, esta es una prueba de voz.",         // Spanish
                 "por" => "Olá, este é um teste de voz.",             // Portuguese
                 "ita" => "Ciao, questo è un test vocale.",           // Italian
+                "guj" => "નમસ્તે, આ એક અવાજ ચકાસણી છે.",               // Gujarati
                 _ => $"[test] {langCode}", // Fallback — may produce no audio
             };
         }
 
         // Piper/Kokoro non-English — try English (Piper models often support it)
         return $"Hello. {model.Name}.";
+    }
+
+    /// <summary>
+    /// Wrap raw PCM16 mono samples in a WAV header so SoundPlayer can play them.
+    /// </summary>
+    private static byte[] WrapPcmInWav(byte[] pcm, int sampleRate)
+    {
+        using var ms = new System.IO.MemoryStream();
+        using var bw = new System.IO.BinaryWriter(ms);
+        short channels = 1;
+        short bitsPerSample = 16;
+        int byteRate = sampleRate * channels * bitsPerSample / 8;
+        short blockAlign = (short)(channels * bitsPerSample / 8);
+
+        bw.Write(System.Text.Encoding.ASCII.GetBytes("RIFF"));
+        bw.Write(36 + pcm.Length);
+        bw.Write(System.Text.Encoding.ASCII.GetBytes("WAVE"));
+        bw.Write(System.Text.Encoding.ASCII.GetBytes("fmt "));
+        bw.Write(16);
+        bw.Write((short)1);
+        bw.Write(channels);
+        bw.Write(sampleRate);
+        bw.Write(byteRate);
+        bw.Write(blockAlign);
+        bw.Write(bitsPerSample);
+        bw.Write(System.Text.Encoding.ASCII.GetBytes("data"));
+        bw.Write(pcm.Length);
+        bw.Write(pcm);
+        return ms.ToArray();
     }
 
     [RelayCommand]
