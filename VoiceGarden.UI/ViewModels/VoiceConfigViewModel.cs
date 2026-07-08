@@ -315,48 +315,12 @@ public partial class VoiceConfigViewModel : ObservableObject
         FilteredVoices.Clear();
         var filter = SearchFilter?.Trim().ToLowerInvariant() ?? "";
 
-        // Map common language names to locale prefixes for fuzzy matching
-        var localeHints = new Dictionary<string, string[]>
-        {
-            ["arabic"] = new[] { "ar-", "ar_" },
-            ["bengali"] = new[] { "bn-", "bn_" },
-            ["chinese"] = new[] { "zh-", "zh_", "cmn-", "yue-" },
-            ["dutch"] = new[] { "nl-", "nl_" },
-            ["french"] = new[] { "fr-", "fr_" },
-            ["german"] = new[] { "de-", "de_" },
-            ["gujarati"] = new[] { "gu-", "gu_" },
-            ["hindi"] = new[] { "hi-", "hi_" },
-            ["italian"] = new[] { "it-", "it_" },
-            ["japanese"] = new[] { "ja-", "ja_" },
-            ["korean"] = new[] { "ko-", "ko_" },
-            ["persian"] = new[] { "fa-", "fa_" },
-            ["polish"] = new[] { "pl-", "pl_" },
-            ["portuguese"] = new[] { "pt-", "pt_" },
-            ["russian"] = new[] { "ru-", "ru_" },
-            ["spanish"] = new[] { "es-", "es_" },
-            ["swedish"] = new[] { "sv-", "sv_" },
-            ["tamil"] = new[] { "ta-", "ta_" },
-            ["telugu"] = new[] { "te-", "te_" },
-            ["thai"] = new[] { "th-", "th_" },
-            ["turkish"] = new[] { "tr-", "tr_" },
-            ["urdu"] = new[] { "ur-", "ur_" },
-            ["vietnamese"] = new[] { "vi-", "vi_" },
-            ["welsh"] = new[] { "cy-", "cy_" },
-        };
-
-        string[]? localePrefixes = null;
-        if (!string.IsNullOrEmpty(filter) && localeHints.TryGetValue(filter, out var hints))
-            localePrefixes = hints;
-
         foreach (var v in AllVoices)
         {
             if (string.IsNullOrEmpty(filter) ||
                 v.Name.ToLowerInvariant().Contains(filter) ||
                 v.Id.ToLowerInvariant().Contains(filter) ||
-                v.Language.ToLowerInvariant().Contains(filter) ||
-                (localePrefixes != null && localePrefixes.Any(p =>
-                    v.Id.ToLowerInvariant().StartsWith(p) ||
-                    v.Language.ToLowerInvariant().StartsWith(p))))
+                v.Language.ToLowerInvariant().Contains(filter))
             {
                 FilteredVoices.Add(v);
             }
