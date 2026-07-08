@@ -83,6 +83,7 @@ if (-not $hasAnyArch) {
 
     $fallbackNames = @(
         "VoiceGardenSAPIAdapter.dll",
+        "rust_tts_wrapper.dll",
         "sherpa-onnx-c-api.dll",
         "onnxruntime.dll",
         "onnxruntime_providers_shared.dll",
