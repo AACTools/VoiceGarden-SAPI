@@ -18,6 +18,7 @@ public class AnalyticsService
     private const string RegPath = @"SOFTWARE\VoiceGardenSAPIAdapter";
     private const string IdName = "AnalyticsId";
     private const string EnabledName = "AnalyticsEnabled";
+    private const string PromptShownName = "AnalyticsPromptShown";
 
     private static readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(5) };
     private static string? _cachedId;
@@ -29,6 +30,15 @@ public class AnalyticsService
     {
         get => GetBool(EnabledName, false);
         set => SetBool(EnabledName, value);
+    }
+
+    /// <summary>
+    /// Whether the first-run consent dialog has been shown.
+    /// </summary>
+    public static bool PromptShown
+    {
+        get => GetBool(PromptShownName, false);
+        set => SetBool(PromptShownName, value);
     }
 
     /// <summary>
