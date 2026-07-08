@@ -56,6 +56,60 @@ static std::wstring ExtractSherpaPlainText(const SPVTEXTFRAG* pTextFragList)
     return TrimWhitespace(out);
 }
 
+std::wstring CTTSEngine::ExtractSherpaPlainTextWithMap(const SPVTEXTFRAG* pTextFragList)
+{
+    std::wstring out;
+    m_plainToSapiMap.clear();
+    m_plainToSapiMap.reserve(256);
+
+    for (auto pTextFrag = pTextFragList; pTextFrag; pTextFrag = pTextFrag->pNext)
+    {
+        if (!pTextFrag->pTextStart || pTextFrag->ulTextLen == 0)
+            continue;
+
+        if (pTextFrag->State.eAction == SPVA_Speak ||
+            pTextFrag->State.eAction == SPVA_SpellOut ||
+            pTextFrag->State.eAction == SPVA_Pronounce)
+        {
+            // Add space between fragments if needed
+            if (!out.empty() && !iswspace(out.back()))
+            {
+                out.push_back(L' ');
+                // Map the space to the previous fragment's end position in SAPI source
+                m_plainToSapiMap.push_back(
+                    m_plainToSapiMap.empty() ? 0 : m_plainToSapiMap.back());
+            }
+
+            // Append text and build mapping
+            ULONG sapiSrcOffset = pTextFrag->ulTextSrcOffset;
+            for (ULONG i = 0; i < pTextFrag->ulTextLen; i++)
+            {
+                out.push_back(pTextFrag->pTextStart[i]);
+                m_plainToSapiMap.push_back(sapiSrcOffset + i);
+            }
+        }
+    }
+
+    // Trim trailing whitespace from text and map
+    while (!out.empty() && iswspace(out.back()))
+    {
+        out.pop_back();
+        if (!m_plainToSapiMap.empty())
+            m_plainToSapiMap.pop_back();
+    }
+
+    return out;
+}
+
+ULONG CTTSEngine::TranslateOffset(ULONG plainOffset) const
+{
+    if (m_plainToSapiMap.empty())
+        return plainOffset; // No mapping — identity
+    if (plainOffset >= m_plainToSapiMap.size())
+        return m_plainToSapiMap.back() + 1; // Beyond end — point to end of text
+    return m_plainToSapiMap[plainOffset];
+}
+
 // ISpObjectWithToken Implementation
 
 // Initializes this instance of CTTSEngine to use the voice specified in registry
@@ -212,7 +266,7 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
         }
         else
         {
-            std::wstring plainTextW = ExtractSherpaPlainText(pTextFragList);
+            std::wstring plainTextW = ExtractSherpaPlainTextWithMap(pTextFragList);
             if (plainTextW.empty())
             {
                 FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
@@ -532,10 +586,32 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
         }
     });
 
-    m_rustTts->SetOnBoundary([](const char*, int32_t, int32_t, float, float) {
-        // Boundary events disabled — System.Speech crashes when character
-        // offsets from Rust (plain text) don't match System.Speech's internal
-        // text tracking (SSML/prompt text). Re-enable once text mapping is fixed.
+    m_rustTts->SetOnBoundary([this](const char* word, int32_t charOffset,
+                                    int32_t charLen, float startS, float endS) {
+        // Skip events with invalid offsets
+        if (charOffset < 0 || charLen <= 0)
+            return;
+
+        // Translate plain-text offsets (from Rust) → SAPI source offsets
+        ULONG sapiOffset = TranslateOffset(static_cast<ULONG>(charOffset));
+
+        LogInfo("RustTts boundary: word='{}' plainOffset={} sapiOffset={} len={} startS={:.3f}",
+                word ? word : "(null)", charOffset, sapiOffset, charLen, startS);
+
+        uint64_t offsetTicks = static_cast<uint64_t>(startS * 1e7);
+        ULONGLONG audioBytes = WaveTicksToBytes(offsetTicks);
+
+        std::lock_guard lock(m_outputSiteMutex);
+        if (!m_pOutputSite) return;
+
+        SPEVENT ev;
+        ZeroMemory(&ev, sizeof(ev));
+        ev.ullAudioStreamOffset = audioBytes;
+        ev.eEventId = SPEI_WORD_BOUNDARY;
+        ev.elParamType = SPET_LPARAM_IS_UNDEFINED;
+        ev.lParam = static_cast<LPARAM>(sapiOffset);
+        ev.wParam = static_cast<WPARAM>(charLen);
+        m_pOutputSite->AddEvents(&ev, 1);
     });
 
     m_rustTts->SetOnViseme([this](int32_t visemeId, float offsetS) {

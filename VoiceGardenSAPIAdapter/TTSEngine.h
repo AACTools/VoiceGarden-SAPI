@@ -130,7 +130,12 @@ private: // Member variables
 	};
 	std::vector<PendingBoundary> m_pendingBoundaries;
 	size_t m_boundaryIndex = 0;
-	ULONGLONG m_totalAudioBytesWritten = 0; // true for Azure (needs SSML from BuildSSML)
+	ULONGLONG m_totalAudioBytesWritten = 0;
+
+	// Maps plain text character positions → SAPI source text positions.
+	// Populated by ExtractSherpaPlainTextWithMap(). Used by boundary
+	// callback to translate Rust's plain-text offsets back to SAPI offsets.
+	std::vector<ULONG> m_plainToSapiMap;
 
 	ErrorMode m_errorMode = ErrorMode::ProbeForError;
 	bool m_isEdgeVoice = false;
@@ -172,6 +177,13 @@ private: // Private methods
 	void AppendSAPIContextToSsml(const SPVCONTEXT& context);
 	bool BuildSSML(const SPVTEXTFRAG* pTextFragList);
 	std::wstring StripSSML(const std::wstring& ssml);
+
+	/// Extract plain text from SAPI fragments AND build a character position
+	/// map (plain text pos → SAPI source pos) for boundary event translation.
+	std::wstring ExtractSherpaPlainTextWithMap(const SPVTEXTFRAG* pTextFragList);
+
+	/// Translate a plain-text character offset to SAPI source offset.
+	ULONG TranslateOffset(ULONG plainOffset) const;
 
 	void MapTextOffset(ULONG& ulSSMLOffset, ULONG& ulTextLen);
 
