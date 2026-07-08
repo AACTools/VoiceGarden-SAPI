@@ -21,7 +21,6 @@ public partial class MainViewModel : ObservableObject
         // Load settings from registry
         SherpaEnabled = !RegistryService.GetFlag("NoSherpaVoices", !BrandingConfig.DefaultSherpaEnabled);
         EdgeEnabled = !RegistryService.GetFlag("NoEdgeVoices");
-        NarratorEnabled = !RegistryService.GetFlag("NoNarratorVoices");
         LogLevelIndex = RegistryService.GetDword("LogLevel", 0);
 
         // Load cloud engines
@@ -72,7 +71,6 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private bool showAdvanced = true;
     [ObservableProperty] private bool sherpaEnabled = true;
     [ObservableProperty] private bool edgeEnabled = false;
-    [ObservableProperty] private bool narratorEnabled = false;
     [ObservableProperty] private int logLevelIndex = 0;
     [ObservableProperty] private string status64Bit = "Checking...";
     [ObservableProperty] private string status32Bit = "Checking...";
@@ -96,7 +94,6 @@ public partial class MainViewModel : ObservableObject
 
     partial void OnSherpaEnabledChanged(bool value) => RegistryService.SetFlag("NoSherpaVoices", !value);
     partial void OnEdgeEnabledChanged(bool value) => RegistryService.SetFlag("NoEdgeVoices", !value);
-    partial void OnNarratorEnabledChanged(bool value) => RegistryService.SetFlag("NoNarratorVoices", !value);
     partial void OnLogLevelIndexChanged(int value) => RegistryService.SetDword("LogLevel", value);
     partial void OnShowAdvancedChanged(bool value) => OnPropertyChanged(nameof(AdvancedToggleText));
 

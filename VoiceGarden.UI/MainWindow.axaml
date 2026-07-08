@@ -98,7 +98,6 @@
                     <StackPanel Spacing="8">
                         <TextBlock Text="Advanced" Classes="CardHeader"/>
                         <CheckBox Content="Enable Edge browser voices" IsChecked="{Binding EdgeEnabled}" Margin="0"/>
-                        <CheckBox Content="Enable Windows Narrator voices" IsChecked="{Binding NarratorEnabled}" Margin="0"/>
                         <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
                             <TextBlock Text="Log level:" VerticalAlignment="Center"/>
                             <ComboBox SelectedIndex="{Binding LogLevelIndex}" MinWidth="100">

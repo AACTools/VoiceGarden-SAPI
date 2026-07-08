@@ -155,22 +155,9 @@ HRESULT CVoiceTokenEnumerator::FinalConstruct() noexcept
 
         if (!key.GetDword(L"Disable"))
         {
-            if (!key.GetDword(L"NoNarratorVoices")
-                && !IsRunningInWin11Narrator()
-                && (IsWindows7OrGreater()  // this requires Win 7
-                    || RegOpenConfigKey().GetDword(L"ForceEnableAzureSpeechSDK")))
-            {
-                // Use the same map, so that local voices with the same ID won't appear twice
-                TokenMap tokens;
-
-                if (!narratorVoicePath.empty())
-                    EnumLocalVoicesInFolder(tokens, narratorVoicePath.c_str(), errorMode);
-
-                for (auto& token : tokens)
-                {
-                    s_cachedTokens.push_back(std::move(token.second));
-                }
-            }
+            // Narrator natural voices are no longer supported — the original hack
+            // (extracting encryption keys from system files) is broken on modern
+            // Windows 11 builds. SherpaOnnx provides better offline alternatives.
 
             TokenMap onlineTokens;
             if (!key.GetDword(L"NoEdgeVoices"))

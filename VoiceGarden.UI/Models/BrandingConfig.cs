@@ -6,7 +6,6 @@ namespace VoiceGarden.UI.Models;
 
 /// <summary>
 /// Hardcoded configuration constants (was branding.json).
-/// Edge and Narrator voices are always available via registry flags.
 /// </summary>
 public static class BrandingConfig
 {
