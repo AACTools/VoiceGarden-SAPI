@@ -970,8 +970,14 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
                                     int32_t charLen, float startS, float endS) {
         // Convert seconds to 100ns ticks for SAPI
         uint64_t offsetTicks = static_cast<uint64_t>(startS * 1e7);
-        OnBoundary(offsetTicks, static_cast<uint32_t>(charOffset),
-                   static_cast<uint32_t>(charLen), SPEI_WORD_BOUNDARY);
+
+        // Rust sends -1 for charOffset/charLen when the engine doesn't provide
+        // text position info (most engines). Pass 0/0 so SAPI fires the event
+        // with the correct audio position but no text highlighting.
+        uint32_t safeOffset = (charOffset >= 0) ? static_cast<uint32_t>(charOffset) : 0;
+        uint32_t safeLen = (charLen >= 0) ? static_cast<uint32_t>(charLen) : 0;
+
+        OnBoundary(offsetTicks, safeOffset, safeLen, SPEI_WORD_BOUNDARY);
     });
 
     m_rustTts->SetOnViseme([this](int32_t visemeId, float offsetS) {
