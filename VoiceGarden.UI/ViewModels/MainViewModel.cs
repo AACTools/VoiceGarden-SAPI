@@ -88,8 +88,8 @@ public partial class MainViewModel : ObservableObject
     public string AboutText =>
         $"VoiceGarden v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)}\n\n" +
         "SAPI Voice Adapter Configuration Tool\n\n" +
-        $"DotNetTtsWrapper: {typeof(DotNetTtsWrapper.Models.TtsFactory).Assembly.GetName().Version}\n" +
-        "Engines: Azure, OpenAI, ElevenLabs, Google, Polly, Cartesia, Deepgram,\n" +
+        $"RustTtsWrapper: {typeof(RustTtsWrapper.TtsClient).Assembly.GetName().Version}\n" +
+        "Engines: Azure, Edge, OpenAI, ElevenLabs, Google, Polly, Cartesia, Deepgram,\n" +
         "SherpaOnnx (offline), Watson, PlayHT, Wit.ai, Gemini, and more\n\n" +
         "https://github.com/AACTools/VoiceGarden-SAPI";
 

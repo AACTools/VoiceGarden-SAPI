@@ -1,13 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DotNetTtsWrapper.Models;
-using DotNetTtsWrapper.Engines;
+using RustTtsWrapper;
 using VoiceGarden.UI.Services;
 
 namespace VoiceGarden.UI.ViewModels;
@@ -58,24 +57,24 @@ public partial class SherpaModelsViewModel : ObservableObject
 
         try
         {
-            // Use DotNetTtsWrapper to get the unified voice list with proper BCP-47 codes
-            var client = TtsFactory.CreateClient("sherpaonnx", new SherpaOnnxCredentials());
-            var voices = await client.GetVoicesAsync();
+            // Load model catalog from merged_models.json (sidecar or embedded in RustTtsWrapper)
+            var catalog = await SherpaModelService.LoadCatalogAsync();
 
             AllModels.Clear();
-            foreach (var v in voices)
+            foreach (var cat in catalog)
             {
-                var langInfo = v.LanguageCodes?.FirstOrDefault();
-                var installed = _installed.FirstOrDefault(i => i.Id == v.Id);
+                var langInfo = cat.Language?.FirstOrDefault();
+                var installed = _installed.FirstOrDefault(i => i.Id == cat.Id);
                 var item = new SherpaModelItem
                 {
-                    Id = v.Id,
-                    Name = v.Description ?? v.Name ?? v.Id,
-                    Language = langInfo?.Display ?? langInfo?.Bcp47 ?? "Unknown",
-                    ModelType = v.Description?.Contains("kokoro") == true ? "kokoro"
-                             : v.Description?.Contains("matcha") == true ? "matcha"
+                    Id = cat.Id,
+                    Name = string.IsNullOrEmpty(cat.Name) ? cat.Id : cat.Name,
+                    Language = langInfo?.LanguageName ?? "Unknown",
+                    ModelType = cat.ModelType?.Contains("kokoro") == true ? "kokoro"
+                             : cat.ModelType?.Contains("matcha") == true ? "matcha"
                              : "vits",
-                    Url = "", // URL not available from TtsVoice, would need catalog
+                    Url = cat.Url ?? "",
+                    FileSizeMb = (long)(cat.FileSizeMb ?? 0),
                     IsDownloaded = installed != null,
                     IsPromoted = installed?.IsPromoted ?? false,
                 };
@@ -270,30 +269,43 @@ public partial class SherpaModelsViewModel : ObservableObject
                 return;
             }
 
-            var creds = new DotNetTtsWrapper.Models.SherpaOnnxCredentials
+            // Use rust-tts-wrapper for preview (same engine as the SAPI adapter)
+            // Derive modelId and modelPath from the installed model path
+            var modelId = "";
+            var modelBasePath = "";
+            if (installed.ModelPath != null)
             {
-                ModelFilePath = installed.ModelPath,
-                TokensFilePath = installed.TokensPath,
-                DataDirPath = installed.DataDir,
-            };
-            var client = DotNetTtsWrapper.Models.TtsFactory.CreateClient("sherpaonnx", creds);
-            if (client == null)
+                var p = System.IO.Path.GetDirectoryName(installed.ModelPath);
+                while (p != null && System.IO.Path.GetFileName(p) != "models")
+                    p = System.IO.Path.GetDirectoryName(p);
+                if (p != null && System.IO.Path.GetFileName(p) == "models")
+                {
+                    var rel = System.IO.Path.GetRelativePath(p, System.IO.Path.GetDirectoryName(installed.ModelPath)!);
+                    modelId = rel.Split(System.IO.Path.DirectorySeparatorChar)[0];
+                    modelBasePath = p;
+                }
+            }
+
+            if (string.IsNullOrEmpty(modelId))
             {
-                StatusText = "Could not create SherpaOnnx client";
+                StatusText = "Could not determine model ID for preview";
                 return;
             }
 
-            client.SetVoice(model.Id);
-            // Use language-appropriate preview text — MMS models only recognize
-            // characters from their target language (e.g., Persian model can't
-            // synthesize English text).
+            using var client = new RustTtsWrapper.TtsClient("sherpaonnx", new Dictionary<string, string>
+            {
+                { "modelId", modelId },
+                { "modelPath", modelBasePath }
+            });
+
+            // Use language-appropriate preview text
             var previewText = GetPreviewText(model);
             StatusText = $"Previewing {model.Name}...";
-            var result = await client.SynthToBytesAsync(previewText);
-            if (result?.AudioData?.Length > 0)
+            var audioData = client.SynthToBytes(previewText);
+            if (audioData.Length > 0)
             {
                 var tempFile = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"vg_sherpa_{Guid.NewGuid():N}.wav");
-                await System.IO.File.WriteAllBytesAsync(tempFile, result.AudioData);
+                await System.IO.File.WriteAllBytesAsync(tempFile, audioData);
                 _ = Task.Run(() =>
                 {
                     try { using var p = new System.Media.SoundPlayer(tempFile); p.PlaySync(); }
@@ -307,16 +319,12 @@ public partial class SherpaModelsViewModel : ObservableObject
             {
                 model.DownloadStatus = "Downloaded";
                 StatusText = $"No audio generated for {model.Name}";
-                System.Diagnostics.Debug.WriteLine($"Preview: {result?.AudioData?.Length ?? 0} bytes for {model.Id}");
             }
         }
-        catch (Exception ex)
+        catch (RustTtsWrapper.TtsException ex)
         {
             model.DownloadStatus = "Downloaded";
-            var msg = ex.Message;
-            if (ex.InnerException != null)
-                msg += $" -> {ex.InnerException.Message}";
-            StatusText = $"Preview failed: {msg}";
+            StatusText = $"Preview failed: {ex.Message}";
             System.Diagnostics.Debug.WriteLine($"Preview exception for {model.Id}: {ex}");
         }
     }
