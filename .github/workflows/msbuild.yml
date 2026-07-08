@@ -289,6 +289,16 @@ jobs:
         # VoiceGarden.UI.exe (the main configuration app)
         Copy-Item artifacts\voice-garden-ui\VoiceGarden.UI.exe payload\ -Force
 
+        # Rust TTS wrapper native DLL (from NuGet package)
+        dotnet restore VoiceGarden.UI\VoiceGarden.UI.csproj
+        $rustDll = Get-ChildItem "$env:USERPROFILE\.nuget\packages\rustttswrapper.bindings" -Recurse -Filter "rust_tts_wrapper.dll" | Select-Object -First 1
+        if ($rustDll) {
+          Copy-Item $rustDll.FullName payload\x64\ -Force
+          Write-Host "Copied rust_tts_wrapper.dll to payload\x64\"
+        } else {
+          Write-Host "WARNING: rust_tts_wrapper.dll not found in NuGet cache"
+        }
+
         # Branding
         if (Test-Path payload\x86\branding.json) {
           Copy-Item payload\x86\branding.json payload\branding.json -Force

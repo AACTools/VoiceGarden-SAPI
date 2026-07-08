@@ -96,15 +96,15 @@ public: // Interface implementation
 private:
 	struct TextOffsetMapping
 	{
-		ULONG ulSAPITextOffset; // offset in source string from SAPI
-		ULONG ulSSMLTextOffset; // offset in our SSML buffer
+		ULONG ulSAPITextOffset;
+		ULONG ulSSMLTextOffset;
 		constexpr TextOffsetMapping(ULONG ulSAPITextOffset, ULONG ulSSMLTextOffset) noexcept
 			: ulSAPITextOffset(ulSAPITextOffset), ulSSMLTextOffset(ulSSMLTextOffset) {}
 	};
 
 	struct BookmarkInfo
 	{
-		ULONG ulSAPITextOffset; // offset in source string from SAPI
+		ULONG ulSAPITextOffset;
 		std::wstring name;
 		constexpr BookmarkInfo(ULONG ulSAPITextOffset, std::wstring name) noexcept
 			: ulSAPITextOffset(ulSAPITextOffset), name(name) {}
@@ -119,12 +119,10 @@ private: // Member variables
 	CComPtr<ISpObjectToken> m_cpToken;
 	CComPtr<ISpPhoneConverter> m_phoneConverter;
 	std::unique_ptr<RustTts::Engine> m_rustTts;
-	bool m_rustTtsUseSsml = false; // true for Azure (needs SSML from BuildSSML)
+	bool m_rustTtsUseSsml = false;
 	std::future<void> m_lastCancellingFuture;
 
-	// Pending boundary events from RustTts, queued by audio byte offset.
-	// Delivered progressively as OnAudioData writes PCM chunks, so that
-	// SAPI word highlighting fires at the correct playback position.
+	// Boundary events queued during synthesis, delivered via SAPI AddEvents
 	struct PendingBoundary {
 		ULONGLONG audioByteOffset;
 		ULONG textOffset;
@@ -132,13 +130,12 @@ private: // Member variables
 	};
 	std::vector<PendingBoundary> m_pendingBoundaries;
 	size_t m_boundaryIndex = 0;
-	ULONGLONG m_totalAudioBytesWritten = 0;
+	ULONGLONG m_totalAudioBytesWritten = 0; // true for Azure (needs SSML from BuildSSML)
 
 	ErrorMode m_errorMode = ErrorMode::ProbeForError;
 	bool m_isEdgeVoice = false;
 	bool m_onlineDelayOptimization = false;
 	bool m_compensatedSilenceWritten = false;
-	std::atomic_bool m_synthesizerStarted = false;
 	std::atomic_bool m_sherpaAbortRequested = false;
 	ULONG m_lastSilentBytes = 0;
 	ULONG m_compensatedSilentBytes = 0;
@@ -150,16 +147,9 @@ private: // Member variables
 
 	std::wstring m_ssml; // translated SSML
 
-	// SAPI XML will be translated into SSML,
-	// but we need to keep track of the original text offsets
-	// so that events like WordBoundary still work
 	std::vector<TextOffsetMapping> m_offsetMappings;
-
 	size_t m_mappingIndex = 0;
 
-	// Edge voices do not support bookmarks.
-	// We store the specified bookmark positions,
-	// and when a word boundary
 	std::vector<BookmarkInfo> m_bookmarks;
 	size_t m_bookmarkIndex = 0;
 
