@@ -170,14 +170,13 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
             return E_INVALIDARG;
         }
         LogInfo("Speak: pointer validation passed");
-        LogErr("SpeakDiag: stage=after-pointer-check");
-        if (!m_synthesizer && !m_restApi && !m_sherpaOnnx)
+
+        if (!m_rustTts && !m_sherpaOnnx)
         {
-            LogWarn("Speak: no engine initialized");
+            LogErr("Speak: no engine initialized (neither RustTts nor SherpaOnnx)");
             return SPERR_UNINITIALIZED;
         }
         LogInfo("Speak: engine presence check passed");
-        LogErr("SpeakDiag: stage=after-engine-check");
 
         if (m_lastCancellingFuture.valid())
         {
@@ -208,7 +207,29 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
         LogErr("SpeakDiag: stage=after-scopeguard");
         m_pOutputSite = pOutputSite;
         LogInfo("Speak: output site assigned");
-        LogErr("SpeakDiag: stage=after-outputsite-assign");
+
+        // SherpaOnnx via C++ direct path (fallback when Rust DLL lacks sherpaonnx)
+        if (m_sherpaOnnx)
+        {
+            LogInfo("Speak: SherpaOnnx (C++) path selected");
+            std::wstring plainTextW = ExtractSherpaPlainText(pTextFragList);
+            if (plainTextW.empty())
+            {
+                FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
+                return S_OK;
+            }
+
+            m_compensatedSilenceWritten = false;
+            m_compensatedSilentBytes = 0;
+            m_lastSilentBytes = 0;
+            m_thisSpeakStartedTicks = _GetTickCount();
+            m_sherpaAbortRequested.store(false, std::memory_order_relaxed);
+            LogInfo("Speak: Sherpa generation begin");
+            GenerateSherpaOnnxAudio(WStringToUTF8(plainTextW));
+            LogInfo("Speak: Sherpa generation end");
+            m_lastSpeakCompletedTicks = _GetTickCount();
+            return S_OK;
+        }
 
         LogInfo("Speak: pre-branch RustTts");
         LogErr("SpeakDiag: stage=before-rusttts-branch");
@@ -386,9 +407,14 @@ void CTTSEngine::InitVoice()
     if (FAILED(hr)) dwErrorMode = 0;
     m_errorMode = (ErrorMode)std::clamp(dwErrorMode, 0UL, 2UL);
 
-    // All voices now route through rust-tts-wrapper (tts_wrapper.dll).
-    // It handles SherpaOnnx, Azure, Edge, and all cloud engines.
+    // All voices route through rust-tts-wrapper (tts_wrapper.dll).
+    // SherpaOnnx falls back to the C++ direct path when the Rust DLL
+    // doesn't include the sherpaonnx feature.
     if (InitRustTtsVoice(pConfigKey))
+        return;
+
+    // Fallback: C++ SherpaOnnx for offline voices (when Rust DLL lacks sherpaonnx)
+    if (InitSherpaOnnxVoice(pConfigKey))
         return;
 
     throw std::invalid_argument("Invalid VoiceGardenConfig configuration.");
@@ -866,7 +892,7 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
     {
         // SherpaOnnx voice detected by SherpaOnnxModelPath (no EngineType field)
         engineType = "Sherpa";
-        lowerType = "sherpa";
+        lowerType = "sherpaonnx"; // Rust engine ID is "sherpaonnx"
     }
     else
     {
