@@ -210,215 +210,61 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
         LogInfo("Speak: output site assigned");
         LogErr("SpeakDiag: stage=after-outputsite-assign");
 
-        LogInfo("Speak: pre-branch sherpa={}", m_sherpaOnnx ? 1 : 0);
-        LogErr("SpeakDiag: stage=before-sherpa-branch");
-        if (m_sherpaOnnx)
+        LogInfo("Speak: pre-branch RustTts");
+        LogErr("SpeakDiag: stage=before-rusttts-branch");
+
+        if (!m_rustTts)
         {
-            LogInfo("Speak: Sherpa path selected");
-            LogErr("SpeakDiag: stage=in-sherpa-branch");
-            std::wstring plainTextW = ExtractSherpaPlainText(pTextFragList);
-            LogInfo("Speak: Sherpa extracted text length={}", plainTextW.size());
-            if (plainTextW.empty())
-            {
-                LogDebug("Speak: Sherpa plain text is empty");
-                FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
-                return S_OK;
-            }
-
-            m_compensatedSilenceWritten = false;
-            m_compensatedSilentBytes = 0;
-            m_lastSilentBytes = 0;
-            m_thisSpeakStartedTicks = _GetTickCount();
-
-            // Keep Sherpa synthesis on the caller thread to avoid cross-thread COM access
-            // to ISpTTSEngineSite when writing audio.
-            m_sherpaAbortRequested.store(false, std::memory_order_relaxed);
-            LogInfo("Speak: Sherpa generation begin");
-            GenerateSherpaOnnxAudio(WStringToUTF8(plainTextW));
-            LogInfo("Speak: Sherpa generation end");
-            m_lastSpeakCompletedTicks = _GetTickCount();
-            return S_OK;
+            LogErr("Speak: no RustTts engine initialized");
+            return E_FAIL;
         }
 
-        if (m_rustTts)
-        {
-            LogInfo("Speak: RustTts path selected (ssml={})", m_rustTtsUseSsml ? 1 : 0);
-
-            m_compensatedSilenceWritten = false;
-            m_compensatedSilentBytes = 0;
-            m_lastSilentBytes = 0;
-            m_thisSpeakStartedTicks = _GetTickCount();
-            m_sherpaAbortRequested.store(false, std::memory_order_relaxed);
-
-            if (m_rustTtsUseSsml)
-            {
-                // Azure path: build SSML from SAPI text fragments, pass to RustTts
-                ULONGLONG eventInterests = 0;
-                pOutputSite->GetEventInterest(&eventInterests);
-                bool wantBoundaries = (eventInterests & SVEWordBoundary) != 0;
-                bool wantVisemes = (eventInterests & SVEViseme) != 0;
-                (void)wantVisemes; // RustTts always fires visemes if available
-
-                if (!BuildSSML(pTextFragList))
-                {
-                    LogDebug("Speak: RustTts SSML built with no speech content");
-                    FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
-                    return S_OK;
-                }
-                LogDebug("Speak: RustTts built SSML: {}", WStringToUTF8(m_ssml));
-
-                LogInfo("Speak: RustTts SSML generation begin");
-                try {
-                    m_rustTts->SpeakSsml(WStringToUTF8(m_ssml));
-                } catch (const std::exception& ex) {
-                    LogErr("RustTts SSML synthesis failed: {}", ex.what());
-                }
-            }
-            else
-            {
-                // Non-Azure path: plain text (OpenAI, Google, ElevenLabs, Edge, etc.)
-                std::wstring plainTextW = ExtractSherpaPlainText(pTextFragList);
-                if (plainTextW.empty())
-                {
-                    FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
-                    return S_OK;
-                }
-
-                LogInfo("Speak: RustTts generation begin");
-                try {
-                    m_rustTts->Speak(WStringToUTF8(plainTextW));
-                } catch (const std::exception& ex) {
-                    LogErr("RustTts synthesis failed: {}", ex.what());
-                }
-            }
-
-            LogInfo("Speak: RustTts generation end");
-            m_lastSpeakCompletedTicks = _GetTickCount();
-            return S_OK;
-        }
-
-        if (m_genericTts)
-        {
-            LogInfo("Speak: Generic HTTP TTS path selected");
-            std::wstring plainTextW = ExtractSherpaPlainText(pTextFragList);
-            if (plainTextW.empty())
-            {
-                FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
-                return S_OK;
-            }
-
-            m_compensatedSilenceWritten = false;
-            m_compensatedSilentBytes = 0;
-            m_lastSilentBytes = 0;
-            m_thisSpeakStartedTicks = _GetTickCount();
-
-            m_sherpaAbortRequested.store(false, std::memory_order_relaxed);
-            LogInfo("Speak: HTTP TTS generation begin");
-            try {
-                m_genericTts->Speak(WStringToUTF8(plainTextW),
-                    [this](const uint8_t* data, uint32_t len) {
-                        return OnAudioData(const_cast<uint8_t*>(data), len);
-                    });
-            } catch (const std::exception& ex) {
-                LogErr("HTTP TTS synthesis failed: {}", ex.what());
-            }
-            LogInfo("Speak: HTTP TTS generation end");
-            m_lastSpeakCompletedTicks = _GetTickCount();
-            return S_OK;
-        }
-
-        ULONGLONG eventInterests = 0;
-        pOutputSite->GetEventInterest(&eventInterests);
-        if (m_synthesizer)
-            SetupSynthesizerEvents(eventInterests);
-        else if (m_restApi)
-            SetupRestAPIEvents(eventInterests);
-        else
-            ClearSynthesizerEvents();
-
-        if (!BuildSSML(pTextFragList))
-        {
-            LogDebug("Speak: Built SSML with no speech: {}", m_ssml);
-            // Simulate the bookmark events ourselves without doing actual speech synthesis
-            FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
-            return S_OK;
-        }
-
-        LogDebug("Speak: Built SSML: {}", m_ssml);
+        LogInfo("Speak: RustTts path selected (ssml={})", m_rustTtsUseSsml ? 1 : 0);
 
         m_compensatedSilenceWritten = false;
         m_compensatedSilentBytes = 0;
         m_lastSilentBytes = 0;
         m_thisSpeakStartedTicks = _GetTickCount();
-        m_onlineDelayOptimization =
-            !m_onlineVoiceName.empty() && RegOpenConfigKey().GetDword(L"EnableOnlineDelayOptimization");
-
-        std::future<void> future;
         m_sherpaAbortRequested.store(false, std::memory_order_relaxed);
 
-        if (m_synthesizer)
+        if (m_rustTtsUseSsml)
         {
-            future = std::async(std::launch::async, [this]() { CheckSynthesisResult(m_synthesizer->SpeakSsml(m_ssml)); });
+            // Azure path: build SSML from SAPI text fragments, pass to RustTts
+            if (!BuildSSML(pTextFragList))
+            {
+                LogDebug("Speak: RustTts SSML built with no speech content");
+                FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
+                return S_OK;
+            }
+            LogDebug("Speak: RustTts built SSML: {}", WStringToUTF8(m_ssml));
+
+            LogInfo("Speak: RustTts SSML generation begin");
+            try {
+                m_rustTts->SpeakSsml(WStringToUTF8(m_ssml));
+            } catch (const std::exception& ex) {
+                LogErr("RustTts SSML synthesis failed: {}", ex.what());
+            }
         }
         else
         {
-            future = m_restApi->SpeakAsync(m_ssml);
-        }
-
-        while (!(pOutputSite->GetActions() & SPVES_ABORT)
-            && future.wait_for(std::chrono::milliseconds(0)) == std::future_status::timeout)
-        {
-            if (pOutputSite->GetActions() & SPVES_SKIP)
+            // All other engines: plain text
+            std::wstring plainTextW = ExtractSherpaPlainText(pTextFragList);
+            if (plainTextW.empty())
             {
-                // Skipping is not supported
-                LogWarn("Speak: Skipping not supported, ignored");
-                pOutputSite->CompleteSkip(0);
-            }
-            Sleep(10);
-        }
-
-        if (pOutputSite->GetActions() & SPVES_ABORT) // requested stop
-        {
-            LogDebug("Speak: Requested stop");
-            if (m_sherpaOnnx)
-            {
-                m_sherpaAbortRequested.store(true, std::memory_order_relaxed);
-                future.wait();
-            }
-            else if (m_synthesizer)
-            {
-                // Cancellation might not finish, but we won't wait for it.
-                // Return immediately on requested stop.
-                // Create a new async future to wait for cancellation,
-                // and check it the next time Speak is called.
-                m_lastCancellingFuture = std::async(
-                    std::launch::async, [this, future = std::move(future)]()
-                {
-                    // Wait for SynthesisStarted event first.
-                    // Cancellation does nothing if SynthesisStarted hasn't been fired.
-                    while (!m_synthesizerStarted.load(std::memory_order_relaxed))
-                        Sleep(0);
-                    m_synthesizer->StopSpeakingAsync().wait();
-                    future.wait();
-                });
-            }
-            else
-                m_restApi->Stop();
-
-            m_lastSpeakCompletedTicks = 0;
-        }
-        else
-        {
-            future.get(); // wait for the future and get its stored exception thrown
-            if (m_isEdgeVoice)
-            {
-                // finish all remaining bookmark events at the end
-                FinishSimulatingBookmarkEvents(
-                    m_restApi->GetWaveBytesWritten() + m_compensatedSilentBytes - m_lastSilentBytes);
+                FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
+                return S_OK;
             }
 
-            m_lastSpeakCompletedTicks = _GetTickCount();
+            LogInfo("Speak: RustTts generation begin");
+            try {
+                m_rustTts->Speak(WStringToUTF8(plainTextW));
+            } catch (const std::exception& ex) {
+                LogErr("RustTts synthesis failed: {}", ex.what());
+            }
         }
+
+        LogInfo("Speak: RustTts generation end");
+        m_lastSpeakCompletedTicks = _GetTickCount();
 
         return S_OK;
     }
@@ -528,8 +374,7 @@ void CTTSEngine::InitPhoneConverter()
 void CTTSEngine::InitVoice()
 {
     CComPtr<ISpDataKey> pConfigKey;
-    CSpDynamicString pszRegion, pszKey, pszPath, pszVoice;
-    
+
     LogInfo("TTS init: opening VoiceGardenConfig key");
     HRESULT hr = m_cpToken->OpenKey(L"VoiceGardenConfig", &pConfigKey); // this key must exist
     LogInfo("TTS init: OpenKey VoiceGardenConfig returned hr={:#x}", static_cast<unsigned int>(hr));
@@ -541,32 +386,11 @@ void CTTSEngine::InitVoice()
     if (FAILED(hr)) dwErrorMode = 0;
     m_errorMode = (ErrorMode)std::clamp(dwErrorMode, 0UL, 2UL);
 
-    RegKey key = RegOpenConfigKey();
-
-    // Try SherpaOnnx first (offline local voices)
-    if (InitSherpaOnnxVoice(pConfigKey))
-        return;
-
-    // Try RustTts before the C++ cloud paths. When tts_wrapper.dll is present,
-    // it handles Edge, Azure, and all other cloud engines with streaming +
-    // word boundaries + visemes. Falls through to the C++ paths below when absent.
+    // All voices now route through rust-tts-wrapper (tts_wrapper.dll).
+    // It handles SherpaOnnx, Azure, Edge, and all cloud engines.
     if (InitRustTtsVoice(pConfigKey))
         return;
 
-    if (IsWindows7OrGreater() // Azure Speech SDK requires at least Win 7
-        || key.GetDword(L"ForceEnableAzureSpeechSDK"))
-    {
-        if (InitLocalVoice(pConfigKey))
-            return;
-        if (key.GetDword(L"UseAzureSpeechSDKForAzureVoices")
-            && InitCloudVoiceSynthesizer(pConfigKey))
-            return;
-    }
-    if (InitCloudVoiceRestAPI(pConfigKey))
-        return;
-    if (InitGenericHttpVoice(pConfigKey))
-        return;
-    
     throw std::invalid_argument("Invalid VoiceGardenConfig configuration.");
 }
 
@@ -1016,35 +840,41 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
 
     auto& loader = RustTts::Loader::Instance();
     if (!loader.Initialize() || !loader.IsLoaded())
+    {
+        LogErr("TTS init: tts_wrapper.dll not loaded — cannot initialize voice");
         return false;
+    }
 
+    // Determine engine type from registry config.
+    // Cloud voices have EngineType (Azure, Edge, OpenAI, Google, etc.)
+    // SherpaOnnx voices have SherpaOnnxModelPath (no EngineType).
     CSpDynamicString pszEngineType;
-    if (CheckHrNotFound(pConfigKey->GetStringValue(L"EngineType", &pszEngineType)))
-        return false;
+    CSpDynamicString pszSherpaModelPath;
+    bool hasEngineType = !CheckHrNotFound(pConfigKey->GetStringValue(L"EngineType", &pszEngineType));
+    bool hasSherpaPath = !CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxModelPath", &pszSherpaModelPath));
 
-    std::string engineType = pszEngineType.m_psz ? WStringToUTF8(std::wstring(pszEngineType.m_psz)) : "";
-    if (engineType.empty())
-        return false;
+    std::string engineType;
+    std::string lowerType;
 
-    // Map VoiceGarden engine types to rust-tts-wrapper engine IDs
-    // Lowercase the engine type for comparison
-    std::string lowerType = engineType;
-    std::transform(lowerType.begin(), lowerType.end(), lowerType.begin(), ::tolower);
-
-    // Supported by rust-tts-wrapper. Azure/Edge go through Rust for streaming
-    // + word boundaries + visemes + connection pooling. Sherpa goes through
-    // Rust for model auto-detection + cancellation (Phase 4).
-    static const std::set<std::string> rustSupported = {
-        "openai", "elevenlabs", "google", "cartesia", "deepgram",
-        "watson", "playht", "fishaudio", "hume", "mistral",
-        "murf", "resemble", "unrealspeech", "upliftai",
-        "witai", "xai", "modelslab",
-        "edge",    // Phase 2: Edge voices via Rust (Sec-MS-GEC + WS streaming)
-        "azure",   // Phase 3: Azure voices via Rust (SSML + word boundaries)
-        "sherpa",  // Phase 4: SherpaOnnx via Rust (model auto-detection)
-    };
-    if (rustSupported.find(lowerType) == rustSupported.end())
+    if (hasEngineType)
+    {
+        engineType = pszEngineType.m_psz ? WStringToUTF8(std::wstring(pszEngineType.m_psz)) : "";
+        lowerType = engineType;
+        std::transform(lowerType.begin(), lowerType.end(), lowerType.begin(), ::tolower);
+    }
+    else if (hasSherpaPath)
+    {
+        // SherpaOnnx voice detected by SherpaOnnxModelPath (no EngineType field)
+        engineType = "Sherpa";
+        lowerType = "sherpa";
+    }
+    else
+    {
         return false;
+    }
+
+    // All engine types are handled by rust-tts-wrapper.
+    // Read credentials for the engine.
 
     // Read credentials from the token config
     CSpDynamicString pszVoice, pszKey, pszRegion;

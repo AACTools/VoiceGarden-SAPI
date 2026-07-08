@@ -1,15 +1,14 @@
 // TTSEngine.h: CTTSEngine 的声明
 
 #pragma once
-#include "resource.h"       // 主符号
-#include "GenericHttpTts.h"
+#include "resource.h"
 
 #include "pch.h"
 #include <speechapi_cxx.h>
 #include "SpeechRestAPI.h"
+#include "GenericHttpTts.h"
 #include "Logger.h"
 #include "SapiException.h"
-#include "Mp3Decoder.h"
 
 #include "../SherpaOnnx/SherpaOnnxEngine.h"
 #include "RustTts/RustTtsEngine.h"
@@ -122,10 +121,10 @@ private: // Member variables
 
 	CComPtr<ISpObjectToken> m_cpToken;
 	CComPtr<ISpPhoneConverter> m_phoneConverter;
-	std::shared_ptr<SpeechSynthesizer> m_synthesizer;
-	std::unique_ptr<SpeechRestAPI> m_restApi;
-	std::shared_ptr<SherpaOnnx::Engine> m_sherpaOnnx;
-	std::unique_ptr<GenericHttpTts> m_genericTts;
+	std::shared_ptr<SpeechSynthesizer> m_synthesizer;   // legacy — not used, kept for compilation
+	std::unique_ptr<SpeechRestAPI> m_restApi;            // legacy — not used
+	std::shared_ptr<SherpaOnnx::Engine> m_sherpaOnnx;    // legacy — not used
+	std::unique_ptr<GenericHttpTts> m_genericTts;         // legacy — not used
 	std::unique_ptr<RustTts::Engine> m_rustTts;
 	bool m_rustTtsUseSsml = false; // true for Azure (needs SSML from BuildSSML)
 	std::future<void> m_lastCancellingFuture;
@@ -170,27 +169,31 @@ private: // Private methods
 
 	void InitPhoneConverter();
 	void InitVoice();
+	bool InitRustTtsVoice(ISpDataKey* pConfigKey);
+
+	// Legacy init methods — kept for compilation, never called at runtime.
+	// InitVoice() only calls InitRustTtsVoice(). These will be removed in
+	// a follow-up dead-code cleanup commit.
 	bool InitLocalVoice(ISpDataKey* pConfigKey);
 	bool InitSherpaOnnxVoice(ISpDataKey* pConfigKey);
 	bool InitCloudVoiceSynthesizer(ISpDataKey* pConfigKey);
 	bool InitCloudVoiceRestAPI(ISpDataKey* pConfigKey);
 	bool InitGenericHttpVoice(ISpDataKey* pConfigKey);
-	bool InitRustTtsVoice(ISpDataKey* pConfigKey);
 	void SetupSynthesizerEvents(ULONGLONG interests);
 	void ClearSynthesizerEvents();
 	void SetupRestAPIEvents(ULONGLONG interests);
+	void CheckSynthesisResult(const std::shared_ptr<SpeechSynthesisResult>& result);
+	void GenerateSherpaOnnxAudio(const std::string& plainText);
+
+	void FinishSimulatingBookmarkEvents(ULONGLONG streamOffset);
 
 	void AppendTextFragToSsml(const SPVTEXTFRAG* pTextFrag);
 	void AppendPhonemesToSsml(const SPPHONEID* pPhoneIds);
 	void AppendSAPIContextToSsml(const SPVCONTEXT& context);
 	bool BuildSSML(const SPVTEXTFRAG* pTextFragList);
 	std::wstring StripSSML(const std::wstring& ssml);
-	void GenerateSherpaOnnxAudio(const std::string& plainText);
-
-	void FinishSimulatingBookmarkEvents(ULONGLONG streamOffset);
 
 	void MapTextOffset(ULONG& ulSSMLOffset, ULONG& ulTextLen);
-	void CheckSynthesisResult(const std::shared_ptr<SpeechSynthesisResult>& result);
 
 	template <class Exception, class... Args>
 	HRESULT OnException(
