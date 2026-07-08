@@ -433,12 +433,6 @@
             <ClInclude Include="RustTts\RustTtsLoader.h" />
     <ClInclude Include="RustTts\RustTtsEngine.h" />
     <ClInclude Include="RustTts\tts_wrapper.h" />
-    <ClInclude Include="GenericHttpTts.h" />
-    <ClInclude Include="Mp3Decoder.h" />
-    <ClInclude Include="SpeechRestAPI.h" />
-    <ClInclude Include="WSConnectionPool.h" />
-    <ClInclude Include="NetUtils.h" />
-    <ClInclude Include="FileCache.h" />
     <ClInclude Include="VoiceGardenSAPIAdapter_i.h" />
         <ClInclude Include="pch.h" />
     <ClInclude Include="RegKey.h" />
@@ -500,22 +494,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="SpeechRestAPI.cpp">
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/bigobj %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/bigobj %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
-    </ClCompile>
-        <ClCompile Include="TTSEngine.cpp" />
+    <ClCompile Include="TTSEngine.cpp" />
     <ClCompile Include="delaydll.cpp" />
-    <ClCompile Include="GenericHttpTts.cpp" />
-    <ClCompile Include="Mp3Decoder.cpp" />
-    <ClCompile Include="SpeechRestAPI.cpp" />
-    <ClCompile Include="WSConnectionPool.cpp" />
-    <ClCompile Include="NetUtils.cpp" />
     <ClCompile Include="FileCache.cpp" />
+    <ClCompile Include="NetUtils.cpp" />
     <ClCompile Include="VoiceTokenEnumerator.cpp" />
         <ClCompile Include="..\SherpaOnnx\SherpaOnnxEngine.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
@@ -577,6 +559,10 @@
     <Error Condition="!Exists('..\packages\YY-Thunks.1.1.9\build\native\YY-Thunks.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY-Thunks.1.1.9\build\native\YY-Thunks.targets'))" />
   </Target>
 </Project>
+
+
+
+
 
 
 

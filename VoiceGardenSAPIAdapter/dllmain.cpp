@@ -1,4 +1,4 @@
-// dllmain.cpp: DllMain 的实现。
+// dllmain.cpp: DllMain implementation.
 
 #include "pch.h"
 #include "framework.h"
@@ -6,17 +6,14 @@
 #include "VoiceGardenSAPIAdapter_i.h"
 #include "dllmain.h"
 #include "TaskScheduler.h"
-#include "WSConnectionPool.h"
 
 CVoiceGardenSAPIAdapterModule _AtlModule;
 
 TaskScheduler g_taskScheduler;
-extern std::unique_ptr<WSConnectionPool> g_pConnectionPool;
 
 void InitializeLogger() noexcept;
 void UninitializeLogger() noexcept;
 
-// DLL 入口点
 extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
 {
 	hInstance;
@@ -34,10 +31,6 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpRes
 		}
 		else
 		{
-			// skip its destruction, or ASIO would deadlock
-			// https://github.com/chriskohlhoff/asio/issues/869
-			g_pConnectionPool.release();
-
 			g_taskScheduler.Uninitialize(false);
 		}
 	}

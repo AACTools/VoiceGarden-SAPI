@@ -4,14 +4,12 @@
 #include "resource.h"
 
 #include "pch.h"
-#include <speechapi_cxx.h>
-#include "SpeechRestAPI.h"
-#include "GenericHttpTts.h"
+#include <speechapi_cxx.h>  // needed for sapi_category in SapiException
 #include "Logger.h"
 #include "SapiException.h"
 
-#include "../SherpaOnnx/SherpaOnnxEngine.h"
 #include "RustTts/RustTtsEngine.h"
+#include "../SherpaOnnx/SherpaOnnxEngine.h"
 #include "VoiceGardenSAPIAdapter_i.h"
 
 
@@ -121,10 +119,7 @@ private: // Member variables
 
 	CComPtr<ISpObjectToken> m_cpToken;
 	CComPtr<ISpPhoneConverter> m_phoneConverter;
-	std::shared_ptr<SpeechSynthesizer> m_synthesizer;   // legacy — not used, kept for compilation
-	std::unique_ptr<SpeechRestAPI> m_restApi;            // legacy — not used
-	std::shared_ptr<SherpaOnnx::Engine> m_sherpaOnnx;    // legacy — not used
-	std::unique_ptr<GenericHttpTts> m_genericTts;         // legacy — not used
+	std::shared_ptr<SherpaOnnx::Engine> m_sherpaOnnx;    // SherpaOnnx offline voices (C++ fallback)
 	std::unique_ptr<RustTts::Engine> m_rustTts;
 	bool m_rustTtsUseSsml = false; // true for Azure (needs SSML from BuildSSML)
 	std::future<void> m_lastCancellingFuture;
@@ -170,19 +165,7 @@ private: // Private methods
 	void InitPhoneConverter();
 	void InitVoice();
 	bool InitRustTtsVoice(ISpDataKey* pConfigKey);
-
-	// Legacy init methods — kept for compilation, never called at runtime.
-	// InitVoice() only calls InitRustTtsVoice(). These will be removed in
-	// a follow-up dead-code cleanup commit.
-	bool InitLocalVoice(ISpDataKey* pConfigKey);
-	bool InitSherpaOnnxVoice(ISpDataKey* pConfigKey);
-	bool InitCloudVoiceSynthesizer(ISpDataKey* pConfigKey);
-	bool InitCloudVoiceRestAPI(ISpDataKey* pConfigKey);
-	bool InitGenericHttpVoice(ISpDataKey* pConfigKey);
-	void SetupSynthesizerEvents(ULONGLONG interests);
-	void ClearSynthesizerEvents();
-	void SetupRestAPIEvents(ULONGLONG interests);
-	void CheckSynthesisResult(const std::shared_ptr<SpeechSynthesisResult>& result);
+	bool InitSherpaOnnxVoice(ISpDataKey* pConfigKey);  // C++ fallback for offline voices
 	void GenerateSherpaOnnxAudio(const std::string& plainText);
 
 	void FinishSimulatingBookmarkEvents(ULONGLONG streamOffset);
@@ -232,9 +215,7 @@ HRESULT CTTSEngine::OnException(
 			{
 				auto& cat = ex.code().category();
 				if (cat != std::system_category()
-					&& cat != sapi_category()
-					&& cat != azac_category()
-					&& cat != mci_category())
+					&& cat != sapi_category())
 					wmsg.insert(0, L"Network connection error:\r\n\r\n");
 			}
 			MessageBoxW(NULL, wmsg.c_str(), L"VoiceGardenSAPIAdapter", MB_ICONEXCLAMATION | MB_SYSTEMMODAL);

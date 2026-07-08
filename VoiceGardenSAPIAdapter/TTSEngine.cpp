@@ -156,9 +156,8 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
     LogInfo("Speak: entered");
     try
     {
-        LogInfo("Speak: state synth={} rest={} sherpa={} cancelFuture={}",
-            m_synthesizer ? 1 : 0,
-            m_restApi ? 1 : 0,
+        LogInfo("Speak: state rustTts={} sherpa={} cancelFuture={}",
+            m_rustTts ? 1 : 0,
             m_sherpaOnnx ? 1 : 0,
             m_lastCancellingFuture.valid() ? 1 : 0);
         LogErr("SpeakDiag: stage=after-state-log");
@@ -431,6 +430,7 @@ inline static bool CheckHrNotFound(HRESULT hr)
 
 LSTATUS TryLoadAzureSpeechSDK();
 
+#if 0 // dead code — replaced by RustTts
 bool CTTSEngine::InitLocalVoice(ISpDataKey* pConfigKey)
 {
     if (TryLoadAzureSpeechSDK() != ERROR_SUCCESS)
@@ -490,6 +490,7 @@ bool CTTSEngine::InitLocalVoice(ISpDataKey* pConfigKey)
     return true;
 }
 
+#endif // 0 (dead code)
 bool CTTSEngine::InitSherpaOnnxVoice(ISpDataKey* pConfigKey)
 {
     LogInfo("Sherpa init: probing token for Sherpa config");
@@ -739,6 +740,7 @@ bool CTTSEngine::InitSherpaOnnxVoice(ISpDataKey* pConfigKey)
     }
 }
 
+#if 0 // dead code — replaced by RustTts
 bool CTTSEngine::InitCloudVoiceSynthesizer(ISpDataKey* pConfigKey)
 {
     if (LSTATUS stat = TryLoadAzureSpeechSDK(); stat != ERROR_SUCCESS)
@@ -785,6 +787,8 @@ bool CTTSEngine::InitCloudVoiceSynthesizer(ISpDataKey* pConfigKey)
     return true;
 }
 
+#endif // 0 (dead code)
+#if 0 // dead code — replaced by RustTts
 bool CTTSEngine::InitCloudVoiceRestAPI(ISpDataKey* pConfigKey)
 {
     m_restApi = std::make_unique<SpeechRestAPI>();
@@ -822,6 +826,8 @@ bool CTTSEngine::InitCloudVoiceRestAPI(ISpDataKey* pConfigKey)
     return true;
 }
 
+#endif // 0 (dead code)
+#if 0 // dead code — replaced by RustTts
 bool CTTSEngine::InitGenericHttpVoice(ISpDataKey* pConfigKey)
 {
     // Check for engine types that use generic HTTP TTS
@@ -858,6 +864,7 @@ bool CTTSEngine::InitGenericHttpVoice(ISpDataKey* pConfigKey)
     return true;
 }
 
+#endif // 0 (dead code)
 bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
 {
     // Try to use rust-tts-wrapper for cloud engines.
@@ -1175,6 +1182,7 @@ void CTTSEngine::OnViseme(uint64_t offsetTicks, uint32_t visemeId)
     m_pOutputSite->AddEvents(&ev, 1);
 }
 
+#if 0 // dead code — replaced by RustTts
 void CTTSEngine::SetupSynthesizerEvents(ULONGLONG interests)
 {
     ClearSynthesizerEvents();
@@ -1207,6 +1215,8 @@ void CTTSEngine::SetupSynthesizerEvents(ULONGLONG interests)
         };
 }
 
+#endif // 0 (dead code)
+#if 0 // dead code — replaced by RustTts
 void CTTSEngine::ClearSynthesizerEvents()
 {
     if (!m_synthesizer)
@@ -1220,6 +1230,8 @@ void CTTSEngine::ClearSynthesizerEvents()
     m_synthesizer->SynthesisCanceled.DisconnectAll();
 }
 
+#endif // 0 (dead code)
+#if 0 // dead code — replaced by RustTts
 void CTTSEngine::SetupRestAPIEvents(ULONGLONG interests)
 {
     m_restApi->AudioReceivedCallback = std::bind_front(&CTTSEngine::OnAudioData, this);
@@ -1234,6 +1246,7 @@ void CTTSEngine::SetupRestAPIEvents(ULONGLONG interests)
         m_restApi->VisemeCallback = std::bind_front(&CTTSEngine::OnViseme, this);
 }
 
+#endif // 0 (dead code)
 void CTTSEngine::AppendTextFragToSsml(const SPVTEXTFRAG* pTextFrag)
 {
     // entities are converted to characters before passing in, so we have to convert it back to XML
@@ -1971,6 +1984,7 @@ void CTTSEngine::MapTextOffset(ULONG& ulSSMLOffset, ULONG& ulTextLen)
 }
 
 // Checks the result from speech operation, and throws if error happened
+#if 0 // dead code — replaced by RustTts
 void CTTSEngine::CheckSynthesisResult(const std::shared_ptr<SpeechSynthesisResult>& result)
 {
     if (result->Reason != ResultReason::Canceled)
@@ -1982,3 +1996,4 @@ void CTTSEngine::CheckSynthesisResult(const std::shared_ptr<SpeechSynthesisResul
 
     throw std::runtime_error(UTF8ToAnsi(details->ErrorDetails));
 }
+#endif // 0 (dead code)
