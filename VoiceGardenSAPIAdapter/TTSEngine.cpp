@@ -532,35 +532,10 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
         }
     });
 
-    m_rustTts->SetOnBoundary([this](const char* word, int32_t charOffset,
-                                    int32_t charLen, float startS, float endS) {
-        // Skip events with invalid text offsets — System.Speech crashes
-        // (Substring with negative length) if we pass bad values.
-        // Estimated boundaries (SherpaOnnx) send -1 when offsets are unknown.
-        if (charOffset < 0 || charLen <= 0)
-        {
-            LogInfo("RustTts boundary: SKIPPED word='{}' offset={} len={} (invalid)",
-                    word ? word : "(null)", charOffset, charLen);
-            return;
-        }
-
-        LogInfo("RustTts boundary: word='{}' offset={} len={} startS={:.3f}",
-                word ? word : "(null)", charOffset, charLen, startS);
-
-        uint64_t offsetTicks = static_cast<uint64_t>(startS * 1e7);
-        ULONGLONG audioBytes = WaveTicksToBytes(offsetTicks);
-
-        std::lock_guard lock(m_outputSiteMutex);
-        if (!m_pOutputSite) return;
-
-        SPEVENT ev;
-        ZeroMemory(&ev, sizeof(ev));
-        ev.ullAudioStreamOffset = audioBytes;
-        ev.eEventId = SPEI_WORD_BOUNDARY;
-        ev.elParamType = SPET_LPARAM_IS_UNDEFINED;
-        ev.lParam = static_cast<LPARAM>(charOffset);
-        ev.wParam = static_cast<WPARAM>(charLen);
-        m_pOutputSite->AddEvents(&ev, 1);
+    m_rustTts->SetOnBoundary([](const char*, int32_t, int32_t, float, float) {
+        // Boundary events disabled — System.Speech crashes when character
+        // offsets from Rust (plain text) don't match System.Speech's internal
+        // text tracking (SSML/prompt text). Re-enable once text mapping is fixed.
     });
 
     m_rustTts->SetOnViseme([this](int32_t visemeId, float offsetS) {
