@@ -7,7 +7,8 @@
         Title="VoiceGarden"
         Width="680" Height="720"
         MinWidth="560" MinHeight="560"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Background="White">
 
     <Design.DataContext>
         <vm:MainViewModel/>
@@ -18,6 +19,12 @@
         <!-- ========== MAIN VIEW ========== -->
         <ScrollViewer Grid.Row="0" IsVisible="{Binding IsMainViewVisible}" Padding="0">
             <StackPanel Margin="24" Spacing="16">
+
+                <!-- Header with logo -->
+                <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,8">
+                    <Image Source="/Assets/logo-small.png" Width="40" Height="40"/>
+                    <TextBlock Text="{Binding AppName}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource VGForegroundBrush}" VerticalAlignment="Center"/>
+                </StackPanel>
 
                 <!-- Adapter Installation -->
                 <Border Classes="Card">
@@ -206,35 +213,51 @@
     </Grid>
 
     <Window.Styles>
+        <!-- Card style — clean white, subtle border, 8px radius (website design) -->
         <Style Selector="Border.Card">
-            <Setter Property="Background" Value="{DynamicResource SystemRegionBrush}"/>
+            <Setter Property="Background" Value="{StaticResource VGCardBrush}"/>
             <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="Padding" Value="16"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlDefaultChromeMediumLowBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource VGBorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BoxShadow" Value="0 1 3 0 #10000000"/>
         </Style>
         <Style Selector="Border.EngineRow">
-            <Setter Property="Background" Value="{DynamicResource ControlExampleDisplayBrush}"/>
-            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Background" Value="{StaticResource VGAccentBrush}"/>
+            <Setter Property="CornerRadius" Value="6"/>
             <Setter Property="Padding" Value="12,6"/>
         </Style>
+        <!-- Card headers — dark navy, semibold -->
         <Style Selector="TextBlock.CardHeader">
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="{StaticResource VGForegroundBrush}"/>
             <Setter Property="Margin" Value="0,0,0,4"/>
         </Style>
         <Style Selector="TextBlock.SectionLabel">
             <Setter Property="FontWeight" Value="Medium"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Opacity" Value="0.7"/>
+            <Setter Property="Foreground" Value="{StaticResource VGMutedBrush}"/>
         </Style>
         <Style Selector="TextBlock.Hint">
             <Setter Property="FontSize" Value="11"/>
-            <Setter Property="Opacity" Value="0.6"/>
+            <Setter Property="Foreground" Value="{StaticResource VGMutedBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
+        <!-- Primary button — orange with off-white text -->
         <Style Selector="Button.Primary">
+            <Setter Property="Background" Value="{StaticResource VGPrimaryBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource VGPrimaryForegroundBrush}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+        </Style>
+        <Style Selector="Button.Primary:pointerover">
+            <Setter Property="Background" Value="{StaticResource VGPrimaryHoverBrush}"/>
+        </Style>
+        <!-- Standard buttons — clean outline style -->
+        <Style Selector="Button">
+            <Setter Property="CornerRadius" Value="6"/>
         </Style>
     </Window.Styles>
 

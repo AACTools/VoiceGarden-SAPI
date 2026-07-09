@@ -2,6 +2,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 
 namespace VoiceGarden.UI;
 
@@ -13,11 +15,29 @@ public class AnalyticsConsentDialog : Window
     {
         Title = "Help improve VoiceGarden";
         Width = 480;
-        Height = 340;
+        Height = 400;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         CanResize = false;
         SystemDecorations = SystemDecorations.Full;
         ShowInTaskbar = false;
+
+        var logo = new Image
+        {
+            Source = new Avalonia.Media.Imaging.Bitmap(AssetLoader.Open(new Uri("avares://VoiceGarden.UI/Assets/logo-small.png"))),
+            Width = 64,
+            Height = 64,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Margin = new Thickness(0, 20, 0, 8),
+        };
+
+        var title = new TextBlock
+        {
+            Text = "Help improve VoiceGarden",
+            FontSize = 18,
+            FontWeight = Avalonia.Media.FontWeight.Bold,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Margin = new Thickness(0, 0, 0, 12),
+        };
 
         var text = new TextBlock
         {
@@ -30,7 +50,7 @@ public class AnalyticsConsentDialog : Window
                    "personal information, or audio content.\n\n" +
                    "You can change this anytime in Settings → Advanced.",
             TextWrapping = Avalonia.Media.TextWrapping.Wrap,
-            Margin = new Thickness(24, 24, 24, 12),
+            Margin = new Thickness(24, 0, 24, 12),
         };
 
         var link = new TextBlock
@@ -69,7 +89,7 @@ public class AnalyticsConsentDialog : Window
 
         var panel = new StackPanel
         {
-            Children = { text, link, btnPanel },
+            Children = { logo, title, text, link, btnPanel },
         };
 
         Content = panel;
