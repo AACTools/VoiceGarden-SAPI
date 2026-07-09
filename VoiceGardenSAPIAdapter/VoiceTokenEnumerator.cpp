@@ -201,13 +201,13 @@ HRESULT CVoiceTokenEnumerator::FinalConstruct() noexcept
 
         // Protect the entire check-and-set sequence with mutex to prevent race condition
         {
-            std::lock_guard lock(s_cacheMutex);
+            std::lock_guard checkLock(s_cacheMutex);
             if (!s_isCacheTaskScheduled)
             {
                 s_isCacheTaskScheduled = true;
                 g_taskScheduler.StartNewTask(10000, []()
                     {
-                        std::lock_guard innerLock(s_cacheMutex);
+                        std::lock_guard clearLock(s_cacheMutex);
                         s_cachedTokens.clear();
                         s_isCacheTaskScheduled = false;
                     });

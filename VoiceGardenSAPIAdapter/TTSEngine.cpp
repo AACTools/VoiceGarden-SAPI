@@ -220,7 +220,7 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
         // Clear m_pOutputSite automatically when Speak is completed
         ScopeGuard siteDeleter([this]()
             {
-                std::lock_guard<std::mutex> lock(m_outputSiteMutex);
+                std::lock_guard<std::recursive_mutex> lock(m_outputSiteMutex);
                 if (m_pOutputSite)
                 {
                     m_pOutputSite->Release();
@@ -230,7 +230,7 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
 
         // Store the output site with proper reference counting
         {
-            std::lock_guard<std::mutex> lock(m_outputSiteMutex);
+            std::lock_guard<std::recursive_mutex> lock(m_outputSiteMutex);
             if (pOutputSite)
             {
                 pOutputSite->AddRef();
@@ -580,7 +580,7 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
 
     // Register callbacks that route audio and events back to CTTSEngine
     m_rustTts->SetOnAudio([this](const uint8_t* data, uint32_t len) {
-        std::lock_guard<std::mutex> lock(m_outputSiteMutex);
+        std::lock_guard<std::recursive_mutex> lock(m_outputSiteMutex);
         if (m_pOutputSite && len > 0)
         {
             // Write audio to the SAPI output site
