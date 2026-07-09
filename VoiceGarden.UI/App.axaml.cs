@@ -22,15 +22,15 @@ public partial class App : Application
             desktop.MainWindow = mainWindow;
             mainWindow.Show();
 
-            // First-run analytics consent dialog
+            // First-run onboarding wizard (welcome + how-to + privacy)
             if (!AnalyticsService.PromptShown)
             {
                 AnalyticsService.PromptShown = true;
-                var dialog = new AnalyticsConsentDialog();
-                dialog.ShowDialog(mainWindow);
-                dialog.Closed += (_, _) =>
+                var onboarding = new OnboardingWindow();
+                onboarding.ShowDialog(mainWindow);
+                onboarding.Closed += (_, _) =>
                 {
-                    if (dialog.Result)
+                    if (onboarding.AnalyticsOptIn)
                     {
                         AnalyticsService.IsEnabled = true;
                         AnalyticsService.Track("analytics_opted_in");
