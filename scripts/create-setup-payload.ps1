@@ -27,9 +27,8 @@ New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
 $rootAllow = @(
     "VoiceGarden.UI.exe",
     "install-plan.json",
-    "branding.json",
+    "_branding.json.removed",
     "SherpaOnnxConfig.exe",
-    "EngineConfig.exe",
     "merged_models.json",
     "LICENSE.txt",
     "README.md"
@@ -83,6 +82,7 @@ if (-not $hasAnyArch) {
 
     $fallbackNames = @(
         "VoiceGardenSAPIAdapter.dll",
+        "rust_tts_wrapper.dll",
         "sherpa-onnx-c-api.dll",
         "onnxruntime.dll",
         "onnxruntime_providers_shared.dll",
@@ -108,3 +108,4 @@ if (-not $hasAnyArch) {
 $count = (Get-ChildItem -Path $OutputDir -Recurse -File | Measure-Object).Count
 Write-Host "Curated payload created: $OutputDir" -ForegroundColor Green
 Write-Host "Payload files: $count"
+

@@ -1,0 +1,248 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="VoiceGarden.UI.OnboardingWindow"
+        Title="Welcome to VoiceGarden"
+        Width="560" Height="560"
+        MinWidth="520" MinHeight="520"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        SystemDecorations="Full"
+        Background="White">
+
+    <Grid RowDefinitions="*, Auto">
+
+        <!-- ========== PAGE CONTENT (swaps via IsVisible) ========== -->
+        <ScrollViewer Grid.Row="0" Padding="0">
+
+            <StackPanel>
+
+                <!-- ===== PAGE 1: WELCOME ===== -->
+                <StackPanel IsVisible="{Binding IsPage1}" Spacing="0">
+
+                    <!-- Logo header band -->
+                    <Border Background="{StaticResource VGAccentBrush}" Padding="40,40,40,28">
+                        <StackPanel HorizontalAlignment="Center" Spacing="16">
+                            <TextBlock Text="&#x1F33E;" FontSize="56" HorizontalAlignment="Center"/>
+                            <TextBlock Text="VoiceGarden"
+                                       FontSize="32" FontWeight="Bold"
+                                       Foreground="{StaticResource VGForegroundBrush}"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="Neural TTS for Windows SAPI"
+                                       FontSize="14"
+                                       Foreground="{StaticResource VGMutedBrush}"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Margin="40,28,40,16" Spacing="16">
+                        <TextBlock Text="What is VoiceGarden?"
+                                   FontSize="18" FontWeight="SemiBold"
+                                   Foreground="{StaticResource VGForegroundBrush}"/>
+
+                        <TextBlock TextWrapping="Wrap" FontSize="14" LineHeight="22"
+                                   Foreground="{StaticResource VGForegroundBrush}"
+                                   Text="VoiceGarden is a free, open-source voice bridge that connects 20+ modern text-to-speech engines to any Windows application that supports SAPI 5 — including Grid 3, Mind Express, Balabolka, Tobii Communicator, and any app built on System.Speech."/>
+
+                        <TextBlock TextWrapping="Wrap" FontSize="14" LineHeight="22"
+                                   Foreground="{StaticResource VGForegroundBrush}"
+                                   Text="It works by registering as a standard SAPI 5 voice. Once installed, your AAC and accessibility software can use high-quality neural voices — both offline and cloud-based — without any code changes."/>
+
+                        <Border Background="{StaticResource VGAccentBrush}"
+                                CornerRadius="8" Padding="16,12" Margin="0,4,0,0">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="&#x2714;  20+ engines: SherpaOnnx, Azure, Edge, OpenAI, Google, ElevenLabs, Polly"
+                                           FontSize="13" Foreground="{StaticResource VGForegroundBrush}"/>
+                                <TextBlock Text="&#x2714;  Fully offline with SherpaOnnx neural models"
+                                           FontSize="13" Foreground="{StaticResource VGForegroundBrush}"/>
+                                <TextBlock Text="&#x2714;  Word boundary events for highlighting"
+                                           FontSize="13" Foreground="{StaticResource VGForegroundBrush}"/>
+                                <TextBlock Text="&#x2714;  Works with both 32-bit and 64-bit applications"
+                                           FontSize="13" Foreground="{StaticResource VGForegroundBrush}"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- ===== PAGE 2: HOW TO USE ===== -->
+                <StackPanel IsVisible="{Binding IsPage2}" Spacing="0">
+
+                    <Border Background="{StaticResource VGAccentBrush}" Padding="40,32,40,20">
+                        <TextBlock Text="Getting Started"
+                                   FontSize="24" FontWeight="Bold"
+                                   Foreground="{StaticResource VGForegroundBrush}"
+                                   HorizontalAlignment="Center"/>
+                    </Border>
+
+                    <StackPanel Margin="40,24,40,16" Spacing="20">
+
+                        <!-- Step 1: Install adapter -->
+                        <StackPanel Spacing="6">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <Border Background="{StaticResource VGPrimaryBrush}"
+                                        CornerRadius="14" Width="28" Height="28"
+                                        HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock Text="1" FontSize="14" FontWeight="Bold"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="Install the SAPI Adapter"
+                                           FontSize="16" FontWeight="SemiBold"
+                                           Foreground="{StaticResource VGForegroundBrush}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock TextWrapping="Wrap" FontSize="13" LineHeight="20"
+                                       Foreground="{StaticResource VGMutedBrush}"
+                                       Margin="38,0,0,0"
+                                       Text="On the main screen, click Install for 64-bit (and 32-bit if needed). This registers VoiceGarden as a SAPI 5 voice that any compatible app can use."/>
+                        </StackPanel>
+
+                        <!-- Step 2: Download offline models -->
+                        <StackPanel Spacing="6">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <Border Background="{StaticResource VGPrimaryBrush}"
+                                        CornerRadius="14" Width="28" Height="28"
+                                        HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock Text="2" FontSize="14" FontWeight="Bold"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="Download SherpaOnnx Voices (Offline)"
+                                           FontSize="16" FontWeight="SemiBold"
+                                           Foreground="{StaticResource VGForegroundBrush}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock TextWrapping="Wrap" FontSize="13" LineHeight="20"
+                                       Foreground="{StaticResource VGMutedBrush}"
+                                       Margin="38,0,0,0"
+                                       Text="Go to the SherpaOnnx Models tab to browse and download free neural voices. These run entirely on your device — no internet connection needed. After downloading, click Promote to make them available to SAPI applications."/>
+                        </StackPanel>
+
+                        <!-- Step 3: en-alias tip -->
+                        <Border Background="#FFF7ED" CornerRadius="8" Padding="16,12" BorderBrush="#FDBA74" BorderThickness="1" Margin="38,0,0,0">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="&#x1F4A1;  Tip: Language Compatibility"
+                                           FontSize="13" FontWeight="SemiBold"
+                                           Foreground="{StaticResource VGForegroundBrush}"/>
+                                <TextBlock TextWrapping="Wrap" FontSize="12" LineHeight="18"
+                                           Foreground="{StaticResource VGForegroundBrush}"
+                                           Text="If your AAC software only supports certain languages (e.g. English), enable &quot;Add en-US alias&quot; when promoting SherpaOnnx models. This makes voices in any language appear as English voices, so they show up in apps that filter by language."/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Step 4: Cloud engines -->
+                        <StackPanel Spacing="6">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <Border Background="{StaticResource VGPrimaryBrush}"
+                                        CornerRadius="14" Width="28" Height="28"
+                                        HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock Text="3" FontSize="14" FontWeight="Bold"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="Add Cloud Engine Keys (Optional)"
+                                           FontSize="16" FontWeight="SemiBold"
+                                           Foreground="{StaticResource VGForegroundBrush}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock TextWrapping="Wrap" FontSize="13" LineHeight="20"
+                                       Foreground="{StaticResource VGMutedBrush}"
+                                       Margin="38,0,0,0"
+                                       Text="For premium cloud voices (Azure, OpenAI, Google, ElevenLabs, Polly), go to the Cloud Engines tab and enter your API key. Edge voices work without any key."/>
+                        </StackPanel>
+
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- ===== PAGE 3: PRIVACY ===== -->
+                <StackPanel IsVisible="{Binding IsPage3}" Spacing="0">
+
+                    <Border Background="{StaticResource VGAccentBrush}" Padding="40,32,40,20">
+                        <TextBlock Text="Help Improve VoiceGarden"
+                                   FontSize="24" FontWeight="Bold"
+                                   Foreground="{StaticResource VGForegroundBrush}"
+                                   HorizontalAlignment="Center"/>
+                    </Border>
+
+                    <StackPanel Margin="40,24,40,16" Spacing="16">
+
+                        <TextBlock TextWrapping="Wrap" FontSize="14" LineHeight="22"
+                                   Foreground="{StaticResource VGForegroundBrush}"
+                                   Text="VoiceGarden is a free, open-source project built by volunteers. To help us understand which TTS engines are most used, identify bugs, and prioritise development, we'd like to collect anonymous usage analytics."/>
+
+                        <Border Background="{StaticResource VGAccentBrush}" CornerRadius="8" Padding="16,12">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="What we collect:" FontSize="13" FontWeight="SemiBold"
+                                           Foreground="{StaticResource VGForegroundBrush}"/>
+                                <TextBlock TextWrapping="Wrap" FontSize="13" LineHeight="20"
+                                           Foreground="{StaticResource VGForegroundBrush}"
+                                           Text="&#x2022; Engine types enabled&#x0A;&#x2022; Number of models downloaded&#x0A;&#x2022; Adapter registration events"/>
+                                <TextBlock Text="What we DON'T collect:" FontSize="13" FontWeight="SemiBold"
+                                           Foreground="{StaticResource VGForegroundBrush}"
+                                           Margin="0,4,0,0"/>
+                                <TextBlock TextWrapping="Wrap" FontSize="13" LineHeight="20"
+                                           Foreground="{StaticResource VGForegroundBrush}"
+                                           Text="&#x2022; Spoken text or audio content&#x0A;&#x2022; API keys or credentials&#x0A;&#x2022; Voice names or personal information"/>
+                            </StackPanel>
+                        </Border>
+
+                        <TextBlock TextWrapping="Wrap" FontSize="13" LineHeight="20"
+                                   Foreground="{StaticResource VGMutedBrush}"
+                                   Text="You can change this anytime in Settings &#x2192; Advanced."/>
+                    </StackPanel>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ========== FOOTER: page dots + nav buttons ========== -->
+        <Border Grid.Row="1" Background="{StaticResource VGAccentBrush}"
+                BorderBrush="{StaticResource VGBorderBrush}" BorderThickness="0,1,0,0"
+                Padding="40,16">
+            <Grid ColumnDefinitions="Auto, *, Auto">
+
+                <!-- Page dots -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8"
+                            VerticalAlignment="Center">
+                    <Ellipse Width="8" Height="8" Fill="{Binding Dot1Brush}"/>
+                    <Ellipse Width="8" Height="8" Fill="{Binding Dot2Brush}"/>
+                    <Ellipse Width="8" Height="8" Fill="{Binding Dot3Brush}"/>
+                </StackPanel>
+
+                <!-- Nav buttons -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="12"
+                            VerticalAlignment="Center">
+
+                    <Button Content="Back"
+                            Command="{Binding BackCommand}"
+                            IsVisible="{Binding CanGoBack}"
+                            Padding="20,8"/>
+
+                    <!-- Page 1-2: Next -->
+                    <Button Content="Next"
+                            Command="{Binding NextCommand}"
+                            IsVisible="{Binding CanGoNext}"
+                            Padding="20,8"
+                            Classes="Primary"/>
+
+                    <!-- Page 3: No thanks -->
+                    <Button Content="No thanks"
+                            Command="{Binding DeclineCommand}"
+                            IsVisible="{Binding IsPage3}"
+                            Padding="20,8"/>
+
+                    <!-- Page 3: Yes -->
+                    <Button Content="Yes, help improve VoiceGarden"
+                            Command="{Binding AcceptCommand}"
+                            IsVisible="{Binding IsPage3}"
+                            Padding="20,8"
+                            Classes="Primary"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+    </Grid>
+</Window>

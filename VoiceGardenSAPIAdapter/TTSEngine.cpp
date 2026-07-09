@@ -2,7 +2,6 @@
 
 #include "pch.h"
 #include "TTSEngine.h"
-#include "SpeechRestAPI.h"
 #include "NetUtils.h"
 #include "SpeechServiceConstants.h"
 #include <VersionHelpers.h>
@@ -57,31 +56,58 @@ static std::wstring ExtractSherpaPlainText(const SPVTEXTFRAG* pTextFragList)
     return TrimWhitespace(out);
 }
 
-namespace {
-std::mutex g_sherpaInitMutex;
-std::mutex g_sherpaGenerateMutex;
-std::string g_cachedSherpaKey;
-std::shared_ptr<SherpaOnnx::Engine> g_cachedSherpaEngine;
-
-std::string BuildSherpaEngineKey(const SherpaOnnx::ModelConfig& cfg)
+std::wstring CTTSEngine::ExtractSherpaPlainTextWithMap(const SPVTEXTFRAG* pTextFragList)
 {
-    std::string key = std::to_string(static_cast<int>(cfg.modelType)) + "|";
-    switch (cfg.modelType)
+    std::wstring out;
+    m_plainToSapiMap.clear();
+    m_plainToSapiMap.reserve(256);
+
+    for (auto pTextFrag = pTextFragList; pTextFrag; pTextFrag = pTextFrag->pNext)
     {
-    case SherpaOnnx::TtsModelType::Matcha:
-        key += cfg.matcha.acousticModel + "|" + cfg.matcha.vocoder + "|" + cfg.matcha.tokens + "|" + cfg.matcha.dataDir;
-        break;
-    case SherpaOnnx::TtsModelType::Kokoro:
-        key += cfg.kokoro.model + "|" + cfg.kokoro.voices + "|" + cfg.kokoro.tokens + "|" + cfg.kokoro.dataDir + "|" + cfg.kokoro.lang;
-        break;
-    case SherpaOnnx::TtsModelType::Vits:
-    default:
-        key += cfg.vits.model + "|" + cfg.vits.tokens + "|" + cfg.vits.dataDir;
-        break;
+        if (!pTextFrag->pTextStart || pTextFrag->ulTextLen == 0)
+            continue;
+
+        if (pTextFrag->State.eAction == SPVA_Speak ||
+            pTextFrag->State.eAction == SPVA_SpellOut ||
+            pTextFrag->State.eAction == SPVA_Pronounce)
+        {
+            // Add space between fragments if needed
+            if (!out.empty() && !iswspace(out.back()))
+            {
+                out.push_back(L' ');
+                // Map the space to the previous fragment's end position in SAPI source
+                m_plainToSapiMap.push_back(
+                    m_plainToSapiMap.empty() ? 0 : m_plainToSapiMap.back());
+            }
+
+            // Append text and build mapping
+            ULONG sapiSrcOffset = pTextFrag->ulTextSrcOffset;
+            for (ULONG i = 0; i < pTextFrag->ulTextLen; i++)
+            {
+                out.push_back(pTextFrag->pTextStart[i]);
+                m_plainToSapiMap.push_back(sapiSrcOffset + i);
+            }
+        }
     }
-    key += "|" + cfg.provider + "|" + std::to_string(cfg.numThreads);
-    return key;
+
+    // Trim trailing whitespace from text and map
+    while (!out.empty() && iswspace(out.back()))
+    {
+        out.pop_back();
+        if (!m_plainToSapiMap.empty())
+            m_plainToSapiMap.pop_back();
+    }
+
+    return out;
 }
+
+ULONG CTTSEngine::TranslateOffset(ULONG plainOffset) const
+{
+    if (m_plainToSapiMap.empty())
+        return plainOffset; // No mapping — identity
+    if (plainOffset >= m_plainToSapiMap.size())
+        return m_plainToSapiMap.back() + 1; // Beyond end — point to end of text
+    return m_plainToSapiMap[plainOffset];
 }
 
 // ISpObjectWithToken Implementation
@@ -104,11 +130,10 @@ STDMETHODIMP CTTSEngine::SetObjectToken(ISpObjectToken* pToken) noexcept
         InitVoice();
         LogInfo("TTS init: InitVoice completed");
 
-        if (m_isSherpaOnnxVoice)
+        if (m_rustTtsUseSsml == false && m_rustTts)
         {
-            // Sherpa path synthesizes plain text directly and does not require
-            // SAPI phone converter initialization.
-            LogInfo("TTS init: skipping InitPhoneConverter for Sherpa voice");
+            // Sherpa/cloud non-Azure path synthesizes plain text directly.
+            LogInfo("TTS init: skipping InitPhoneConverter for non-SSML voice");
         }
         else
         {
@@ -152,36 +177,31 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
     const SPVTEXTFRAG* pTextFragList,
     ISpTTSEngineSite* pOutputSite) noexcept
 {
-    ScopeTracer tracer("Speak: begin", "Speak: end");
-    LogInfo("Speak: entered");
+    // Only create scope tracer for trace level to avoid overhead
+    if (logger.should_log(spdlog::level::trace))
+    {
+        static ScopeTracer tracer("Speak: begin", "Speak: end");
+    }
+
     try
     {
-        LogInfo("Speak: state synth={} rest={} sherpa={} cancelFuture={}",
-            m_synthesizer ? 1 : 0,
-            m_restApi ? 1 : 0,
-            m_sherpaOnnx ? 1 : 0,
-            m_lastCancellingFuture.valid() ? 1 : 0);
-        LogErr("SpeakDiag: stage=after-state-log");
-
         // Check args (avoid legacy SP_IS_BAD_* probes which can fault in modern processes).
         if (!pOutputSite || !pTextFragList)
         {
-            LogWarn("Speak: bad input pointers");
+            if (logger.should_log(spdlog::level::warn))
+                LogWarn("Speak: bad input pointers");
             return E_INVALIDARG;
         }
-        LogInfo("Speak: pointer validation passed");
-        LogErr("SpeakDiag: stage=after-pointer-check");
-        if (!m_synthesizer && !m_restApi && !m_sherpaOnnx)
+
+        if (!m_rustTts)
         {
-            LogWarn("Speak: no engine initialized");
+            if (logger.should_log(spdlog::level::err))
+                LogErr("Speak: no RustTts engine initialized");
             return SPERR_UNINITIALIZED;
         }
-        LogInfo("Speak: engine presence check passed");
-        LogErr("SpeakDiag: stage=after-engine-check");
 
         if (m_lastCancellingFuture.valid())
         {
-            LogInfo("Speak: waiting previous cancellation");
             // The previous cancellation is still in progress. Wait for it.
             while (m_lastCancellingFuture.wait_for(std::chrono::milliseconds(0)) == std::future_status::timeout)
             {
@@ -191,183 +211,91 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
                     // We can return immediately, since nothing has been done yet.
                     return S_OK;
                 }
-                Sleep(0);  // Reduce cancellation latency
+                Sleep(1);  // Use Sleep(1) instead of Sleep(0) to avoid CPU spinning
             }
             // Cancellation completed. Clear the future.
             m_lastCancellingFuture = {};
-            LogInfo("Speak: previous cancellation completed");
         }
 
         // Clear m_pOutputSite automatically when Speak is completed
         ScopeGuard siteDeleter([this]()
             {
-                std::lock_guard lock(m_outputSiteMutex);
-                m_pOutputSite = nullptr;
+                std::lock_guard<std::recursive_mutex> lock(m_outputSiteMutex);
+                if (m_pOutputSite)
+                {
+                    m_pOutputSite->Release();
+                    m_pOutputSite = nullptr;
+                }
             });
-        LogInfo("Speak: scope guard created");
-        LogErr("SpeakDiag: stage=after-scopeguard");
-        m_pOutputSite = pOutputSite;
-        LogInfo("Speak: output site assigned");
-        LogErr("SpeakDiag: stage=after-outputsite-assign");
 
-        LogInfo("Speak: pre-branch sherpa={}", m_sherpaOnnx ? 1 : 0);
-        LogErr("SpeakDiag: stage=before-sherpa-branch");
-        if (m_sherpaOnnx)
+        // Store the output site with proper reference counting
         {
-            LogInfo("Speak: Sherpa path selected");
-            LogErr("SpeakDiag: stage=in-sherpa-branch");
-            std::wstring plainTextW = ExtractSherpaPlainText(pTextFragList);
-            LogInfo("Speak: Sherpa extracted text length={}", plainTextW.size());
-            if (plainTextW.empty())
+            std::lock_guard<std::recursive_mutex> lock(m_outputSiteMutex);
+            if (pOutputSite)
             {
-                LogDebug("Speak: Sherpa plain text is empty");
-                FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
-                return S_OK;
+                pOutputSite->AddRef();
+                m_pOutputSite = pOutputSite;
             }
-
-            m_compensatedSilenceWritten = false;
-            m_compensatedSilentBytes = 0;
-            m_lastSilentBytes = 0;
-            m_thisSpeakStartedTicks = _GetTickCount();
-
-            // Keep Sherpa synthesis on the caller thread to avoid cross-thread COM access
-            // to ISpTTSEngineSite when writing audio.
-            m_sherpaAbortRequested.store(false, std::memory_order_relaxed);
-            LogInfo("Speak: Sherpa generation begin");
-            GenerateSherpaOnnxAudio(WStringToUTF8(plainTextW));
-            LogInfo("Speak: Sherpa generation end");
-            m_lastSpeakCompletedTicks = _GetTickCount();
-            return S_OK;
         }
-
-        if (m_genericTts)
-        {
-            LogInfo("Speak: Generic HTTP TTS path selected");
-            std::wstring plainTextW = ExtractSherpaPlainText(pTextFragList);
-            if (plainTextW.empty())
-            {
-                FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
-                return S_OK;
-            }
-
-            m_compensatedSilenceWritten = false;
-            m_compensatedSilentBytes = 0;
-            m_lastSilentBytes = 0;
-            m_thisSpeakStartedTicks = _GetTickCount();
-
-            m_sherpaAbortRequested.store(false, std::memory_order_relaxed);
-            LogInfo("Speak: HTTP TTS generation begin");
-            try {
-                m_genericTts->Speak(WStringToUTF8(plainTextW),
-                    [this](const uint8_t* data, uint32_t len) {
-                        return OnAudioData(const_cast<uint8_t*>(data), len);
-                    });
-            } catch (const std::exception& ex) {
-                LogErr("HTTP TTS synthesis failed: {}", ex.what());
-            }
-            LogInfo("Speak: HTTP TTS generation end");
-            m_lastSpeakCompletedTicks = _GetTickCount();
-            return S_OK;
-        }
-
-        ULONGLONG eventInterests = 0;
-        pOutputSite->GetEventInterest(&eventInterests);
-        if (m_synthesizer)
-            SetupSynthesizerEvents(eventInterests);
-        else if (m_restApi)
-            SetupRestAPIEvents(eventInterests);
-        else
-            ClearSynthesizerEvents();
-
-        if (!BuildSSML(pTextFragList))
-        {
-            LogDebug("Speak: Built SSML with no speech: {}", m_ssml);
-            // Simulate the bookmark events ourselves without doing actual speech synthesis
-            FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
-            return S_OK;
-        }
-
-        LogDebug("Speak: Built SSML: {}", m_ssml);
 
         m_compensatedSilenceWritten = false;
         m_compensatedSilentBytes = 0;
         m_lastSilentBytes = 0;
         m_thisSpeakStartedTicks = _GetTickCount();
-        m_onlineDelayOptimization =
-            !m_onlineVoiceName.empty() && RegOpenConfigKey().GetDword(L"EnableOnlineDelayOptimization");
-
-        std::future<void> future;
         m_sherpaAbortRequested.store(false, std::memory_order_relaxed);
 
-        if (m_synthesizer)
+        // Clear boundary queue for this utterance
+        m_pendingBoundaries.clear();
+        m_boundaryIndex = 0;
+        m_totalAudioBytesWritten = 0;
+
+        std::string speakText;
+        if (m_rustTtsUseSsml)
         {
-            future = std::async(std::launch::async, [this]() { CheckSynthesisResult(m_synthesizer->SpeakSsml(m_ssml)); });
+            if (!BuildSSML(pTextFragList))
+            {
+                if (logger.should_log(spdlog::level::debug))
+                    LogDebug("Speak: RustTts SSML built with no speech content");
+                FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
+                return S_OK;
+            }
+            speakText = WStringToUTF8(m_ssml);
         }
         else
         {
-            future = m_restApi->SpeakAsync(m_ssml);
+            std::wstring plainTextW = ExtractSherpaPlainTextWithMap(pTextFragList);
+            if (plainTextW.empty())
+            {
+                FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
+                return S_OK;
+            }
+            speakText = WStringToUTF8(plainTextW);
         }
 
-        while (!(pOutputSite->GetActions() & SPVES_ABORT)
-            && future.wait_for(std::chrono::milliseconds(0)) == std::future_status::timeout)
-        {
-            if (pOutputSite->GetActions() & SPVES_SKIP)
-            {
-                // Skipping is not supported
-                LogWarn("Speak: Skipping not supported, ignored");
-                pOutputSite->CompleteSkip(0);
-            }
-            Sleep(10);
-        }
-
-        if (pOutputSite->GetActions() & SPVES_ABORT) // requested stop
-        {
-            LogDebug("Speak: Requested stop");
-            if (m_sherpaOnnx)
-            {
-                m_sherpaAbortRequested.store(true, std::memory_order_relaxed);
-                future.wait();
-            }
-            else if (m_synthesizer)
-            {
-                // Cancellation might not finish, but we won't wait for it.
-                // Return immediately on requested stop.
-                // Create a new async future to wait for cancellation,
-                // and check it the next time Speak is called.
-                m_lastCancellingFuture = std::async(
-                    std::launch::async, [this, future = std::move(future)]()
-                {
-                    // Wait for SynthesisStarted event first.
-                    // Cancellation does nothing if SynthesisStarted hasn't been fired.
-                    while (!m_synthesizerStarted.load(std::memory_order_relaxed))
-                        Sleep(0);
-                    m_synthesizer->StopSpeakingAsync().wait();
-                    future.wait();
-                });
-            }
+        // Synchronous synthesis — prevents race condition where boundary events
+        // from a previous Speak() are processed against new text by System.Speech.
+        // Abort checking via SPVES_ABORT is not possible during synthesis.
+        if (logger.should_log(spdlog::level::info))
+            LogInfo("Speak: RustTts generation begin");
+        try {
+            if (m_rustTtsUseSsml)
+                m_rustTts->SpeakSsml(speakText);
             else
-                m_restApi->Stop();
-
-            m_lastSpeakCompletedTicks = 0;
+                m_rustTts->Speak(speakText);
+        } catch (const std::exception& ex) {
+            LogErr("RustTts synthesis failed: {}", ex.what());
         }
-        else
-        {
-            future.get(); // wait for the future and get its stored exception thrown
-            if (m_isEdgeVoice)
-            {
-                // finish all remaining bookmark events at the end
-                FinishSimulatingBookmarkEvents(
-                    m_restApi->GetWaveBytesWritten() + m_compensatedSilentBytes - m_lastSilentBytes);
-            }
 
-            m_lastSpeakCompletedTicks = _GetTickCount();
-        }
+        if (logger.should_log(spdlog::level::info))
+            LogInfo("Speak: RustTts generation end");
+        m_lastSpeakCompletedTicks = _GetTickCount();
 
         return S_OK;
     }
     catch (const std::bad_alloc&)
     {
-        LogCritical("Out of memory");
+        if (logger.should_log(spdlog::level::critical))
+            LogCritical("Out of memory");
         return E_OUTOFMEMORY;
     }
     catch (const std::system_error& ex)
@@ -380,7 +308,8 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
     }
     catch (...) // C++ exceptions should not cross COM boundary
     {
-        LogErr("Speak: Unknown error");
+        if (logger.should_log(spdlog::level::err))
+            LogErr("Speak: Unknown error");
         return E_FAIL;
     }
 } /* CTTSEngine::Speak */
@@ -388,58 +317,51 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
 STDMETHODIMP CTTSEngine::GetOutputFormat(const GUID* /*pTargetFormatId*/, const WAVEFORMATEX* /*pTargetWaveFormatEx*/,
     GUID* pDesiredFormatId, WAVEFORMATEX** ppCoMemDesiredWaveFormatEx) noexcept
 {
-    // For Sherpa voices, prefer model sample rate to avoid speed/pitch distortion.
-    if (m_isSherpaOnnxVoice)
+    // For offline voices, prefer model sample rate from registry metadata.
     {
         DWORD sampleRate = 0;
 
-        // First choice: active Sherpa engine output format (ground truth).
-        if (m_sherpaOnnx)
-        {
-            const int sr = m_sherpaOnnx->GetSampleRate();
-            if (sr > 0)
-                sampleRate = static_cast<DWORD>(sr);
-        }
-
-        // Fallback: token metadata from model catalog.
-        if (sampleRate == 0 && m_cpToken)
+        // Token metadata from model catalog.
+        if (m_cpToken)
         {
             CComPtr<ISpDataKey> pConfigKey;
             if (SUCCEEDED(m_cpToken->OpenKey(L"VoiceGardenConfig", &pConfigKey)) && pConfigKey)
                 (void)pConfigKey->GetDWORD(L"SampleRate", &sampleRate);
         }
 
-        auto pickFormat = [](DWORD sr) -> SPSTREAMFORMAT {
-            switch (sr)
-            {
-            case 8000: return SPSF_8kHz16BitMono;
-            case 11025: return SPSF_11kHz16BitMono;
-            case 12000: return SPSF_12kHz16BitMono;
-            case 16000: return SPSF_16kHz16BitMono;
-            case 22050: return SPSF_22kHz16BitMono;
-            case 24000: return SPSF_24kHz16BitMono;
-            case 32000: return SPSF_32kHz16BitMono;
-            case 44100: return SPSF_44kHz16BitMono;
-            case 48000: return SPSF_48kHz16BitMono;
-            default:
-                // Nearest commonly supported mono 16-bit PCM format.
-                if (sr <= 9512) return SPSF_8kHz16BitMono;
-                if (sr <= 11512) return SPSF_11kHz16BitMono;
-                if (sr <= 14000) return SPSF_12kHz16BitMono;
-                if (sr <= 19025) return SPSF_16kHz16BitMono;
-                if (sr <= 23025) return SPSF_22kHz16BitMono;
-                if (sr <= 28000) return SPSF_24kHz16BitMono;
-                if (sr <= 38050) return SPSF_32kHz16BitMono;
-                if (sr <= 46050) return SPSF_44kHz16BitMono;
-                return SPSF_48kHz16BitMono;
-            }
-        };
+        if (sampleRate > 0)
+        {
+            auto pickFormat = [](DWORD sr) -> SPSTREAMFORMAT {
+                switch (sr)
+                {
+                case 8000: return SPSF_8kHz16BitMono;
+                case 11025: return SPSF_11kHz16BitMono;
+                case 12000: return SPSF_12kHz16BitMono;
+                case 16000: return SPSF_16kHz16BitMono;
+                case 22050: return SPSF_22kHz16BitMono;
+                case 24000: return SPSF_24kHz16BitMono;
+                case 32000: return SPSF_32kHz16BitMono;
+                case 44100: return SPSF_44kHz16BitMono;
+                case 48000: return SPSF_48kHz16BitMono;
+                default:
+                    if (sr <= 9512) return SPSF_8kHz16BitMono;
+                    if (sr <= 11512) return SPSF_11kHz16BitMono;
+                    if (sr <= 14000) return SPSF_12kHz16BitMono;
+                    if (sr <= 19025) return SPSF_16kHz16BitMono;
+                    if (sr <= 23025) return SPSF_22kHz16BitMono;
+                    if (sr <= 28000) return SPSF_24kHz16BitMono;
+                    if (sr <= 38050) return SPSF_32kHz16BitMono;
+                    if (sr <= 46050) return SPSF_44kHz16BitMono;
+                    return SPSF_48kHz16BitMono;
+                }
+            };
 
-        const SPSTREAMFORMAT fmt = pickFormat(sampleRate == 0 ? 24000 : sampleRate);
-        return SpConvertStreamFormatEnum(fmt, pDesiredFormatId, ppCoMemDesiredWaveFormatEx);
+            const SPSTREAMFORMAT fmt = pickFormat(sampleRate);
+            return SpConvertStreamFormatEnum(fmt, pDesiredFormatId, ppCoMemDesiredWaveFormatEx);
+        }
     }
 
-    // Embedded/cloud default
+    // Default
     return SpConvertStreamFormatEnum(SPSF_24kHz16BitMono, pDesiredFormatId, ppCoMemDesiredWaveFormatEx);
 }
 
@@ -471,8 +393,7 @@ void CTTSEngine::InitPhoneConverter()
 void CTTSEngine::InitVoice()
 {
     CComPtr<ISpDataKey> pConfigKey;
-    CSpDynamicString pszRegion, pszKey, pszPath, pszVoice;
-    
+
     LogInfo("TTS init: opening VoiceGardenConfig key");
     HRESULT hr = m_cpToken->OpenKey(L"VoiceGardenConfig", &pConfigKey); // this key must exist
     LogInfo("TTS init: OpenKey VoiceGardenConfig returned hr={:#x}", static_cast<unsigned int>(hr));
@@ -484,26 +405,10 @@ void CTTSEngine::InitVoice()
     if (FAILED(hr)) dwErrorMode = 0;
     m_errorMode = (ErrorMode)std::clamp(dwErrorMode, 0UL, 2UL);
 
-    RegKey key = RegOpenConfigKey();
-
-    // Try SherpaOnnx first (offline local voices)
-    if (InitSherpaOnnxVoice(pConfigKey))
+    // All voices route through rust-tts-wrapper (tts_wrapper.dll).
+    if (InitRustTtsVoice(pConfigKey))
         return;
 
-    if (IsWindows7OrGreater() // Azure Speech SDK requires at least Win 7
-        || key.GetDword(L"ForceEnableAzureSpeechSDK"))
-    {
-        if (InitLocalVoice(pConfigKey))
-            return;
-        if (key.GetDword(L"UseAzureSpeechSDKForAzureVoices")
-            && InitCloudVoiceSynthesizer(pConfigKey))
-            return;
-    }
-    if (InitCloudVoiceRestAPI(pConfigKey))
-        return;
-    if (InitGenericHttpVoice(pConfigKey))
-        return;
-    
     throw std::invalid_argument("Invalid VoiceGardenConfig configuration.");
 }
 
@@ -518,430 +423,211 @@ inline static bool CheckHrNotFound(HRESULT hr)
 
 LSTATUS TryLoadAzureSpeechSDK();
 
-bool CTTSEngine::InitLocalVoice(ISpDataKey* pConfigKey)
+bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
 {
-    if (TryLoadAzureSpeechSDK() != ERROR_SUCCESS)
-        return false; // fallback
+    // Try to use rust-tts-wrapper for cloud engines.
+    // Falls through (returns false) if tts_wrapper.dll isn't loaded,
+    // so the existing GenericHttpTts / SpeechRestAPI paths are used instead.
 
-    CSpDynamicString pszPath, pszKey;
-    if (CheckHrNotFound(pConfigKey->GetStringValue(L"Path", &pszPath)))
-        return false;
-
-    // Newer Speech SDK requires a license instead of a key.
-    // If the voice is using a key, insert "Key:" before the key.
-    if (!CheckHrNotFound(pConfigKey->GetStringValue(L"Key", &pszKey)))
-        MergeIntoCoString(pszKey, L"Key:", pszKey.m_psz);
-    else if (CheckHrNotFound(pConfigKey->GetStringValue(L"License", &pszKey)))
-        return false;
-
-    auto path = WStringToUTF8(pszPath.m_psz);
-
-    if (logger.should_log(spdlog::level::warn))
+    auto& loader = RustTts::Loader::Instance();
+    if (!loader.Initialize() || !loader.IsLoaded())
     {
-        if (!std::all_of(path.begin(), path.end(),
-            [](unsigned char ch) { return ch < 128; }))
-        {
-            LogWarn("TTS init: Local voice path contains non-ASCII characters, may not work correctly: {}",
-                path);
-        }
-    }
-
-    auto config = EmbeddedSpeechConfig::FromPath(path);
-
-    config->SetSpeechSynthesisOutputFormat(SpeechSynthesisOutputFormat::Riff24Khz16BitMonoPcm);
-    config->SetProperty(PropertyId::SpeechServiceResponse_RequestSentenceBoundary, "true");
-    config->SetProperty(PropertyId::SpeechServiceResponse_RequestPunctuationBoundary, "false");
-
-    // get the voice name by loading it first
-    auto synthesizer = SpeechSynthesizer::FromConfig(config);
-    auto result = synthesizer->GetVoicesAsync().get();
-    if (result->Reason != ResultReason::VoicesListRetrieved
-        || result->Voices.empty())
-    {
-        LogErr("Invalid local voice folder: {}", path);
-        throw std::invalid_argument(UTF8ToAnsi(result->ErrorDetails));
-    }
-    auto& voiceName = result->Voices[0]->Name;
-    config->SetSpeechSynthesisVoice(voiceName, WStringToUTF8(pszKey.m_psz));
-
-    if (m_errorMode == ErrorMode::ProbeForError)
-    {
-        auto synthesizer = SpeechSynthesizer::FromConfig(config, nullptr);
-        CheckSynthesisResult(synthesizer->SpeakText("")); // test for possible error
-    }
-
-    m_synthesizer = SpeechSynthesizer::FromConfig(config, AudioConfig::FromStreamOutput(
-        AudioOutputStream::CreatePushStream(std::bind_front(&CTTSEngine::OnAudioData, this))));
-
-    LogInfo("Local voice created: {}", voiceName);
-    return true;
-}
-
-bool CTTSEngine::InitSherpaOnnxVoice(ISpDataKey* pConfigKey)
-{
-    LogInfo("Sherpa init: probing token for Sherpa config");
-    // Check if this is a SherpaOnnx voice configuration by checking for model type
-    CSpDynamicString pszModelType;
-    int modelTypeValue = 0;  // Default to Vits (0)
-    if (!CheckHrNotFound(pConfigKey->GetDWORD(L"SherpaOnnxModelType", (DWORD*)&modelTypeValue))) {
-        // Model type is specified
-    } else {
-        // For backward compatibility, check if SherpaOnnxModelPath exists (old style)
-        CSpDynamicString pszDummy;
-        if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxModelPath", &pszDummy))) {
-            return false; // Not a SherpaOnnx voice
-        }
-        // Old-style config is always VITS
-        modelTypeValue = 0;
-    }
-
-    // Token metadata uses SherpaOnnx::ModelType (Vits/Matcha/Kokoro/Piper/MMS),
-    // while runtime engine config uses SherpaOnnx::TtsModelType (Vits/Matcha/Kokoro/Unknown).
-    // Normalize so Piper/MMS are treated as Vits-family models.
-    SherpaOnnx::TtsModelType modelType = SherpaOnnx::TtsModelType::Vits;
-    switch (modelTypeValue)
-    {
-    case 1:
-        modelType = SherpaOnnx::TtsModelType::Matcha;
-        break;
-    case 2:
-        modelType = SherpaOnnx::TtsModelType::Kokoro;
-        break;
-    default:
-        modelType = SherpaOnnx::TtsModelType::Vits;
-        break;
-    }
-    LogInfo("Sherpa init: model type value = {}", modelTypeValue);
-
-    try
-    {
-        SherpaOnnx::ModelConfig config;
-        config.modelType = modelType;
-        // Baseline parity with vanilla Sherpa sample first; optimize later.
-        config.numThreads = 1;
-        config.debug = false;
-        config.provider = "cpu";
-        config.maxNumSentences = 1;
-
-        CSpDynamicString pszVoiceName;
-        if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxVoiceName", &pszVoiceName))) {
-            pszVoiceName = L"SherpaOnnx Voice";
-        }
-        config.voiceName = WStringToUTF8(std::wstring(pszVoiceName.m_psz));
-
-        switch (modelType) {
-            case SherpaOnnx::TtsModelType::Matcha: {
-                // Matcha: acoustic_model + vocoder + tokens
-                CSpDynamicString pszAcousticModel, pszVocoder, pszTokens, pDataDir, pLexicon, pDictDir;
-
-                if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxAcousticModel", &pszAcousticModel))) {
-                    LogWarn("SherpaOnnx Matcha voice missing AcousticModel");
-                    return false;
-                }
-                if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxVocoder", &pszVocoder))) {
-                    LogWarn("SherpaOnnx Matcha voice missing Vocoder");
-                    return false;
-                }
-                if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxTokens", &pszTokens))) {
-                    LogWarn("SherpaOnnx Matcha voice missing Tokens");
-                    return false;
-                }
-
-                config.matcha.acousticModel = WStringToUTF8(std::wstring(pszAcousticModel.m_psz));
-                config.matcha.vocoder = WStringToUTF8(std::wstring(pszVocoder.m_psz));
-                config.matcha.tokens = WStringToUTF8(std::wstring(pszTokens.m_psz));
-
-                // Optional parameters
-                CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxDataDir", &pDataDir));
-                CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxLexicon", &pLexicon));
-                CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxDictDir", &pDictDir));
-
-                if (pDataDir.m_psz && *pDataDir.m_psz)
-                    config.matcha.dataDir = WStringToUTF8(std::wstring(pDataDir.m_psz));
-                if (pLexicon.m_psz && *pLexicon.m_psz)
-                    config.matcha.lexicon = WStringToUTF8(std::wstring(pLexicon.m_psz));
-                if (pDictDir.m_psz && *pDictDir.m_psz)
-                    config.matcha.dictDir = WStringToUTF8(std::wstring(pDictDir.m_psz));
-
-                config.matcha.noiseScale = 1.0f;
-                config.matcha.lengthScale = 1.0f;
-                break;
-            }
-
-            case SherpaOnnx::TtsModelType::Kokoro: {
-                // Kokoro: model + voices + tokens
-                CSpDynamicString pszModel, pszVoices, pszTokens, pLexicon, pDataDir, pDictDir, pLang;
-
-                if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxModelPath", &pszModel))) {
-                    LogWarn("SherpaOnnx Kokoro voice missing ModelPath");
-                    return false;
-                }
-                if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxVoices", &pszVoices))) {
-                    LogWarn("SherpaOnnx Kokoro voice missing Voices");
-                    return false;
-                }
-                if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxTokens", &pszTokens))) {
-                    LogWarn("SherpaOnnx Kokoro voice missing Tokens");
-                    return false;
-                }
-
-                config.kokoro.model = WStringToUTF8(std::wstring(pszModel.m_psz));
-                config.kokoro.voices = WStringToUTF8(std::wstring(pszVoices.m_psz));
-                config.kokoro.tokens = WStringToUTF8(std::wstring(pszTokens.m_psz));
-
-                // Optional parameters
-                CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxDataDir", &pDataDir));
-                CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxLexicon", &pLexicon));
-                CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxDictDir", &pDictDir));
-                CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxLang", &pLang));
-
-                if (pDataDir.m_psz && *pDataDir.m_psz)
-                    config.kokoro.dataDir = WStringToUTF8(std::wstring(pDataDir.m_psz));
-                if (pLexicon.m_psz && *pLexicon.m_psz)
-                    config.kokoro.lexicon = WStringToUTF8(std::wstring(pLexicon.m_psz));
-                if (pDictDir.m_psz && *pDictDir.m_psz)
-                    config.kokoro.dictDir = WStringToUTF8(std::wstring(pDictDir.m_psz));
-                if (pLang.m_psz && *pLang.m_psz)
-                    config.kokoro.lang = WStringToUTF8(std::wstring(pLang.m_psz));
-                else
-                {
-                    CComPtr<ISpDataKey> pAttrKey;
-                    CSpDynamicString locale;
-                    if (SUCCEEDED(m_cpToken->OpenKey(SPTOKENKEY_ATTRIBUTES, &pAttrKey)) &&
-                        SUCCEEDED(pAttrKey->GetStringValue(L"Locale", &locale)) &&
-                        locale.m_psz && *locale.m_psz)
-                    {
-                        std::wstring loc = locale.m_psz;
-                        size_t delim = loc.find_first_of(L",; ");
-                        if (delim != std::wstring::npos)
-                            loc = loc.substr(0, delim);
-                        std::replace(loc.begin(), loc.end(), L'_', L'-');
-                        std::transform(loc.begin(), loc.end(), loc.begin(), ::towlower);
-                        if (!loc.empty())
-                            config.kokoro.lang = WStringToUTF8(loc);
-                    }
-                    if (config.kokoro.lang.empty())
-                        config.kokoro.lang = "en-us";
-                }
-
-                config.kokoro.lengthScale = 1.0f;
-                break;
-            }
-
-            default: {
-                // VITS/Piper/MMS: model + tokens
-                CSpDynamicString pszModel, pszTokens, pDataDir, pLexicon, pDictDir;
-
-                if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxModelPath", &pszModel))) {
-                    LogWarn("SherpaOnnx VITS voice missing ModelPath");
-                    return false;
-                }
-                if (CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxTokens", &pszTokens))) {
-                    LogWarn("SherpaOnnx VITS voice missing Tokens");
-                    return false;
-                }
-
-                config.vits.model = WStringToUTF8(std::wstring(pszModel.m_psz));
-                config.vits.tokens = WStringToUTF8(std::wstring(pszTokens.m_psz));
-
-                // Optional parameters: keep only data_dir in baseline path.
-                CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxDataDir", &pDataDir));
-
-                if (pDataDir.m_psz && *pDataDir.m_psz)
-                    config.vits.dataDir = WStringToUTF8(std::wstring(pDataDir.m_psz));
-                LogInfo("Sherpa init: vits model='{}'", config.vits.model);
-                LogInfo("Sherpa init: vits tokens='{}'", config.vits.tokens);
-                LogInfo("Sherpa init: vits data_dir='{}'", config.vits.dataDir);
-                try
-                {
-                    std::error_code ecModel, ecTokens, ecData;
-                    bool hasModel = std::filesystem::is_regular_file(std::filesystem::u8path(config.vits.model), ecModel);
-                    bool hasTokens = std::filesystem::is_regular_file(std::filesystem::u8path(config.vits.tokens), ecTokens);
-                    bool hasDataDir = config.vits.dataDir.empty() ||
-                        std::filesystem::is_directory(std::filesystem::u8path(config.vits.dataDir), ecData);
-                    LogInfo("Sherpa init: path checks model={} tokens={} data_dir={}", hasModel ? 1 : 0, hasTokens ? 1 : 0, hasDataDir ? 1 : 0);
-                    if (!hasDataDir)
-                    {
-                        LogWarn("Sherpa init: data_dir path missing, clearing optional data_dir");
-                        config.vits.dataDir.clear();
-                    }
-                }
-                catch (...)
-                {
-                    LogWarn("Sherpa init: failed to evaluate path checks");
-                }
-                break;
-            }
-        }
-
-        std::string engineKey = BuildSherpaEngineKey(config);
-        {
-            std::lock_guard<std::mutex> guard(g_sherpaInitMutex);
-            if (g_cachedSherpaEngine && g_cachedSherpaEngine->IsValid() && g_cachedSherpaKey == engineKey)
-            {
-                m_sherpaOnnx = g_cachedSherpaEngine;
-                LogInfo("Sherpa init: reusing cached engine instance");
-            }
-            else
-            {
-                LogInfo("Sherpa init: creating Sherpa engine instance");
-                auto created = std::make_shared<SherpaOnnx::Engine>(config);
-                LogInfo("Sherpa init: Sherpa engine instance created");
-                if (!created->IsValid())
-                {
-                    LogErr("Failed to initialize SherpaOnnx engine for voice: {}. reason={}",
-                        WStringToUTF8(std::wstring(pszVoiceName.m_psz)), created->GetLastError());
-                    m_sherpaOnnx.reset();
-                    return false;
-                }
-                g_cachedSherpaEngine = created;
-                g_cachedSherpaKey = engineKey;
-                m_sherpaOnnx = std::move(created);
-            }
-        }
-
-        if (!m_sherpaOnnx->IsValid())
-        {
-            LogErr("Failed to initialize SherpaOnnx engine for voice: {}. reason={}",
-                WStringToUTF8(std::wstring(pszVoiceName.m_psz)), m_sherpaOnnx->GetLastError());
-            m_sherpaOnnx.reset();
-            return false;
-        }
-
-        m_isSherpaOnnxVoice = true;
-        m_isEdgeVoice = false; // Not an Edge voice
-
-        int sampleRate = m_sherpaOnnx->GetSampleRate();
-        LogInfo("SherpaOnnx voice created: {} (model type: {}, sample rate: {}Hz)",
-            WStringToUTF8(std::wstring(pszVoiceName.m_psz)),
-            static_cast<int>(modelType),
-            sampleRate);
-        return true;
-    }
-    catch (const std::exception& ex)
-    {
-        LogErr("SherpaOnnx initialization failed: {}", ex.what());
-        m_sherpaOnnx.reset();
+        LogErr("TTS init: tts_wrapper.dll not loaded — cannot initialize voice");
         return false;
     }
-}
 
-bool CTTSEngine::InitCloudVoiceSynthesizer(ISpDataKey* pConfigKey)
-{
-    if (LSTATUS stat = TryLoadAzureSpeechSDK(); stat != ERROR_SUCCESS)
+    // Determine engine type from registry config.
+    // Cloud voices have EngineType (Azure, Edge, OpenAI, Google, etc.)
+    // SherpaOnnx voices have SherpaOnnxModelPath (no EngineType).
+    CSpDynamicString pszEngineType;
+    CSpDynamicString pszSherpaModelPath;
+    bool hasEngineType = !CheckHrNotFound(pConfigKey->GetStringValue(L"EngineType", &pszEngineType));
+    bool hasSherpaPath = !CheckHrNotFound(pConfigKey->GetStringValue(L"SherpaOnnxModelPath", &pszSherpaModelPath));
+
+    std::string engineType;
+    std::string lowerType;
+
+    if (hasEngineType)
     {
-        LogInfo("TTS init: Azure Speech SDK failed ({}), falling back to Rest API",
-            std::system_category().message(stat));
-        return false; // fallback
+        engineType = pszEngineType.m_psz ? WStringToUTF8(std::wstring(pszEngineType.m_psz)) : "";
+        lowerType = engineType;
+        std::transform(lowerType.begin(), lowerType.end(), lowerType.begin(), ::tolower);
+        // Sherpa EngineType maps to "sherpaonnx" in rust-tts-wrapper
+        if (lowerType == "sherpa")
+            lowerType = "sherpaonnx";
     }
-
-    CSpDynamicString pszKey, pszRegion, pszVoice;
-    if (CheckHrNotFound(pConfigKey->GetStringValue(L"Key", &pszKey))
-        || CheckHrNotFound(pConfigKey->GetStringValue(L"Region", &pszRegion))
-        || CheckHrNotFound(pConfigKey->GetStringValue(L"Voice", &pszVoice)))
-        return false;
-
-    auto config = SpeechConfig::FromSubscription(WStringToUTF8(pszKey.m_psz), WStringToUTF8(pszRegion.m_psz));
-
-    config->SetSpeechSynthesisOutputFormat(SpeechSynthesisOutputFormat::Riff24Khz16BitMonoPcm);
-    config->SetProperty(PropertyId::SpeechServiceResponse_RequestSentenceBoundary, "true");
-    config->SetProperty(PropertyId::SpeechServiceResponse_RequestPunctuationBoundary, "false");
-
-    auto proxy = GetProxyForUrl("https://" + WStringToUTF8(pszRegion.m_psz) + AZURE_TTS_HOST_AFTER_REGION);
-    if (!proxy.empty())
+    else if (hasSherpaPath)
     {
-        auto url = ParseUrl(proxy);
-        uint32_t port = 80;
-        std::from_chars(url.port.data(), url.port.data() + url.port.size(), port);
-        config->SetProxy(std::string(url.host), port);
-    }
-
-    config->SetSpeechSynthesisVoiceName(WStringToUTF8(pszVoice.m_psz));
-    m_onlineVoiceName = pszVoice;
-
-    if (m_errorMode == ErrorMode::ProbeForError)
-    {
-        auto synthesizer = SpeechSynthesizer::FromConfig(config, nullptr);
-        CheckSynthesisResult(synthesizer->SpeakText("")); // test for possible error
-    }
-
-    m_synthesizer = SpeechSynthesizer::FromConfig(config, AudioConfig::FromStreamOutput(
-        AudioOutputStream::CreatePushStream(std::bind_front(&CTTSEngine::OnAudioData, this))));
-
-    LogInfo("Cloud voice (Azure Speech SDK) created: {}", pszVoice.m_psz);
-    return true;
-}
-
-bool CTTSEngine::InitCloudVoiceRestAPI(ISpDataKey* pConfigKey)
-{
-    m_restApi = std::make_unique<SpeechRestAPI>();
-
-    CSpDynamicString pszVoice, pszKey;
-    if (CheckHrNotFound(pConfigKey->GetStringValue(L"Voice", &pszVoice)))
-        return false;
-    m_onlineVoiceName = pszVoice;
-
-    DWORD dwValue = 0;
-    if (!CheckHrNotFound(pConfigKey->GetDWORD(L"IsEdgeVoice", &dwValue)))
-        m_isEdgeVoice = dwValue;
-    
-    if (CSpDynamicString pszWebsocketUrl; !CheckHrNotFound(pConfigKey->GetStringValue(L"WebsocketURL", &pszWebsocketUrl)))
-    {
-        CheckHrNotFound(pConfigKey->GetStringValue(L"Key", &pszKey));
-        m_restApi->SetWebsocketUrl(
-            pszKey ? WStringToUTF8(pszKey.m_psz) : "",
-            WStringToUTF8(pszWebsocketUrl.m_psz)
-        );
-    }
-    else if (CSpDynamicString pszRegion; !CheckHrNotFound(pConfigKey->GetStringValue(L"Region", &pszRegion)))
-    {
-        if (CheckHrNotFound(pConfigKey->GetStringValue(L"Key", &pszKey)))
-            return false;
-        m_restApi->SetSubscription(
-            WStringToUTF8(pszKey.m_psz),
-            WStringToUTF8(pszRegion.m_psz)
-        );
+        // SherpaOnnx voice detected by SherpaOnnxModelPath (no EngineType field)
+        engineType = "Sherpa";
+        lowerType = "sherpaonnx"; // Rust engine ID is "sherpaonnx"
     }
     else
+    {
         return false;
+    }
 
-    LogInfo("Cloud voice (Rest API) created: {}", pszVoice.m_psz);
-    return true;
-}
+    // All engine types are handled by rust-tts-wrapper.
+    // Read credentials for the engine.
 
-bool CTTSEngine::InitGenericHttpVoice(ISpDataKey* pConfigKey)
-{
-    // Check for engine types that use generic HTTP TTS
-    CSpDynamicString pszEngineType;
-    if (CheckHrNotFound(pConfigKey->GetStringValue(L"EngineType", &pszEngineType)))
-        return false;
-
-    std::string engineType = pszEngineType.m_psz ? WStringToUTF8(std::wstring(pszEngineType.m_psz)) : "";
-
-    // Azure/Edge are handled by the existing REST API path
-    if (engineType == "Azure" || engineType == "Edge" || engineType == "Sherpa")
-        return false;
-
-    static const std::set<std::string> supportedEngines = {"OpenAI", "ElevenLabs", "Google", "Cartesia", "Deepgram"};
-    if (supportedEngines.find(engineType) == supportedEngines.end())
-        return false;
-
+    // Read credentials from the token config
     CSpDynamicString pszVoice, pszKey, pszRegion;
-    if (CheckHrNotFound(pConfigKey->GetStringValue(L"Voice", &pszVoice)))
-        return false;
+    CheckHrNotFound(pConfigKey->GetStringValue(L"Voice", &pszVoice));
     CheckHrNotFound(pConfigKey->GetStringValue(L"Key", &pszKey));
     CheckHrNotFound(pConfigKey->GetStringValue(L"Region", &pszRegion));
 
-    m_genericTts = std::make_unique<GenericHttpTts>();
-    m_genericTts->SetEngine(
-        engineType,
-        pszKey.m_psz ? WStringToUTF8(std::wstring(pszKey.m_psz)) : "",
-        pszVoice.m_psz ? WStringToUTF8(std::wstring(pszVoice.m_psz)) : "",
-        pszRegion.m_psz ? WStringToUTF8(std::wstring(pszRegion.m_psz)) : ""
-    );
+    // Build credentials JSON for rust-tts-wrapper
+    std::string credsJson;
+    if (lowerType == "google" || lowerType == "openai" || lowerType == "elevenlabs" ||
+        lowerType == "cartesia" || lowerType == "deepgram" || lowerType == "fishaudio" ||
+        lowerType == "hume" || lowerType == "mistral" || lowerType == "murf" ||
+        lowerType == "resemble" || lowerType == "unrealspeech" || lowerType == "upliftai" ||
+        lowerType == "xai" || lowerType == "modelslab")
+    {
+        std::string key = pszKey.m_psz ? WStringToUTF8(std::wstring(pszKey.m_psz)) : "";
+        credsJson = "{\"apiKey\":\"" + key + "\"}";
+    }
+    else if (lowerType == "azure")
+    {
+        std::string key = pszKey.m_psz ? WStringToUTF8(std::wstring(pszKey.m_psz)) : "";
+        std::string region = pszRegion.m_psz ? WStringToUTF8(std::wstring(pszRegion.m_psz)) : "";
+        credsJson = "{\"subscriptionKey\":\"" + key + "\",\"region\":\"" + region + "\"}";
+    }
+    else if (lowerType == "watson")
+    {
+        std::string key = pszKey.m_psz ? WStringToUTF8(std::wstring(pszKey.m_psz)) : "";
+        std::string region = pszRegion.m_psz ? WStringToUTF8(std::wstring(pszRegion.m_psz)) : "";
+        credsJson = "{\"apiKey\":\"" + key + "\",\"region\":\"" + region + "\"}";
+    }
+    else if (lowerType == "playht")
+    {
+        std::string key = pszKey.m_psz ? WStringToUTF8(std::wstring(pszKey.m_psz)) : "";
+        std::string userId = pszRegion.m_psz ? WStringToUTF8(std::wstring(pszRegion.m_psz)) : "";
+        credsJson = "{\"apiKey\":\"" + key + "\",\"userId\":\"" + userId + "\"}";
+    }
+    else if (lowerType == "witai")
+    {
+        std::string key = pszKey.m_psz ? WStringToUTF8(std::wstring(pszKey.m_psz)) : "";
+        credsJson = "{\"token\":\"" + key + "\"}";
+    }
+    else if (lowerType == "edge")
+    {
+        // Edge is credential-free
+        credsJson = "{}";
+    }
+    else if (lowerType == "sherpaonnx")
+    {
+        // SherpaOnnx via Rust. Derive modelId and modelPath from the registry.
+        // The Rust wrapper expects: modelPath=<base dir containing modelId dirs>,
+        // modelId=<directory name matching the registry entry>.
+        //
+        // Path structures:
+        //   MMS:    models/mms_eng/model.onnx          (flat — modelId = mms_eng)
+        //   Kokoro: models/kokoro-en-en-19/sub/model.onnx  (nested — modelId = kokoro-en-en-19)
+        //   Piper:  models/piper-en-amy-low/sub/file.onnx  (nested — modelId = piper-en-amy-low)
+        //
+        // Solution: walk up from the .onnx file to find the "models" directory,
+        // then the first directory after it is the modelId.
+        if (hasSherpaPath && pszSherpaModelPath.m_psz)
+        {
+            std::filesystem::path onnxPath(pszSherpaModelPath.m_psz);
+            auto p = onnxPath.parent_path();
+            while (p.has_parent_path() && p.filename() != L"models")
+                p = p.parent_path();
 
-    m_onlineVoiceName = pszVoice;
-    LogInfo("Generic HTTP voice created: {} / {}", engineType, pszVoice.m_psz);
+            if (p.filename() == L"models")
+            {
+                auto rel = std::filesystem::relative(onnxPath.parent_path(), p);
+                std::string modelId = rel.begin()->string();
+                std::string basePath = p.string();
+                std::replace(basePath.begin(), basePath.end(), '\\', '/');
+                credsJson = "{\"modelId\":\"" + modelId + "\",\"modelPath\":\"" + basePath + "\"}";
+                LogInfo("RustTts: SherpaOnnx credentials: {}", credsJson);
+            }
+            else
+            {
+                LogWarn("RustTts: Could not find 'models' directory in path: {}", onnxPath.string());
+                return false;
+            }
+        }
+        else
+        {
+            LogWarn("RustTts: SherpaOnnx voice has no SherpaOnnxModelPath");
+            return false;
+        }
+    }
+    else
+    {
+        // Generic: pass apiKey
+        std::string key = pszKey.m_psz ? WStringToUTF8(std::wstring(pszKey.m_psz)) : "";
+        credsJson = "{\"apiKey\":\"" + key + "\"}";
+    }
+
+    // Create the RustTts engine
+    m_rustTts = std::make_unique<RustTts::Engine>();
+    if (!m_rustTts->Create(lowerType, credsJson))
+    {
+        LogWarn("RustTts: failed to create engine '{}', falling back", lowerType);
+        m_rustTts.reset();
+        return false;
+    }
+
+    // Set voice if specified
+    if (pszVoice.m_psz && *pszVoice.m_psz)
+    {
+        m_rustTts->SetVoice(WStringToUTF8(std::wstring(pszVoice.m_psz)));
+    }
+
+    // Register callbacks that route audio and events back to CTTSEngine
+    m_rustTts->SetOnAudio([this](const uint8_t* data, uint32_t len) {
+        std::lock_guard<std::recursive_mutex> lock(m_outputSiteMutex);
+        if (m_pOutputSite && len > 0)
+        {
+            // Write audio to the SAPI output site
+            OnAudioData(const_cast<uint8_t*>(data), len);
+        }
+    });
+
+    m_rustTts->SetOnBoundary([this](const char* word, int32_t charOffset,
+                                    int32_t charLen, float startS, float endS) {
+        // Skip events with invalid offsets
+        if (charOffset < 0 || charLen <= 0)
+            return;
+
+        // Translate plain-text offsets (from Rust) → SAPI source offsets
+        ULONG sapiOffset = TranslateOffset(static_cast<ULONG>(charOffset));
+
+        LogInfo("RustTts boundary: word='{}' plainOffset={} sapiOffset={} len={} startS={:.3f}",
+                word ? word : "(null)", charOffset, sapiOffset, charLen, startS);
+
+        uint64_t offsetTicks = static_cast<uint64_t>(startS * 1e7);
+        ULONGLONG audioBytes = WaveTicksToBytes(offsetTicks);
+
+        std::lock_guard lock(m_outputSiteMutex);
+        if (!m_pOutputSite) return;
+
+        SPEVENT ev;
+        ZeroMemory(&ev, sizeof(ev));
+        ev.ullAudioStreamOffset = audioBytes;
+        ev.eEventId = SPEI_WORD_BOUNDARY;
+        ev.elParamType = SPET_LPARAM_IS_UNDEFINED;
+        ev.lParam = static_cast<LPARAM>(sapiOffset);
+        ev.wParam = static_cast<WPARAM>(charLen);
+        m_pOutputSite->AddEvents(&ev, 1);
+    });
+
+    m_rustTts->SetOnViseme([this](int32_t visemeId, float offsetS) {
+        uint64_t offsetTicks = static_cast<uint64_t>(offsetS * 1e7);
+        OnViseme(offsetTicks, static_cast<uint32_t>(visemeId));
+    });
+
+    m_rustTts->SetOnError([](const char* msg) {
+        LogErr("RustTts engine error: {}", msg ? msg : "(null)");
+    });
+
+    m_onlineVoiceName = pszVoice.m_psz ? pszVoice.m_psz : L"";
+    m_rustTtsUseSsml = false; // All engines use plain text — Rust builds SSML internally
+    LogInfo("RustTts voice created: {} / {}", engineType, pszVoice.m_psz ? pszVoice.m_psz : L"(default)");
     return true;
 }
 
@@ -1034,6 +720,7 @@ int CTTSEngine::OnAudioData(uint8_t* data, uint32_t len)
     }
 
     HRESULT hr = m_pOutputSite->Write(data, len - m_lastSilentBytes, &written);
+
     // Assumes that the data can be either entirely written or not written at all
     // because some implementations do not set the written bytes correctly
     if (SUCCEEDED(hr))
@@ -1070,20 +757,6 @@ void CTTSEngine::OnBoundary(uint64_t audioOffsetTicks, uint32_t textOffset, uint
     ev.lParam = offset;
     ev.wParam = length;
     m_pOutputSite->AddEvents(&ev, 1);
-
-    if (m_isEdgeVoice && boundaryType == SPEI_WORD_BOUNDARY)
-    {
-        // trigger every untriggered bookmark until current word's end position
-        auto size = m_bookmarks.size();
-        while (m_bookmarkIndex < size)
-        {
-            auto& bookmark = m_bookmarks[m_bookmarkIndex];
-            if (offset + length <= bookmark.ulSAPITextOffset)
-                break;
-            OnBookmark(audioOffsetTicks, bookmark.name);
-            m_bookmarkIndex++;
-        }
-    }
 }
 void CTTSEngine::OnViseme(uint64_t offsetTicks, uint32_t visemeId)
 {
@@ -1097,65 +770,6 @@ void CTTSEngine::OnViseme(uint64_t offsetTicks, uint32_t visemeId)
     // Cognitive Speech uses the same viseme ID values as SAPI 
     ev.lParam = MAKELONG(visemeId, 0);
     m_pOutputSite->AddEvents(&ev, 1);
-}
-
-void CTTSEngine::SetupSynthesizerEvents(ULONGLONG interests)
-{
-    ClearSynthesizerEvents();
-    
-    m_synthesizer->SynthesisStarted += [this](const SpeechSynthesisEventArgs&)
-    {
-        m_synthesizerStarted.store(true, std::memory_order_relaxed);
-    };
-    m_synthesizerStarted.store(false, std::memory_order_relaxed);
-
-    if (interests & SVEBookmark)
-        m_synthesizer->BookmarkReached += [this](const SpeechSynthesisBookmarkEventArgs& arg)
-        {
-            OnBookmark(arg.AudioOffset, UTF8ToWString(arg.Text));
-        };
-
-    if (interests & (SVEWordBoundary | SVESentenceBoundary))
-        m_synthesizer->WordBoundary += [this](const SpeechSynthesisWordBoundaryEventArgs& arg)
-        {
-            if (arg.BoundaryType == SpeechSynthesisBoundaryType::Punctuation)
-                return;
-            OnBoundary(arg.AudioOffset, arg.TextOffset, arg.WordLength,
-                arg.BoundaryType == SpeechSynthesisBoundaryType::Sentence ? SPEI_SENTENCE_BOUNDARY : SPEI_WORD_BOUNDARY);
-        };
-
-    if (interests & SVEViseme)
-        m_synthesizer->VisemeReceived += [this](const SpeechSynthesisVisemeEventArgs& arg)
-        {
-            OnViseme(arg.AudioOffset, arg.VisemeId);
-        };
-}
-
-void CTTSEngine::ClearSynthesizerEvents()
-{
-    if (!m_synthesizer)
-        return;
-
-    m_synthesizer->BookmarkReached.DisconnectAll();
-    m_synthesizer->WordBoundary.DisconnectAll();
-    m_synthesizer->VisemeReceived.DisconnectAll();
-    m_synthesizer->SynthesisStarted.DisconnectAll();
-    m_synthesizer->SynthesisCompleted.DisconnectAll();
-    m_synthesizer->SynthesisCanceled.DisconnectAll();
-}
-
-void CTTSEngine::SetupRestAPIEvents(ULONGLONG interests)
-{
-    m_restApi->AudioReceivedCallback = std::bind_front(&CTTSEngine::OnAudioData, this);
-    if (interests & SVEBookmark)
-        m_restApi->BookmarkCallback = [this](auto a, auto b) { OnBookmark(a, UTF8ToWString(b)); };
-    if ((interests & SVEWordBoundary)
-        || (m_isEdgeVoice && (interests & SVEBookmark))) // Edge voice's bookmarks require word boundary events
-        m_restApi->WordBoundaryCallback = [this](auto a, auto b, auto c) { OnBoundary(a, b, c, SPEI_WORD_BOUNDARY); };
-    if (interests & SVESentenceBoundary)
-        m_restApi->SentenceBoundaryCallback = [this](auto a, auto b, auto c) { OnBoundary(a, b, c, SPEI_SENTENCE_BOUNDARY); };
-    if (interests & SVEViseme)
-        m_restApi->VisemeCallback = std::bind_front(&CTTSEngine::OnViseme, this);
 }
 
 void CTTSEngine::AppendTextFragToSsml(const SPVTEXTFRAG* pTextFrag)
@@ -1749,71 +1363,6 @@ std::wstring CTTSEngine::StripSSML(const std::wstring& ssml)
     return result.substr(start, end - start + 1);
 }
 
-void CTTSEngine::GenerateSherpaOnnxAudio(const std::string& plainText)
-{
-    if (plainText.empty())
-    {
-        LogWarn("SherpaOnnx: No text to speak");
-        return;
-    }
-
-    try
-    {
-        if (m_sherpaAbortRequested.load(std::memory_order_relaxed))
-        {
-            LogInfo("SherpaOnnx generation aborted");
-            return;
-        }
-
-        // Serialize calls into shared Sherpa engine instance.
-        std::vector<float> samples;
-        {
-            std::lock_guard<std::mutex> guard(g_sherpaGenerateMutex);
-            // Baseline stable path: generate full audio first, then stream to SAPI output site.
-            LogInfo("SherpaOnnx: Generate() call begin");
-            samples = m_sherpaOnnx->Generate(plainText, 1.0f);
-            LogInfo("SherpaOnnx: Generate() call end");
-        }
-        if (samples.empty())
-        {
-            if (!m_sherpaAbortRequested.load(std::memory_order_relaxed))
-                LogWarn("SherpaOnnx generated no audio for text: {}", plainText);
-            return;
-        }
-
-        if (m_sherpaAbortRequested.load(std::memory_order_relaxed))
-        {
-            LogInfo("SherpaOnnx generation aborted");
-            return;
-        }
-
-        std::vector<BYTE> pcmData;
-        pcmData.reserve(samples.size() * 2);
-        for (float s : samples)
-        {
-            float clamped = std::clamp(s, -1.0f, 1.0f);
-            int16_t pcm = static_cast<int16_t>(clamped * 32767.0f);
-            pcmData.push_back(static_cast<BYTE>(pcm & 0xFF));
-            pcmData.push_back(static_cast<BYTE>((pcm >> 8) & 0xFF));
-        }
-
-        int wrote = OnAudioData(pcmData.data(), static_cast<uint32_t>(pcmData.size()));
-        LogInfo("SherpaOnnx: OnAudioData returned {}", wrote);
-        if (wrote <= 0)
-        {
-            LogWarn("SherpaOnnx audio write failed for text: {}", plainText);
-            return;
-        }
-
-        LogInfo("SherpaOnnx generated {} samples", samples.size());
-    }
-    catch (const std::exception& ex)
-    {
-        LogErr("SherpaOnnx generation failed: {}", ex.what());
-        throw;
-    }
-}
-
 void CTTSEngine::FinishSimulatingBookmarkEvents(ULONGLONG streamOffset)
 {
     const auto size = m_bookmarks.size();
@@ -1895,14 +1444,3 @@ void CTTSEngine::MapTextOffset(ULONG& ulSSMLOffset, ULONG& ulTextLen)
 }
 
 // Checks the result from speech operation, and throws if error happened
-void CTTSEngine::CheckSynthesisResult(const std::shared_ptr<SpeechSynthesisResult>& result)
-{
-    if (result->Reason != ResultReason::Canceled)
-        return;
-
-    auto details = SpeechSynthesisCancellationDetails::FromResult(result);
-    if (details->Reason != CancellationReason::Error)
-        return;
-
-    throw std::runtime_error(UTF8ToAnsi(details->ErrorDetails));
-}

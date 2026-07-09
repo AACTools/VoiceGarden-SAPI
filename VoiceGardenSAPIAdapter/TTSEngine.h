@@ -1,17 +1,14 @@
 // TTSEngine.h: CTTSEngine 的声明
 
 #pragma once
-#include "resource.h"       // 主符号
-#include "GenericHttpTts.h"
+#include "resource.h"
 
 #include "pch.h"
-#include <speechapi_cxx.h>
-#include "SpeechRestAPI.h"
+#include <speechapi_cxx.h>  // needed for sapi_category in SapiException
 #include "Logger.h"
 #include "SapiException.h"
-#include "Mp3Decoder.h"
 
-#include "../SherpaOnnx/SherpaOnnxEngine.h"
+#include "RustTts/RustTtsEngine.h"
 #include "VoiceGardenSAPIAdapter_i.h"
 
 
@@ -99,15 +96,15 @@ public: // Interface implementation
 private:
 	struct TextOffsetMapping
 	{
-		ULONG ulSAPITextOffset; // offset in source string from SAPI
-		ULONG ulSSMLTextOffset; // offset in our SSML buffer
+		ULONG ulSAPITextOffset;
+		ULONG ulSSMLTextOffset;
 		constexpr TextOffsetMapping(ULONG ulSAPITextOffset, ULONG ulSSMLTextOffset) noexcept
 			: ulSAPITextOffset(ulSAPITextOffset), ulSSMLTextOffset(ulSSMLTextOffset) {}
 	};
 
 	struct BookmarkInfo
 	{
-		ULONG ulSAPITextOffset; // offset in source string from SAPI
+		ULONG ulSAPITextOffset;
 		std::wstring name;
 		constexpr BookmarkInfo(ULONG ulSAPITextOffset, std::wstring name) noexcept
 			: ulSAPITextOffset(ulSAPITextOffset), name(name) {}
@@ -121,18 +118,29 @@ private: // Member variables
 
 	CComPtr<ISpObjectToken> m_cpToken;
 	CComPtr<ISpPhoneConverter> m_phoneConverter;
-	std::shared_ptr<SpeechSynthesizer> m_synthesizer;
-	std::unique_ptr<SpeechRestAPI> m_restApi;
-	std::shared_ptr<SherpaOnnx::Engine> m_sherpaOnnx;
-	std::unique_ptr<GenericHttpTts> m_genericTts;
+	std::unique_ptr<RustTts::Engine> m_rustTts;
+	bool m_rustTtsUseSsml = false;
 	std::future<void> m_lastCancellingFuture;
+
+	// Boundary events queued during synthesis, delivered via SAPI AddEvents
+	struct PendingBoundary {
+		ULONGLONG audioByteOffset;
+		ULONG textOffset;
+		ULONG textLen;
+	};
+	std::vector<PendingBoundary> m_pendingBoundaries;
+	size_t m_boundaryIndex = 0;
+	ULONGLONG m_totalAudioBytesWritten = 0;
+
+	// Maps plain text character positions → SAPI source text positions.
+	// Populated by ExtractSherpaPlainTextWithMap(). Used by boundary
+	// callback to translate Rust's plain-text offsets back to SAPI offsets.
+	std::vector<ULONG> m_plainToSapiMap;
 
 	ErrorMode m_errorMode = ErrorMode::ProbeForError;
 	bool m_isEdgeVoice = false;
-	bool m_isSherpaOnnxVoice = false;
 	bool m_onlineDelayOptimization = false;
 	bool m_compensatedSilenceWritten = false;
-	std::atomic_bool m_synthesizerStarted = false;
 	std::atomic_bool m_sherpaAbortRequested = false;
 	ULONG m_lastSilentBytes = 0;
 	ULONG m_compensatedSilentBytes = 0;
@@ -144,16 +152,9 @@ private: // Member variables
 
 	std::wstring m_ssml; // translated SSML
 
-	// SAPI XML will be translated into SSML,
-	// but we need to keep track of the original text offsets
-	// so that events like WordBoundary still work
 	std::vector<TextOffsetMapping> m_offsetMappings;
-
 	size_t m_mappingIndex = 0;
 
-	// Edge voices do not support bookmarks.
-	// We store the specified bookmark positions,
-	// and when a word boundary
 	std::vector<BookmarkInfo> m_bookmarks;
 	size_t m_bookmarkIndex = 0;
 
@@ -167,26 +168,24 @@ private: // Private methods
 
 	void InitPhoneConverter();
 	void InitVoice();
-	bool InitLocalVoice(ISpDataKey* pConfigKey);
-	bool InitSherpaOnnxVoice(ISpDataKey* pConfigKey);
-	bool InitCloudVoiceSynthesizer(ISpDataKey* pConfigKey);
-	bool InitCloudVoiceRestAPI(ISpDataKey* pConfigKey);
-	bool InitGenericHttpVoice(ISpDataKey* pConfigKey);
-	void SetupSynthesizerEvents(ULONGLONG interests);
-	void ClearSynthesizerEvents();
-	void SetupRestAPIEvents(ULONGLONG interests);
+	bool InitRustTtsVoice(ISpDataKey* pConfigKey);
+
+	void FinishSimulatingBookmarkEvents(ULONGLONG streamOffset);
 
 	void AppendTextFragToSsml(const SPVTEXTFRAG* pTextFrag);
 	void AppendPhonemesToSsml(const SPPHONEID* pPhoneIds);
 	void AppendSAPIContextToSsml(const SPVCONTEXT& context);
 	bool BuildSSML(const SPVTEXTFRAG* pTextFragList);
 	std::wstring StripSSML(const std::wstring& ssml);
-	void GenerateSherpaOnnxAudio(const std::string& plainText);
 
-	void FinishSimulatingBookmarkEvents(ULONGLONG streamOffset);
+	/// Extract plain text from SAPI fragments AND build a character position
+	/// map (plain text pos → SAPI source pos) for boundary event translation.
+	std::wstring ExtractSherpaPlainTextWithMap(const SPVTEXTFRAG* pTextFragList);
+
+	/// Translate a plain-text character offset to SAPI source offset.
+	ULONG TranslateOffset(ULONG plainOffset) const;
 
 	void MapTextOffset(ULONG& ulSSMLOffset, ULONG& ulTextLen);
-	void CheckSynthesisResult(const std::shared_ptr<SpeechSynthesisResult>& result);
 
 	template <class Exception, class... Args>
 	HRESULT OnException(
@@ -225,9 +224,7 @@ HRESULT CTTSEngine::OnException(
 			{
 				auto& cat = ex.code().category();
 				if (cat != std::system_category()
-					&& cat != sapi_category()
-					&& cat != azac_category()
-					&& cat != mci_category())
+					&& cat != sapi_category())
 					wmsg.insert(0, L"Network connection error:\r\n\r\n");
 			}
 			MessageBoxW(NULL, wmsg.c_str(), L"VoiceGardenSAPIAdapter", MB_ICONEXCLAMATION | MB_SYSTEMMODAL);

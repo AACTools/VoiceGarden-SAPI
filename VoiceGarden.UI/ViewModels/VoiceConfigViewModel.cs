@@ -1,11 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DotNetTtsWrapper.Models;
-using DotNetTtsWrapper.Engines;
 using VoiceGarden.UI.Services;
 
 namespace VoiceGarden.UI.ViewModels;
@@ -80,16 +79,16 @@ public partial class VoiceConfigViewModel : ObservableObject
 
         try
         {
-            var creds = BuildCredentials();
-            var client = TtsFactory.CreateClient(CurrentEngine, creds);
-            if (client == null)
+            var creds = BuildRustCredentials();
+            if (creds == null)
             {
                 StatusText = $"Unknown engine: {CurrentEngine}";
                 IsLoading = false;
                 return;
             }
 
-            var voices = await client.GetVoicesAsync();
+            using var client = new RustTtsWrapper.TtsClient(CurrentEngine, creds);
+            var voices = client.GetVoices();
             TotalVoices = voices.Count;
 
             foreach (var v in voices)
@@ -98,9 +97,9 @@ public partial class VoiceConfigViewModel : ObservableObject
                 {
                     Id = v.Id ?? "",
                     Name = v.Name ?? v.Id ?? "",
-                    Language = v.LanguageCodes?.FirstOrDefault()?.Bcp47 ?? "en-US",
-                    Gender = v.Gender.ToString(),
-                    Provider = v.Provider ?? CurrentEngine,
+                    Language = string.IsNullOrEmpty(v.Language) ? "en-US" : v.Language,
+                    Gender = v.Gender ?? "Unknown",
+                    Provider = v.Engine ?? CurrentEngine,
                 };
                 AllVoices.Add(item);
             }
@@ -134,44 +133,22 @@ public partial class VoiceConfigViewModel : ObservableObject
 
         try
         {
-            var creds = BuildCredentials();
-            var client = TtsFactory.CreateClient(CurrentEngine, creds);
-            if (client == null)
+            var creds = BuildRustCredentials();
+            if (creds == null)
             {
                 ValidationResult = "Unknown engine";
                 return;
             }
 
-            // Try CheckCredentialsAsync first
-            var result = await client.CheckCredentialsAsync();
-            if (result.IsValid)
-            {
-                ValidationResult = $"Valid ({result.AvailableVoiceCount} voices)";
-                IsValidated = true;
-                return;
-            }
-
-            // Fall back to synthesis test
-            try
-            {
-                var synthResult = await client.SynthToBytesAsync("test");
-                if (synthResult?.AudioData?.Length > 0)
-                {
-                    ValidationResult = "Valid (synthesis test passed)";
-                    IsValidated = true;
-                    return;
-                }
-            }
-            catch (Exception ex)
-            {
-                ValidationResult = $"Invalid: {ex.Message}";
-            }
-
-            IsValidated = false;
+            // Try to list voices as credential validation
+            using var client = new RustTtsWrapper.TtsClient(CurrentEngine, creds);
+            var voices = client.GetVoices();
+            ValidationResult = $"Valid ({voices.Count} voices)";
+            IsValidated = true;
         }
-        catch (Exception ex)
+        catch (RustTtsWrapper.TtsException ex)
         {
-            ValidationResult = $"Error: {ex.Message}";
+            ValidationResult = $"Invalid: {ex.Message}";
             IsValidated = false;
         }
         finally
@@ -237,33 +214,25 @@ public partial class VoiceConfigViewModel : ObservableObject
         StatusText = $"Previewing {voice.Name}...";
         try
         {
-            var creds = BuildCredentials();
+            // Use rust-tts-wrapper for cloud voice preview
+            var creds = BuildRustCredentials();
             if (creds == null) return;
 
-            var client = TtsFactory.CreateClient(CurrentEngine, creds);
-            if (client == null) return;
-
+            using var client = new RustTtsWrapper.TtsClient(CurrentEngine, creds);
             client.SetVoice(voice.Id);
-            var tempFile = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"voicegarden_preview_{Guid.NewGuid():N}.wav");
-            
-            // Use SynthToFileAsync with WAV format — SynthToBytesAsync returns MP3
-            // for some engines (Azure, OpenAI) which SoundPlayer can't play.
-            await client.SynthToFileAsync($"Hello, my name is {voice.Name}.", tempFile, DotNetTtsWrapper.Models.AudioFormat.Wav);
-            
-            if (System.IO.File.Exists(tempFile) && new System.IO.FileInfo(tempFile).Length > 0)
+
+            var audioData = client.SynthToBytes($"Hello, my name is {voice.Name}.");
+            if (audioData.Length > 0)
             {
-                // Play without opening a media player window
+                // Rust returns raw PCM16 mono — wrap in WAV header for SoundPlayer
+                var wavData = WrapPcmInWav(audioData, 24000);
+                var tempFile = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"voicegarden_preview_{Guid.NewGuid():N}.wav");
+                await System.IO.File.WriteAllBytesAsync(tempFile, wavData);
                 _ = Task.Run(() =>
                 {
-                    try
-                    {
-                        using var player = new System.Media.SoundPlayer(tempFile);
-                        player.PlaySync();
-                    }
+                    try { using var player = new System.Media.SoundPlayer(tempFile); player.PlaySync(); }
                     catch { }
-                    finally
-                    {
-                        try { System.IO.File.Delete(tempFile); } catch { }
+                    finally { try { System.IO.File.Delete(tempFile); } catch { }
                     }
                 });
                 StatusText = $"Previewing {voice.Name}";
@@ -273,7 +242,7 @@ public partial class VoiceConfigViewModel : ObservableObject
                 StatusText = "No audio generated";
             }
         }
-        catch (Exception ex)
+        catch (RustTtsWrapper.TtsException ex)
         {
             StatusText = $"Preview failed: {ex.Message}";
         }
@@ -293,25 +262,59 @@ public partial class VoiceConfigViewModel : ObservableObject
         UpdateSelectedCount();
     }
 
-    private ITtsCredentials? BuildCredentials()
+    private Dictionary<string, string>? BuildRustCredentials()
     {
         return CurrentEngine.ToLowerInvariant() switch
         {
-            "azure" => new AzureCredentials { SubscriptionKey = CurrentKey, Region = CurrentRegion },
-            "openai" => new OpenAICredentials { ApiKey = CurrentKey },
-            "elevenlabs" => new ElevenLabsCredentials { ApiKey = CurrentKey },
-            "google" => new GoogleCredentials { ApiKey = CurrentKey },
-            "polly" => new PollyCredentials { AccessKeyId = CurrentKey, SecretAccessKey = "", Region = CurrentRegion },
-            "cartesia" => new CartesiaCredentials { ApiKey = CurrentKey },
-            "deepgram" => new DeepgramCredentials { ApiKey = CurrentKey },
+            "azure" => new() { { "subscriptionKey", CurrentKey }, { "region", CurrentRegion } },
+            "openai" or "elevenlabs" or "google" or "cartesia" or "deepgram" or
+            "fishaudio" or "hume" or "mistral" or "murf" or "resemble" or
+            "unrealspeech" or "upliftai" or "xai" or "modelslab" =>
+                new() { { "apiKey", CurrentKey } },
+            "watson" => new() { { "apiKey", CurrentKey }, { "region", CurrentRegion } },
+            "playht" => new() { { "apiKey", CurrentKey }, { "userId", CurrentRegion } },
+            "witai" => new() { { "token", CurrentKey } },
             _ => null,
         };
+    }
+
+    /// <summary>
+    /// Wrap raw PCM16 mono samples in a WAV header so SoundPlayer can play them.
+    /// Rust's SynthToBytes returns raw PCM16, not WAV.
+    /// </summary>
+    private static byte[] WrapPcmInWav(byte[] pcm, int sampleRate)
+    {
+        using var ms = new System.IO.MemoryStream();
+        using var bw = new System.IO.BinaryWriter(ms);
+        short channels = 1;
+        short bitsPerSample = 16;
+        int byteRate = sampleRate * channels * bitsPerSample / 8;
+        short blockAlign = (short)(channels * bitsPerSample / 8);
+        int dataLen = pcm.Length;
+        int riffLen = 36 + dataLen;
+
+        bw.Write(System.Text.Encoding.ASCII.GetBytes("RIFF"));
+        bw.Write(riffLen);
+        bw.Write(System.Text.Encoding.ASCII.GetBytes("WAVE"));
+        bw.Write(System.Text.Encoding.ASCII.GetBytes("fmt "));
+        bw.Write(16); // PCM chunk size
+        bw.Write((short)1); // PCM format
+        bw.Write(channels);
+        bw.Write(sampleRate);
+        bw.Write(byteRate);
+        bw.Write(blockAlign);
+        bw.Write(bitsPerSample);
+        bw.Write(System.Text.Encoding.ASCII.GetBytes("data"));
+        bw.Write(dataLen);
+        bw.Write(pcm);
+        return ms.ToArray();
     }
 
     private void ApplyFilter()
     {
         FilteredVoices.Clear();
         var filter = SearchFilter?.Trim().ToLowerInvariant() ?? "";
+
         foreach (var v in AllVoices)
         {
             if (string.IsNullOrEmpty(filter) ||
@@ -323,7 +326,7 @@ public partial class VoiceConfigViewModel : ObservableObject
             }
         }
         StatusText = string.IsNullOrEmpty(filter)
-            ? $"Showing {TotalVoices} voices"
+            ? $"{TotalVoices} voices"
             : $"Showing {FilteredVoices.Count} of {TotalVoices} voices";
     }
 

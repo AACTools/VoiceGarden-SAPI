@@ -156,14 +156,13 @@ public static class CliDispatcher
         opts.TryGetValue("region", out var region);
         var asJson = args.Contains("--json");
 
-        var creds = BuildCredentials(engine, key, region ?? "");
+        var creds = BuildRustCredentials(engine, key, region ?? "");
         if (creds == null) { Console.Error.WriteLine($"Unknown engine: {engine}"); return 1; }
 
-        var client = DotNetTtsWrapper.Models.TtsFactory.CreateClient(engine, creds);
-        if (client == null) { Console.Error.WriteLine($"Could not create client"); return 1; }
+        using var client = new RustTtsWrapper.TtsClient(engine, creds);
 
         Console.Error.WriteLine($"Fetching voices for {engine}...");
-        var voices = client.GetVoicesAsync().GetAwaiter().GetResult();
+        var voices = client.GetVoices();
         Console.Error.WriteLine($"Found {voices.Count} voices");
 
         if (asJson)
@@ -171,9 +170,9 @@ public static class CliDispatcher
             var json = System.Text.Json.JsonSerializer.Serialize(voices.Select(v => new
             {
                 id = v.Id, name = v.Name,
-                language = v.LanguageCodes?.FirstOrDefault()?.Bcp47 ?? "en-US",
-                gender = v.Gender.ToString(),
-                provider = v.Provider ?? engine
+                language = string.IsNullOrEmpty(v.Language) ? "en-US" : v.Language,
+                gender = v.Gender ?? "Unknown",
+                provider = v.Engine ?? engine
             }));
             Console.WriteLine(json);
         }
@@ -181,7 +180,7 @@ public static class CliDispatcher
         {
             foreach (var v in voices)
             {
-                var lang = v.LanguageCodes?.FirstOrDefault()?.Bcp47 ?? "en-US";
+                var lang = string.IsNullOrEmpty(v.Language) ? "en-US" : v.Language;
                 Console.WriteLine($"  {v.Id,-40} {v.Name,-30} {lang}");
             }
         }
@@ -198,23 +197,16 @@ public static class CliDispatcher
         }
         opts.TryGetValue("region", out var region);
 
-        var creds = BuildCredentials(engine, key, region ?? "");
+        var creds = BuildRustCredentials(engine, key, region ?? "");
         if (creds == null) { Console.Error.WriteLine($"Unknown engine: {engine}"); return 1; }
-
-        var client = DotNetTtsWrapper.Models.TtsFactory.CreateClient(engine, creds);
-        if (client == null) { Console.Error.WriteLine($"Could not create client"); return 1; }
 
         Console.Write($"Validating {engine} credentials... ");
         try
         {
-            var result = client.CheckCredentialsAsync().GetAwaiter().GetResult();
-            if (result.IsValid)
-            {
-                Console.WriteLine($"OK ({result.AvailableVoiceCount} voices)");
-                return 0;
-            }
-            Console.WriteLine($"INVALID: {result.ErrorMessage}");
-            return 2;
+            using var client = new RustTtsWrapper.TtsClient(engine, creds);
+            var voices = client.GetVoices();
+            Console.WriteLine($"OK ({voices.Count} voices)");
+            return 0;
         }
         catch (Exception ex)
         {
@@ -276,17 +268,18 @@ public static class CliDispatcher
         return 1;
     }
 
-    private static DotNetTtsWrapper.Models.ITtsCredentials? BuildCredentials(string engine, string key, string region)
+    private static Dictionary<string, string>? BuildRustCredentials(string engine, string key, string region)
     {
         return engine.ToLowerInvariant() switch
         {
-            "azure" => new DotNetTtsWrapper.Models.AzureCredentials { SubscriptionKey = key, Region = region },
-            "openai" => new DotNetTtsWrapper.Models.OpenAICredentials { ApiKey = key },
-            "elevenlabs" => new DotNetTtsWrapper.Models.ElevenLabsCredentials { ApiKey = key },
-            "google" => new DotNetTtsWrapper.Models.GoogleCredentials { ApiKey = key },
-            "polly" => new DotNetTtsWrapper.Models.PollyCredentials { AccessKeyId = key, Region = region },
-            "cartesia" => new DotNetTtsWrapper.Models.CartesiaCredentials { ApiKey = key },
-            "deepgram" => new DotNetTtsWrapper.Models.DeepgramCredentials { ApiKey = key },
+            "azure" => new() { { "subscriptionKey", key }, { "region", region } },
+            "openai" or "elevenlabs" or "google" or "cartesia" or "deepgram" or
+            "fishaudio" or "hume" or "mistral" or "murf" or "resemble" or
+            "unrealspeech" or "upliftai" or "xai" or "modelslab" =>
+                new() { { "apiKey", key } },
+            "watson" => new() { { "apiKey", key }, { "region", region } },
+            "playht" => new() { { "apiKey", key }, { "userId", region } },
+            "witai" => new() { { "token", key } },
             _ => null,
         };
     }

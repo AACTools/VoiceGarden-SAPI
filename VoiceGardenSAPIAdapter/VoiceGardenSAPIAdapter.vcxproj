@@ -430,17 +430,16 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="LangUtils.h" />
     <ClInclude Include="Logger.h" />
-    <ClInclude Include="Mp3Decoder.h" />
-    <ClInclude Include="GenericHttpTts.h" />
+            <ClInclude Include="RustTts\RustTtsLoader.h" />
+    <ClInclude Include="RustTts\RustTtsEngine.h" />
+    <ClInclude Include="RustTts\tts_wrapper.h" />
     <ClInclude Include="VoiceGardenSAPIAdapter_i.h" />
-    <ClInclude Include="NetUtils.h" />
-    <ClInclude Include="pch.h" />
+        <ClInclude Include="pch.h" />
     <ClInclude Include="RegKey.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SapiException.h" />
     <ClInclude Include="SpeechServiceConstants.h" />
-    <ClInclude Include="SpeechRestAPI.h" />
-    <ClInclude Include="StringTokenizer.h" />
+        <ClInclude Include="StringTokenizer.h" />
     <ClInclude Include="StrUtils.h" />
     <ClInclude Include="SystemLibraryErrorCategory.h" />
     <ClInclude Include="targetver.h" />
@@ -450,17 +449,11 @@
     <ClInclude Include="DataKey.h" />
     <ClInclude Include="VoiceToken.h" />
     <ClInclude Include="VoiceTokenEnumerator.h" />
-    <ClInclude Include="WSConnectionPool.h" />
-    <ClInclude Include="..\SherpaOnnx\SherpaOnnxEngine.h" />
-    <ClInclude Include="..\SherpaOnnx\SherpaOnnxModels.h" />
-    <ClInclude Include="..\SherpaOnnx\SherpaOnnxConfig.h" />
-    <ClInclude Include="..\SherpaOnnx\SherpaOnnxDynamic.h" />
-    <ClInclude Include="WSLogger.h" />
+                        <ClInclude Include="WSLogger.h" />
     <ClInclude Include="wrappers.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="delaydll.cpp" />
-    <ClCompile Include="dllmain.cpp">
+        <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">false</CompileAsManaged>
@@ -470,8 +463,7 @@
     </ClCompile>
     <ClCompile Include="LangUtils.cpp" />
     <ClCompile Include="Logger.cpp" />
-    <ClCompile Include="Mp3Decoder.cpp" />
-    <ClCompile Include="VoiceGardenSAPIAdapter.cpp" />
+        <ClCompile Include="VoiceGardenSAPIAdapter.cpp" />
     <ClCompile Include="VoiceGardenSAPIAdapter_i.c">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
@@ -492,9 +484,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="NetUtils.cpp" />
-    <ClCompile Include="GenericHttpTts.cpp" />
-    <ClCompile Include="pch.cpp">
+            <ClCompile Include="RustTts\RustTtsLoader.cpp" />
+    <ClCompile Include="RustTts\RustTtsEngine.cpp" />
+            <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -502,43 +494,20 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="SpeechRestAPI.cpp">
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/bigobj %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/bigobj %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
-    </ClCompile>
-    <ClCompile Include="FileCache.cpp" />
     <ClCompile Include="TTSEngine.cpp" />
+    <ClCompile Include="delaydll.cpp" />
+    <ClCompile Include="FileCache.cpp" />
+    <ClCompile Include="NetUtils.cpp" />
     <ClCompile Include="VoiceTokenEnumerator.cpp" />
-    <ClCompile Include="WSConnectionPool.cpp" />
-    <ClCompile Include="..\SherpaOnnx\SherpaOnnxEngine.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="..\SherpaOnnx\SherpaOnnxModels.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\SherpaOnnx\SherpaOnnxDynamic.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-  </ItemGroup>
+        </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VoiceGardenSAPIAdapter.rc" />
   </ItemGroup>
@@ -574,3 +543,16 @@
     <Error Condition="!Exists('..\packages\YY-Thunks.1.1.9\build\native\YY-Thunks.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY-Thunks.1.1.9\build\native\YY-Thunks.targets'))" />
   </Target>
 </Project>
+
+
+
+
+
+
+
+
+
+
+
+
+

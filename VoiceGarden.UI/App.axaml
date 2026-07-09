@@ -2,7 +2,33 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="VoiceGarden.UI.App"
              RequestedThemeVariant="Light">
+
     <Application.Styles>
         <FluentTheme />
     </Application.Styles>
+
+    <Application.Resources>
+        <!-- VoiceGarden Brand Colors (from voice-garden-website) -->
+        <Color x:Key="VGPrimary">#F97316</Color>
+        <Color x:Key="VGPrimaryHover">#EA680C</Color>
+        <Color x:Key="VGPrimaryForeground">#FAF8F5</Color>
+        <Color x:Key="VGForeground">#0A0E1A</Color>
+        <Color x:Key="VGMuted">#64748B</Color>
+        <Color x:Key="VGBorder">#CBD5E1</Color>
+        <Color x:Key="VGCardBackground">#FFFFFF</Color>
+        <Color x:Key="VGAccent">#F1F5F9</Color>
+        <Color x:Key="VGSuccess">#22C55E</Color>
+        <Color x:Key="VGDestructive">#EF4444</Color>
+
+        <SolidColorBrush x:Key="VGPrimaryBrush" Color="{StaticResource VGPrimary}"/>
+        <SolidColorBrush x:Key="VGPrimaryHoverBrush" Color="{StaticResource VGPrimaryHover}"/>
+        <SolidColorBrush x:Key="VGPrimaryForegroundBrush" Color="{StaticResource VGPrimaryForeground}"/>
+        <SolidColorBrush x:Key="VGForegroundBrush" Color="{StaticResource VGForeground}"/>
+        <SolidColorBrush x:Key="VGMutedBrush" Color="{StaticResource VGMuted}"/>
+        <SolidColorBrush x:Key="VGBorderBrush" Color="{StaticResource VGBorder}"/>
+        <SolidColorBrush x:Key="VGCardBrush" Color="{StaticResource VGCardBackground}"/>
+        <SolidColorBrush x:Key="VGAccentBrush" Color="{StaticResource VGAccent}"/>
+        <SolidColorBrush x:Key="VGSuccessBrush" Color="{StaticResource VGSuccess}"/>
+        <SolidColorBrush x:Key="VGDestructiveBrush" Color="{StaticResource VGDestructive}"/>
+    </Application.Resources>
 </Application>

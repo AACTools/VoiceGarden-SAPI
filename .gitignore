@@ -403,3 +403,10 @@ engine-config/
 
 
 vg_promote_output.txt
+
+# Old archived code
+archive/
+
+out-full/
+out-rust-tts/
+payload/

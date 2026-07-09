@@ -38,31 +38,11 @@ if (!(Test-Path $setupDir -PathType Container)) {
     throw "Setup project directory not found: $setupDir"
 }
 
-$productName = "VoiceGardenSAPIAdapter"
-$manufacturer = "VoiceGardenSAPIAdapter"
-$installFolderName = "VoiceGardenSAPIAdapter"
-$installerShortcutName = "VoiceGardenSAPIAdapter Installer"
-$projectUrl = "https://github.com/gexgd0419/VoiceGardenSAPIAdapter"
-
-$brandingPath = $null
-if (![string]::IsNullOrWhiteSpace($BrandingFile)) {
-    $brandingPath = if ([System.IO.Path]::IsPathRooted($BrandingFile)) { $BrandingFile } else { Join-Path $repoRoot $BrandingFile }
-    if (!(Test-Path $brandingPath -PathType Leaf)) {
-        throw "Branding file not found: $brandingPath"
-    }
-}
-elseif (Test-Path (Join-Path $repoRoot "config\branding.json") -PathType Leaf) {
-    $brandingPath = Join-Path $repoRoot "config\branding.json"
-}
-
-if ($brandingPath) {
-    $branding = Get-Content $brandingPath -Raw | ConvertFrom-Json
-    if ($branding.product_name) { $productName = [string]$branding.product_name }
-    if ($branding.manufacturer) { $manufacturer = [string]$branding.manufacturer }
-    if ($branding.install_folder_name) { $installFolderName = [string]$branding.install_folder_name }
-    if ($branding.installer_shortcut_name) { $installerShortcutName = [string]$branding.installer_shortcut_name }
-    if ($branding.project_url) { $projectUrl = [string]$branding.project_url }
-}
+$productName = "VoiceGardenSAPI"
+$manufacturer = "VoiceGarden"
+$installFolderName = "VoiceGardenSAPI"
+$installerShortcutName = "VoiceGardenSAPI"
+$projectUrl = "https://github.com/AACTools/VoiceGarden-SAPI"
 
 if ([string]::IsNullOrWhiteSpace($Version)) {
     $installerExe = Join-Path $payloadInput "Installer.exe"
@@ -73,7 +53,7 @@ if ([string]::IsNullOrWhiteSpace($Version)) {
         }
     }
     if ([string]::IsNullOrWhiteSpace($Version)) {
-        $Version = "0.3.0.0"
+        $Version = "0.4.0.0"
     }
 }
 
@@ -88,10 +68,6 @@ else {
     Write-Host "Creating curated setup payload..." -ForegroundColor Cyan
     & (Join-Path $PSScriptRoot "create-setup-payload.ps1") -SourceDir $payloadInput -OutputDir $curatedPayload
     $payloadFull = (Resolve-Path $curatedPayload).Path
-}
-
-if ($brandingPath) {
-    Copy-Item -Path $brandingPath -Destination (Join-Path $payloadFull "branding.json") -Force
 }
 
 Write-Host "Generating setup payload manifest..." -ForegroundColor Cyan

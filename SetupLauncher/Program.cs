@@ -1,24 +1,21 @@
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-using System.Text.Json;
 using System.Windows.Forms;
 
 static class Program
 {
     sealed class Branding
     {
-        public string ProductName { get; set; } = "VoiceGardenSAPIAdapter";
-        public string SetupCaption { get; set; } = "VoiceGardenSAPIAdapter Setup";
-        public string InstallFolderName { get; set; } = "VoiceGardenSAPIAdapter";
+        public const string ProductName = "VoiceGardenSAPI";
+        public const string SetupCaption = "VoiceGardenSAPI Setup";
+        public const string InstallFolderName = "VoiceGardenSAPI";
     }
 
     static int Main(string[] args)
     {
         try
         {
-            Branding branding = LoadBranding(AppContext.BaseDirectory);
-
             bool uninstall = HasArg(args, "--uninstall") || HasArg(args, "/uninstall");
             bool quiet = HasArg(args, "--silent") || HasArg(args, "/silent") || HasArg(args, "/quiet");
             bool removeAppData = HasArg(args, "--remove-appdata");
@@ -28,17 +25,17 @@ static class Program
 
             if (!File.Exists(msiPath))
             {
-                Notify($"MSI not found next to setup.exe:\n{msiPath}", branding.SetupCaption, quiet, error: true);
+                Notify($"MSI not found next to setup.exe:\n{msiPath}", Branding.SetupCaption, quiet, error: true);
                 return 2;
             }
 
             string msiexecArgs;
             if (uninstall)
             {
-                string? productCode = FindInstalledProductCode(branding.ProductName);
+                string? productCode = FindInstalledProductCode(Branding.ProductName);
                 if (string.IsNullOrWhiteSpace(productCode))
                 {
-                    Notify($"Could not find an installed {branding.ProductName} product.", branding.SetupCaption, quiet, error: true);
+                    Notify($"Could not find an installed {Branding.ProductName} product.", Branding.SetupCaption, quiet, error: true);
                     return 3;
                 }
 
@@ -66,24 +63,24 @@ static class Program
                 {
                     if (uninstall)
                     {
-                        Notify("Uninstall completed.", branding.SetupCaption, quiet, error: false);
+                        Notify("Uninstall completed.", Branding.SetupCaption, quiet, error: false);
                     }
                     else
                     {
-                        if (!TryLaunchInstalledInstaller(branding))
+                        if (!TryLaunchInstalledInstaller())
                         {
-                            Notify("Install completed, but VoiceGarden.UI.exe was not found in the install location.", branding.SetupCaption, quiet, error: true);
+                            Notify("Install completed, but VoiceGarden.UI.exe was not found in the install location.", Branding.SetupCaption, quiet, error: true);
                             return 4;
                         }
                     }
                 }
                 else if (rc == 3010)
                 {
-                    Notify("Operation completed. A reboot is required.", branding.SetupCaption, quiet, error: false);
+                    Notify("Operation completed. A reboot is required.", Branding.SetupCaption, quiet, error: false);
                 }
                 else if (rc == 1602)
                 {
-                    Notify("Installation was cancelled.", branding.SetupCaption, quiet, error: false);
+                    Notify("Installation was cancelled.", Branding.SetupCaption, quiet, error: false);
                 }
                 else if (rc == 1625)
                 {
@@ -91,11 +88,11 @@ static class Program
                            "This can happen if Windows Installer is restricted by your administrator.\n" +
                            "Try right-clicking setup.exe → 'Run as administrator'.\n\n" +
                            "On managed devices (e.g., Grid Pad), you may need to ask your " +
-                           "administrator to allow MSI installations.", branding.SetupCaption, quiet, error: true);
+                           "administrator to allow MSI installations.", Branding.SetupCaption, quiet, error: true);
                 }
                 else
                 {
-                    Notify($"Setup failed with exit code {rc}.", branding.SetupCaption, quiet, error: true);
+                    Notify($"Setup failed with exit code {rc}.", Branding.SetupCaption, quiet, error: true);
                 }
             }
             return rc;
@@ -104,32 +101,6 @@ static class Program
         {
             Notify(ex.Message, "Setup", quiet: false, error: true);
             return 1;
-        }
-    }
-
-    static Branding LoadBranding(string baseDir)
-    {
-        try
-        {
-            string p = Path.Combine(baseDir, "branding.json");
-            if (!File.Exists(p))
-                return new Branding();
-
-            using FileStream fs = File.OpenRead(p);
-            using JsonDocument doc = JsonDocument.Parse(fs);
-            Branding b = new Branding();
-            JsonElement root = doc.RootElement;
-            if (root.TryGetProperty("product_name", out JsonElement product) && product.ValueKind == JsonValueKind.String)
-                b.ProductName = product.GetString() ?? b.ProductName;
-            if (root.TryGetProperty("app_caption", out JsonElement caption) && caption.ValueKind == JsonValueKind.String)
-                b.SetupCaption = caption.GetString() ?? b.SetupCaption;
-            if (root.TryGetProperty("install_folder_name", out JsonElement folder) && folder.ValueKind == JsonValueKind.String)
-                b.InstallFolderName = folder.GetString() ?? b.InstallFolderName;
-            return b;
-        }
-        catch
-        {
-            return new Branding();
         }
     }
 
@@ -196,12 +167,12 @@ static class Program
     static bool IsProductCode(string value) =>
         Regex.IsMatch(value, @"^\{[0-9A-Fa-f\-]{36}\}$");
 
-    static bool TryLaunchInstalledInstaller(Branding branding)
+    static bool TryLaunchInstalledInstaller()
     {
         var candidates = new[]
         {
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), branding.InstallFolderName, "VoiceGarden.UI.exe"),
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), branding.InstallFolderName, "VoiceGarden.UI.exe"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), Branding.InstallFolderName, "VoiceGarden.UI.exe"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), Branding.InstallFolderName, "VoiceGarden.UI.exe"),
         };
 
         foreach (string p in candidates.Distinct(StringComparer.OrdinalIgnoreCase))

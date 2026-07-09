@@ -155,22 +155,9 @@ HRESULT CVoiceTokenEnumerator::FinalConstruct() noexcept
 
         if (!key.GetDword(L"Disable"))
         {
-            if (!key.GetDword(L"NoNarratorVoices")
-                && !IsRunningInWin11Narrator()
-                && (IsWindows7OrGreater()  // this requires Win 7
-                    || RegOpenConfigKey().GetDword(L"ForceEnableAzureSpeechSDK")))
-            {
-                // Use the same map, so that local voices with the same ID won't appear twice
-                TokenMap tokens;
-
-                if (!narratorVoicePath.empty())
-                    EnumLocalVoicesInFolder(tokens, narratorVoicePath.c_str(), errorMode);
-
-                for (auto& token : tokens)
-                {
-                    s_cachedTokens.push_back(std::move(token.second));
-                }
-            }
+            // Narrator natural voices are no longer supported — the original hack
+            // (extracting encryption keys from system files) is broken on modern
+            // Windows 11 builds. SherpaOnnx provides better offline alternatives.
 
             TokenMap onlineTokens;
             if (!key.GetDword(L"NoEdgeVoices"))
@@ -212,15 +199,19 @@ HRESULT CVoiceTokenEnumerator::FinalConstruct() noexcept
             }
         }
 
-        if (!s_isCacheTaskScheduled)
+        // Protect the entire check-and-set sequence with mutex to prevent race condition
         {
-            s_isCacheTaskScheduled = true;
-            g_taskScheduler.StartNewTask(10000, []()
-                {
-                    std::lock_guard lock(s_cacheMutex);
-                    s_cachedTokens.clear();
-                    s_isCacheTaskScheduled = false;
-                });
+            std::lock_guard checkLock(s_cacheMutex);
+            if (!s_isCacheTaskScheduled)
+            {
+                s_isCacheTaskScheduled = true;
+                g_taskScheduler.StartNewTask(10000, []()
+                    {
+                        std::lock_guard clearLock(s_cacheMutex);
+                        s_cachedTokens.clear();
+                        s_isCacheTaskScheduled = false;
+                    });
+            }
         }
 
         for (auto& token : s_cachedTokens)
@@ -601,7 +592,8 @@ static std::shared_ptr<DataKeyData> MakeEdgeVoiceToken(
                     { L"ErrorMode", std::to_wstring(static_cast<UINT>(errorMode)) },
                     { L"WebsocketURL", EDGE_WEBSOCKET_URL },
                     { L"Voice", shortName },
-                    { L"IsEdgeVoice", L"1" }
+                    { L"IsEdgeVoice", L"1" },
+                    { L"EngineType", L"Edge" }
                 }
             } }
         }
