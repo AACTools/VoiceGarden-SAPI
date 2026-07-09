@@ -21,15 +21,6 @@ public class AnalyticsConsentDialog : Window
         SystemDecorations = SystemDecorations.Full;
         ShowInTaskbar = false;
 
-        var logo = new Image
-        {
-            Source = new Avalonia.Media.Imaging.Bitmap(AssetLoader.Open(new Uri("avares://VoiceGarden.UI/Assets/logo-small.png"))),
-            Width = 64,
-            Height = 64,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            Margin = new Thickness(0, 20, 0, 8),
-        };
-
         var title = new TextBlock
         {
             Text = "Help improve VoiceGarden",
@@ -89,7 +80,7 @@ public class AnalyticsConsentDialog : Window
 
         var panel = new StackPanel
         {
-            Children = { logo, title, text, link, btnPanel },
+            Children = { title, text, link, btnPanel },
         };
 
         Content = panel;

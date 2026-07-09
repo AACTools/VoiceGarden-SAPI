@@ -22,7 +22,6 @@
 
                 <!-- Header with logo -->
                 <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,8">
-                    <Image Source="/Assets/logo-small.png" Width="40" Height="40"/>
                     <TextBlock Text="{Binding AppName}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource VGForegroundBrush}" VerticalAlignment="Center"/>
                 </StackPanel>
 

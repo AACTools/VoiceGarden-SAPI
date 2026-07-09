@@ -14,13 +14,13 @@ public partial class MainWindow : Window
         InitializeComponent();
         AvaloniaXamlLoader.Load(this);
 
-        // Set window icon (taskbar + title bar)
+        // Set window icon from embedded ICO resource
         try
         {
-            var stream = AssetLoader.Open(new Uri("avares://VoiceGarden.UI/Assets/logo-small.png"));
+            using var stream = AssetLoader.Open(new Uri("avares://VoiceGarden.UI/Assets/app.ico"));
             Icon = new WindowIcon(stream);
         }
-        catch { }
+        catch { /* don't crash if icon missing */ }
     }
 
     private void Close_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
