@@ -21,7 +21,7 @@
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.7" />
     <PackageReference Include="Avalonia.Diagnostics" Version="11.2.7" Condition="'$(Configuration)' == 'Debug'" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="RustTtsWrapper.Bindings" Version="0.3.6" />
+    <PackageReference Include="RustTtsWrapper.Bindings" Version="0.3.7" />
     <PackageReference Include="SharpCompress" Version="0.49.1" />
     <PackageReference Include="System.Speech" Version="8.0.0" />
     <PackageReference Include="System.Windows.Extensions" Version="8.0.0" />
