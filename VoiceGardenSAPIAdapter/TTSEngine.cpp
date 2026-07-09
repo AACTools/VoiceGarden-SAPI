@@ -177,33 +177,31 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
     const SPVTEXTFRAG* pTextFragList,
     ISpTTSEngineSite* pOutputSite) noexcept
 {
-    ScopeTracer tracer("Speak: begin", "Speak: end");
-    LogInfo("Speak: entered");
+    // Only create scope tracer for trace level to avoid overhead
+    if (logger.should_log(spdlog::level::trace))
+    {
+        static ScopeTracer tracer("Speak: begin", "Speak: end");
+    }
+
     try
     {
-        LogInfo("Speak: state rustTts={} cancelFuture={}",
-            m_rustTts ? 1 : 0,
-            m_lastCancellingFuture.valid() ? 1 : 0);
-        LogErr("SpeakDiag: stage=after-state-log");
-
         // Check args (avoid legacy SP_IS_BAD_* probes which can fault in modern processes).
         if (!pOutputSite || !pTextFragList)
         {
-            LogWarn("Speak: bad input pointers");
+            if (logger.should_log(spdlog::level::warn))
+                LogWarn("Speak: bad input pointers");
             return E_INVALIDARG;
         }
-        LogInfo("Speak: pointer validation passed");
 
         if (!m_rustTts)
         {
-            LogErr("Speak: no RustTts engine initialized");
+            if (logger.should_log(spdlog::level::err))
+                LogErr("Speak: no RustTts engine initialized");
             return SPERR_UNINITIALIZED;
         }
-        LogInfo("Speak: engine presence check passed (RustTts)");
 
         if (m_lastCancellingFuture.valid())
         {
-            LogInfo("Speak: waiting previous cancellation");
             // The previous cancellation is still in progress. Wait for it.
             while (m_lastCancellingFuture.wait_for(std::chrono::milliseconds(0)) == std::future_status::timeout)
             {
@@ -213,34 +211,32 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
                     // We can return immediately, since nothing has been done yet.
                     return S_OK;
                 }
-                Sleep(0);  // Reduce cancellation latency
+                Sleep(1);  // Use Sleep(1) instead of Sleep(0) to avoid CPU spinning
             }
             // Cancellation completed. Clear the future.
             m_lastCancellingFuture = {};
-            LogInfo("Speak: previous cancellation completed");
         }
 
         // Clear m_pOutputSite automatically when Speak is completed
         ScopeGuard siteDeleter([this]()
             {
-                std::lock_guard lock(m_outputSiteMutex);
-                m_pOutputSite = nullptr;
+                std::lock_guard<std::mutex> lock(m_outputSiteMutex);
+                if (m_pOutputSite)
+                {
+                    m_pOutputSite->Release();
+                    m_pOutputSite = nullptr;
+                }
             });
-        LogInfo("Speak: scope guard created");
-        LogErr("SpeakDiag: stage=after-scopeguard");
-        m_pOutputSite = pOutputSite;
-        LogInfo("Speak: output site assigned");
 
-        LogInfo("Speak: pre-branch RustTts");
-        LogErr("SpeakDiag: stage=before-rusttts-branch");
-
-        if (!m_rustTts)
+        // Store the output site with proper reference counting
         {
-            LogErr("Speak: no RustTts engine initialized");
-            return E_FAIL;
+            std::lock_guard<std::mutex> lock(m_outputSiteMutex);
+            if (pOutputSite)
+            {
+                pOutputSite->AddRef();
+                m_pOutputSite = pOutputSite;
+            }
         }
-
-        LogInfo("Speak: RustTts path selected (ssml={})", m_rustTtsUseSsml ? 1 : 0);
 
         m_compensatedSilenceWritten = false;
         m_compensatedSilentBytes = 0;
@@ -258,7 +254,8 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
         {
             if (!BuildSSML(pTextFragList))
             {
-                LogDebug("Speak: RustTts SSML built with no speech content");
+                if (logger.should_log(spdlog::level::debug))
+                    LogDebug("Speak: RustTts SSML built with no speech content");
                 FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
                 return S_OK;
             }
@@ -278,7 +275,8 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
         // Synchronous synthesis — prevents race condition where boundary events
         // from a previous Speak() are processed against new text by System.Speech.
         // Abort checking via SPVES_ABORT is not possible during synthesis.
-        LogInfo("Speak: RustTts generation begin");
+        if (logger.should_log(spdlog::level::info))
+            LogInfo("Speak: RustTts generation begin");
         try {
             if (m_rustTtsUseSsml)
                 m_rustTts->SpeakSsml(speakText);
@@ -288,14 +286,16 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
             LogErr("RustTts synthesis failed: {}", ex.what());
         }
 
-        LogInfo("Speak: RustTts generation end");
+        if (logger.should_log(spdlog::level::info))
+            LogInfo("Speak: RustTts generation end");
         m_lastSpeakCompletedTicks = _GetTickCount();
 
         return S_OK;
     }
     catch (const std::bad_alloc&)
     {
-        LogCritical("Out of memory");
+        if (logger.should_log(spdlog::level::critical))
+            LogCritical("Out of memory");
         return E_OUTOFMEMORY;
     }
     catch (const std::system_error& ex)
@@ -308,7 +308,8 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
     }
     catch (...) // C++ exceptions should not cross COM boundary
     {
-        LogErr("Speak: Unknown error");
+        if (logger.should_log(spdlog::level::err))
+            LogErr("Speak: Unknown error");
         return E_FAIL;
     }
 } /* CTTSEngine::Speak */
@@ -579,6 +580,7 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
 
     // Register callbacks that route audio and events back to CTTSEngine
     m_rustTts->SetOnAudio([this](const uint8_t* data, uint32_t len) {
+        std::lock_guard<std::mutex> lock(m_outputSiteMutex);
         if (m_pOutputSite && len > 0)
         {
             // Write audio to the SAPI output site

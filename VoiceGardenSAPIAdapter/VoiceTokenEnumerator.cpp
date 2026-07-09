@@ -199,15 +199,19 @@ HRESULT CVoiceTokenEnumerator::FinalConstruct() noexcept
             }
         }
 
-        if (!s_isCacheTaskScheduled)
+        // Protect the entire check-and-set sequence with mutex to prevent race condition
         {
-            s_isCacheTaskScheduled = true;
-            g_taskScheduler.StartNewTask(10000, []()
-                {
-                    std::lock_guard lock(s_cacheMutex);
-                    s_cachedTokens.clear();
-                    s_isCacheTaskScheduled = false;
-                });
+            std::lock_guard lock(s_cacheMutex);
+            if (!s_isCacheTaskScheduled)
+            {
+                s_isCacheTaskScheduled = true;
+                g_taskScheduler.StartNewTask(10000, []()
+                    {
+                        std::lock_guard innerLock(s_cacheMutex);
+                        s_cachedTokens.clear();
+                        s_isCacheTaskScheduled = false;
+                    });
+            }
         }
 
         for (auto& token : s_cachedTokens)

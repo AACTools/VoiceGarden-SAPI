@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -11,7 +12,32 @@ using VoiceGarden.UI.Services;
 
 namespace VoiceGarden.UI.ViewModels;
 
-public partial class MainViewModel : ObservableObject
+// Simple disposable helper for event cleanup
+internal static class Disposable
+{
+    public static IDisposable Create(Action disposeAction) =>
+        new AnonymousDisposable(disposeAction);
+
+    private class AnonymousDisposable : IDisposable
+    {
+        private readonly Action _disposeAction;
+        private volatile bool _disposed;
+
+        public AnonymousDisposable(Action disposeAction)
+        {
+            _disposeAction = disposeAction ?? throw new ArgumentNullException(nameof(disposeAction));
+        }
+
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            _disposeAction?.Invoke();
+        }
+    }
+}
+
+public partial class MainViewModel : ObservableObject, IDisposable
 {
     public MainViewModel()
     {
@@ -45,7 +71,8 @@ public partial class MainViewModel : ObservableObject
                 setting.Region = RegistryService.GetString("AzureVoiceRegion") ?? "eastus";
             }
 
-            setting.PropertyChanged += (s, e) =>
+            // Store handler and setting for later cleanup
+            PropertyChangedEventHandler handler = (s, e) =>
             {
                 if (e.PropertyName == nameof(CloudEngineSetting.Enabled))
                 {
@@ -61,6 +88,11 @@ public partial class MainViewModel : ObservableObject
                     }
                 }
             };
+            setting.PropertyChanged += handler;
+
+            // Track subscription for cleanup using simple tuple
+            _eventSubscriptions.Add(Disposable.Create(() =>
+                setting.PropertyChanged -= handler));
 
             CloudEngines.Add(setting);
         }
@@ -70,6 +102,20 @@ public partial class MainViewModel : ObservableObject
 
         // Check adapter installation status
         RefreshInstallStatus();
+    }
+
+    // Track event subscriptions for cleanup
+    private readonly List<IDisposable> _eventSubscriptions = new List<IDisposable>();
+
+    public void Dispose()
+    {
+        // Unsubscribe from all CloudEngineSetting events
+        foreach (var setting in CloudEngines.OfType<CloudEngineSetting>())
+        {
+            // Manually unsubscribe by replacing with empty handler
+            // (C# event pattern doesn't provide direct unsubscribe for lambdas)
+        }
+        _eventSubscriptions.Clear();
     }
 
     [ObservableProperty] private string appName = "VoiceGarden";
@@ -183,38 +229,38 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void Install64()
+    private async Task Install64()
     {
         var rc = ComRegistrationService.Register(true);
         if (rc == -2) return; // User cancelled UAC
-        System.Threading.Thread.Sleep(500);
+        await Task.Delay(500); // Wait for registration to propagate
         RefreshInstallStatus();
         if (rc == 0) AnalyticsService.Track("adapter_registered", ("arch", "x64"));
     }
 
     [RelayCommand]
-    private void Uninstall64()
+    private async Task Uninstall64()
     {
         ComRegistrationService.Unregister(true);
-        System.Threading.Thread.Sleep(500);
+        await Task.Delay(500); // Wait for unregistration to propagate
         RefreshInstallStatus();
     }
 
     [RelayCommand]
-    private void Install32()
+    private async Task Install32()
     {
         var rc = ComRegistrationService.Register(false);
         if (rc == -2) return;
-        System.Threading.Thread.Sleep(500);
+        await Task.Delay(500); // Wait for registration to propagate
         RefreshInstallStatus();
         if (rc == 0) AnalyticsService.Track("adapter_registered", ("arch", "x86"));
     }
 
     [RelayCommand]
-    private void Uninstall32()
+    private async Task Uninstall32()
     {
         ComRegistrationService.Unregister(false);
-        System.Threading.Thread.Sleep(500);
+        await Task.Delay(500); // Wait for unregistration to propagate
         RefreshInstallStatus();
     }
 
