@@ -1,23 +1,55 @@
-## What's New in v0.3.4
+## What's New in v0.4.0
 
-### Installation Fixes
-- **setup.exe now requests elevation via UAC** — fixes error 1625 ("installation forbidden by system policy") on devices where Windows Installer requires admin
-- **No more 7-Zip dependency** — model extraction now uses built-in SharpCompress library. Works on locked-down devices (Grid Pads) without needing 7-Zip installed
-- **merged_models.json search paths fixed** — resolves "No Download URL" error when running from an MSI install
+### Major Architecture Changes
+- **RustTtsWrapper Integration** — complete transition to Rust-based TTS wrapper (RustTtsWrapper.Bindings 0.3.8)
+  - Removed legacy DotNetTtsWrapper and EngineConfig components
+  - Full x86 and x64 support with native rust_tts_wrapper.dll
+  - Improved FFI safety and thread safety in callbacks
+  - Better memory management and COM reference counting
 
-### Voice Engine Fixes
-- **Azure voice preview** — fixed silent preview (Azure returns MP3, SoundPlayer needs WAV; now uses SynthToFileAsync with WAV format)
-- **Kokoro model type detection** — voices.bin presence now correctly sets SherpaOnnxModelType=2 (Kokoro) in registry tokens
-- **MMS models** — download individual files from HuggingFace directories instead of trying to fetch a directory URL (was 404)
-- **Download progress** — streaming download with percentage, file size (MB), and throttled UI updates
-- **SherpaOnnx model promotion** — uses .reg file import for fast, reliable elevation instead of relaunching the 116MB exe
+### Stability & Performance Fixes (Comprehensive Codebase Review)
+- **Thread Safety Improvements** — fixed race conditions in cache enumeration and FFI callbacks
+- **Memory Management** — fixed COM reference counting violations and event handler memory leaks
+- **Performance Optimization** — reduced TTS pipeline logging overhead with conditional level checks
+- **MSI Installation Reliability** — deferred COM registration for proper rollback and error handling
+- **Async Pattern Fixes** — replaced async void methods with proper async Task patterns
 
-### SAPI Compatibility
-- **32-bit registration** — correctly checks WOW6432Node registry hive and uses SysWOW64\regsvr32.exe
-- **Grid 3 / System.Speech** — model type-aware HKLM token promotion with SherpaOnnxVoices for Kokoro models
-- **HKCU voice cleanup** — cleanup-voices.ps1 now covers HKLM, WOW6432Node, AND HKCU voice tokens
+### User Experience Improvements
+- **Onboarding Wizard** — new 3-page welcome/onboarding flow (welcome, how-to, privacy)
+  - Shows on fresh install and version bumps
+  - Clear explanations of VoiceGarden's purpose and privacy practices
+  - Analytics opt-in with proper consent
+- **Application Icon** — professional icon for taskbar, title bar, and Start Menu
+- **Version-Gated Onboarding** — onboarding re-appears on major version updates
 
-### CI / Build
-- **Full CI pipeline** — all 12 jobs green (C++ DLL, VoiceGarden.UI, CLI tools, .NET adapter, MSI)
-- **Release assets** — MSI, setup.exe, per-platform ZIPs (x86/x64), debug symbols, full release layout
-- **DotNetTtsWrapper from NuGet.org** — no longer clones from source during CI
+### Platform Support
+- **Full x86 Support** — complete 32-bit architecture support with rust_tts_wrapper.dll
+- **Dual Architecture Installer** — both x86 and x64 versions in single MSI
+- **Improved Platform Detection** — better handling of WOW6432Node registry hive
+
+### Build System & CI/CD
+- **Simplified Dependencies** — removed 7-Zip dependency, using built-in SharpCompress
+- **Enhanced CI Pipeline** — all 12 jobs green, including C++ DLL, UI, CLI tools, and MSI
+- **Release Automation** — MSI, setup.exe, per-platform ZIPs, and debug symbols
+- **NuGet Package Management** — RustTtsWrapper.Bindings from NuGet.org instead of source builds
+
+### Voice Engine Enhancements
+- **Model Download Improvements** — streaming downloads with progress indication
+- **SherpaOnnx Integration** — better model type detection and Kokoro model support
+- **Azure Voice Preview** — fixed format conversion (MP3 to WAV) for audio playback
+- **Voice Promotion** — improved registry token management and cleanup
+
+### Technical Debt Cleanup
+- **Code Quality** — addressed memory leaks, thread safety issues, and COM interface violations
+- **Error Handling** — improved exception handling in async operations and COM calls
+- **Resource Management** — proper IDisposable implementation in ViewModels
+- **Logging Optimization** — conditional compilation to reduce performance overhead
+
+### Breaking Changes
+- **Removed Components** — DotNetTtsWrapper and EngineConfig no longer supported
+- **Minimum Requirements** — Windows 10+ required (removed XP compatibility code paths)
+
+### Migration Notes
+- **Existing Installations** — seamless upgrade path with proper COM registration/unregistration
+- **Configuration Migration** — existing registry settings preserved during upgrade
+- **Model Downloads** — SherpaOnnx models automatically downloaded on first use
