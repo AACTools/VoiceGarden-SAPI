@@ -7,6 +7,7 @@
     <NoWarn>CA1416;MVVMTK0034</NoWarn>
     <AssemblyName>VoiceGarden.UI</AssemblyName>
     <RootNamespace>VoiceGarden.UI</RootNamespace>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
