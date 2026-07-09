@@ -243,25 +243,8 @@ if (Test-Path $catalogSrc) {
 Write-Host "  SherpaOnnxConfig built successfully" -ForegroundColor Green
 Write-Host ""
 
-# Step 3.5: Build EngineConfig (multi-engine TTS voice manager)
-Write-Host "[Step 3.5/9] Building EngineConfig (Cloud Engine Manager)..." -ForegroundColor Cyan
-$engineConfigOutput = Join-Path $RepoRoot "engine-config"
-Ensure-Dir $engineConfigOutput
-dotnet publish (Join-Path $RepoRoot "EngineConfig\EngineConfig.csproj") `
-    -c $Configuration `
-    -r win-x64 `
-    --self-contained `
-    -p:PublishSingleFile=true `
-    -p:PublishReadyToRun=false `
-    -o $engineConfigOutput `
-    /nologo /v:q
-if ($LASTEXITCODE -ne 0) {
-    throw "dotnet publish failed for EngineConfig with exit code $LASTEXITCODE"
-}
-Write-Host "  EngineConfig built successfully" -ForegroundColor Green
-
-# Step 3.6: Build VoiceGarden.UI (Avalonia configuration app)
-Write-Host "[Step 3.6/10] Building VoiceGarden.UI (Avalonia Config App)..." -ForegroundColor Cyan
+# Step 3.5: Build VoiceGarden.UI (Avalonia configuration app)
+Write-Host "[Step 3.5/9] Building VoiceGarden.UI (Avalonia Config App)..." -ForegroundColor Cyan
 $voiceGardenUiOutput = Join-Path $RepoRoot "voicegarden-ui"
 Ensure-Dir $voiceGardenUiOutput
 dotnet publish (Join-Path $RepoRoot "VoiceGarden.UI\VoiceGarden.UI.csproj") `
@@ -333,20 +316,14 @@ foreach ($Platform in $Platforms) {
         # Installer.exe removed — VoiceGarden.UI.exe is the main app
     }
 
-    # Stage SherpaOnnxConfig for x86/x64 utilities (matches CI behavior)
-    if ($Platform -eq "x86" -or $Platform -eq "x64") {
-        Copy-Item -Path (Join-Path $sherpaConfigOutput "SherpaOnnxConfig.exe") -Destination $utilOut -Force
-        $models = Join-Path $sherpaConfigOutput "merged_models.json"
-        if (Test-Path $models) {
-            Copy-Item -Path $models -Destination $utilOut -Force
+        # Stage SherpaOnnxConfig for x86/x64 utilities (matches CI behavior)
+        if ($Platform -eq "x86" -or $Platform -eq "x64") {
+            Copy-Item -Path (Join-Path $sherpaConfigOutput "SherpaOnnxConfig.exe") -Destination $utilOut -Force
+            $models = Join-Path $sherpaConfigOutput "merged_models.json"
+            if (Test-Path $models) {
+                Copy-Item -Path $models -Destination $utilOut -Force
+            }
         }
-
-        # Stage EngineConfig (cloud engine voice manager)
-        $engineConfigExe = Join-Path $engineConfigOutput "EngineConfig.exe"
-        if (Test-Path $engineConfigExe) {
-            Copy-Item -Path $engineConfigExe -Destination $utilOut -Force
-        }
-    }
 }
 Write-Host "  Utilities built successfully" -ForegroundColor Green
 Write-Host ""
@@ -396,29 +373,6 @@ foreach ($Platform in $Platforms) {
 Write-Host "  Main adapter built successfully" -ForegroundColor Green
 Write-Host ""
 
-# Step 5.5: Build .NET adapter (x86, x64 only)
-$dotnetAdapterPlatforms = $Platforms | Where-Object { $_ -ne "ARM64" }
-if ($dotnetAdapterPlatforms.Count -gt 0) {
-    Write-Host "[Step 5.5/9] Building .NET SAPI adapter..." -ForegroundColor Cyan
-    foreach ($Platform in $dotnetAdapterPlatforms) {
-        $dotnetOut = Join-Path $StageRoot "dotnet-adapter-$Platform"
-        Ensure-Dir $dotnetOut
-        $rid = if ($Platform -eq "x86") { "win-x86" } else { "win-x64" }
-        Write-Host "  Publishing .NET adapter ($Platform)..." -ForegroundColor Cyan
-        dotnet publish (Join-Path $RepoRoot "VoiceGardenSAPIAdapter.Net\VoiceGardenSAPIAdapter.Net.csproj") `
-            -c $Configuration `
-            -r $rid `
-            --self-contained false `
-            -o $dotnetOut `
-            /nologo /v:q
-        if ($LASTEXITCODE -ne 0) {
-            throw "dotnet publish failed for .NET adapter ($Platform)"
-        }
-    }
-    Write-Host "  .NET adapter built successfully" -ForegroundColor Green
-    Write-Host ""
-}
-
 # Step 6: Sherpa verification
 if (!$SkipVerify) {
     Write-Host "[Step 6/8] Running Sherpa integration verification..." -ForegroundColor Cyan
@@ -449,20 +403,6 @@ foreach ($Platform in $Platforms) {
     $platformPayload = Join-Path $PayloadDir $Platform
     Copy-Item $utilOut\* $platformPayload\ -Recurse -Force
     Copy-Item $mainOut\* $platformPayload\ -Recurse -Force
-
-    $dotnetOut = Join-Path $StageRoot "dotnet-adapter-$Platform"
-    if (Test-Path $dotnetOut) {
-        # Copy .NET adapter files but DON'T overwrite native SherpaOnnx/ORT DLLs
-        # from the C++ adapter (they must match the version the C++ code was compiled against)
-        $nativeDllsToPreserve = @("sherpa-onnx-c-api.dll", "sherpa-onnx.dll", "onnxruntime.dll", "onnxruntime_providers_shared.dll")
-        Get-ChildItem $dotnetOut -File | Where-Object { $_.Name -notin $nativeDllsToPreserve } | ForEach-Object {
-            Copy-Item $_.FullName $platformPayload\ -Force
-        }
-        # Also copy managed subdirectories (e.g., ref/)
-        Get-ChildItem $dotnetOut -Directory -ErrorAction SilentlyContinue | ForEach-Object {
-            Copy-Item $_.FullName $platformPayload\ -Recurse -Force
-        }
-    }
 }
 
 # Stage VoiceGarden.UI.exe at payload root (main entry point)

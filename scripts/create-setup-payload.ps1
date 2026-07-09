@@ -29,7 +29,6 @@ $rootAllow = @(
     "install-plan.json",
     "_branding.json.removed",
     "SherpaOnnxConfig.exe",
-    "EngineConfig.exe",
     "merged_models.json",
     "LICENSE.txt",
     "README.md"

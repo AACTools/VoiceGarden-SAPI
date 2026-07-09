@@ -38,22 +38,6 @@ jobs:
           sherpa-config/SherpaOnnxConfig.exe
           sherpa-config/merged_models.json
 
-  build-engine-config:
-    name: Build EngineConfig
-    runs-on: windows-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build EngineConfig (self-contained, x64)
-        run: dotnet publish EngineConfig\EngineConfig.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o engine-config
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: engine-config
-          path: engine-config/EngineConfig.exe
-
   build-voice-garden-ui:
     name: Build VoiceGarden.UI
     runs-on: windows-2022
@@ -86,7 +70,7 @@ jobs:
   build-utilities:
     name: Build submodules
     runs-on: windows-2022
-    needs: [build-sherpa-config, build-engine-config]
+    needs: [build-sherpa-config]
     permissions:
       contents: read
     strategy:
@@ -126,13 +110,6 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: sherpa-onnx-config
-        path: ${{github.workspace}}\out\
-
-    - name: Download EngineConfig and copy to utilities output
-      if: matrix.platform == 'x86' || matrix.platform == 'x64'
-      uses: actions/download-artifact@v4
-      with:
-        name: engine-config
         path: ${{github.workspace}}\out\
 
     - name: Download Sherpa model metadata for ARM64 utilities
@@ -218,41 +195,10 @@ jobs:
         name: main-${{matrix.platform}}
         path: out
 
-  build-dotnet-adapter:
-    name: Build .NET TTS Adapter
-    runs-on: windows-2022
-    permissions:
-      contents: read
-    strategy:
-      matrix:
-        platform: [x86, x64]
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
-
-    - name: Publish .NET adapter
-      shell: pwsh
-      run: |
-        $rid = "${{matrix.platform}}" -eq "x86" ? "win-x86" : "win-x64"
-        dotnet publish VoiceGardenSAPIAdapter.Net\VoiceGardenSAPIAdapter.Net.csproj `
-          -c ${{env.BUILD_CONFIGURATION}} `
-          -r $rid `
-          --self-contained false `
-          -o ${{github.workspace}}\out
-
-    - uses: actions/upload-artifact@v4
-      with:
-        name: dotnet-adapter-${{matrix.platform}}
-        path: out
-
   build-setup:
     name: Build MSI setup
     runs-on: windows-2022
-    needs: [build-sherpa-config, build-engine-config, build-voice-garden-ui, build-utilities, build-main, build-dotnet-adapter]
+    needs: [build-sherpa-config, build-voice-garden-ui, build-utilities, build-main]
     permissions:
       contents: read
     steps:
@@ -278,13 +224,6 @@ jobs:
         Copy-Item artifacts\main-x64\* payload\x64\ -Recurse -Force
         Copy-Item artifacts\utilities-ARM64\* payload\ARM64\ -Recurse -Force
         Copy-Item artifacts\main-ARM64\* payload\ARM64\ -Recurse -Force
-
-        # .NET adapter files (but preserve C++ adapter's native SherpaOnnx DLLs)
-        $nativeDlls = @("sherpa-onnx-c-api.dll", "sherpa-onnx.dll", "onnxruntime.dll", "onnxruntime_providers_shared.dll")
-        Get-ChildItem artifacts\dotnet-adapter-x86 -File | Where-Object { $_.Name -notin $nativeDlls } | ForEach-Object { Copy-Item $_.FullName payload\x86\ -Force }
-        Get-ChildItem artifacts\dotnet-adapter-x86 -Directory | ForEach-Object { Copy-Item $_.FullName payload\x86\ -Recurse -Force }
-        Get-ChildItem artifacts\dotnet-adapter-x64 -File | Where-Object { $_.Name -notin $nativeDlls } | ForEach-Object { Copy-Item $_.FullName payload\x64\ -Force }
-        Get-ChildItem artifacts\dotnet-adapter-x64 -Directory | ForEach-Object { Copy-Item $_.FullName payload\x64\ -Recurse -Force }
 
         # VoiceGarden.UI.exe (the main configuration app)
         Copy-Item artifacts\voice-garden-ui\VoiceGarden.UI.exe payload\ -Force
