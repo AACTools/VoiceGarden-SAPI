@@ -1,35 +1,31 @@
 # VoiceGarden-SAPI
 
-> This project was forked from [NaturalVoiceSAPIAdapter](https://github.com/gexgd0419/NaturalVoiceSAPIAdapter) and is now developed at [AACTools/VoiceGarden-SAPI](https://github.com/AACTools/VoiceGarden-SAPI).
+> Forked from [NaturalVoiceSAPIAdapter](https://github.com/gexgd0419/NaturalVoiceSAPIAdapter). Developed at [AACTools/VoiceGarden-SAPI](https://github.com/AACTools/VoiceGarden-SAPI).
 
-A [SAPI 5 text-to-speech (TTS) engine][1] that connects **20+ cloud TTS engines** and **offline SherpaOnnx models** to any Windows application that supports SAPI voices — including Grid 3, The Grid, Clicker, and any software using `System.Speech`.
+A [SAPI 5 text-to-speech engine][1] that connects **21+ TTS engines** to any Windows application that supports SAPI voices — including Grid 3, Mind Express, Balabolka, Clicker, and any software using `System.Speech`.
+
+Powered by [rust-tts-wrapper](https://github.com/AACTools/rust-tts-wrapper) for all synthesis, voice listing, and word boundary events.
 
 ## What voices are supported?
 
 | Category | Engines | Cloud? |
 |----------|---------|--------|
-| **Offline neural** | SherpaOnnx (Kokoro, Piper, MMS, VITS, Matcha) | No — fully local |
-| **Microsoft** | Azure Cognitive Services, Edge browser voices | Yes |
+| **Offline neural** | SherpaOnnx (Kokoro, Piper, MMS, VITS, Matcha, Kitten) | No — fully local |
+| **Microsoft** | Azure Cognitive Services, Edge browser voices (credential-free) | Yes |
 | **Cloud TTS** | OpenAI, Google Cloud, AWS Polly, ElevenLabs, Cartesia, Deepgram | Yes |
 | **More cloud** | Watson, PlayHT, Wit.ai, Gemini, Hume AI, xAI Grok, Fish Audio, Mistral, Murf, Unreal Speech, Resemble, Uplift AI, Models Lab | Yes |
 
-Any SAPI 5-compatible program can use these voices. Offline SherpaOnnx voices require no internet connection.
+All engines support **word boundary events** for word highlighting in AAC software.
 
 ## Quick Start
 
 ### Install
-1. Download the MSI from the [Releases][6] section.
-2. Run `setup.exe` (or the `.msi` directly).
-3. After installation, **VoiceGarden.UI.exe** launches automatically — this is the configuration app.
+1. Download `setup.exe` from the [Releases][6] section.
+2. Run `setup.exe` — it installs the MSI and **auto-registers** the SAPI adapter.
+3. After installation, **VoiceGarden.UI.exe** launches automatically.
 4. Go to the **SherpaOnnx** tab to download offline models, or the **Engine Config** tab to enter cloud API keys.
 5. Click **Install to SAPI** to promote voices to the Windows registry.
 6. Restart your SAPI application (e.g., Grid 3) — the new voices appear in the voice list.
-
-### Register the adapter (if running from a build)
-```
-VoiceGarden.UI.exe install      # registers 64-bit DLL
-VoiceGarden.UI.exe install32    # registers 32-bit DLL (for 32-bit apps)
-```
 
 ### CLI mode
 VoiceGarden.UI.exe doubles as a command-line tool:
@@ -46,23 +42,33 @@ VoiceGarden.UI.exe validate --engine azure --voice en-US-JennyNeural --key KEY -
 
 ## System Requirements
 
-- **OS:** Windows 7 SP1 or later (32-bit and 64-bit supported)
+- **OS:** Windows 7 SP1 or later (64-bit recommended; 32-bit supported with limitations)
 - **Runtime:** .NET 8.0 desktop runtime (for VoiceGarden.UI)
-- **For SherpaOnnx extraction:** [7-Zip](https://www.7-zip.org/) (for `.tar.bz2` model archives)
 - **For cloud voices:** Internet access + valid API key for the respective service
 
 ## Architecture
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│  SAPI Application (Grid 3, System.Speech, etc.)          │
+│  SAPI Application (Grid 3, Mind Express, Balabolka)     │
 │                    │ SAPI 5 COM                          │
 │  ┌─────────────────▼──────────────────────────────────┐  │
 │  │  VoiceGardenSAPIAdapter.dll (C++ COM DLL)          │  │
-│  │  ┌──────────────┐  ┌────────────┐  ┌────────────┐ │  │
-│  │  │ SherpaOnnx   │  │ Azure REST │  │GenericHttp │ │  │
-│  │  │ (offline)    │  │ + SDK shim │  │(OpenAI etc)│ │  │
-│  │  └──────────────┘  └────────────┘  └────────────┘ │  │
+│  │  • BuildSSML (SAPI fragments → SSML)               │  │
+│  │  • Word boundary offset mapping                     │  │
+│  │  • Audio streaming + silence compensation           │  │
+│  │         │ loads via LoadLibrary                     │  │
+│  │  ┌────────▼─────────────────────────────────────┐   │  │
+│  │  │  rust_tts_wrapper.dll (Rust, 22MB)           │   │  │
+│  │  │  • 21 engines (SherpaOnnx, Azure, Edge,      │   │  │
+│  │  │    OpenAI, Google, ElevenLabs, Polly, ...)   │   │  │
+│  │  │  • Word boundary events (Azure/Google: real,  │   │  │
+│  │  │    others: estimated)                         │   │  │
+│  │  │  • Viseme events (Azure/Edge)                 │   │  │
+│  │  │  • Connection pooling (Azure/Edge WS)         │   │  │
+│  │  │  • Sec-MS-GEC token (Edge voices)             │   │  │
+│  │  │  • SherpaOnnx model auto-detection            │   │  │
+│  │  └──────────────────────────────────────────────┘   │  │
 │  └────────────────────────────────────────────────────┘  │
 │                                                           │
 │  ┌─────────────────────────────────────────────────────┐ │
@@ -70,7 +76,8 @@ VoiceGarden.UI.exe validate --engine azure --voice en-US-JennyNeural --key KEY -
 │  │  • Download/promote SherpaOnnx models               │ │
 │  │  • Configure cloud engine credentials               │ │
 │  │  • Register/unregister 32-bit + 64-bit DLLs         │ │
-│  │  • Preview voices                                    │ │
+│  │  • Preview voices (via RustTtsWrapper.Bindings)      │ │
+│  │  • Anonymous usage analytics (opt-in, PostHog EU)   │ │
 │  └─────────────────────────────────────────────────────┘ │
 └──────────────────────────────────────────────────────────┘
 ```
@@ -79,16 +86,15 @@ VoiceGarden.UI.exe validate --engine azure --voice en-US-JennyNeural --key KEY -
 
 | Component | Description |
 |-----------|-------------|
-| `VoiceGardenSAPIAdapter/` | C++ SAPI COM DLL — the actual TTS engine. Handles SherpaOnnx (offline), Azure REST/SDK, and generic HTTP TTS |
-| `VoiceGarden.UI/` | Avalonia UI app — main configuration tool. Replaces the old C++ Installer |
-| `VoiceGardenSAPIAdapter.Net/` | .NET SAPI adapter (alternative runtime, currently inactive) |
-| `SherpaOnnxConfig/` | CLI tool for SherpaOnnx model management |
-| `EngineConfig/` | CLI tool for cloud engine voice management |
+| `VoiceGardenSAPIAdapter/` | C++ SAPI COM DLL — SSML building, offset mapping, audio streaming. Loads `rust_tts_wrapper.dll` for all synthesis |
+| `VoiceGardenSAPIAdapter/RustTts/` | C++ wrapper for the Rust DLL (dynamic loading, callback marshalling) |
+| `VoiceGarden.UI/` | Avalonia UI app — configuration, model management, voice preview, analytics |
+| `SherpaOnnx/` | Model discovery (voice enumerator scans for installed models) |
 | `Setup/` + `SetupLauncher/` | WiX MSI package + setup.exe bootstrapper |
 
 ## SherpaOnnx Offline Voices
 
-SherpaOnnx provides fully offline neural TTS — no internet, no API keys, no cloud dependency.
+Fully offline neural TTS — no internet, no API keys, no cloud dependency.
 
 ### Supported model types
 - **Kokoro** — high-quality English models with multiple voices (`voices.bin`)
@@ -99,17 +105,11 @@ SherpaOnnx provides fully offline neural TTS — no internet, no API keys, no cl
 
 ### Downloading models
 Models are stored in `%LOCALAPPDATA%\VoiceGardenSAPIAdapter\models\`. Download via:
-- **UI:** SherpaOnnx tab → select models → Download Selected
+- **UI:** SherpaOnnx tab → select models → Download Selected (built-in extraction, no 7-Zip needed)
 - **CLI:** `VoiceGarden.UI.exe models download kokoro-en-en-19`
 
-### Model type detection
-The system auto-detects model type from directory contents:
-- `voices.bin` present → Kokoro (type 2)
-- `vocoder.onnx` present → Matcha (type 1)
-- Otherwise → VITS (type 0)
-
 ### Grid 3 compatibility
-Grid 3 (`System.Speech`) only selects voices from HKLM registry tokens — in-memory enumerator voices won't work with `SelectVoice`. Use **Install to SAPI** to promote voices to HKLM.
+Grid 3 (`System.Speech`) only selects voices from HKLM registry tokens. Use **Install to SAPI** to promote voices to HKLM. Word boundary events work with Grid3 (tested, no crash).
 
 See `docs/troubleshooting-grid3-voice-activation.md` for detailed Grid 3 troubleshooting.
 
@@ -118,26 +118,29 @@ See `docs/troubleshooting-grid3-voice-activation.md` for detailed Grid 3 trouble
 ### Azure Cognitive Services
 1. Get a key from [Azure Portal](https://portal.azure.com/) → Speech service → Keys and Endpoint
 2. In VoiceGarden.UI → Engine Config → Azure: enter key and region (e.g., `uksouth`)
-3. Promote voices to SAPI
+3. Fetch voices → select → Install Selected
 
-### Google Cloud TTS
-1. Get an API key from [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials
-2. In VoiceGarden.UI → Engine Config → Google: enter key
-3. Promote a specific voice (e.g., `en-US-Wavenet-D`)
+### Edge browser voices
+Free, credential-free voices from Microsoft Edge's Read Aloud feature. Enable in Advanced settings → "Enable Edge browser voices". The Rust engine computes the Sec-MS-GEC token automatically.
 
-### Other engines (OpenAI, ElevenLabs, Polly, etc.)
-Each cloud engine needs its API key set in the Engine Config tab. The C++ adapter handles REST calls via `GenericHttpTts` for OpenAI, ElevenLabs, Google, Cartesia, and Deepgram. Azure and Edge voices use the dedicated REST/WebSocket path.
+### Other engines (OpenAI, Google, ElevenLabs, etc.)
+Each cloud engine needs its API key set in the Engine Config tab. Search voices by language name (e.g., "arabic", "gujarati") or voice ID.
 
 ## Testing
 
-### End-to-end test script
+### Boundary crash test (Grid3 pattern)
 ```powershell
-.\scripts\test-sherpa-e2e.ps1    # downloads models, promotes, speaks via System.Speech
+.\scripts\test-boundary-crash.ps1    # PromptBuilder with rate changes — reproduces Grid3 crash
+```
+
+### Word boundary events
+```powershell
+.\scripts\test-word-boundaries.ps1   # checks word text + position for each voice
 ```
 
 ### Cleanup (remove all custom voices)
 ```powershell
-.\scripts\cleanup-voices.ps1            # removes Sherpa/Cloud/eSpeak tokens
+.\scripts\cleanup-voices.ps1            # removes Sherpa/Cloud/Edge tokens from HKLM + HKCU
 .\scripts\cleanup-voices.ps1 -DryRun    # preview without deleting
 ```
 
@@ -154,47 +157,41 @@ $s.Speak("Hello, this is a test.")
 ### Prerequisites
 - Visual Studio 2022 with C++ (MSVC v143)
 - .NET 8.0 SDK
-- [WiX Toolset v3](https://wixtoolset.org/) (for MSI)
-- [7-Zip](https://www.7-zip.org/) (for SherpaOnnx deps extraction)
+- [WiX Toolset v4](https://wixtoolset.org/) (for MSI)
 
 ### Local build
 ```powershell
-.\download-sherpa-deps.ps1 -Platforms x64,x86     # one-time: download SherpaOnnx native DLLs
-.\scripts\build-release-local.ps1 -Configuration Release -Platforms x64,x86 -BuildSetup -SkipSherpaDeps -SkipSubmodules
+.\download-sherpa-deps.ps1 -Platforms x64     # one-time: download SherpaOnnx native DLLs
+.\scripts\build-release-local.ps1 -Configuration Release -Platforms x64 -BuildSetup -SkipSherpaDeps -SkipSubmodules
 ```
 
 Output: `installer-output\VoiceGardenSAPIAdapter.msi`
 
 ### CI
 GitHub Actions workflow at `.github/workflows/msbuild.yml` builds all components on every push:
-- C++ adapter DLL (x86, x64, ARM64)
-- VoiceGarden.UI (Avalonia app)
+- C++ adapter DLL (x64 + x86)
+- VoiceGarden.UI (Avalonia app with RustTtsWrapper.Bindings)
 - SherpaOnnxConfig + EngineConfig CLI tools
 - .NET adapter
-- MSI setup package
+- MSI setup package (auto-registers DLL on install)
 
-## Configurable Registry Values
+## Privacy
 
-See the [wiki page on configurable registry values][8] for advanced settings including:
-- `NoEdgeVoices`, `NoAzureVoices`, `NoSherpaVoices` — toggle voice categories
-- `AzureVoiceKey`, `AzureVoiceRegion` — Azure credentials
-- `EdgeVoiceLanguages` — filter Edge voices by language
-- `ErrorMode` — control error handling behavior
+VoiceGarden.UI includes optional, anonymous usage analytics (PostHog, EU-hosted). Disabled by default. See `docs/PRIVACY.md` for full details.
 
 ## Libraries Used
 
-- [SherpaOnnx](https://github.com/k2-fsa/sherpa-onnx) — offline neural TTS
-- [DotNetTtsWrapper](https://github.com/AACTools/dotnet-tts-wrapper) — .NET TTS client for 20+ engines
-- [Avalonia UI](https://avaloniaui.net/) — cross-platform .NET UI framework
+**Primary:**
+- [rust-tts-wrapper](https://github.com/AACTools/rust-tts-wrapper) — Rust TTS engine for all synthesis (21 engines, streaming, word boundaries)
+- [RustTtsWrapper.Bindings](https://www.nuget.org/packages/RustTtsWrapper.Bindings) — .NET P/Invoke bindings for the Rust DLL
+- [Avalonia UI](https://avaloniaui.net/) — .NET desktop UI framework
 - [CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet) — MVVM framework
-- Microsoft.CognitiveServices.Speech — Azure Speech SDK
-- [websocketpp](https://github.com/zaphoyd/websocketpp) — WebSocket client (Edge voices)
-- OpenSSL — HTTPS for cloud TTS
-- [nlohmann/json](https://github.com/nlohmann/json) — JSON parsing
-- [spdlog](https://github.com/gabime/spdlog) — logging
-- [YY-Thunks](https://github.com/Chuyu-Team/YY-Thunks) — Windows XP compatibility
-- [Detours](https://github.com/microsoft/Detours) — API hooking
+- [SharpCompress](https://github.com/adamhathcock/sharpcompress) — built-in model archive extraction
+
+**C++ adapter dependencies:**
+- [SherpaOnnx](https://github.com/k2-fsa/sherpa-onnx) — offline neural TTS native runtime
+- Microsoft Azure Speech SDK — embedded TTS (DLL shim)
+- OpenSSL, websocketpp, nlohmann/json, spdlog — legacy C++ networking (used by Azure SDK)
 
 [1]: https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ms717037(v=vs.85)
 [6]: ../../releases
-[8]: ../../wiki/Configurable-registry-values
