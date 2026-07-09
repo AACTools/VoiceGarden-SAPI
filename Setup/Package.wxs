@@ -7,6 +7,8 @@
 
     <MajorUpgrade
       AllowSameVersionUpgrades="yes"
+      IgnoreRemoveFailure="yes"
+      Schedule="afterInstallFinalize"
       DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
     <MediaTemplate EmbedCab="yes" />
 
