@@ -23,7 +23,9 @@
                     <!-- Logo header band -->
                     <Border Background="{StaticResource VGAccentBrush}" Padding="40,40,40,28">
                         <StackPanel HorizontalAlignment="Center" Spacing="16">
-                            <TextBlock Text="&#x1F33E;" FontSize="56" HorizontalAlignment="Center"/>
+                            <Image Source="/Assets/logo-small.png"
+                                   Width="96" Height="96"
+                                   HorizontalAlignment="Center"/>
                             <TextBlock Text="VoiceGarden"
                                        FontSize="32" FontWeight="Bold"
                                        Foreground="{StaticResource VGForegroundBrush}"

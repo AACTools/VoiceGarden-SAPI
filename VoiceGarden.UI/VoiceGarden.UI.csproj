@@ -33,6 +33,7 @@
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\app.ico" />
+    <AvaloniaResource Include="Assets\logo-small.png" />
   </ItemGroup>
 
   <ItemGroup>
