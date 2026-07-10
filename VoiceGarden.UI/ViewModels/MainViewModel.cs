@@ -61,7 +61,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 Id = def.Id,
                 DisplayName = def.DisplayName,
                 NeedsRegion = def.NeedsRegion,
-                Enabled = !RegistryService.GetFlag($"No{Cap(def.Id)}Voices"),
+                Enabled = !RegistryService.GetFlag($"No{Cap(def.Id)}Voices", true),
             };
 
             // Pre-fill Azure key from legacy registry
