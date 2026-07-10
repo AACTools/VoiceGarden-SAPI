@@ -1,0 +1,426 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <!-- ===== General / App ===== -->
+  <!-- ===== MainWindow ===== -->
+  <!-- ===== Onboarding Page 1: Welcome ===== -->
+  <!-- ===== Onboarding Page 2: How To Use ===== -->
+  <!-- ===== Onboarding Page 3: Privacy ===== -->
+  <!-- ===== VoiceConfigView ===== -->
+  <!-- ===== SherpaModelsView ===== -->
+  <!-- ===== ViewModel Status Strings ===== -->
+  <!-- VoiceConfig status -->
+  <data name="About" xml:space="preserve">
+    <value>про</value>
+  </data>
+  <data name="AdapterInstallation" xml:space="preserve">
+    <value>Установка адаптера</value>
+  </data>
+  <data name="AddEnUsAlias" xml:space="preserve">
+    <value>Додайте псевдонім en-US</value>
+  </data>
+  <data name="Advanced" xml:space="preserve">
+    <value>Просунутий</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>все</value>
+  </data>
+  <data name="AnalyticsHint" xml:space="preserve">
+    <value>Допомагає нам зрозуміти, які двигуни використовуються. Текст, ключі чи ідентифікаційна інформація не надіслані.</value>
+  </data>
+  <data name="APIKey" xml:space="preserve">
+    <value>Ключ API</value>
+  </data>
+  <data name="AppName" xml:space="preserve">
+    <value>VoiceGarden</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>← Назад</value>
+  </data>
+  <data name="Bit32NotRegistered" xml:space="preserve">
+    <value>32-біт: не зареєстровано</value>
+  </data>
+  <data name="Bit32Registered" xml:space="preserve">
+    <value>✓ Зареєстровано 32-розрядний адаптер</value>
+  </data>
+  <data name="Bit64NotRegistered" xml:space="preserve">
+    <value>64-біт: не зареєстровано</value>
+  </data>
+  <data name="Bit64Registered" xml:space="preserve">
+    <value>✓ Зареєстровано 64-розрядний адаптер</value>
+  </data>
+  <data name="Checking" xml:space="preserve">
+    <value>Перевірка...</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Закрити</value>
+  </data>
+  <data name="CloudVoices" xml:space="preserve">
+    <value>Хмарні голоси</value>
+  </data>
+  <data name="ConfigureCredentials" xml:space="preserve">
+    <value>Налаштувати облікові дані...</value>
+  </data>
+  <data name="ConfigureCredentialsTitle" xml:space="preserve">
+    <value>Налаштувати облікові дані</value>
+  </data>
+  <data name="ConfigureVoices" xml:space="preserve">
+    <value>Налаштувати голоси...</value>
+  </data>
+  <data name="ConfigureVoicesTitle" xml:space="preserve">
+    <value>Налаштувати голоси</value>
+  </data>
+  <data name="CountDownloaded" xml:space="preserve">
+    <value>{0} завантажено</value>
+  </data>
+  <data name="CountInstalled" xml:space="preserve">
+    <value>{0} встановлено</value>
+  </data>
+  <data name="CountSelected" xml:space="preserve">
+    <value>Вибрано {0}</value>
+  </data>
+  <data name="CountTotal" xml:space="preserve">
+    <value>Усього {0}</value>
+  </data>
+  <data name="Downloaded" xml:space="preserve">
+    <value>Завантажено</value>
+  </data>
+  <data name="DownloadedCount" xml:space="preserve">
+    <value>Завантажено стільки моделей: {0}</value>
+  </data>
+  <data name="DownloadedFailedCount" xml:space="preserve">
+    <value>Завантажено {0}, не вдалося {1}</value>
+  </data>
+  <data name="DownloadedStatus" xml:space="preserve">
+    <value>Завантажено</value>
+  </data>
+  <data name="DownloadFailed" xml:space="preserve">
+    <value>Помилка завантаження: {0} моделей</value>
+  </data>
+  <data name="DownloadingModel" xml:space="preserve">
+    <value>Завантаження {0} ({1})...</value>
+  </data>
+  <data name="DownloadModelFirst" xml:space="preserve">
+    <value>Спочатку завантажте модель</value>
+  </data>
+  <data name="DownloadSelected" xml:space="preserve">
+    <value>Завантажити вибране</value>
+  </data>
+  <data name="EnableAnalytics" xml:space="preserve">
+    <value>Надсилати анонімну аналітику використання (згода)</value>
+  </data>
+  <data name="EnableEdgeVoices" xml:space="preserve">
+    <value>Увімкніть голоси браузера Edge</value>
+  </data>
+  <data name="Engine" xml:space="preserve">
+    <value>двигун:</value>
+  </data>
+  <data name="EnterApiKey" xml:space="preserve">
+    <value>Введіть ключ API</value>
+  </data>
+  <data name="EnterApiKeyFirst" xml:space="preserve">
+    <value>Спочатку введіть ключ API</value>
+  </data>
+  <data name="Feature20Engines" xml:space="preserve">
+    <value>✔ Понад 20 движків: SherpaOnnx, Azure, Edge, OpenAI, Google, ElevenLabs, Polly</value>
+  </data>
+  <data name="FeatureDualArch" xml:space="preserve">
+    <value>✔ Працює як з 32-розрядними, так і з 64-розрядними програмами</value>
+  </data>
+  <data name="FeatureOffline" xml:space="preserve">
+    <value>✔ Повністю офлайн із нейронними моделями Sherpa Onnx</value>
+  </data>
+  <data name="FeatureWordBoundary" xml:space="preserve">
+    <value>✔ Події меж слів для виділення</value>
+  </data>
+  <data name="FetchingVoices" xml:space="preserve">
+    <value>Отримання {0} голосів...</value>
+  </data>
+  <data name="FetchVoices" xml:space="preserve">
+    <value>Отримати голоси</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Фільтр:</value>
+  </data>
+  <data name="FoundVoices" xml:space="preserve">
+    <value>Знайдено {0} голосів</value>
+  </data>
+  <data name="GettingStarted" xml:space="preserve">
+    <value>Початок роботи</value>
+  </data>
+  <data name="HelpImprove" xml:space="preserve">
+    <value>Допоможіть покращити VoiceGarden</value>
+  </data>
+  <data name="HideAdvanced" xml:space="preserve">
+    <value>▼ Сховати додаткові</value>
+  </data>
+  <data name="Install" xml:space="preserve">
+    <value>встановити</value>
+  </data>
+  <data name="InstallCancelled" xml:space="preserve">
+    <value>Встановлення скасовано (адміністратор заборонив доступ)</value>
+  </data>
+  <data name="Installed" xml:space="preserve">
+    <value>встановлено</value>
+  </data>
+  <data name="InstalledModelsFailed" xml:space="preserve">
+    <value>Встановлено {0}, не вдалося {1}</value>
+  </data>
+  <data name="InstalledModelsSAPI" xml:space="preserve">
+    <value>Установлено стільки моделей: {0} у SAPI</value>
+  </data>
+  <data name="InstalledOnly" xml:space="preserve">
+    <value>Тільки встановлений</value>
+  </data>
+  <data name="InstalledVoicesHKLM" xml:space="preserve">
+    <value>Установлено {0} голос(ів) у HKLM</value>
+  </data>
+  <data name="InstallFailed" xml:space="preserve">
+    <value>Помилка встановлення: {0}</value>
+  </data>
+  <data name="InstallingSAPI" xml:space="preserve">
+    <value>Встановлення моделей до SAPI (HKLM)...</value>
+  </data>
+  <data name="InstallSelected" xml:space="preserve">
+    <value>Встановити вибране</value>
+  </data>
+  <data name="InstallToSAPI" xml:space="preserve">
+    <value>Встановити в SAPI</value>
+  </data>
+  <data name="InvalidResult" xml:space="preserve">
+    <value>Недійсний: {0}</value>
+  </data>
+  <data name="Key" xml:space="preserve">
+    <value>ключ:</value>
+  </data>
+  <data name="LangCompatDesc" xml:space="preserve">
+    <value>Якщо ваше програмне забезпечення AAC підтримує лише певні мови (наприклад, англійську), увімкніть «Додати псевдонім en-US» під час рекламування моделей SherpaOnnx. Завдяки цьому голоси будь-якою мовою відображаються як англійські, тому вони відображаються в програмах, які фільтрують за мовою.</value>
+  </data>
+  <data name="LangCompatTip" xml:space="preserve">
+    <value>💡 Порада: сумісність мов</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>мова:</value>
+  </data>
+  <data name="LoadingCatalog" xml:space="preserve">
+    <value>Завантаження каталогу...</value>
+  </data>
+  <data name="LogLevel" xml:space="preserve">
+    <value>Рівень журналу:</value>
+  </data>
+  <data name="ManageModels" xml:space="preserve">
+    <value>Керувати моделями...</value>
+  </data>
+  <data name="ModelFilesNotFound" xml:space="preserve">
+    <value>Файли моделі не знайдено</value>
+  </data>
+  <data name="ModelsInstalled" xml:space="preserve">
+    <value>Установлено моделей: {0}</value>
+  </data>
+  <data name="NeuralTTSForSAPI" xml:space="preserve">
+    <value>Neural TTS для Windows SAPI</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Далі</value>
+  </data>
+  <data name="NoAudio" xml:space="preserve">
+    <value>Аудіо не створено</value>
+  </data>
+  <data name="NoDownloadedModels" xml:space="preserve">
+    <value>Завантажених моделей не знайдено. Спочатку завантажте модель, а потім натисніть Повторне сканування, якщо потрібно.</value>
+  </data>
+  <data name="NoDownloadUrl" xml:space="preserve">
+    <value>Немає URL-адреси для завантаження</value>
+  </data>
+  <data name="NoModelId" xml:space="preserve">
+    <value>Не вдалося визначити ідентифікатор моделі для попереднього перегляду</value>
+  </data>
+  <data name="NoModelsInstalled" xml:space="preserve">
+    <value>Немає встановлених моделей</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>Жодного</value>
+  </data>
+  <data name="NoThanks" xml:space="preserve">
+    <value>Ні, дякую</value>
+  </data>
+  <data name="OfflineVoices" xml:space="preserve">
+    <value>Голоси в автономному режимі</value>
+  </data>
+  <data name="OnboardingDesc1" xml:space="preserve">
+    <value>VoiceGarden — це безкоштовний голосовий міст із відкритим вихідним кодом, який з’єднує понад 20 сучасних механізмів синтезу мовлення з текстом до будь-якої програми Windows, яка підтримує SAPI 5, зокрема Grid 3, Mind Express, Balabolka, Tobii Communicator та будь-якої програми, створеної на основі System.Speech.</value>
+  </data>
+  <data name="OnboardingDesc2" xml:space="preserve">
+    <value>Він працює шляхом реєстрації як стандартного голосу SAPI 5. Після встановлення ваше програмне забезпечення AAC і спеціальних можливостей може використовувати високоякісні нейронні голоси — як офлайн, так і в хмарі — без будь-яких змін у коді.</value>
+  </data>
+  <data name="OnboardingTitle" xml:space="preserve">
+    <value>Ласкаво просимо до VoiceGarden</value>
+  </data>
+  <data name="OnlyEnabledEngines" xml:space="preserve">
+    <value>Відображаються лише активовані двигуни. Перемикання двигунів на головній сторінці.</value>
+  </data>
+  <data name="OpenLogs" xml:space="preserve">
+    <value>Відкрити журнали</value>
+  </data>
+  <data name="OpenModelsFolder" xml:space="preserve">
+    <value>Відкрийте папку моделей</value>
+  </data>
+  <data name="PreviewFailed" xml:space="preserve">
+    <value>Помилка попереднього перегляду: {0}</value>
+  </data>
+  <data name="Previewing" xml:space="preserve">
+    <value>Попередній перегляд...</value>
+  </data>
+  <data name="PreviewingVoice" xml:space="preserve">
+    <value>Попередній перегляд {0}...</value>
+  </data>
+  <data name="PreviewVoice" xml:space="preserve">
+    <value>Попередній перегляд голосу</value>
+  </data>
+  <data name="PrivacyChangeAnytime" xml:space="preserve">
+    <value>Ви можете будь-коли змінити це в Налаштування → Додатково.</value>
+  </data>
+  <data name="PrivacyIntro" xml:space="preserve">
+    <value>VoiceGarden — це безкоштовний проект із відкритим кодом, створений волонтерами. Щоб допомогти нам зрозуміти, які двигуни TTS найчастіше використовуються, виявити помилки та визначити пріоритети розробки, ми хотіли б збирати анонімну аналітику використання.</value>
+  </data>
+  <data name="Ready" xml:space="preserve">
+    <value>Готовий</value>
+  </data>
+  <data name="Region" xml:space="preserve">
+    <value>Регіон</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>зареєструватися</value>
+  </data>
+  <data name="RemovedVoices" xml:space="preserve">
+    <value>Видалено голос(ів): {0}</value>
+  </data>
+  <data name="RequestingAdmin" xml:space="preserve">
+    <value>Запит на права адміністратора...</value>
+  </data>
+  <data name="Reregister" xml:space="preserve">
+    <value>Перереєструватися</value>
+  </data>
+  <data name="Rescan" xml:space="preserve">
+    <value>Повторне сканування</value>
+  </data>
+  <data name="RescannedModels" xml:space="preserve">
+    <value>Повторно відскановано: {0} готових моделей</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>пошук...</value>
+  </data>
+  <data name="SearchVoices" xml:space="preserve">
+    <value>Пошук голосів...</value>
+  </data>
+  <data name="SelectModelsFirst" xml:space="preserve">
+    <value>Спочатку виберіть моделі для завантаження</value>
+  </data>
+  <data name="SelectVoicesFirst" xml:space="preserve">
+    <value>Спочатку виберіть голоси для встановлення</value>
+  </data>
+  <data name="SherpaOnnxModels" xml:space="preserve">
+    <value>Моделі Sherpa Onnx</value>
+  </data>
+  <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
+    <value>Sherpa Onnx Neural TTS</value>
+  </data>
+  <data name="ShowAdvanced" xml:space="preserve">
+    <value>▶ Показати додаткові</value>
+  </data>
+  <data name="Step1Desc" xml:space="preserve">
+    <value>На головному екрані натисніть Інсталювати для 64-розрядної версії (і 32-розрядної, якщо потрібно). Це реєструє VoiceGarden як голос SAPI 5, який може використовувати будь-яка сумісна програма.</value>
+  </data>
+  <data name="Step1Title" xml:space="preserve">
+    <value>Встановіть адаптер SAPI</value>
+  </data>
+  <data name="Step2Desc" xml:space="preserve">
+    <value>Перейдіть на вкладку SherpaOnnx Models, щоб переглянути та завантажити безкоштовні нейронні голоси. Вони повністю працюють на вашому пристрої — підключення до Інтернету не потрібне. Після завантаження натисніть Підвищити, щоб зробити їх доступними для програм SAPI.</value>
+  </data>
+  <data name="Step2Title" xml:space="preserve">
+    <value>Завантажте Sherpa Onnx Voices (офлайн)</value>
+  </data>
+  <data name="Step3Desc" xml:space="preserve">
+    <value>Для преміальних хмарних голосів (Azure, OpenAI, Google, ElevenLabs, Polly) перейдіть на вкладку Cloud Engines і введіть свій ключ API. Edge voices працюють без будь-якої клавіші.</value>
+  </data>
+  <data name="Step3Title" xml:space="preserve">
+    <value>Додати ключі Cloud Engine (необов’язково)</value>
+  </data>
+  <data name="Uninstall" xml:space="preserve">
+    <value>Видалити</value>
+  </data>
+  <data name="Validate" xml:space="preserve">
+    <value>Перевірити</value>
+  </data>
+  <data name="Validating" xml:space="preserve">
+    <value>Перевірка...</value>
+  </data>
+  <data name="ValidResult" xml:space="preserve">
+    <value>Дійсний ({0} голосів)</value>
+  </data>
+  <data name="VoiceEngines" xml:space="preserve">
+    <value>Голосові механізми</value>
+  </data>
+  <data name="WhatIsVoiceGarden" xml:space="preserve">
+    <value>Що таке VoiceGarden?</value>
+  </data>
+  <data name="WhatWeCollect" xml:space="preserve">
+    <value>Що ми збираємо:</value>
+  </data>
+  <data name="WhatWeCollectList" xml:space="preserve">
+    <value>• Увімкнено типи двигунів
+• Кількість завантажених моделей
+• Події реєстрації адаптера</value>
+  </data>
+  <data name="WhatWeDontCollect" xml:space="preserve">
+    <value>Що ми НЕ ЗБИРАЄМО:</value>
+  </data>
+  <data name="WhatWeDontCollectList" xml:space="preserve">
+    <value>• Усний текст або аудіовміст
+• Ключі API або облікові дані
+• Голосові імена або особиста інформація</value>
+  </data>
+  <data name="YesHelpImprove" xml:space="preserve">
+    <value>Так, допоможіть покращити VoiceGarden</value>
+  </data>
+</root>

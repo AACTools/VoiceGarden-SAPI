@@ -1,0 +1,426 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <!-- ===== General / App ===== -->
+  <!-- ===== MainWindow ===== -->
+  <!-- ===== Onboarding Page 1: Welcome ===== -->
+  <!-- ===== Onboarding Page 2: How To Use ===== -->
+  <!-- ===== Onboarding Page 3: Privacy ===== -->
+  <!-- ===== VoiceConfigView ===== -->
+  <!-- ===== SherpaModelsView ===== -->
+  <!-- ===== ViewModel Status Strings ===== -->
+  <!-- VoiceConfig status -->
+  <data name="About" xml:space="preserve">
+    <value>Για</value>
+  </data>
+  <data name="AdapterInstallation" xml:space="preserve">
+    <value>Εγκατάσταση προσαρμογέα</value>
+  </data>
+  <data name="AddEnUsAlias" xml:space="preserve">
+    <value>Προσθήκη ψευδωνύμου en-US</value>
+  </data>
+  <data name="Advanced" xml:space="preserve">
+    <value>Προχωρημένος</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>Ολοι</value>
+  </data>
+  <data name="AnalyticsHint" xml:space="preserve">
+    <value>Μας βοηθά να κατανοήσουμε ποιοι κινητήρες χρησιμοποιούνται. Δεν έχει σταλεί κείμενο, κλειδιά ή PII.</value>
+  </data>
+  <data name="APIKey" xml:space="preserve">
+    <value>Κλειδί API</value>
+  </data>
+  <data name="AppName" xml:space="preserve">
+    <value>VoiceGarden</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>← Πίσω</value>
+  </data>
+  <data name="Bit32NotRegistered" xml:space="preserve">
+    <value>32-bit: δεν είναι καταχωρημένο</value>
+  </data>
+  <data name="Bit32Registered" xml:space="preserve">
+    <value>✓ Εγγεγραμμένος προσαρμογέας 32 bit</value>
+  </data>
+  <data name="Bit64NotRegistered" xml:space="preserve">
+    <value>64-bit: δεν έχει καταχωρηθεί</value>
+  </data>
+  <data name="Bit64Registered" xml:space="preserve">
+    <value>✓ Εγγεγραμμένος προσαρμογέας 64 bit</value>
+  </data>
+  <data name="Checking" xml:space="preserve">
+    <value>Ελεγχος...</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Κοντά</value>
+  </data>
+  <data name="CloudVoices" xml:space="preserve">
+    <value>Cloud Voices</value>
+  </data>
+  <data name="ConfigureCredentials" xml:space="preserve">
+    <value>Διαμόρφωση διαπιστευτηρίων...</value>
+  </data>
+  <data name="ConfigureCredentialsTitle" xml:space="preserve">
+    <value>Διαμόρφωση διαπιστευτηρίων</value>
+  </data>
+  <data name="ConfigureVoices" xml:space="preserve">
+    <value>Διαμόρφωση φωνών...</value>
+  </data>
+  <data name="ConfigureVoicesTitle" xml:space="preserve">
+    <value>Διαμόρφωση φωνών</value>
+  </data>
+  <data name="CountDownloaded" xml:space="preserve">
+    <value>Έγινε λήψη του {0}</value>
+  </data>
+  <data name="CountInstalled" xml:space="preserve">
+    <value>{0} εγκατεστημένο</value>
+  </data>
+  <data name="CountSelected" xml:space="preserve">
+    <value>{0} επιλεγμένο</value>
+  </data>
+  <data name="CountTotal" xml:space="preserve">
+    <value>{0} σύνολο</value>
+  </data>
+  <data name="Downloaded" xml:space="preserve">
+    <value>Λήψη</value>
+  </data>
+  <data name="DownloadedCount" xml:space="preserve">
+    <value>Λήφθηκαν {0} μοντέλα</value>
+  </data>
+  <data name="DownloadedFailedCount" xml:space="preserve">
+    <value>Έγινε λήψη του {0}, απέτυχε {1}</value>
+  </data>
+  <data name="DownloadedStatus" xml:space="preserve">
+    <value>Λήψη</value>
+  </data>
+  <data name="DownloadFailed" xml:space="preserve">
+    <value>Η λήψη απέτυχε: {0} μοντέλα</value>
+  </data>
+  <data name="DownloadingModel" xml:space="preserve">
+    <value>Λήψη του {0} ({1})...</value>
+  </data>
+  <data name="DownloadModelFirst" xml:space="preserve">
+    <value>Κατεβάστε πρώτα το μοντέλο</value>
+  </data>
+  <data name="DownloadSelected" xml:space="preserve">
+    <value>Επιλέχτηκε λήψη</value>
+  </data>
+  <data name="EnableAnalytics" xml:space="preserve">
+    <value>Αποστολή ανώνυμων αναλυτικών στοιχείων χρήσης (opt-in)</value>
+  </data>
+  <data name="EnableEdgeVoices" xml:space="preserve">
+    <value>Ενεργοποιήστε τις φωνές του προγράμματος περιήγησης Edge</value>
+  </data>
+  <data name="Engine" xml:space="preserve">
+    <value>Μηχανή:</value>
+  </data>
+  <data name="EnterApiKey" xml:space="preserve">
+    <value>Εισαγάγετε ένα κλειδί API</value>
+  </data>
+  <data name="EnterApiKeyFirst" xml:space="preserve">
+    <value>Εισαγάγετε πρώτα ένα κλειδί API</value>
+  </data>
+  <data name="Feature20Engines" xml:space="preserve">
+    <value>✔ 20+ μηχανές: SherpaOnnx, Azure, Edge, OpenAI, Google, ElevenLabs, Polly</value>
+  </data>
+  <data name="FeatureDualArch" xml:space="preserve">
+    <value>✔ Λειτουργεί με εφαρμογές 32 bit και 64 bit</value>
+  </data>
+  <data name="FeatureOffline" xml:space="preserve">
+    <value>✔ Πλήρως εκτός σύνδεσης με νευρωνικά μοντέλα Sherpa Onnx</value>
+  </data>
+  <data name="FeatureWordBoundary" xml:space="preserve">
+    <value>✔ Συμβάντα ορίων λέξεων για επισήμανση</value>
+  </data>
+  <data name="FetchingVoices" xml:space="preserve">
+    <value>Λήψη {0} φωνών...</value>
+  </data>
+  <data name="FetchVoices" xml:space="preserve">
+    <value>Λήψη φωνών</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Φίλτρο:</value>
+  </data>
+  <data name="FoundVoices" xml:space="preserve">
+    <value>Βρέθηκαν {0} φωνές</value>
+  </data>
+  <data name="GettingStarted" xml:space="preserve">
+    <value>Ξεκινώντας</value>
+  </data>
+  <data name="HelpImprove" xml:space="preserve">
+    <value>Βοηθήστε στη βελτίωση του VoiceGarden</value>
+  </data>
+  <data name="HideAdvanced" xml:space="preserve">
+    <value>▼ Απόκρυψη για προχωρημένους</value>
+  </data>
+  <data name="Install" xml:space="preserve">
+    <value>Εγκαθιστώ</value>
+  </data>
+  <data name="InstallCancelled" xml:space="preserve">
+    <value>Η εγκατάσταση ακυρώθηκε (δεν επιτρέπεται η άδεια διαχειριστή)</value>
+  </data>
+  <data name="Installed" xml:space="preserve">
+    <value>Εγκατεστημένο</value>
+  </data>
+  <data name="InstalledModelsFailed" xml:space="preserve">
+    <value>Εγκαταστάθηκε το {0}, απέτυχε {1}</value>
+  </data>
+  <data name="InstalledModelsSAPI" xml:space="preserve">
+    <value>Εγκατεστημένα {0} μοντέλα στο SAPI</value>
+  </data>
+  <data name="InstalledOnly" xml:space="preserve">
+    <value>Εγκατεστημένο μόνο</value>
+  </data>
+  <data name="InstalledVoicesHKLM" xml:space="preserve">
+    <value>Εγκαταστάθηκαν {0} φωνή(ες) στο HKLM</value>
+  </data>
+  <data name="InstallFailed" xml:space="preserve">
+    <value>Η εγκατάσταση απέτυχε: {0}</value>
+  </data>
+  <data name="InstallingSAPI" xml:space="preserve">
+    <value>Εγκατάσταση μοντέλων στο SAPI (HKLM)...</value>
+  </data>
+  <data name="InstallSelected" xml:space="preserve">
+    <value>Εγκαταστήστε το Selected</value>
+  </data>
+  <data name="InstallToSAPI" xml:space="preserve">
+    <value>Εγκατάσταση στο SAPI</value>
+  </data>
+  <data name="InvalidResult" xml:space="preserve">
+    <value>Μη έγκυρο: {0}</value>
+  </data>
+  <data name="Key" xml:space="preserve">
+    <value>Κλειδί:</value>
+  </data>
+  <data name="LangCompatDesc" xml:space="preserve">
+    <value>Εάν το λογισμικό σας AAC υποστηρίζει μόνο συγκεκριμένες γλώσσες (π.χ. Αγγλικά), ενεργοποιήστε το "Add en-US alias" κατά την προώθηση μοντέλων SherpaOnnx. Αυτό κάνει τις φωνές σε οποιαδήποτε γλώσσα να εμφανίζονται ως αγγλικές φωνές, έτσι ώστε να εμφανίζονται σε εφαρμογές που φιλτράρουν ανά γλώσσα.</value>
+  </data>
+  <data name="LangCompatTip" xml:space="preserve">
+    <value>💡 Συμβουλή: Συμβατότητα γλώσσας</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Γλώσσα:</value>
+  </data>
+  <data name="LoadingCatalog" xml:space="preserve">
+    <value>Φόρτωση καταλόγου...</value>
+  </data>
+  <data name="LogLevel" xml:space="preserve">
+    <value>Επίπεδο καταγραφής:</value>
+  </data>
+  <data name="ManageModels" xml:space="preserve">
+    <value>Διαχείριση μοντέλων...</value>
+  </data>
+  <data name="ModelFilesNotFound" xml:space="preserve">
+    <value>Τα αρχεία μοντέλου δεν βρέθηκαν</value>
+  </data>
+  <data name="ModelsInstalled" xml:space="preserve">
+    <value>Εγκαταστάθηκαν {0} μοντέλα</value>
+  </data>
+  <data name="NeuralTTSForSAPI" xml:space="preserve">
+    <value>Neural TTS για Windows SAPI</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Επόμενος</value>
+  </data>
+  <data name="NoAudio" xml:space="preserve">
+    <value>Δεν δημιουργήθηκε ήχος</value>
+  </data>
+  <data name="NoDownloadedModels" xml:space="preserve">
+    <value>Δεν βρέθηκαν ληφθέντα μοντέλα. Κατεβάστε πρώτα ένα μοντέλο και, στη συνέχεια, κάντε κλικ στην επιλογή Επανάληψη σάρωσης εάν χρειάζεται.</value>
+  </data>
+  <data name="NoDownloadUrl" xml:space="preserve">
+    <value>Δεν υπάρχει διεύθυνση URL λήψης</value>
+  </data>
+  <data name="NoModelId" xml:space="preserve">
+    <value>Δεν ήταν δυνατός ο προσδιορισμός του αναγνωριστικού μοντέλου για προεπισκόπηση</value>
+  </data>
+  <data name="NoModelsInstalled" xml:space="preserve">
+    <value>Δεν έχουν εγκατασταθεί μοντέλα</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>Κανένας</value>
+  </data>
+  <data name="NoThanks" xml:space="preserve">
+    <value>Όχι ευχαριστώ</value>
+  </data>
+  <data name="OfflineVoices" xml:space="preserve">
+    <value>Φωνές εκτός σύνδεσης</value>
+  </data>
+  <data name="OnboardingDesc1" xml:space="preserve">
+    <value>Το VoiceGarden είναι μια δωρεάν γέφυρα φωνής ανοιχτού κώδικα που συνδέει 20+ σύγχρονες μηχανές μετατροπής κειμένου σε ομιλία με οποιαδήποτε εφαρμογή Windows που υποστηρίζει το SAPI 5 — συμπεριλαμβανομένων των Grid 3, Mind Express, Balabolka, Tobii Communicator και οποιασδήποτε εφαρμογής που έχει δημιουργηθεί στο System.Speech.</value>
+  </data>
+  <data name="OnboardingDesc2" xml:space="preserve">
+    <value>Λειτουργεί με την εγγραφή ως τυπική φωνή SAPI 5. Μόλις εγκατασταθεί, το AAC και το λογισμικό προσβασιμότητας μπορούν να χρησιμοποιούν υψηλής ποιότητας νευρικές φωνές —τόσο εκτός σύνδεσης όσο και βασισμένες σε σύννεφο—χωρίς αλλαγές στον κώδικα.</value>
+  </data>
+  <data name="OnboardingTitle" xml:space="preserve">
+    <value>Καλώς ήρθατε στο VoiceGarden</value>
+  </data>
+  <data name="OnlyEnabledEngines" xml:space="preserve">
+    <value>Εμφανίζονται μόνο ενεργοποιημένοι κινητήρες. Εναλλαγή μηχανών στην κύρια σελίδα.</value>
+  </data>
+  <data name="OpenLogs" xml:space="preserve">
+    <value>Ανοίξτε τα αρχεία καταγραφής</value>
+  </data>
+  <data name="OpenModelsFolder" xml:space="preserve">
+    <value>Ανοίξτε το φάκελο Μοντέλα</value>
+  </data>
+  <data name="PreviewFailed" xml:space="preserve">
+    <value>Η προεπισκόπηση απέτυχε: {0}</value>
+  </data>
+  <data name="Previewing" xml:space="preserve">
+    <value>Προεπισκόπηση...</value>
+  </data>
+  <data name="PreviewingVoice" xml:space="preserve">
+    <value>Προεπισκόπηση {0}...</value>
+  </data>
+  <data name="PreviewVoice" xml:space="preserve">
+    <value>Προεπισκόπηση φωνής</value>
+  </data>
+  <data name="PrivacyChangeAnytime" xml:space="preserve">
+    <value>Μπορείτε να το αλλάξετε ανά πάσα στιγμή στις Ρυθμίσεις → Για προχωρημένους.</value>
+  </data>
+  <data name="PrivacyIntro" xml:space="preserve">
+    <value>Το VoiceGarden είναι ένα δωρεάν έργο ανοιχτού κώδικα που δημιουργήθηκε από εθελοντές. Για να μας βοηθήσετε να κατανοήσουμε ποιοι κινητήρες TTS χρησιμοποιούνται περισσότερο, να εντοπίσουμε σφάλματα και να δώσουμε προτεραιότητα στην ανάπτυξη, θα θέλαμε να συλλέξουμε ανώνυμα αναλυτικά στοιχεία χρήσης.</value>
+  </data>
+  <data name="Ready" xml:space="preserve">
+    <value>Ετοιμος</value>
+  </data>
+  <data name="Region" xml:space="preserve">
+    <value>Περιοχή</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>Μητρώο</value>
+  </data>
+  <data name="RemovedVoices" xml:space="preserve">
+    <value>Καταργήθηκαν {0} φωνές</value>
+  </data>
+  <data name="RequestingAdmin" xml:space="preserve">
+    <value>Αίτημα για δικαιώματα διαχειριστή...</value>
+  </data>
+  <data name="Reregister" xml:space="preserve">
+    <value>επανεγγραφή</value>
+  </data>
+  <data name="Rescan" xml:space="preserve">
+    <value>Εκ νέου σάρωση</value>
+  </data>
+  <data name="RescannedModels" xml:space="preserve">
+    <value>Σάρωση εκ νέου: {0} μοντέλα είναι έτοιμα</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Ερευνα...</value>
+  </data>
+  <data name="SearchVoices" xml:space="preserve">
+    <value>Αναζήτηση φωνών...</value>
+  </data>
+  <data name="SelectModelsFirst" xml:space="preserve">
+    <value>Επιλέξτε μοντέλα για λήψη πρώτα</value>
+  </data>
+  <data name="SelectVoicesFirst" xml:space="preserve">
+    <value>Επιλέξτε φωνές για εγκατάσταση πρώτα</value>
+  </data>
+  <data name="SherpaOnnxModels" xml:space="preserve">
+    <value>Μοντέλα Sherpa Onnx</value>
+  </data>
+  <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
+    <value>Sherpa Onnx Neural TTS</value>
+  </data>
+  <data name="ShowAdvanced" xml:space="preserve">
+    <value>▶ Εμφάνιση Προηγμένων</value>
+  </data>
+  <data name="Step1Desc" xml:space="preserve">
+    <value>Στην κύρια οθόνη, κάντε κλικ στην επιλογή Εγκατάσταση για 64-bit (και 32-bit εάν χρειάζεται). Αυτό καταγράφει το VoiceGarden ως φωνή SAPI 5 που μπορεί να χρησιμοποιήσει οποιαδήποτε συμβατή εφαρμογή.</value>
+  </data>
+  <data name="Step1Title" xml:space="preserve">
+    <value>Εγκαταστήστε τον προσαρμογέα SAPI</value>
+  </data>
+  <data name="Step2Desc" xml:space="preserve">
+    <value>Μεταβείτε στην καρτέλα SherpaOnnx Models για να περιηγηθείτε και να κατεβάσετε δωρεάν νευρωνικές φωνές. Αυτά λειτουργούν εξ ολοκλήρου στη συσκευή σας — δεν απαιτείται σύνδεση στο Διαδίκτυο. Μετά τη λήψη, κάντε κλικ στην Προώθηση για να τα κάνετε διαθέσιμα σε εφαρμογές SAPI.</value>
+  </data>
+  <data name="Step2Title" xml:space="preserve">
+    <value>Λήψη Sherpa Onnx Voices (Εκτός σύνδεσης)</value>
+  </data>
+  <data name="Step3Desc" xml:space="preserve">
+    <value>Για premium φωνές cloud (Azure, OpenAI, Google, ElevenLabs, Polly), μεταβείτε στην καρτέλα Cloud Engines και εισαγάγετε το κλειδί API σας. Οι φωνές Edge λειτουργούν χωρίς κανένα κλειδί.</value>
+  </data>
+  <data name="Step3Title" xml:space="preserve">
+    <value>Προσθήκη κλειδιών Cloud Engine (Προαιρετικό)</value>
+  </data>
+  <data name="Uninstall" xml:space="preserve">
+    <value>Απεγκατάσταση</value>
+  </data>
+  <data name="Validate" xml:space="preserve">
+    <value>Επικυρώνω</value>
+  </data>
+  <data name="Validating" xml:space="preserve">
+    <value>Επικύρωση...</value>
+  </data>
+  <data name="ValidResult" xml:space="preserve">
+    <value>Έγκυρο ({0} φωνές)</value>
+  </data>
+  <data name="VoiceEngines" xml:space="preserve">
+    <value>Μηχανές φωνής</value>
+  </data>
+  <data name="WhatIsVoiceGarden" xml:space="preserve">
+    <value>Τι είναι το VoiceGarden;</value>
+  </data>
+  <data name="WhatWeCollect" xml:space="preserve">
+    <value>Τι συλλέγουμε:</value>
+  </data>
+  <data name="WhatWeCollectList" xml:space="preserve">
+    <value>• Οι τύποι κινητήρα είναι ενεργοποιημένοι
+• Αριθμός μοντέλων που έχουν ληφθεί
+• Συμβάντα εγγραφής προσαρμογέα</value>
+  </data>
+  <data name="WhatWeDontCollect" xml:space="preserve">
+    <value>Τι ΔΕΝ συλλέγουμε:</value>
+  </data>
+  <data name="WhatWeDontCollectList" xml:space="preserve">
+    <value>• Προφορικό κείμενο ή περιεχόμενο ήχου
+• Κλειδιά ή διαπιστευτήρια API
+• Ονόματα φωνής ή προσωπικές πληροφορίες</value>
+  </data>
+  <data name="YesHelpImprove" xml:space="preserve">
+    <value>Ναι, συμβάλετε στη βελτίωση του VoiceGarden</value>
+  </data>
+</root>

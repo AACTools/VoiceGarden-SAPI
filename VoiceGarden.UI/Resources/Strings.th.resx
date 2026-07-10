@@ -1,0 +1,426 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <!-- ===== General / App ===== -->
+  <!-- ===== MainWindow ===== -->
+  <!-- ===== Onboarding Page 1: Welcome ===== -->
+  <!-- ===== Onboarding Page 2: How To Use ===== -->
+  <!-- ===== Onboarding Page 3: Privacy ===== -->
+  <!-- ===== VoiceConfigView ===== -->
+  <!-- ===== SherpaModelsView ===== -->
+  <!-- ===== ViewModel Status Strings ===== -->
+  <!-- VoiceConfig status -->
+  <data name="About" xml:space="preserve">
+    <value>เกี่ยวกับ</value>
+  </data>
+  <data name="AdapterInstallation" xml:space="preserve">
+    <value>การติดตั้งอะแดปเตอร์</value>
+  </data>
+  <data name="AddEnUsAlias" xml:space="preserve">
+    <value>เพิ่มนามแฝง en-US</value>
+  </data>
+  <data name="Advanced" xml:space="preserve">
+    <value>ขั้นสูง</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>ทั้งหมด</value>
+  </data>
+  <data name="AnalyticsHint" xml:space="preserve">
+    <value>ช่วยให้เราเข้าใจว่าเครื่องยนต์ใดบ้างที่ใช้ ไม่มีข้อความ คีย์ หรือ PII ที่ส่ง</value>
+  </data>
+  <data name="APIKey" xml:space="preserve">
+    <value>คีย์ API</value>
+  </data>
+  <data name="AppName" xml:space="preserve">
+    <value>วอยซ์การ์เด้น</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>← ย้อนกลับ</value>
+  </data>
+  <data name="Bit32NotRegistered" xml:space="preserve">
+    <value>32 บิต: ไม่ได้ลงทะเบียน</value>
+  </data>
+  <data name="Bit32Registered" xml:space="preserve">
+    <value>✓ ลงทะเบียนอะแดปเตอร์ 32 บิตแล้ว</value>
+  </data>
+  <data name="Bit64NotRegistered" xml:space="preserve">
+    <value>64 บิต: ไม่ได้ลงทะเบียน</value>
+  </data>
+  <data name="Bit64Registered" xml:space="preserve">
+    <value>✓ ลงทะเบียนอะแดปเตอร์ 64 บิตแล้ว</value>
+  </data>
+  <data name="Checking" xml:space="preserve">
+    <value>กำลังตรวจสอบ...</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>ปิด</value>
+  </data>
+  <data name="CloudVoices" xml:space="preserve">
+    <value>คลาวด์วอยซ์</value>
+  </data>
+  <data name="ConfigureCredentials" xml:space="preserve">
+    <value>กำหนดค่าข้อมูลรับรอง...</value>
+  </data>
+  <data name="ConfigureCredentialsTitle" xml:space="preserve">
+    <value>กำหนดค่าข้อมูลรับรอง</value>
+  </data>
+  <data name="ConfigureVoices" xml:space="preserve">
+    <value>กำหนดค่าเสียง...</value>
+  </data>
+  <data name="ConfigureVoicesTitle" xml:space="preserve">
+    <value>กำหนดค่าเสียง</value>
+  </data>
+  <data name="CountDownloaded" xml:space="preserve">
+    <value>ดาวน์โหลดแล้ว {0}</value>
+  </data>
+  <data name="CountInstalled" xml:space="preserve">
+    <value>ติดตั้ง {0} แล้ว</value>
+  </data>
+  <data name="CountSelected" xml:space="preserve">
+    <value>เลือกแล้ว {0}</value>
+  </data>
+  <data name="CountTotal" xml:space="preserve">
+    <value>รวม {0}</value>
+  </data>
+  <data name="Downloaded" xml:space="preserve">
+    <value>ดาวน์โหลดแล้ว</value>
+  </data>
+  <data name="DownloadedCount" xml:space="preserve">
+    <value>ดาวน์โหลดแล้ว {0} โมเดล</value>
+  </data>
+  <data name="DownloadedFailedCount" xml:space="preserve">
+    <value>ดาวน์โหลด {0} ล้มเหลว {1}</value>
+  </data>
+  <data name="DownloadedStatus" xml:space="preserve">
+    <value>ดาวน์โหลดแล้ว</value>
+  </data>
+  <data name="DownloadFailed" xml:space="preserve">
+    <value>การดาวน์โหลดล้มเหลว: {0} โมเดล</value>
+  </data>
+  <data name="DownloadingModel" xml:space="preserve">
+    <value>กำลังดาวน์โหลด {0} ({1})...</value>
+  </data>
+  <data name="DownloadModelFirst" xml:space="preserve">
+    <value>ดาวน์โหลดโมเดลก่อน</value>
+  </data>
+  <data name="DownloadSelected" xml:space="preserve">
+    <value>ดาวน์โหลดที่เลือก</value>
+  </data>
+  <data name="EnableAnalytics" xml:space="preserve">
+    <value>ส่งการวิเคราะห์การใช้งานแบบไม่เปิดเผยตัวตน (เลือกใช้)</value>
+  </data>
+  <data name="EnableEdgeVoices" xml:space="preserve">
+    <value>เปิดใช้งานเสียงของเบราว์เซอร์ Edge</value>
+  </data>
+  <data name="Engine" xml:space="preserve">
+    <value>เครื่องยนต์:</value>
+  </data>
+  <data name="EnterApiKey" xml:space="preserve">
+    <value>ป้อนคีย์ API</value>
+  </data>
+  <data name="EnterApiKeyFirst" xml:space="preserve">
+    <value>ป้อนคีย์ API ก่อน</value>
+  </data>
+  <data name="Feature20Engines" xml:space="preserve">
+    <value>✔ เอ็นจิ้นมากกว่า 20 รายการ: SherpaOnnx, Azure, Edge, OpenAI, Google, ElevenLabs, Polly</value>
+  </data>
+  <data name="FeatureDualArch" xml:space="preserve">
+    <value>✔ใช้งานได้กับแอปพลิเคชันทั้งแบบ 32 บิตและ 64 บิต</value>
+  </data>
+  <data name="FeatureOffline" xml:space="preserve">
+    <value>✔ออฟไลน์โดยสมบูรณ์ด้วยโมเดลประสาทของ Sherpa Onnx</value>
+  </data>
+  <data name="FeatureWordBoundary" xml:space="preserve">
+    <value>✔เหตุการณ์ขอบเขตคำสำหรับการเน้น</value>
+  </data>
+  <data name="FetchingVoices" xml:space="preserve">
+    <value>กำลังเรียกข้อมูลเสียง {0} เสียง...</value>
+  </data>
+  <data name="FetchVoices" xml:space="preserve">
+    <value>ดึงเสียง</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>กรอง:</value>
+  </data>
+  <data name="FoundVoices" xml:space="preserve">
+    <value>พบ {0} เสียง</value>
+  </data>
+  <data name="GettingStarted" xml:space="preserve">
+    <value>เริ่มต้นใช้งาน</value>
+  </data>
+  <data name="HelpImprove" xml:space="preserve">
+    <value>ช่วยปรับปรุง VoiceGarden</value>
+  </data>
+  <data name="HideAdvanced" xml:space="preserve">
+    <value>▼ ซ่อนขั้นสูง</value>
+  </data>
+  <data name="Install" xml:space="preserve">
+    <value>ติดตั้ง</value>
+  </data>
+  <data name="InstallCancelled" xml:space="preserve">
+    <value>การติดตั้งถูกยกเลิก (สิทธิ์ของผู้ดูแลระบบถูกปฏิเสธ)</value>
+  </data>
+  <data name="Installed" xml:space="preserve">
+    <value>ติดตั้งแล้ว</value>
+  </data>
+  <data name="InstalledModelsFailed" xml:space="preserve">
+    <value>ติดตั้ง {0} ล้มเหลว {1}</value>
+  </data>
+  <data name="InstalledModelsSAPI" xml:space="preserve">
+    <value>ติดตั้งโมเดล {0} รายการใน SAPI</value>
+  </data>
+  <data name="InstalledOnly" xml:space="preserve">
+    <value>ติดตั้งเท่านั้น</value>
+  </data>
+  <data name="InstalledVoicesHKLM" xml:space="preserve">
+    <value>ติดตั้งเสียง {0} รายการใน HKLM</value>
+  </data>
+  <data name="InstallFailed" xml:space="preserve">
+    <value>การติดตั้งล้มเหลว: {0}</value>
+  </data>
+  <data name="InstallingSAPI" xml:space="preserve">
+    <value>กำลังติดตั้งโมเดลลงใน SAPI (HKLM)...</value>
+  </data>
+  <data name="InstallSelected" xml:space="preserve">
+    <value>ติดตั้งที่เลือก</value>
+  </data>
+  <data name="InstallToSAPI" xml:space="preserve">
+    <value>ติดตั้งลงใน SAPI</value>
+  </data>
+  <data name="InvalidResult" xml:space="preserve">
+    <value>ไม่ถูกต้อง: {0}</value>
+  </data>
+  <data name="Key" xml:space="preserve">
+    <value>สำคัญ:</value>
+  </data>
+  <data name="LangCompatDesc" xml:space="preserve">
+    <value>หากซอฟต์แวร์ AAC ของคุณรองรับเฉพาะบางภาษา (เช่น อังกฤษ) ให้เปิดใช้งาน "เพิ่มนามแฝง en-US" เมื่อโปรโมตโมเดล SherpaOnnx ซึ่งจะทำให้เสียงในภาษาใดๆ ปรากฏเป็นเสียงภาษาอังกฤษ ดังนั้นเสียงเหล่านั้นจึงปรากฏในแอปที่กรองตามภาษา</value>
+  </data>
+  <data name="LangCompatTip" xml:space="preserve">
+    <value>💡 เคล็ดลับ: ความเข้ากันได้ของภาษา</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>ภาษา:</value>
+  </data>
+  <data name="LoadingCatalog" xml:space="preserve">
+    <value>กำลังโหลดแค็ตตาล็อก...</value>
+  </data>
+  <data name="LogLevel" xml:space="preserve">
+    <value>ระดับบันทึก:</value>
+  </data>
+  <data name="ManageModels" xml:space="preserve">
+    <value>จัดการโมเดล...</value>
+  </data>
+  <data name="ModelFilesNotFound" xml:space="preserve">
+    <value>ไม่พบไฟล์โมเดล</value>
+  </data>
+  <data name="ModelsInstalled" xml:space="preserve">
+    <value>ติดตั้งแล้ว {0} รุ่น</value>
+  </data>
+  <data name="NeuralTTSForSAPI" xml:space="preserve">
+    <value>TTS ประสาทสำหรับ Windows SAPI</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>ต่อไป</value>
+  </data>
+  <data name="NoAudio" xml:space="preserve">
+    <value>ไม่มีการสร้างเสียง</value>
+  </data>
+  <data name="NoDownloadedModels" xml:space="preserve">
+    <value>ไม่พบรุ่นที่ดาวน์โหลด ดาวน์โหลดแบบจำลองก่อน จากนั้นคลิกสแกนซ้ำหากจำเป็น</value>
+  </data>
+  <data name="NoDownloadUrl" xml:space="preserve">
+    <value>ไม่มี URL ดาวน์โหลด</value>
+  </data>
+  <data name="NoModelId" xml:space="preserve">
+    <value>ไม่สามารถระบุรหัสรุ่นเพื่อดูตัวอย่างได้</value>
+  </data>
+  <data name="NoModelsInstalled" xml:space="preserve">
+    <value>ไม่มีรุ่นติดตั้ง</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>ไม่มี</value>
+  </data>
+  <data name="NoThanks" xml:space="preserve">
+    <value>ไม่ล่ะ ขอบคุณ</value>
+  </data>
+  <data name="OfflineVoices" xml:space="preserve">
+    <value>เสียงออฟไลน์</value>
+  </data>
+  <data name="OnboardingDesc1" xml:space="preserve">
+    <value>VoiceGarden เป็นสะพานเสียงโอเพ่นซอร์สฟรีที่เชื่อมต่อกลไกการแปลงข้อความเป็นคำพูดที่ทันสมัยกว่า 20 รายการกับแอปพลิเคชัน Windows ใด ๆ ที่รองรับ SAPI 5 รวมถึง Grid 3, Mind Express, Balabolka, Tobii Communicator และแอปใด ๆ ที่สร้างบน System.Speech</value>
+  </data>
+  <data name="OnboardingDesc2" xml:space="preserve">
+    <value>ทำงานโดยการลงทะเบียนเป็นเสียง SAPI 5 มาตรฐาน เมื่อติดตั้งแล้ว AAC และซอฟต์แวร์การเข้าถึงของคุณสามารถใช้เสียงประสาทคุณภาพสูง ทั้งแบบออฟไลน์และบนคลาวด์ โดยไม่ต้องเปลี่ยนแปลงโค้ดใดๆ</value>
+  </data>
+  <data name="OnboardingTitle" xml:space="preserve">
+    <value>ยินดีต้อนรับสู่วอยซ์การ์เด้น</value>
+  </data>
+  <data name="OnlyEnabledEngines" xml:space="preserve">
+    <value>แสดงเฉพาะเครื่องยนต์ที่เปิดใช้งานเท่านั้น สลับเครื่องยนต์ในหน้าหลัก</value>
+  </data>
+  <data name="OpenLogs" xml:space="preserve">
+    <value>เปิดบันทึก</value>
+  </data>
+  <data name="OpenModelsFolder" xml:space="preserve">
+    <value>เปิดโฟลเดอร์โมเดล</value>
+  </data>
+  <data name="PreviewFailed" xml:space="preserve">
+    <value>การแสดงตัวอย่างล้มเหลว: {0}</value>
+  </data>
+  <data name="Previewing" xml:space="preserve">
+    <value>กำลังดูตัวอย่าง...</value>
+  </data>
+  <data name="PreviewingVoice" xml:space="preserve">
+    <value>กำลังแสดงตัวอย่าง {0}...</value>
+  </data>
+  <data name="PreviewVoice" xml:space="preserve">
+    <value>ดูตัวอย่างเสียง</value>
+  </data>
+  <data name="PrivacyChangeAnytime" xml:space="preserve">
+    <value>คุณสามารถเปลี่ยนได้ตลอดเวลาในการตั้งค่า → ขั้นสูง</value>
+  </data>
+  <data name="PrivacyIntro" xml:space="preserve">
+    <value>VoiceGarden เป็นโครงการโอเพ่นซอร์สฟรีที่สร้างโดยอาสาสมัคร เพื่อช่วยให้เราเข้าใจว่ากลไก TTS ใดถูกใช้มากที่สุด ระบุจุดบกพร่อง และจัดลำดับความสำคัญของการพัฒนา เราต้องการรวบรวมการวิเคราะห์การใช้งานที่ไม่ระบุชื่อ</value>
+  </data>
+  <data name="Ready" xml:space="preserve">
+    <value>พร้อม</value>
+  </data>
+  <data name="Region" xml:space="preserve">
+    <value>ภูมิภาค</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>ลงทะเบียน</value>
+  </data>
+  <data name="RemovedVoices" xml:space="preserve">
+    <value>ลบแล้ว {0} เสียง</value>
+  </data>
+  <data name="RequestingAdmin" xml:space="preserve">
+    <value>กำลังขอสิทธิ์ผู้ดูแลระบบ...</value>
+  </data>
+  <data name="Reregister" xml:space="preserve">
+    <value>ลงทะเบียนใหม่</value>
+  </data>
+  <data name="Rescan" xml:space="preserve">
+    <value>สแกนอีกครั้ง</value>
+  </data>
+  <data name="RescannedModels" xml:space="preserve">
+    <value>สแกนใหม่แล้ว: พร้อมแล้ว {0} โมเดล</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>ค้นหา...</value>
+  </data>
+  <data name="SearchVoices" xml:space="preserve">
+    <value>ค้นหาเสียง...</value>
+  </data>
+  <data name="SelectModelsFirst" xml:space="preserve">
+    <value>เลือกรุ่นที่จะดาวน์โหลดก่อน</value>
+  </data>
+  <data name="SelectVoicesFirst" xml:space="preserve">
+    <value>เลือกเสียงที่จะติดตั้งก่อน</value>
+  </data>
+  <data name="SherpaOnnxModels" xml:space="preserve">
+    <value>โมเดลเชอร์ปาออนเอ็นซ์</value>
+  </data>
+  <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
+    <value>Sherpa Onnx Neural TTS</value>
+  </data>
+  <data name="ShowAdvanced" xml:space="preserve">
+    <value>▶ แสดงขั้นสูง</value>
+  </data>
+  <data name="Step1Desc" xml:space="preserve">
+    <value>บนหน้าจอหลัก คลิกติดตั้งสำหรับ 64 บิต (และ 32 บิตหากจำเป็น) การดำเนินการนี้จะลงทะเบียน VoiceGarden เป็นเสียง SAPI 5 ที่แอปที่รองรับสามารถใช้ได้</value>
+  </data>
+  <data name="Step1Title" xml:space="preserve">
+    <value>ติดตั้งอะแดปเตอร์ SAPI</value>
+  </data>
+  <data name="Step2Desc" xml:space="preserve">
+    <value>ไปที่แท็บโมเดล SherpaOnnx เพื่อเรียกดูและดาวน์โหลดเสียงประสาทฟรี สิ่งเหล่านี้ทำงานบนอุปกรณ์ของคุณทั้งหมด — ไม่จำเป็นต้องเชื่อมต่ออินเทอร์เน็ต หลังจากดาวน์โหลด คลิกโปรโมตเพื่อให้สามารถใช้งานได้กับแอปพลิเคชัน SAPI</value>
+  </data>
+  <data name="Step2Title" xml:space="preserve">
+    <value>ดาวน์โหลด Sherpa Onnx Voices (ออฟไลน์)</value>
+  </data>
+  <data name="Step3Desc" xml:space="preserve">
+    <value>สำหรับเสียงบนคลาวด์ระดับพรีเมียม (Azure, OpenAI, Google, ElevenLabs, Polly) ให้ไปที่แท็บ Cloud Engines แล้วป้อนคีย์ API ของคุณ เสียงของ Edge ทำงานโดยไม่ต้องใช้คีย์ใดๆ</value>
+  </data>
+  <data name="Step3Title" xml:space="preserve">
+    <value>เพิ่มคีย์ Cloud Engine (ไม่บังคับ)</value>
+  </data>
+  <data name="Uninstall" xml:space="preserve">
+    <value>ถอนการติดตั้ง</value>
+  </data>
+  <data name="Validate" xml:space="preserve">
+    <value>ตรวจสอบความถูกต้อง</value>
+  </data>
+  <data name="Validating" xml:space="preserve">
+    <value>กำลังตรวจสอบ...</value>
+  </data>
+  <data name="ValidResult" xml:space="preserve">
+    <value>ถูกต้อง ({0} เสียง)</value>
+  </data>
+  <data name="VoiceEngines" xml:space="preserve">
+    <value>เครื่องยนต์เสียง</value>
+  </data>
+  <data name="WhatIsVoiceGarden" xml:space="preserve">
+    <value>VoiceGarden คืออะไร?</value>
+  </data>
+  <data name="WhatWeCollect" xml:space="preserve">
+    <value>สิ่งที่เรารวบรวม:</value>
+  </data>
+  <data name="WhatWeCollectList" xml:space="preserve">
+    <value>• เปิดใช้งานประเภทเครื่องยนต์แล้ว
+• จำนวนรุ่นที่ดาวน์โหลด
+• เหตุการณ์การลงทะเบียนอะแดปเตอร์</value>
+  </data>
+  <data name="WhatWeDontCollect" xml:space="preserve">
+    <value>สิ่งที่เราไม่รวบรวม:</value>
+  </data>
+  <data name="WhatWeDontCollectList" xml:space="preserve">
+    <value>• ข้อความพูดหรือเนื้อหาเสียง
+• คีย์ API หรือข้อมูลรับรอง
+• ชื่อเสียงหรือข้อมูลส่วนบุคคล</value>
+  </data>
+  <data name="YesHelpImprove" xml:space="preserve">
+    <value>ใช่ ช่วยปรับปรุง VoiceGarden</value>
+  </data>
+</root>

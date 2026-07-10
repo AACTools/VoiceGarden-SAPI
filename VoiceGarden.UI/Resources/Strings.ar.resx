@@ -51,376 +51,376 @@
   <!-- ===== ViewModel Status Strings ===== -->
   <!-- VoiceConfig status -->
   <data name="About" xml:space="preserve">
-    <value>About</value>
+    <value>عن</value>
   </data>
   <data name="AdapterInstallation" xml:space="preserve">
-    <value>Adapter Installation</value>
+    <value>تركيب المحول</value>
   </data>
   <data name="AddEnUsAlias" xml:space="preserve">
-    <value>Add en-US alias</value>
+    <value>أضف الاسم المستعار للولايات المتحدة</value>
   </data>
   <data name="Advanced" xml:space="preserve">
-    <value>Advanced</value>
+    <value>متقدم</value>
   </data>
   <data name="All" xml:space="preserve">
-    <value>All</value>
+    <value>الجميع</value>
   </data>
   <data name="AnalyticsHint" xml:space="preserve">
-    <value>Helps us understand which engines are used. No text, keys, or PII sent.</value>
+    <value>يساعدنا على فهم المحركات المستخدمة. لم يتم إرسال أي نص أو مفاتيح أو معلومات تحديد الهوية الشخصية (PII).</value>
   </data>
   <data name="APIKey" xml:space="preserve">
-    <value>API Key</value>
+    <value>مفتاح واجهة برمجة التطبيقات</value>
   </data>
   <data name="AppName" xml:space="preserve">
     <value>VoiceGarden</value>
   </data>
   <data name="Back" xml:space="preserve">
-    <value>← Back</value>
+    <value>← العودة</value>
   </data>
   <data name="Bit32NotRegistered" xml:space="preserve">
-    <value>32-bit: not registered</value>
+    <value>32 بت: غير مسجل</value>
   </data>
   <data name="Bit32Registered" xml:space="preserve">
-    <value>✓ 32-bit adapter registered</value>
+    <value>✓ محول 32 بت مسجل</value>
   </data>
   <data name="Bit64NotRegistered" xml:space="preserve">
-    <value>64-bit: not registered</value>
+    <value>64 بت: غير مسجل</value>
   </data>
   <data name="Bit64Registered" xml:space="preserve">
-    <value>✓ 64-bit adapter registered</value>
+    <value>✓ تم تسجيل محول 64 بت</value>
   </data>
   <data name="Checking" xml:space="preserve">
-    <value>Checking...</value>
+    <value>جارٍ التحقق...</value>
   </data>
   <data name="Close" xml:space="preserve">
-    <value>Close</value>
+    <value>يغلق</value>
   </data>
   <data name="CloudVoices" xml:space="preserve">
-    <value>Cloud Voices</value>
+    <value>أصوات السحابة</value>
   </data>
   <data name="ConfigureCredentials" xml:space="preserve">
-    <value>Configure Credentials...</value>
+    <value>تكوين بيانات الاعتماد...</value>
   </data>
   <data name="ConfigureCredentialsTitle" xml:space="preserve">
-    <value>Configure Credentials</value>
+    <value>تكوين بيانات الاعتماد</value>
   </data>
   <data name="ConfigureVoices" xml:space="preserve">
-    <value>Configure Voices...</value>
+    <value>تكوين الأصوات...</value>
   </data>
   <data name="ConfigureVoicesTitle" xml:space="preserve">
-    <value>Configure Voices</value>
+    <value>تكوين الأصوات</value>
   </data>
   <data name="CountDownloaded" xml:space="preserve">
-    <value>{0} downloaded</value>
+    <value>تم تنزيل {0}.</value>
   </data>
   <data name="CountInstalled" xml:space="preserve">
-    <value>{0} installed</value>
+    <value>تم تثبيت {0}.</value>
   </data>
   <data name="CountSelected" xml:space="preserve">
-    <value>{0} selected</value>
+    <value>تم تحديد {0}.</value>
   </data>
   <data name="CountTotal" xml:space="preserve">
-    <value>{0} total</value>
+    <value>{0} المجموع</value>
   </data>
   <data name="Downloaded" xml:space="preserve">
-    <value>Downloaded</value>
+    <value>تم التنزيل</value>
   </data>
   <data name="DownloadedCount" xml:space="preserve">
-    <value>Downloaded {0} model(s)</value>
+    <value>تم تنزيل {0} نموذج (نماذج)</value>
   </data>
   <data name="DownloadedFailedCount" xml:space="preserve">
-    <value>Downloaded {0}, failed {1}</value>
+    <value>تم التنزيل {0}، فشل {1}</value>
   </data>
   <data name="DownloadedStatus" xml:space="preserve">
-    <value>Downloaded</value>
+    <value>تم التنزيل</value>
   </data>
   <data name="DownloadFailed" xml:space="preserve">
-    <value>Download failed: {0} model(s)</value>
+    <value>فشل التنزيل: {0} نموذج (نماذج)</value>
   </data>
   <data name="DownloadingModel" xml:space="preserve">
-    <value>Downloading {0} ({1})...</value>
+    <value>جارٍ التنزيل {0} ({1})...</value>
   </data>
   <data name="DownloadModelFirst" xml:space="preserve">
-    <value>Download the model first</value>
+    <value>قم بتنزيل النموذج أولاً</value>
   </data>
   <data name="DownloadSelected" xml:space="preserve">
-    <value>Download Selected</value>
+    <value>تحميل المحدد</value>
   </data>
   <data name="EnableAnalytics" xml:space="preserve">
-    <value>Send anonymous usage analytics (opt-in)</value>
+    <value>إرسال تحليلات استخدام مجهولة المصدر (الاشتراك)</value>
   </data>
   <data name="EnableEdgeVoices" xml:space="preserve">
-    <value>Enable Edge browser voices</value>
+    <value>تمكين أصوات متصفح Edge</value>
   </data>
   <data name="Engine" xml:space="preserve">
-    <value>Engine:</value>
+    <value>محرك:</value>
   </data>
   <data name="EnterApiKey" xml:space="preserve">
-    <value>Enter an API key</value>
+    <value>أدخل مفتاح API</value>
   </data>
   <data name="EnterApiKeyFirst" xml:space="preserve">
-    <value>Enter an API key first</value>
+    <value>أدخل مفتاح API أولاً</value>
   </data>
   <data name="Feature20Engines" xml:space="preserve">
-    <value>✔  20+ engines: SherpaOnnx, Azure, Edge, OpenAI, Google, ElevenLabs, Polly</value>
+    <value>✔ أكثر من 20 محركًا: SherpaOnnx وAzure وEdge وOpenAI وGoogle وElevenLabs وPolly</value>
   </data>
   <data name="FeatureDualArch" xml:space="preserve">
-    <value>✔  Works with both 32-bit and 64-bit applications</value>
+    <value>✔ يعمل مع تطبيقات 32 بت و 64 بت</value>
   </data>
   <data name="FeatureOffline" xml:space="preserve">
-    <value>✔  Fully offline with SherpaOnnx neural models</value>
+    <value>✔ غير متصل بالإنترنت بالكامل مع نماذج Sherpa Onnx العصبية</value>
   </data>
   <data name="FeatureWordBoundary" xml:space="preserve">
-    <value>✔  Word boundary events for highlighting</value>
+    <value>✔ أحداث حدود الكلمة لتسليط الضوء عليها</value>
   </data>
   <data name="FetchingVoices" xml:space="preserve">
-    <value>Fetching {0} voices...</value>
+    <value>جارٍ جلب {0} صوت...</value>
   </data>
   <data name="FetchVoices" xml:space="preserve">
-    <value>Fetch Voices</value>
+    <value>جلب الأصوات</value>
   </data>
   <data name="Filter" xml:space="preserve">
-    <value>Filter:</value>
+    <value>فلتر:</value>
   </data>
   <data name="FoundVoices" xml:space="preserve">
-    <value>Found {0} voices</value>
+    <value>تم العثور على {0} صوت</value>
   </data>
   <data name="GettingStarted" xml:space="preserve">
-    <value>Getting Started</value>
+    <value>ابدء</value>
   </data>
   <data name="HelpImprove" xml:space="preserve">
-    <value>Help Improve VoiceGarden</value>
+    <value>ساعد في تحسين VoiceGarden</value>
   </data>
   <data name="HideAdvanced" xml:space="preserve">
-    <value>▼ Hide Advanced</value>
+    <value>▼ إخفاء المتقدم</value>
   </data>
   <data name="Install" xml:space="preserve">
-    <value>Install</value>
+    <value>ثَبَّتَ</value>
   </data>
   <data name="InstallCancelled" xml:space="preserve">
-    <value>Install cancelled (admin permission denied)</value>
+    <value>تم إلغاء التثبيت (تم رفض إذن المسؤول)</value>
   </data>
   <data name="Installed" xml:space="preserve">
-    <value>Installed</value>
+    <value>تم التثبيت</value>
   </data>
   <data name="InstalledModelsFailed" xml:space="preserve">
-    <value>Installed {0}, failed {1}</value>
+    <value>تم التثبيت {0}، الفشل {1}</value>
   </data>
   <data name="InstalledModelsSAPI" xml:space="preserve">
-    <value>Installed {0} model(s) to SAPI</value>
+    <value>تم تثبيت {0} نموذج (نماذج) على SAPI</value>
   </data>
   <data name="InstalledOnly" xml:space="preserve">
-    <value>Installed only</value>
+    <value>مثبتة فقط</value>
   </data>
   <data name="InstalledVoicesHKLM" xml:space="preserve">
-    <value>Installed {0} voice(s) to HKLM</value>
+    <value>تم تثبيت {0} صوت (أصوات) على HKLM</value>
   </data>
   <data name="InstallFailed" xml:space="preserve">
-    <value>Install failed: {0}</value>
+    <value>فشل التثبيت: {0}</value>
   </data>
   <data name="InstallingSAPI" xml:space="preserve">
-    <value>Installing models to SAPI (HKLM)...</value>
+    <value>جارٍ تثبيت النماذج على SAPI (HKLM)...</value>
   </data>
   <data name="InstallSelected" xml:space="preserve">
-    <value>Install Selected</value>
+    <value>تثبيت المحدد</value>
   </data>
   <data name="InstallToSAPI" xml:space="preserve">
-    <value>Install to SAPI</value>
+    <value>التثبيت على SAPI</value>
   </data>
   <data name="InvalidResult" xml:space="preserve">
-    <value>Invalid: {0}</value>
+    <value>غير صالح: {0}</value>
   </data>
   <data name="Key" xml:space="preserve">
-    <value>Key:</value>
+    <value>مفتاح:</value>
   </data>
   <data name="LangCompatDesc" xml:space="preserve">
-    <value>If your AAC software only supports certain languages (e.g. English), enable "Add en-US alias" when promoting SherpaOnnx models. This makes voices in any language appear as English voices, so they show up in apps that filter by language.</value>
+    <value>إذا كان برنامج AAC الخاص بك يدعم لغات معينة فقط (مثل اللغة الإنجليزية)، فقم بتمكين "إضافة اسم مستعار للولايات المتحدة" عند الترويج لنماذج SherpaOnnx. وهذا يجعل الأصوات بأي لغة تظهر كأصوات إنجليزية، بحيث تظهر في التطبيقات التي يتم تصفيتها حسب اللغة.</value>
   </data>
   <data name="LangCompatTip" xml:space="preserve">
-    <value>💡  Tip: Language Compatibility</value>
+    <value>💡 نصيحة: توافق اللغة</value>
   </data>
   <data name="Language" xml:space="preserve">
-    <value>Language:</value>
+    <value>لغة:</value>
   </data>
   <data name="LoadingCatalog" xml:space="preserve">
-    <value>Loading catalog...</value>
+    <value>جارٍ تحميل الكتالوج...</value>
   </data>
   <data name="LogLevel" xml:space="preserve">
-    <value>Log level:</value>
+    <value>مستوى السجل:</value>
   </data>
   <data name="ManageModels" xml:space="preserve">
-    <value>Manage Models...</value>
+    <value>إدارة النماذج...</value>
   </data>
   <data name="ModelFilesNotFound" xml:space="preserve">
-    <value>Model files not found</value>
+    <value>لم يتم العثور على ملفات النموذج</value>
   </data>
   <data name="ModelsInstalled" xml:space="preserve">
-    <value>{0} model(s) installed</value>
+    <value>تم تثبيت {0} نموذج (نماذج).</value>
   </data>
   <data name="NeuralTTSForSAPI" xml:space="preserve">
-    <value>Neural TTS for Windows SAPI</value>
+    <value>تحويل النص إلى كلام العصبية لنظام التشغيل Windows SAPI</value>
   </data>
   <data name="Next" xml:space="preserve">
-    <value>Next</value>
+    <value>التالي</value>
   </data>
   <data name="NoAudio" xml:space="preserve">
-    <value>No audio generated</value>
+    <value>لم يتم إنشاء الصوت</value>
   </data>
   <data name="NoDownloadedModels" xml:space="preserve">
-    <value>No downloaded models found. Download a model first, then click Rescan if needed.</value>
+    <value>لم يتم العثور على نماذج تم تنزيلها. قم بتنزيل النموذج أولاً، ثم انقر فوق "إعادة المسح" إذا لزم الأمر.</value>
   </data>
   <data name="NoDownloadUrl" xml:space="preserve">
-    <value>No download URL</value>
+    <value>لا يوجد عنوان URL للتنزيل</value>
   </data>
   <data name="NoModelId" xml:space="preserve">
-    <value>Could not determine model ID for preview</value>
+    <value>لا يمكن تحديد معرف النموذج للمعاينة</value>
   </data>
   <data name="NoModelsInstalled" xml:space="preserve">
-    <value>No models installed</value>
+    <value>لم يتم تثبيت أي نماذج</value>
   </data>
   <data name="None" xml:space="preserve">
-    <value>None</value>
+    <value>لا أحد</value>
   </data>
   <data name="NoThanks" xml:space="preserve">
-    <value>No thanks</value>
+    <value>ًلا شكرا</value>
   </data>
   <data name="OfflineVoices" xml:space="preserve">
-    <value>Offline Voices</value>
+    <value>أصوات غير متصل</value>
   </data>
   <data name="OnboardingDesc1" xml:space="preserve">
-    <value>VoiceGarden is a free, open-source voice bridge that connects 20+ modern text-to-speech engines to any Windows application that supports SAPI 5 — including Grid 3, Mind Express, Balabolka, Tobii Communicator, and any app built on System.Speech.</value>
+    <value>VoiceGarden عبارة عن جسر صوتي مجاني ومفتوح المصدر يربط أكثر من 20 محركًا حديثًا لتحويل النص إلى كلام بأي تطبيق Windows يدعم SAPI 5 - بما في ذلك Grid 3 وMind Express وBalabolka وTobii Communicator وأي تطبيق مبني على System.Speech.</value>
   </data>
   <data name="OnboardingDesc2" xml:space="preserve">
-    <value>It works by registering as a standard SAPI 5 voice. Once installed, your AAC and accessibility software can use high-quality neural voices — both offline and cloud-based — without any code changes.</value>
+    <value>يعمل عن طريق التسجيل كصوت قياسي SAPI 5. بمجرد التثبيت، يمكن لبرنامج AAC وبرنامج إمكانية الوصول استخدام أصوات عصبية عالية الجودة - سواء غير المتصلة بالإنترنت أو المستندة إلى السحابة - دون أي تغييرات في التعليمات البرمجية.</value>
   </data>
   <data name="OnboardingTitle" xml:space="preserve">
-    <value>Welcome to VoiceGarden</value>
+    <value>مرحبا بكم في فويس جاردن</value>
   </data>
   <data name="OnlyEnabledEngines" xml:space="preserve">
-    <value>Only enabled engines are shown. Toggle engines on the main page.</value>
+    <value>يتم عرض المحركات الممكّنة فقط. تبديل المحركات على الصفحة الرئيسية.</value>
   </data>
   <data name="OpenLogs" xml:space="preserve">
-    <value>Open Logs</value>
+    <value>فتح السجلات</value>
   </data>
   <data name="OpenModelsFolder" xml:space="preserve">
-    <value>Open Models Folder</value>
+    <value>افتح مجلد النماذج</value>
   </data>
   <data name="PreviewFailed" xml:space="preserve">
-    <value>Preview failed: {0}</value>
+    <value>فشلت المعاينة: {0}</value>
   </data>
   <data name="Previewing" xml:space="preserve">
-    <value>Previewing...</value>
+    <value>جارٍ المعاينة...</value>
   </data>
   <data name="PreviewingVoice" xml:space="preserve">
-    <value>Previewing {0}...</value>
+    <value>جارٍ معاينة {0}...</value>
   </data>
   <data name="PreviewVoice" xml:space="preserve">
-    <value>Preview voice</value>
+    <value>معاينة الصوت</value>
   </data>
   <data name="PrivacyChangeAnytime" xml:space="preserve">
-    <value>You can change this anytime in Settings → Advanced.</value>
+    <value>يمكنك تغيير هذا في أي وقت من خلال الإعدادات → خيارات متقدمة.</value>
   </data>
   <data name="PrivacyIntro" xml:space="preserve">
-    <value>VoiceGarden is a free, open-source project built by volunteers. To help us understand which TTS engines are most used, identify bugs, and prioritise development, we'd like to collect anonymous usage analytics.</value>
+    <value>VoiceGarden هو مشروع مجاني مفتوح المصدر تم إنشاؤه بواسطة متطوعين. لمساعدتنا في فهم محركات TTS الأكثر استخدامًا، وتحديد الأخطاء، وتحديد أولويات التطوير، نود جمع تحليلات استخدام مجهولة المصدر.</value>
   </data>
   <data name="Ready" xml:space="preserve">
-    <value>Ready</value>
+    <value>مستعد</value>
   </data>
   <data name="Region" xml:space="preserve">
-    <value>Region</value>
+    <value>منطقة</value>
   </data>
   <data name="Register" xml:space="preserve">
-    <value>Register</value>
+    <value>يسجل</value>
   </data>
   <data name="RemovedVoices" xml:space="preserve">
-    <value>Removed {0} voice(s)</value>
+    <value>تمت إزالة {0} صوت (أصوات)</value>
   </data>
   <data name="RequestingAdmin" xml:space="preserve">
-    <value>Requesting admin privileges...</value>
+    <value>جارٍ طلب امتيازات المشرف...</value>
   </data>
   <data name="Reregister" xml:space="preserve">
-    <value>Re-register</value>
+    <value>إعادة التسجيل</value>
   </data>
   <data name="Rescan" xml:space="preserve">
-    <value>Rescan</value>
+    <value>إعادة المسح</value>
   </data>
   <data name="RescannedModels" xml:space="preserve">
-    <value>Rescanned: {0} model(s) ready</value>
+    <value>تمت إعادة المسح الضوئي: {0} نموذج (نماذج) جاهز</value>
   </data>
   <data name="Search" xml:space="preserve">
-    <value>Search...</value>
+    <value>يبحث...</value>
   </data>
   <data name="SearchVoices" xml:space="preserve">
-    <value>Search voices...</value>
+    <value>البحث عن الأصوات...</value>
   </data>
   <data name="SelectModelsFirst" xml:space="preserve">
-    <value>Select models to download first</value>
+    <value>حدد النماذج لتنزيلها أولاً</value>
   </data>
   <data name="SelectVoicesFirst" xml:space="preserve">
-    <value>Select voices to install first</value>
+    <value>حدد الأصوات لتثبيتها أولاً</value>
   </data>
   <data name="SherpaOnnxModels" xml:space="preserve">
-    <value>SherpaOnnx Models</value>
+    <value>نماذج شيربا أونكس</value>
   </data>
   <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
-    <value>SherpaOnnx Neural TTS</value>
+    <value>شيربا أونكس العصبية تحويل النص إلى كلام</value>
   </data>
   <data name="ShowAdvanced" xml:space="preserve">
-    <value>▶ Show Advanced</value>
+    <value>◀ إظهار المتقدم</value>
   </data>
   <data name="Step1Desc" xml:space="preserve">
-    <value>On the main screen, click Install for 64-bit (and 32-bit if needed). This registers VoiceGarden as a SAPI 5 voice that any compatible app can use.</value>
+    <value>على الشاشة الرئيسية، انقر فوق تثبيت لنظام 64 بت (و32 بت إذا لزم الأمر). يؤدي هذا إلى تسجيل VoiceGarden باعتباره صوت SAPI 5 الذي يمكن لأي تطبيق متوافق استخدامه.</value>
   </data>
   <data name="Step1Title" xml:space="preserve">
-    <value>Install the SAPI Adapter</value>
+    <value>تثبيت محول SAPI</value>
   </data>
   <data name="Step2Desc" xml:space="preserve">
-    <value>Go to the SherpaOnnx Models tab to browse and download free neural voices. These run entirely on your device — no internet connection needed. After downloading, click Promote to make them available to SAPI applications.</value>
+    <value>انتقل إلى علامة التبويب SherpaOnnx Models لتصفح وتنزيل الأصوات العصبية المجانية. تعمل هذه البرامج بالكامل على جهازك — دون الحاجة إلى الاتصال بالإنترنت. بعد التنزيل، انقر فوق "ترويج" لجعلها متاحة لتطبيقات SAPI.</value>
   </data>
   <data name="Step2Title" xml:space="preserve">
-    <value>Download SherpaOnnx Voices (Offline)</value>
+    <value>تنزيل أصوات Sherpa Onnx (غير متصل)</value>
   </data>
   <data name="Step3Desc" xml:space="preserve">
-    <value>For premium cloud voices (Azure, OpenAI, Google, ElevenLabs, Polly), go to the Cloud Engines tab and enter your API key. Edge voices work without any key.</value>
+    <value>للحصول على أصوات سحابية متميزة (Azure، وOpenAI، وGoogle، وElevenLabs، وPolly)، انتقل إلى علامة التبويب Cloud Engines وأدخل مفتاح API الخاص بك. أصوات الحافة تعمل بدون أي مفتاح.</value>
   </data>
   <data name="Step3Title" xml:space="preserve">
-    <value>Add Cloud Engine Keys (Optional)</value>
+    <value>إضافة مفاتيح Cloud Engine (اختياري)</value>
   </data>
   <data name="Uninstall" xml:space="preserve">
-    <value>Uninstall</value>
+    <value>إلغاء التثبيت</value>
   </data>
   <data name="Validate" xml:space="preserve">
-    <value>Validate</value>
+    <value>التحقق من صحة</value>
   </data>
   <data name="Validating" xml:space="preserve">
-    <value>Validating...</value>
+    <value>جارٍ التحقق...</value>
   </data>
   <data name="ValidResult" xml:space="preserve">
-    <value>Valid ({0} voices)</value>
+    <value>صالح ({0} أصوات)</value>
   </data>
   <data name="VoiceEngines" xml:space="preserve">
-    <value>Voice Engines</value>
+    <value>محركات صوتية</value>
   </data>
   <data name="WhatIsVoiceGarden" xml:space="preserve">
-    <value>What is VoiceGarden?</value>
+    <value>ما هو VoiceGarden؟</value>
   </data>
   <data name="WhatWeCollect" xml:space="preserve">
-    <value>What we collect:</value>
+    <value>ما نجمعه:</value>
   </data>
   <data name="WhatWeCollectList" xml:space="preserve">
-    <value>• Engine types enabled
-• Number of models downloaded
-• Adapter registration events</value>
+    <value>• تمكين أنواع المحركات
+• عدد النماذج التي تم تنزيلها
+• أحداث تسجيل المحول</value>
   </data>
   <data name="WhatWeDontCollect" xml:space="preserve">
-    <value>What we DON'T collect:</value>
+    <value>ما لا نجمعه:</value>
   </data>
   <data name="WhatWeDontCollectList" xml:space="preserve">
-    <value>• Spoken text or audio content
-• API keys or credentials
-• Voice names or personal information</value>
+    <value>• النص المنطوق أو المحتوى الصوتي
+• مفاتيح API أو بيانات الاعتماد
+• الأسماء الصوتية أو المعلومات الشخصية</value>
   </data>
   <data name="YesHelpImprove" xml:space="preserve">
-    <value>Yes, help improve VoiceGarden</value>
+    <value>نعم، ساعد في تحسين VoiceGarden</value>
   </data>
 </root>

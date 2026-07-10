@@ -1,0 +1,426 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <!-- ===== General / App ===== -->
+  <!-- ===== MainWindow ===== -->
+  <!-- ===== Onboarding Page 1: Welcome ===== -->
+  <!-- ===== Onboarding Page 2: How To Use ===== -->
+  <!-- ===== Onboarding Page 3: Privacy ===== -->
+  <!-- ===== VoiceConfigView ===== -->
+  <!-- ===== SherpaModelsView ===== -->
+  <!-- ===== ViewModel Status Strings ===== -->
+  <!-- VoiceConfig status -->
+  <data name="About" xml:space="preserve">
+    <value>बद्दल</value>
+  </data>
+  <data name="AdapterInstallation" xml:space="preserve">
+    <value>अडॅप्टर स्थापना</value>
+  </data>
+  <data name="AddEnUsAlias" xml:space="preserve">
+    <value>en-US उपनाव जोडा</value>
+  </data>
+  <data name="Advanced" xml:space="preserve">
+    <value>प्रगत</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>सर्व</value>
+  </data>
+  <data name="AnalyticsHint" xml:space="preserve">
+    <value>कोणती इंजिने वापरली जातात हे समजण्यास आम्हाला मदत करते. कोणताही मजकूर, की किंवा PII पाठवले नाही.</value>
+  </data>
+  <data name="APIKey" xml:space="preserve">
+    <value>API की</value>
+  </data>
+  <data name="AppName" xml:space="preserve">
+    <value>व्हॉईस गार्डन</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>← मागे</value>
+  </data>
+  <data name="Bit32NotRegistered" xml:space="preserve">
+    <value>32-बिट: नोंदणीकृत नाही</value>
+  </data>
+  <data name="Bit32Registered" xml:space="preserve">
+    <value>✓ 32-बिट अडॅप्टर नोंदणीकृत</value>
+  </data>
+  <data name="Bit64NotRegistered" xml:space="preserve">
+    <value>64-बिट: नोंदणीकृत नाही</value>
+  </data>
+  <data name="Bit64Registered" xml:space="preserve">
+    <value>✓ 64-बिट अडॅप्टर नोंदणीकृत</value>
+  </data>
+  <data name="Checking" xml:space="preserve">
+    <value>तपासत आहे...</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>बंद करा</value>
+  </data>
+  <data name="CloudVoices" xml:space="preserve">
+    <value>मेघ आवाज</value>
+  </data>
+  <data name="ConfigureCredentials" xml:space="preserve">
+    <value>क्रेडेन्शियल कॉन्फिगर करा...</value>
+  </data>
+  <data name="ConfigureCredentialsTitle" xml:space="preserve">
+    <value>क्रेडेन्शियल्स कॉन्फिगर करा</value>
+  </data>
+  <data name="ConfigureVoices" xml:space="preserve">
+    <value>आवाज कॉन्फिगर करा...</value>
+  </data>
+  <data name="ConfigureVoicesTitle" xml:space="preserve">
+    <value>आवाज कॉन्फिगर करा</value>
+  </data>
+  <data name="CountDownloaded" xml:space="preserve">
+    <value>{0} डाउनलोड केले</value>
+  </data>
+  <data name="CountInstalled" xml:space="preserve">
+    <value>{0} स्थापित</value>
+  </data>
+  <data name="CountSelected" xml:space="preserve">
+    <value>{0} निवडले</value>
+  </data>
+  <data name="CountTotal" xml:space="preserve">
+    <value>{0} एकूण</value>
+  </data>
+  <data name="Downloaded" xml:space="preserve">
+    <value>डाउनलोड केले</value>
+  </data>
+  <data name="DownloadedCount" xml:space="preserve">
+    <value>डाउनलोड केलेले {0} मॉडेल</value>
+  </data>
+  <data name="DownloadedFailedCount" xml:space="preserve">
+    <value>डाउनलोड केले {0}, अयशस्वी {1}</value>
+  </data>
+  <data name="DownloadedStatus" xml:space="preserve">
+    <value>डाउनलोड केले</value>
+  </data>
+  <data name="DownloadFailed" xml:space="preserve">
+    <value>डाउनलोड अयशस्वी: {0} मॉडेल</value>
+  </data>
+  <data name="DownloadingModel" xml:space="preserve">
+    <value>डाउनलोड करत आहे {0} ({1})...</value>
+  </data>
+  <data name="DownloadModelFirst" xml:space="preserve">
+    <value>प्रथम मॉडेल डाउनलोड करा</value>
+  </data>
+  <data name="DownloadSelected" xml:space="preserve">
+    <value>डाउनलोड निवडले</value>
+  </data>
+  <data name="EnableAnalytics" xml:space="preserve">
+    <value>अनामित वापर विश्लेषण पाठवा (निवड करा)</value>
+  </data>
+  <data name="EnableEdgeVoices" xml:space="preserve">
+    <value>एज ब्राउझर व्हॉईस सक्षम करा</value>
+  </data>
+  <data name="Engine" xml:space="preserve">
+    <value>इंजिन:</value>
+  </data>
+  <data name="EnterApiKey" xml:space="preserve">
+    <value>एपीआय की एंटर करा</value>
+  </data>
+  <data name="EnterApiKeyFirst" xml:space="preserve">
+    <value>प्रथम API की प्रविष्ट करा</value>
+  </data>
+  <data name="Feature20Engines" xml:space="preserve">
+    <value>✔ 20+ इंजिन: SherpaOnnx, Azure, Edge, OpenAI, Google, ElevenLabs, Polly</value>
+  </data>
+  <data name="FeatureDualArch" xml:space="preserve">
+    <value>✔ 32-बिट आणि 64-बिट अनुप्रयोगांसह कार्य करते</value>
+  </data>
+  <data name="FeatureOffline" xml:space="preserve">
+    <value>✔ शेर्पा Onnx न्यूरल मॉडेल्ससह पूर्णपणे ऑफलाइन</value>
+  </data>
+  <data name="FeatureWordBoundary" xml:space="preserve">
+    <value>✔ हायलाइट करण्यासाठी शब्द सीमा इव्हेंट</value>
+  </data>
+  <data name="FetchingVoices" xml:space="preserve">
+    <value>{0} आवाज आणत आहे...</value>
+  </data>
+  <data name="FetchVoices" xml:space="preserve">
+    <value>आवाज आणा</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>फिल्टर:</value>
+  </data>
+  <data name="FoundVoices" xml:space="preserve">
+    <value>{0} आवाज सापडले</value>
+  </data>
+  <data name="GettingStarted" xml:space="preserve">
+    <value>प्रारंभ करणे</value>
+  </data>
+  <data name="HelpImprove" xml:space="preserve">
+    <value>व्हॉइसगार्डन सुधारण्यात मदत करा</value>
+  </data>
+  <data name="HideAdvanced" xml:space="preserve">
+    <value>▼ प्रगत लपवा</value>
+  </data>
+  <data name="Install" xml:space="preserve">
+    <value>स्थापित करा</value>
+  </data>
+  <data name="InstallCancelled" xml:space="preserve">
+    <value>स्थापना रद्द केली (प्रशासक परवानगी नाकारली)</value>
+  </data>
+  <data name="Installed" xml:space="preserve">
+    <value>स्थापित केले</value>
+  </data>
+  <data name="InstalledModelsFailed" xml:space="preserve">
+    <value>स्थापित {0}, अयशस्वी {1}</value>
+  </data>
+  <data name="InstalledModelsSAPI" xml:space="preserve">
+    <value>SAPI वर {0} मॉडेल(ले) स्थापित केले</value>
+  </data>
+  <data name="InstalledOnly" xml:space="preserve">
+    <value>फक्त स्थापित</value>
+  </data>
+  <data name="InstalledVoicesHKLM" xml:space="preserve">
+    <value>HKLM वर {0} व्हॉइस स्थापित केले</value>
+  </data>
+  <data name="InstallFailed" xml:space="preserve">
+    <value>स्थापना अयशस्वी: {0}</value>
+  </data>
+  <data name="InstallingSAPI" xml:space="preserve">
+    <value>SAPI (HKLM) वर मॉडेल्स स्थापित करत आहे...</value>
+  </data>
+  <data name="InstallSelected" xml:space="preserve">
+    <value>निवडलेले स्थापित करा</value>
+  </data>
+  <data name="InstallToSAPI" xml:space="preserve">
+    <value>SAPI वर स्थापित करा</value>
+  </data>
+  <data name="InvalidResult" xml:space="preserve">
+    <value>अवैध: {0}</value>
+  </data>
+  <data name="Key" xml:space="preserve">
+    <value>की:</value>
+  </data>
+  <data name="LangCompatDesc" xml:space="preserve">
+    <value>तुमचे AAC सॉफ्टवेअर काही विशिष्ट भाषांना (उदा. इंग्रजी) सपोर्ट करत असल्यास, SherpaOnnx मॉडेल्सचा प्रचार करताना "Add en-US उपनाव" सक्षम करा. यामुळे कोणत्याही भाषेतील आवाज इंग्रजी व्हॉइस म्हणून दिसतात, त्यामुळे ते भाषेनुसार फिल्टर करणाऱ्या ॲप्समध्ये दिसतात.</value>
+  </data>
+  <data name="LangCompatTip" xml:space="preserve">
+    <value>💡 टीप: भाषा सुसंगतता</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>भाषा:</value>
+  </data>
+  <data name="LoadingCatalog" xml:space="preserve">
+    <value>कॅटलॉग लोड करत आहे...</value>
+  </data>
+  <data name="LogLevel" xml:space="preserve">
+    <value>लॉग स्तर:</value>
+  </data>
+  <data name="ManageModels" xml:space="preserve">
+    <value>मॉडेल व्यवस्थापित करा...</value>
+  </data>
+  <data name="ModelFilesNotFound" xml:space="preserve">
+    <value>मॉडेल फाइल्स आढळल्या नाहीत</value>
+  </data>
+  <data name="ModelsInstalled" xml:space="preserve">
+    <value>{0} मॉडेल(ले) स्थापित केले</value>
+  </data>
+  <data name="NeuralTTSForSAPI" xml:space="preserve">
+    <value>Windows SAPI साठी न्यूरल TTS</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>पुढे</value>
+  </data>
+  <data name="NoAudio" xml:space="preserve">
+    <value>कोणताही ऑडिओ जनरेट केलेला नाही</value>
+  </data>
+  <data name="NoDownloadedModels" xml:space="preserve">
+    <value>डाउनलोड केलेले कोणतेही मॉडेल आढळले नाहीत. प्रथम मॉडेल डाउनलोड करा, नंतर आवश्यक असल्यास पुन्हा स्कॅन क्लिक करा.</value>
+  </data>
+  <data name="NoDownloadUrl" xml:space="preserve">
+    <value>डाउनलोड URL नाही</value>
+  </data>
+  <data name="NoModelId" xml:space="preserve">
+    <value>पूर्वावलोकनासाठी मॉडेल आयडी निर्धारित करू शकलो नाही</value>
+  </data>
+  <data name="NoModelsInstalled" xml:space="preserve">
+    <value>कोणतेही मॉडेल स्थापित केलेले नाहीत</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>काहीही नाही</value>
+  </data>
+  <data name="NoThanks" xml:space="preserve">
+    <value>नाही धन्यवाद</value>
+  </data>
+  <data name="OfflineVoices" xml:space="preserve">
+    <value>ऑफलाइन आवाज</value>
+  </data>
+  <data name="OnboardingDesc1" xml:space="preserve">
+    <value>VoiceGarden हा एक विनामूल्य, मुक्त-स्रोत व्हॉइस ब्रिज आहे जो SAPI 5 ला सपोर्ट करणाऱ्या कोणत्याही Windows ॲप्लिकेशनला 20+ आधुनिक टेक्स्ट-टू-स्पीच इंजिन जोडतो — ग्रिड 3, माइंड एक्सप्रेस, बालाबोल्का, टोबी कम्युनिकेटर आणि System.Speech वर तयार केलेले कोणतेही ॲप.</value>
+  </data>
+  <data name="OnboardingDesc2" xml:space="preserve">
+    <value>हे मानक SAPI 5 व्हॉइस म्हणून नोंदणी करून कार्य करते. एकदा इंस्टॉल केल्यावर, तुमचे AAC आणि ॲक्सेसिबिलिटी सॉफ्टवेअर कोणत्याही कोड बदलाशिवाय - ऑफलाइन आणि क्लाउड-आधारित - उच्च दर्जाचे न्यूरल व्हॉईस वापरू शकतात.</value>
+  </data>
+  <data name="OnboardingTitle" xml:space="preserve">
+    <value>VoiceGarden मध्ये आपले स्वागत आहे</value>
+  </data>
+  <data name="OnlyEnabledEngines" xml:space="preserve">
+    <value>फक्त सक्षम इंजिन दाखवले आहेत. मुख्य पृष्ठावर इंजिन टॉगल करा.</value>
+  </data>
+  <data name="OpenLogs" xml:space="preserve">
+    <value>लॉग उघडा</value>
+  </data>
+  <data name="OpenModelsFolder" xml:space="preserve">
+    <value>मॉडेल फोल्डर उघडा</value>
+  </data>
+  <data name="PreviewFailed" xml:space="preserve">
+    <value>पूर्वावलोकन अयशस्वी: {0}</value>
+  </data>
+  <data name="Previewing" xml:space="preserve">
+    <value>पूर्वावलोकन करत आहे...</value>
+  </data>
+  <data name="PreviewingVoice" xml:space="preserve">
+    <value>पूर्वावलोकन करत आहे {0}...</value>
+  </data>
+  <data name="PreviewVoice" xml:space="preserve">
+    <value>आवाजाचे पूर्वावलोकन करा</value>
+  </data>
+  <data name="PrivacyChangeAnytime" xml:space="preserve">
+    <value>तुम्ही सेटिंग्ज → प्रगत मध्ये हे कधीही बदलू शकता.</value>
+  </data>
+  <data name="PrivacyIntro" xml:space="preserve">
+    <value>व्हॉइसगार्डन हा स्वयंसेवकांनी तयार केलेला एक विनामूल्य, मुक्त-स्रोत प्रकल्प आहे. कोणती TTS इंजिने सर्वाधिक वापरली जातात हे समजून घेण्यात, बग ओळखण्यासाठी आणि विकासाला प्राधान्य देण्यासाठी, आम्ही अनामित वापर विश्लेषणे गोळा करू इच्छितो.</value>
+  </data>
+  <data name="Ready" xml:space="preserve">
+    <value>तयार</value>
+  </data>
+  <data name="Region" xml:space="preserve">
+    <value>प्रदेश</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>नोंदणी करा</value>
+  </data>
+  <data name="RemovedVoices" xml:space="preserve">
+    <value>{0} आवाज काढून टाकला</value>
+  </data>
+  <data name="RequestingAdmin" xml:space="preserve">
+    <value>प्रशासकीय विशेषाधिकारांची विनंती करत आहे...</value>
+  </data>
+  <data name="Reregister" xml:space="preserve">
+    <value>पुन्हा नोंदणी करा</value>
+  </data>
+  <data name="Rescan" xml:space="preserve">
+    <value>पुन्हा स्कॅन करा</value>
+  </data>
+  <data name="RescannedModels" xml:space="preserve">
+    <value>पुन्हा स्कॅन केले: {0} मॉडेल तयार</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>शोधा...</value>
+  </data>
+  <data name="SearchVoices" xml:space="preserve">
+    <value>आवाज शोधा...</value>
+  </data>
+  <data name="SelectModelsFirst" xml:space="preserve">
+    <value>प्रथम डाउनलोड करण्यासाठी मॉडेल निवडा</value>
+  </data>
+  <data name="SelectVoicesFirst" xml:space="preserve">
+    <value>प्रथम स्थापित करण्यासाठी आवाज निवडा</value>
+  </data>
+  <data name="SherpaOnnxModels" xml:space="preserve">
+    <value>शेर्पा Onnx मॉडेल</value>
+  </data>
+  <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
+    <value>शेर्पा Onnx न्यूरल TTS</value>
+  </data>
+  <data name="ShowAdvanced" xml:space="preserve">
+    <value>▶ प्रगत दर्शवा</value>
+  </data>
+  <data name="Step1Desc" xml:space="preserve">
+    <value>मुख्य स्क्रीनवर, 64-बिट (आणि आवश्यक असल्यास 32-बिट) साठी स्थापित करा क्लिक करा. हे VoiceGarden ला SAPI 5 व्हॉईस म्हणून नोंदणीकृत करते जे कोणतेही सुसंगत ॲप वापरू शकते.</value>
+  </data>
+  <data name="Step1Title" xml:space="preserve">
+    <value>SAPI अडॅप्टर स्थापित करा</value>
+  </data>
+  <data name="Step2Desc" xml:space="preserve">
+    <value>मोफत न्यूरल व्हॉईस ब्राउझ आणि डाउनलोड करण्यासाठी SherpaOnnx Models टॅबवर जा. हे पूर्णपणे तुमच्या डिव्हाइसवर चालतात — इंटरनेट कनेक्शनची आवश्यकता नाही. डाउनलोड केल्यानंतर, SAPI ऍप्लिकेशन्सना ते उपलब्ध करून देण्यासाठी प्रमोट वर क्लिक करा.</value>
+  </data>
+  <data name="Step2Title" xml:space="preserve">
+    <value>शेर्पा ऑनक्स व्हॉईस डाउनलोड करा (ऑफलाइन)</value>
+  </data>
+  <data name="Step3Desc" xml:space="preserve">
+    <value>प्रीमियम क्लाउड व्हॉईससाठी (Azure, OpenAI, Google, ElevenLabs, Polly), क्लाउड इंजिन टॅबवर जा आणि तुमची API की प्रविष्ट करा. एज व्हॉईस कोणत्याही किल्लीशिवाय कार्य करतात.</value>
+  </data>
+  <data name="Step3Title" xml:space="preserve">
+    <value>क्लाउड इंजिन की जोडा (पर्यायी)</value>
+  </data>
+  <data name="Uninstall" xml:space="preserve">
+    <value>विस्थापित करा</value>
+  </data>
+  <data name="Validate" xml:space="preserve">
+    <value>प्रमाणित करा</value>
+  </data>
+  <data name="Validating" xml:space="preserve">
+    <value>प्रमाणित करत आहे...</value>
+  </data>
+  <data name="ValidResult" xml:space="preserve">
+    <value>वैध ({0} आवाज)</value>
+  </data>
+  <data name="VoiceEngines" xml:space="preserve">
+    <value>व्हॉइस इंजिन</value>
+  </data>
+  <data name="WhatIsVoiceGarden" xml:space="preserve">
+    <value>व्हॉइसगार्डन म्हणजे काय?</value>
+  </data>
+  <data name="WhatWeCollect" xml:space="preserve">
+    <value>आम्ही काय गोळा करतो:</value>
+  </data>
+  <data name="WhatWeCollectList" xml:space="preserve">
+    <value>• इंजिन प्रकार सक्षम
+• डाउनलोड केलेल्या मॉडेल्सची संख्या
+• अडॅप्टर नोंदणी कार्यक्रम</value>
+  </data>
+  <data name="WhatWeDontCollect" xml:space="preserve">
+    <value>आम्ही काय गोळा करत नाही:</value>
+  </data>
+  <data name="WhatWeDontCollectList" xml:space="preserve">
+    <value>• बोललेला मजकूर किंवा ऑडिओ सामग्री
+• API की किंवा क्रेडेन्शियल
+• आवाजाची नावे किंवा वैयक्तिक माहिती</value>
+  </data>
+  <data name="YesHelpImprove" xml:space="preserve">
+    <value>होय, व्हॉइसगार्डन सुधारण्यात मदत करा</value>
+  </data>
+</root>

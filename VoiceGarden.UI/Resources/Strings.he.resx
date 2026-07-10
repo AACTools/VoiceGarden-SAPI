@@ -51,376 +51,376 @@
   <!-- ===== ViewModel Status Strings ===== -->
   <!-- VoiceConfig status -->
   <data name="About" xml:space="preserve">
-    <value>About</value>
+    <value>אוֹדוֹת</value>
   </data>
   <data name="AdapterInstallation" xml:space="preserve">
-    <value>Adapter Installation</value>
+    <value>התקנת מתאם</value>
   </data>
   <data name="AddEnUsAlias" xml:space="preserve">
-    <value>Add en-US alias</value>
+    <value>הוסף כינוי en-US</value>
   </data>
   <data name="Advanced" xml:space="preserve">
-    <value>Advanced</value>
+    <value>מִתקַדֵם</value>
   </data>
   <data name="All" xml:space="preserve">
-    <value>All</value>
+    <value>כֹּל</value>
   </data>
   <data name="AnalyticsHint" xml:space="preserve">
-    <value>Helps us understand which engines are used. No text, keys, or PII sent.</value>
+    <value>עוזר לנו להבין באילו מנועים משתמשים. לא נשלחו טקסט, מפתחות או PII.</value>
   </data>
   <data name="APIKey" xml:space="preserve">
-    <value>API Key</value>
+    <value>מפתח API</value>
   </data>
   <data name="AppName" xml:space="preserve">
     <value>VoiceGarden</value>
   </data>
   <data name="Back" xml:space="preserve">
-    <value>← Back</value>
+    <value>← חזרה</value>
   </data>
   <data name="Bit32NotRegistered" xml:space="preserve">
-    <value>32-bit: not registered</value>
+    <value>32 סיביות: לא רשום</value>
   </data>
   <data name="Bit32Registered" xml:space="preserve">
-    <value>✓ 32-bit adapter registered</value>
+    <value>✓ מתאם 32 סיביות רשום</value>
   </data>
   <data name="Bit64NotRegistered" xml:space="preserve">
-    <value>64-bit: not registered</value>
+    <value>64 סיביות: לא רשום</value>
   </data>
   <data name="Bit64Registered" xml:space="preserve">
-    <value>✓ 64-bit adapter registered</value>
+    <value>✓ מתאם 64 סיביות רשום</value>
   </data>
   <data name="Checking" xml:space="preserve">
-    <value>Checking...</value>
+    <value>בודק...</value>
   </data>
   <data name="Close" xml:space="preserve">
-    <value>Close</value>
+    <value>לִסְגוֹר</value>
   </data>
   <data name="CloudVoices" xml:space="preserve">
-    <value>Cloud Voices</value>
+    <value>קולות ענן</value>
   </data>
   <data name="ConfigureCredentials" xml:space="preserve">
-    <value>Configure Credentials...</value>
+    <value>הגדר אישורים...</value>
   </data>
   <data name="ConfigureCredentialsTitle" xml:space="preserve">
-    <value>Configure Credentials</value>
+    <value>הגדר אישורים</value>
   </data>
   <data name="ConfigureVoices" xml:space="preserve">
-    <value>Configure Voices...</value>
+    <value>הגדר קולות...</value>
   </data>
   <data name="ConfigureVoicesTitle" xml:space="preserve">
-    <value>Configure Voices</value>
+    <value>הגדר את הקולות</value>
   </data>
   <data name="CountDownloaded" xml:space="preserve">
-    <value>{0} downloaded</value>
+    <value>הורד {0}</value>
   </data>
   <data name="CountInstalled" xml:space="preserve">
-    <value>{0} installed</value>
+    <value>{0} הותקן</value>
   </data>
   <data name="CountSelected" xml:space="preserve">
-    <value>{0} selected</value>
+    <value>נבחרו {0}</value>
   </data>
   <data name="CountTotal" xml:space="preserve">
-    <value>{0} total</value>
+    <value>{0} סה"כ</value>
   </data>
   <data name="Downloaded" xml:space="preserve">
-    <value>Downloaded</value>
+    <value>הורד</value>
   </data>
   <data name="DownloadedCount" xml:space="preserve">
-    <value>Downloaded {0} model(s)</value>
+    <value>הורדת {0} דגמים</value>
   </data>
   <data name="DownloadedFailedCount" xml:space="preserve">
-    <value>Downloaded {0}, failed {1}</value>
+    <value>הורדת {0}, נכשלה {1}</value>
   </data>
   <data name="DownloadedStatus" xml:space="preserve">
-    <value>Downloaded</value>
+    <value>הורד</value>
   </data>
   <data name="DownloadFailed" xml:space="preserve">
-    <value>Download failed: {0} model(s)</value>
+    <value>ההורדה נכשלה: {0} דגמים</value>
   </data>
   <data name="DownloadingModel" xml:space="preserve">
-    <value>Downloading {0} ({1})...</value>
+    <value>מוריד את {0} ({1})...</value>
   </data>
   <data name="DownloadModelFirst" xml:space="preserve">
-    <value>Download the model first</value>
+    <value>הורד קודם את הדגם</value>
   </data>
   <data name="DownloadSelected" xml:space="preserve">
-    <value>Download Selected</value>
+    <value>הורד נבחר</value>
   </data>
   <data name="EnableAnalytics" xml:space="preserve">
-    <value>Send anonymous usage analytics (opt-in)</value>
+    <value>שלח ניתוח שימוש אנונימי (הצטרפות)</value>
   </data>
   <data name="EnableEdgeVoices" xml:space="preserve">
-    <value>Enable Edge browser voices</value>
+    <value>הפעל קולות של דפדפן Edge</value>
   </data>
   <data name="Engine" xml:space="preserve">
-    <value>Engine:</value>
+    <value>מָנוֹעַ:</value>
   </data>
   <data name="EnterApiKey" xml:space="preserve">
-    <value>Enter an API key</value>
+    <value>הזן מפתח API</value>
   </data>
   <data name="EnterApiKeyFirst" xml:space="preserve">
-    <value>Enter an API key first</value>
+    <value>תחילה הזן מפתח API</value>
   </data>
   <data name="Feature20Engines" xml:space="preserve">
-    <value>✔  20+ engines: SherpaOnnx, Azure, Edge, OpenAI, Google, ElevenLabs, Polly</value>
+    <value>✔ 20+ מנועים: SherpaOnnx, Azure, Edge, OpenAI, Google, ElevenLabs, Polly</value>
   </data>
   <data name="FeatureDualArch" xml:space="preserve">
-    <value>✔  Works with both 32-bit and 64-bit applications</value>
+    <value>✔ עובד עם יישומי 32-bit ו-64-bit כאחד</value>
   </data>
   <data name="FeatureOffline" xml:space="preserve">
-    <value>✔  Fully offline with SherpaOnnx neural models</value>
+    <value>✔ במצב לא מקוון לחלוטין עם מודלים עצביים של Sherpa Onnx</value>
   </data>
   <data name="FeatureWordBoundary" xml:space="preserve">
-    <value>✔  Word boundary events for highlighting</value>
+    <value>✔ אירועי גבול מילים להדגשה</value>
   </data>
   <data name="FetchingVoices" xml:space="preserve">
-    <value>Fetching {0} voices...</value>
+    <value>מביא {0} קולות...</value>
   </data>
   <data name="FetchVoices" xml:space="preserve">
-    <value>Fetch Voices</value>
+    <value>אחזר קולות</value>
   </data>
   <data name="Filter" xml:space="preserve">
-    <value>Filter:</value>
+    <value>לְסַנֵן:</value>
   </data>
   <data name="FoundVoices" xml:space="preserve">
-    <value>Found {0} voices</value>
+    <value>נמצאו {0} קולות</value>
   </data>
   <data name="GettingStarted" xml:space="preserve">
-    <value>Getting Started</value>
+    <value>תחילת העבודה</value>
   </data>
   <data name="HelpImprove" xml:space="preserve">
-    <value>Help Improve VoiceGarden</value>
+    <value>עזור לשפר את VoiceGarden</value>
   </data>
   <data name="HideAdvanced" xml:space="preserve">
-    <value>▼ Hide Advanced</value>
+    <value>▼ הסתר מתקדם</value>
   </data>
   <data name="Install" xml:space="preserve">
-    <value>Install</value>
+    <value>לְהַתְקִין</value>
   </data>
   <data name="InstallCancelled" xml:space="preserve">
-    <value>Install cancelled (admin permission denied)</value>
+    <value>ההתקנה בוטלה (הרשאת מנהל נדחתה)</value>
   </data>
   <data name="Installed" xml:space="preserve">
-    <value>Installed</value>
+    <value>מוּתקָן</value>
   </data>
   <data name="InstalledModelsFailed" xml:space="preserve">
-    <value>Installed {0}, failed {1}</value>
+    <value>הותקן {0}, נכשל {1}</value>
   </data>
   <data name="InstalledModelsSAPI" xml:space="preserve">
-    <value>Installed {0} model(s) to SAPI</value>
+    <value>התקינו {0} דגמים ב-SAPI</value>
   </data>
   <data name="InstalledOnly" xml:space="preserve">
-    <value>Installed only</value>
+    <value>מותקן בלבד</value>
   </data>
   <data name="InstalledVoicesHKLM" xml:space="preserve">
-    <value>Installed {0} voice(s) to HKLM</value>
+    <value>התקינו {0} קול(ים) ב-HKLM</value>
   </data>
   <data name="InstallFailed" xml:space="preserve">
-    <value>Install failed: {0}</value>
+    <value>ההתקנה נכשלה: {0}</value>
   </data>
   <data name="InstallingSAPI" xml:space="preserve">
-    <value>Installing models to SAPI (HKLM)...</value>
+    <value>מתקין דגמים ל-SAPI (HKLM)...</value>
   </data>
   <data name="InstallSelected" xml:space="preserve">
-    <value>Install Selected</value>
+    <value>התקן נבחר</value>
   </data>
   <data name="InstallToSAPI" xml:space="preserve">
-    <value>Install to SAPI</value>
+    <value>התקן ב-SAPI</value>
   </data>
   <data name="InvalidResult" xml:space="preserve">
-    <value>Invalid: {0}</value>
+    <value>לא חוקי: {0}</value>
   </data>
   <data name="Key" xml:space="preserve">
-    <value>Key:</value>
+    <value>מַפְתֵחַ:</value>
   </data>
   <data name="LangCompatDesc" xml:space="preserve">
-    <value>If your AAC software only supports certain languages (e.g. English), enable "Add en-US alias" when promoting SherpaOnnx models. This makes voices in any language appear as English voices, so they show up in apps that filter by language.</value>
+    <value>אם תוכנת ה-AAC שלך תומכת רק בשפות מסוימות (למשל אנגלית), הפעל את "הוסף כינוי en-US" בעת קידום דגמי SherpaOnnx. זה גורם לקולות בכל שפה להופיע כקולות באנגלית, כך שהם מופיעים באפליקציות המסננות לפי שפה.</value>
   </data>
   <data name="LangCompatTip" xml:space="preserve">
-    <value>💡  Tip: Language Compatibility</value>
+    <value>💡 טיפ: תאימות שפה</value>
   </data>
   <data name="Language" xml:space="preserve">
-    <value>Language:</value>
+    <value>שָׂפָה:</value>
   </data>
   <data name="LoadingCatalog" xml:space="preserve">
-    <value>Loading catalog...</value>
+    <value>טוען קטלוג...</value>
   </data>
   <data name="LogLevel" xml:space="preserve">
-    <value>Log level:</value>
+    <value>רמת יומן:</value>
   </data>
   <data name="ManageModels" xml:space="preserve">
-    <value>Manage Models...</value>
+    <value>נהל דגמים...</value>
   </data>
   <data name="ModelFilesNotFound" xml:space="preserve">
-    <value>Model files not found</value>
+    <value>לא נמצאו קבצי דגם</value>
   </data>
   <data name="ModelsInstalled" xml:space="preserve">
-    <value>{0} model(s) installed</value>
+    <value>{0} דגמים מותקנים</value>
   </data>
   <data name="NeuralTTSForSAPI" xml:space="preserve">
-    <value>Neural TTS for Windows SAPI</value>
+    <value>TTS עצבי עבור Windows SAPI</value>
   </data>
   <data name="Next" xml:space="preserve">
-    <value>Next</value>
+    <value>הַבָּא</value>
   </data>
   <data name="NoAudio" xml:space="preserve">
-    <value>No audio generated</value>
+    <value>לא נוצר אודיו</value>
   </data>
   <data name="NoDownloadedModels" xml:space="preserve">
-    <value>No downloaded models found. Download a model first, then click Rescan if needed.</value>
+    <value>לא נמצאו דגמים שהורדו. הורד תחילה דגם ולאחר מכן לחץ על סרוק מחדש במידת הצורך.</value>
   </data>
   <data name="NoDownloadUrl" xml:space="preserve">
-    <value>No download URL</value>
+    <value>אין כתובת אתר להורדה</value>
   </data>
   <data name="NoModelId" xml:space="preserve">
-    <value>Could not determine model ID for preview</value>
+    <value>לא ניתן לקבוע מזהה דגם לתצוגה מקדימה</value>
   </data>
   <data name="NoModelsInstalled" xml:space="preserve">
-    <value>No models installed</value>
+    <value>לא מותקנים דגמים</value>
   </data>
   <data name="None" xml:space="preserve">
-    <value>None</value>
+    <value>אַף לֹא אֶחָד</value>
   </data>
   <data name="NoThanks" xml:space="preserve">
-    <value>No thanks</value>
+    <value>לא תודה</value>
   </data>
   <data name="OfflineVoices" xml:space="preserve">
-    <value>Offline Voices</value>
+    <value>קולות לא מקוונים</value>
   </data>
   <data name="OnboardingDesc1" xml:space="preserve">
-    <value>VoiceGarden is a free, open-source voice bridge that connects 20+ modern text-to-speech engines to any Windows application that supports SAPI 5 — including Grid 3, Mind Express, Balabolka, Tobii Communicator, and any app built on System.Speech.</value>
+    <value>VoiceGarden הוא גשר קולי חינמי בקוד פתוח המחבר יותר מ-20 מנועי טקסט לדיבור מודרניים לכל יישום Windows התומך ב-SAPI 5 - כולל Grid 3, Mind Express, Balabolka, Tobii Communicator, וכל אפליקציה הבנויה על System.Speech.</value>
   </data>
   <data name="OnboardingDesc2" xml:space="preserve">
-    <value>It works by registering as a standard SAPI 5 voice. Once installed, your AAC and accessibility software can use high-quality neural voices — both offline and cloud-based — without any code changes.</value>
+    <value>זה עובד על ידי רישום כקול SAPI 5 סטנדרטי. לאחר ההתקנה, AAC ותוכנת הנגישות שלך יכולה להשתמש בקולות עצביים באיכות גבוהה - הן במצב לא מקוון והן על בסיס ענן - ללא כל שינויי קוד.</value>
   </data>
   <data name="OnboardingTitle" xml:space="preserve">
-    <value>Welcome to VoiceGarden</value>
+    <value>ברוכים הבאים ל-VoiceGarden</value>
   </data>
   <data name="OnlyEnabledEngines" xml:space="preserve">
-    <value>Only enabled engines are shown. Toggle engines on the main page.</value>
+    <value>רק מנועים מופעלים מוצגים. החלף מנועים בעמוד הראשי.</value>
   </data>
   <data name="OpenLogs" xml:space="preserve">
-    <value>Open Logs</value>
+    <value>פתח יומנים</value>
   </data>
   <data name="OpenModelsFolder" xml:space="preserve">
-    <value>Open Models Folder</value>
+    <value>פתח את תיקיית המודלים</value>
   </data>
   <data name="PreviewFailed" xml:space="preserve">
-    <value>Preview failed: {0}</value>
+    <value>התצוגה המקדימה נכשלה: {0}</value>
   </data>
   <data name="Previewing" xml:space="preserve">
-    <value>Previewing...</value>
+    <value>בתצוגה מקדימה...</value>
   </data>
   <data name="PreviewingVoice" xml:space="preserve">
-    <value>Previewing {0}...</value>
+    <value>מציג תצוגה מקדימה של {0}...</value>
   </data>
   <data name="PreviewVoice" xml:space="preserve">
-    <value>Preview voice</value>
+    <value>תצוגה מקדימה של קול</value>
   </data>
   <data name="PrivacyChangeAnytime" xml:space="preserve">
-    <value>You can change this anytime in Settings → Advanced.</value>
+    <value>אתה יכול לשנות זאת בכל עת בהגדרות ← מתקדם.</value>
   </data>
   <data name="PrivacyIntro" xml:space="preserve">
-    <value>VoiceGarden is a free, open-source project built by volunteers. To help us understand which TTS engines are most used, identify bugs, and prioritise development, we'd like to collect anonymous usage analytics.</value>
+    <value>VoiceGarden הוא פרויקט חינמי בקוד פתוח שנבנה על ידי מתנדבים. כדי לעזור לנו להבין באילו מנועי TTS משתמשים הכי הרבה, לזהות באגים ולתעדף פיתוח, ברצוננו לאסוף ניתוח שימוש אנונימי.</value>
   </data>
   <data name="Ready" xml:space="preserve">
-    <value>Ready</value>
+    <value>מוּכָן</value>
   </data>
   <data name="Region" xml:space="preserve">
-    <value>Region</value>
+    <value>אֵזוֹר</value>
   </data>
   <data name="Register" xml:space="preserve">
-    <value>Register</value>
+    <value>לִרְשׁוֹם</value>
   </data>
   <data name="RemovedVoices" xml:space="preserve">
-    <value>Removed {0} voice(s)</value>
+    <value>הוסרו {0} קולות</value>
   </data>
   <data name="RequestingAdmin" xml:space="preserve">
-    <value>Requesting admin privileges...</value>
+    <value>מבקש הרשאות מנהל...</value>
   </data>
   <data name="Reregister" xml:space="preserve">
-    <value>Re-register</value>
+    <value>הרשמה מחדש</value>
   </data>
   <data name="Rescan" xml:space="preserve">
-    <value>Rescan</value>
+    <value>סרוק מחדש</value>
   </data>
   <data name="RescannedModels" xml:space="preserve">
-    <value>Rescanned: {0} model(s) ready</value>
+    <value>נסרק מחדש: {0} דגמים מוכנים</value>
   </data>
   <data name="Search" xml:space="preserve">
-    <value>Search...</value>
+    <value>לְחַפֵּשׂ...</value>
   </data>
   <data name="SearchVoices" xml:space="preserve">
-    <value>Search voices...</value>
+    <value>חפש קולות...</value>
   </data>
   <data name="SelectModelsFirst" xml:space="preserve">
-    <value>Select models to download first</value>
+    <value>בחר דגמים להורדה תחילה</value>
   </data>
   <data name="SelectVoicesFirst" xml:space="preserve">
-    <value>Select voices to install first</value>
+    <value>תחילה בחר קולות להתקנה</value>
   </data>
   <data name="SherpaOnnxModels" xml:space="preserve">
-    <value>SherpaOnnx Models</value>
+    <value>דגמי שרפה אונקס</value>
   </data>
   <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
-    <value>SherpaOnnx Neural TTS</value>
+    <value>Sherpa Onnx Neural TTS</value>
   </data>
   <data name="ShowAdvanced" xml:space="preserve">
-    <value>▶ Show Advanced</value>
+    <value>▶ הצג מתקדם</value>
   </data>
   <data name="Step1Desc" xml:space="preserve">
-    <value>On the main screen, click Install for 64-bit (and 32-bit if needed). This registers VoiceGarden as a SAPI 5 voice that any compatible app can use.</value>
+    <value>במסך הראשי, לחץ על התקן עבור 64 סיביות (ו-32 סיביות במידת הצורך). זה רושם את VoiceGarden כקול SAPI 5 שכל אפליקציה תואמת יכולה להשתמש בו.</value>
   </data>
   <data name="Step1Title" xml:space="preserve">
-    <value>Install the SAPI Adapter</value>
+    <value>התקן את מתאם SAPI</value>
   </data>
   <data name="Step2Desc" xml:space="preserve">
-    <value>Go to the SherpaOnnx Models tab to browse and download free neural voices. These run entirely on your device — no internet connection needed. After downloading, click Promote to make them available to SAPI applications.</value>
+    <value>עבור לכרטיסייה SherpaOnnx Models כדי לעיין ולהוריד קולות עצביים בחינם. אלה פועלים לחלוטין על המכשיר שלך - אין צורך בחיבור לאינטרנט. לאחר ההורדה, לחץ על קדם כדי להפוך אותם לזמינים ליישומי SAPI.</value>
   </data>
   <data name="Step2Title" xml:space="preserve">
-    <value>Download SherpaOnnx Voices (Offline)</value>
+    <value>הורד את Sherpa Onnx Voices (לא מקוון)</value>
   </data>
   <data name="Step3Desc" xml:space="preserve">
-    <value>For premium cloud voices (Azure, OpenAI, Google, ElevenLabs, Polly), go to the Cloud Engines tab and enter your API key. Edge voices work without any key.</value>
+    <value>עבור קולות ענן מובחרים (Azure, OpenAI, Google, ElevenLabs, Polly), עבור ללשונית Cloud Engines והזן את מפתח ה-API שלך. קולות אדג' עובדים ללא כל מפתח.</value>
   </data>
   <data name="Step3Title" xml:space="preserve">
-    <value>Add Cloud Engine Keys (Optional)</value>
+    <value>הוסף מפתחות מנוע ענן (אופציונלי)</value>
   </data>
   <data name="Uninstall" xml:space="preserve">
-    <value>Uninstall</value>
+    <value>הסר את ההתקנה</value>
   </data>
   <data name="Validate" xml:space="preserve">
-    <value>Validate</value>
+    <value>לְאַמֵת</value>
   </data>
   <data name="Validating" xml:space="preserve">
-    <value>Validating...</value>
+    <value>מאמת...</value>
   </data>
   <data name="ValidResult" xml:space="preserve">
-    <value>Valid ({0} voices)</value>
+    <value>חוקי ({0} קולות)</value>
   </data>
   <data name="VoiceEngines" xml:space="preserve">
-    <value>Voice Engines</value>
+    <value>מנועי קול</value>
   </data>
   <data name="WhatIsVoiceGarden" xml:space="preserve">
-    <value>What is VoiceGarden?</value>
+    <value>מה זה VoiceGarden?</value>
   </data>
   <data name="WhatWeCollect" xml:space="preserve">
-    <value>What we collect:</value>
+    <value>מה אנחנו אוספים:</value>
   </data>
   <data name="WhatWeCollectList" xml:space="preserve">
-    <value>• Engine types enabled
-• Number of models downloaded
-• Adapter registration events</value>
+    <value>• סוגי מנוע מופעלים
+• מספר הדגמים שהורדו
+• אירועי רישום מתאם</value>
   </data>
   <data name="WhatWeDontCollect" xml:space="preserve">
-    <value>What we DON'T collect:</value>
+    <value>מה אנחנו לא אוספים:</value>
   </data>
   <data name="WhatWeDontCollectList" xml:space="preserve">
-    <value>• Spoken text or audio content
-• API keys or credentials
-• Voice names or personal information</value>
+    <value>• תוכן טקסט או שמע מדובר
+• מפתחות API או אישורים
+• שמות קוליים או מידע אישי</value>
   </data>
   <data name="YesHelpImprove" xml:space="preserve">
-    <value>Yes, help improve VoiceGarden</value>
+    <value>כן, עזור לשפר את VoiceGarden</value>
   </data>
 </root>

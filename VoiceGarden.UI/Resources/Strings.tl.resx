@@ -51,22 +51,22 @@
   <!-- ===== ViewModel Status Strings ===== -->
   <!-- VoiceConfig status -->
   <data name="About" xml:space="preserve">
-    <value>About</value>
+    <value>Tungkol sa</value>
   </data>
   <data name="AdapterInstallation" xml:space="preserve">
-    <value>Adapter Installation</value>
+    <value>Pag-install ng Adapter</value>
   </data>
   <data name="AddEnUsAlias" xml:space="preserve">
-    <value>Add en-US alias</value>
+    <value>Magdagdag ng en-US alias</value>
   </data>
   <data name="Advanced" xml:space="preserve">
     <value>Advanced</value>
   </data>
   <data name="All" xml:space="preserve">
-    <value>All</value>
+    <value>Lahat</value>
   </data>
   <data name="AnalyticsHint" xml:space="preserve">
-    <value>Helps us understand which engines are used. No text, keys, or PII sent.</value>
+    <value>Tumutulong sa amin na maunawaan kung aling mga makina ang ginagamit. Walang text, key, o PII na ipinadala.</value>
   </data>
   <data name="APIKey" xml:space="preserve">
     <value>API Key</value>
@@ -75,352 +75,352 @@
     <value>VoiceGarden</value>
   </data>
   <data name="Back" xml:space="preserve">
-    <value>← Back</value>
+    <value>← Bumalik</value>
   </data>
   <data name="Bit32NotRegistered" xml:space="preserve">
-    <value>32-bit: not registered</value>
+    <value>32-bit: hindi nakarehistro</value>
   </data>
   <data name="Bit32Registered" xml:space="preserve">
-    <value>✓ 32-bit adapter registered</value>
+    <value>✓ Nakarehistro ang 32-bit adapter</value>
   </data>
   <data name="Bit64NotRegistered" xml:space="preserve">
-    <value>64-bit: not registered</value>
+    <value>64-bit: hindi nakarehistro</value>
   </data>
   <data name="Bit64Registered" xml:space="preserve">
-    <value>✓ 64-bit adapter registered</value>
+    <value>✓ Nakarehistro ang 64-bit adapter</value>
   </data>
   <data name="Checking" xml:space="preserve">
-    <value>Checking...</value>
+    <value>Sinusuri...</value>
   </data>
   <data name="Close" xml:space="preserve">
-    <value>Close</value>
+    <value>Isara</value>
   </data>
   <data name="CloudVoices" xml:space="preserve">
     <value>Cloud Voices</value>
   </data>
   <data name="ConfigureCredentials" xml:space="preserve">
-    <value>Configure Credentials...</value>
+    <value>I-configure ang Mga Kredensyal...</value>
   </data>
   <data name="ConfigureCredentialsTitle" xml:space="preserve">
-    <value>Configure Credentials</value>
+    <value>I-configure ang Mga Kredensyal</value>
   </data>
   <data name="ConfigureVoices" xml:space="preserve">
-    <value>Configure Voices...</value>
+    <value>I-configure ang Mga Boses...</value>
   </data>
   <data name="ConfigureVoicesTitle" xml:space="preserve">
-    <value>Configure Voices</value>
+    <value>I-configure ang Mga Boses</value>
   </data>
   <data name="CountDownloaded" xml:space="preserve">
-    <value>{0} downloaded</value>
+    <value>Na-download ang {0}.</value>
   </data>
   <data name="CountInstalled" xml:space="preserve">
-    <value>{0} installed</value>
+    <value>Naka-install ang {0}.</value>
   </data>
   <data name="CountSelected" xml:space="preserve">
-    <value>{0} selected</value>
+    <value>{0} ang napili</value>
   </data>
   <data name="CountTotal" xml:space="preserve">
-    <value>{0} total</value>
+    <value>{0} sa kabuuan</value>
   </data>
   <data name="Downloaded" xml:space="preserve">
-    <value>Downloaded</value>
+    <value>Na-download</value>
   </data>
   <data name="DownloadedCount" xml:space="preserve">
-    <value>Downloaded {0} model(s)</value>
+    <value>Nag-download ng {0} (na) modelo</value>
   </data>
   <data name="DownloadedFailedCount" xml:space="preserve">
-    <value>Downloaded {0}, failed {1}</value>
+    <value>Na-download ang {0}, nabigo {1}</value>
   </data>
   <data name="DownloadedStatus" xml:space="preserve">
-    <value>Downloaded</value>
+    <value>Na-download</value>
   </data>
   <data name="DownloadFailed" xml:space="preserve">
-    <value>Download failed: {0} model(s)</value>
+    <value>Nabigo ang pag-download: {0} (mga) modelo</value>
   </data>
   <data name="DownloadingModel" xml:space="preserve">
-    <value>Downloading {0} ({1})...</value>
+    <value>Dina-download ang {0} ({1})...</value>
   </data>
   <data name="DownloadModelFirst" xml:space="preserve">
-    <value>Download the model first</value>
+    <value>I-download muna ang modelo</value>
   </data>
   <data name="DownloadSelected" xml:space="preserve">
-    <value>Download Selected</value>
+    <value>I-download ang Napili</value>
   </data>
   <data name="EnableAnalytics" xml:space="preserve">
-    <value>Send anonymous usage analytics (opt-in)</value>
+    <value>Magpadala ng anonymous na analytics sa paggamit (opt-in)</value>
   </data>
   <data name="EnableEdgeVoices" xml:space="preserve">
-    <value>Enable Edge browser voices</value>
+    <value>Paganahin ang Edge browser voices</value>
   </data>
   <data name="Engine" xml:space="preserve">
     <value>Engine:</value>
   </data>
   <data name="EnterApiKey" xml:space="preserve">
-    <value>Enter an API key</value>
+    <value>Maglagay ng API key</value>
   </data>
   <data name="EnterApiKeyFirst" xml:space="preserve">
-    <value>Enter an API key first</value>
+    <value>Maglagay muna ng API key</value>
   </data>
   <data name="Feature20Engines" xml:space="preserve">
-    <value>✔  20+ engines: SherpaOnnx, Azure, Edge, OpenAI, Google, ElevenLabs, Polly</value>
+    <value>✔ 20+ engine: SherpaOnnx, Azure, Edge, OpenAI, Google, ElevenLabs, Polly</value>
   </data>
   <data name="FeatureDualArch" xml:space="preserve">
-    <value>✔  Works with both 32-bit and 64-bit applications</value>
+    <value>✔ Gumagana sa parehong 32-bit at 64-bit na application</value>
   </data>
   <data name="FeatureOffline" xml:space="preserve">
-    <value>✔  Fully offline with SherpaOnnx neural models</value>
+    <value>✔ Ganap na offline sa mga modelong neural ng Sherpa Onnx</value>
   </data>
   <data name="FeatureWordBoundary" xml:space="preserve">
-    <value>✔  Word boundary events for highlighting</value>
+    <value>✔ Mga kaganapan sa hangganan ng salita para sa pag-highlight</value>
   </data>
   <data name="FetchingVoices" xml:space="preserve">
-    <value>Fetching {0} voices...</value>
+    <value>Kinukuha ang {0} (na) boses...</value>
   </data>
   <data name="FetchVoices" xml:space="preserve">
-    <value>Fetch Voices</value>
+    <value>Kunin ang Mga Boses</value>
   </data>
   <data name="Filter" xml:space="preserve">
-    <value>Filter:</value>
+    <value>Salain:</value>
   </data>
   <data name="FoundVoices" xml:space="preserve">
-    <value>Found {0} voices</value>
+    <value>Nakakita ng {0} (na) boses</value>
   </data>
   <data name="GettingStarted" xml:space="preserve">
-    <value>Getting Started</value>
+    <value>Pagsisimula</value>
   </data>
   <data name="HelpImprove" xml:space="preserve">
-    <value>Help Improve VoiceGarden</value>
+    <value>Tumulong na Pahusayin ang VoiceGarden</value>
   </data>
   <data name="HideAdvanced" xml:space="preserve">
-    <value>▼ Hide Advanced</value>
+    <value>▼ Itago ang Advanced</value>
   </data>
   <data name="Install" xml:space="preserve">
-    <value>Install</value>
+    <value>I-install</value>
   </data>
   <data name="InstallCancelled" xml:space="preserve">
-    <value>Install cancelled (admin permission denied)</value>
+    <value>Kinansela ang pag-install (tinanggihan ang pahintulot ng admin)</value>
   </data>
   <data name="Installed" xml:space="preserve">
-    <value>Installed</value>
+    <value>Naka-install</value>
   </data>
   <data name="InstalledModelsFailed" xml:space="preserve">
-    <value>Installed {0}, failed {1}</value>
+    <value>Na-install ang {0}, nabigo ang {1}</value>
   </data>
   <data name="InstalledModelsSAPI" xml:space="preserve">
-    <value>Installed {0} model(s) to SAPI</value>
+    <value>Nag-install ng {0} (mga) modelo sa SAPI</value>
   </data>
   <data name="InstalledOnly" xml:space="preserve">
-    <value>Installed only</value>
+    <value>Naka-install lang</value>
   </data>
   <data name="InstalledVoicesHKLM" xml:space="preserve">
-    <value>Installed {0} voice(s) to HKLM</value>
+    <value>Nag-install ng {0} (na) boses sa HKLM</value>
   </data>
   <data name="InstallFailed" xml:space="preserve">
-    <value>Install failed: {0}</value>
+    <value>Nabigo ang pag-install: {0}</value>
   </data>
   <data name="InstallingSAPI" xml:space="preserve">
-    <value>Installing models to SAPI (HKLM)...</value>
+    <value>Pag-install ng mga modelo sa SAPI (HKLM)...</value>
   </data>
   <data name="InstallSelected" xml:space="preserve">
-    <value>Install Selected</value>
+    <value>I-install ang Napili</value>
   </data>
   <data name="InstallToSAPI" xml:space="preserve">
-    <value>Install to SAPI</value>
+    <value>I-install sa SAPI</value>
   </data>
   <data name="InvalidResult" xml:space="preserve">
-    <value>Invalid: {0}</value>
+    <value>Di-wasto: {0}</value>
   </data>
   <data name="Key" xml:space="preserve">
-    <value>Key:</value>
+    <value>Susi:</value>
   </data>
   <data name="LangCompatDesc" xml:space="preserve">
-    <value>If your AAC software only supports certain languages (e.g. English), enable "Add en-US alias" when promoting SherpaOnnx models. This makes voices in any language appear as English voices, so they show up in apps that filter by language.</value>
+    <value>Kung ang iyong AAC software ay sumusuporta lamang sa ilang mga wika (hal. English), paganahin ang "Magdagdag ng en-US alias" kapag nagpo-promote ng mga modelo ng SherpaOnnx. Ginagawa nitong lumilitaw ang mga boses sa anumang wika bilang mga boses na English, kaya lumalabas ang mga ito sa mga app na nagpi-filter ayon sa wika.</value>
   </data>
   <data name="LangCompatTip" xml:space="preserve">
-    <value>💡  Tip: Language Compatibility</value>
+    <value>💡 Tip: Pagkatugma sa Wika</value>
   </data>
   <data name="Language" xml:space="preserve">
-    <value>Language:</value>
+    <value>Wika:</value>
   </data>
   <data name="LoadingCatalog" xml:space="preserve">
-    <value>Loading catalog...</value>
+    <value>Nilo-load ang catalog...</value>
   </data>
   <data name="LogLevel" xml:space="preserve">
-    <value>Log level:</value>
+    <value>Antas ng log:</value>
   </data>
   <data name="ManageModels" xml:space="preserve">
-    <value>Manage Models...</value>
+    <value>Pamahalaan ang Mga Modelo...</value>
   </data>
   <data name="ModelFilesNotFound" xml:space="preserve">
-    <value>Model files not found</value>
+    <value>Hindi nakita ang mga file ng modelo</value>
   </data>
   <data name="ModelsInstalled" xml:space="preserve">
-    <value>{0} model(s) installed</value>
+    <value>{0} (mga) modelo ang naka-install</value>
   </data>
   <data name="NeuralTTSForSAPI" xml:space="preserve">
-    <value>Neural TTS for Windows SAPI</value>
+    <value>Neural TTS para sa Windows SAPI</value>
   </data>
   <data name="Next" xml:space="preserve">
-    <value>Next</value>
+    <value>Susunod</value>
   </data>
   <data name="NoAudio" xml:space="preserve">
-    <value>No audio generated</value>
+    <value>Walang nabuong audio</value>
   </data>
   <data name="NoDownloadedModels" xml:space="preserve">
-    <value>No downloaded models found. Download a model first, then click Rescan if needed.</value>
+    <value>Walang nakitang na-download na mga modelo. Mag-download muna ng modelo, pagkatapos ay i-click ang I-scan muli kung kinakailangan.</value>
   </data>
   <data name="NoDownloadUrl" xml:space="preserve">
-    <value>No download URL</value>
+    <value>Walang download URL</value>
   </data>
   <data name="NoModelId" xml:space="preserve">
-    <value>Could not determine model ID for preview</value>
+    <value>Hindi matukoy ang ID ng modelo para sa preview</value>
   </data>
   <data name="NoModelsInstalled" xml:space="preserve">
-    <value>No models installed</value>
+    <value>Walang naka-install na mga modelo</value>
   </data>
   <data name="None" xml:space="preserve">
-    <value>None</value>
+    <value>wala</value>
   </data>
   <data name="NoThanks" xml:space="preserve">
-    <value>No thanks</value>
+    <value>Hindi salamat</value>
   </data>
   <data name="OfflineVoices" xml:space="preserve">
-    <value>Offline Voices</value>
+    <value>Mga Offline na Boses</value>
   </data>
   <data name="OnboardingDesc1" xml:space="preserve">
-    <value>VoiceGarden is a free, open-source voice bridge that connects 20+ modern text-to-speech engines to any Windows application that supports SAPI 5 — including Grid 3, Mind Express, Balabolka, Tobii Communicator, and any app built on System.Speech.</value>
+    <value>Ang VoiceGarden ay isang libre, open-source na voice bridge na nag-uugnay sa 20+ modernong text-to-speech engine sa anumang Windows application na sumusuporta sa SAPI 5 — kabilang ang Grid 3, Mind Express, Balabolka, Tobii Communicator, at anumang app na binuo sa System.Speech.</value>
   </data>
   <data name="OnboardingDesc2" xml:space="preserve">
-    <value>It works by registering as a standard SAPI 5 voice. Once installed, your AAC and accessibility software can use high-quality neural voices — both offline and cloud-based — without any code changes.</value>
+    <value>Gumagana ito sa pamamagitan ng pagrerehistro bilang karaniwang boses ng SAPI 5. Kapag na-install na, ang iyong AAC at accessibility software ay maaaring gumamit ng mataas na kalidad na neural voice — parehong offline at cloud-based — nang walang anumang pagbabago sa code.</value>
   </data>
   <data name="OnboardingTitle" xml:space="preserve">
-    <value>Welcome to VoiceGarden</value>
+    <value>Maligayang pagdating sa VoiceGarden</value>
   </data>
   <data name="OnlyEnabledEngines" xml:space="preserve">
-    <value>Only enabled engines are shown. Toggle engines on the main page.</value>
+    <value>Mga pinaganang makina lang ang ipinapakita. I-toggle ang mga makina sa pangunahing pahina.</value>
   </data>
   <data name="OpenLogs" xml:space="preserve">
-    <value>Open Logs</value>
+    <value>Buksan ang Mga Log</value>
   </data>
   <data name="OpenModelsFolder" xml:space="preserve">
-    <value>Open Models Folder</value>
+    <value>Buksan ang Folder ng Mga Modelo</value>
   </data>
   <data name="PreviewFailed" xml:space="preserve">
-    <value>Preview failed: {0}</value>
+    <value>Nabigo ang preview: {0}</value>
   </data>
   <data name="Previewing" xml:space="preserve">
-    <value>Previewing...</value>
+    <value>Pini-preview...</value>
   </data>
   <data name="PreviewingVoice" xml:space="preserve">
-    <value>Previewing {0}...</value>
+    <value>Pini-preview ang {0}...</value>
   </data>
   <data name="PreviewVoice" xml:space="preserve">
-    <value>Preview voice</value>
+    <value>I-preview ang boses</value>
   </data>
   <data name="PrivacyChangeAnytime" xml:space="preserve">
-    <value>You can change this anytime in Settings → Advanced.</value>
+    <value>Maaari mo itong baguhin anumang oras sa Mga Setting → Advanced.</value>
   </data>
   <data name="PrivacyIntro" xml:space="preserve">
-    <value>VoiceGarden is a free, open-source project built by volunteers. To help us understand which TTS engines are most used, identify bugs, and prioritise development, we'd like to collect anonymous usage analytics.</value>
+    <value>Ang VoiceGarden ay isang libre, open-source na proyekto na binuo ng mga boluntaryo. Upang matulungan kaming maunawaan kung aling mga TTS engine ang pinakamadalas na ginagamit, tukuyin ang mga bug, at bigyang-priyoridad ang pagbuo, gusto naming mangolekta ng anonymous na analytics ng paggamit.</value>
   </data>
   <data name="Ready" xml:space="preserve">
-    <value>Ready</value>
+    <value>handa na</value>
   </data>
   <data name="Region" xml:space="preserve">
-    <value>Region</value>
+    <value>Rehiyon</value>
   </data>
   <data name="Register" xml:space="preserve">
-    <value>Register</value>
+    <value>Magrehistro</value>
   </data>
   <data name="RemovedVoices" xml:space="preserve">
-    <value>Removed {0} voice(s)</value>
+    <value>Inalis ang {0} (na) boses</value>
   </data>
   <data name="RequestingAdmin" xml:space="preserve">
-    <value>Requesting admin privileges...</value>
+    <value>Humihiling ng mga pribilehiyo ng admin...</value>
   </data>
   <data name="Reregister" xml:space="preserve">
-    <value>Re-register</value>
+    <value>Magparehistro muli</value>
   </data>
   <data name="Rescan" xml:space="preserve">
-    <value>Rescan</value>
+    <value>Muling i-scan</value>
   </data>
   <data name="RescannedModels" xml:space="preserve">
-    <value>Rescanned: {0} model(s) ready</value>
+    <value>Muling na-scan: {0} (mga) modelo ang handa na</value>
   </data>
   <data name="Search" xml:space="preserve">
-    <value>Search...</value>
+    <value>Hanapin...</value>
   </data>
   <data name="SearchVoices" xml:space="preserve">
-    <value>Search voices...</value>
+    <value>Maghanap ng mga boses...</value>
   </data>
   <data name="SelectModelsFirst" xml:space="preserve">
-    <value>Select models to download first</value>
+    <value>Pumili ng mga modelong ida-download muna</value>
   </data>
   <data name="SelectVoicesFirst" xml:space="preserve">
-    <value>Select voices to install first</value>
+    <value>Pumili ng mga boses na ii-install muna</value>
   </data>
   <data name="SherpaOnnxModels" xml:space="preserve">
-    <value>SherpaOnnx Models</value>
+    <value>Mga Modelong Sherpa Onnx</value>
   </data>
   <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
-    <value>SherpaOnnx Neural TTS</value>
+    <value>Sherpa Onnx Neural TTS</value>
   </data>
   <data name="ShowAdvanced" xml:space="preserve">
-    <value>▶ Show Advanced</value>
+    <value>▶ Ipakita ang Advanced</value>
   </data>
   <data name="Step1Desc" xml:space="preserve">
-    <value>On the main screen, click Install for 64-bit (and 32-bit if needed). This registers VoiceGarden as a SAPI 5 voice that any compatible app can use.</value>
+    <value>Sa pangunahing screen, i-click ang I-install para sa 64-bit (at 32-bit kung kinakailangan). Nirerehistro nito ang VoiceGarden bilang isang SAPI 5 na boses na magagamit ng anumang katugmang app.</value>
   </data>
   <data name="Step1Title" xml:space="preserve">
-    <value>Install the SAPI Adapter</value>
+    <value>I-install ang SAPI Adapter</value>
   </data>
   <data name="Step2Desc" xml:space="preserve">
-    <value>Go to the SherpaOnnx Models tab to browse and download free neural voices. These run entirely on your device — no internet connection needed. After downloading, click Promote to make them available to SAPI applications.</value>
+    <value>Pumunta sa tab na Mga Modelong SherpaOnnx upang mag-browse at mag-download ng mga libreng neural na boses. Ang mga ito ay ganap na tumatakbo sa iyong device — walang kinakailangang koneksyon sa internet. Pagkatapos mag-download, i-click ang I-promote upang gawing available ang mga ito sa mga application ng SAPI.</value>
   </data>
   <data name="Step2Title" xml:space="preserve">
-    <value>Download SherpaOnnx Voices (Offline)</value>
+    <value>I-download ang Sherpa Onnx Voices (Offline)</value>
   </data>
   <data name="Step3Desc" xml:space="preserve">
-    <value>For premium cloud voices (Azure, OpenAI, Google, ElevenLabs, Polly), go to the Cloud Engines tab and enter your API key. Edge voices work without any key.</value>
+    <value>Para sa mga premium na cloud voice (Azure, OpenAI, Google, ElevenLabs, Polly), pumunta sa tab na Cloud Engines at ilagay ang iyong API key. Ang mga boses sa gilid ay gumagana nang walang anumang susi.</value>
   </data>
   <data name="Step3Title" xml:space="preserve">
-    <value>Add Cloud Engine Keys (Optional)</value>
+    <value>Magdagdag ng Mga Cloud Engine Key (Opsyonal)</value>
   </data>
   <data name="Uninstall" xml:space="preserve">
-    <value>Uninstall</value>
+    <value>I-uninstall</value>
   </data>
   <data name="Validate" xml:space="preserve">
-    <value>Validate</value>
+    <value>Patunayan</value>
   </data>
   <data name="Validating" xml:space="preserve">
-    <value>Validating...</value>
+    <value>Pinapatunayan...</value>
   </data>
   <data name="ValidResult" xml:space="preserve">
-    <value>Valid ({0} voices)</value>
+    <value>Wasto ({0} mga boses)</value>
   </data>
   <data name="VoiceEngines" xml:space="preserve">
-    <value>Voice Engines</value>
+    <value>Mga Voice Engine</value>
   </data>
   <data name="WhatIsVoiceGarden" xml:space="preserve">
-    <value>What is VoiceGarden?</value>
+    <value>Ano ang VoiceGarden?</value>
   </data>
   <data name="WhatWeCollect" xml:space="preserve">
-    <value>What we collect:</value>
+    <value>Ano ang aming kinokolekta:</value>
   </data>
   <data name="WhatWeCollectList" xml:space="preserve">
-    <value>• Engine types enabled
-• Number of models downloaded
-• Adapter registration events</value>
+    <value>• Pinagana ang mga uri ng engine
+• Bilang ng mga modelong na-download
+• Mga kaganapan sa pagpaparehistro ng adaptor</value>
   </data>
   <data name="WhatWeDontCollect" xml:space="preserve">
-    <value>What we DON'T collect:</value>
+    <value>Ano ang HINDI namin kinokolekta:</value>
   </data>
   <data name="WhatWeDontCollectList" xml:space="preserve">
-    <value>• Spoken text or audio content
-• API keys or credentials
-• Voice names or personal information</value>
+    <value>• Binibigkas na teksto o nilalamang audio
+• Mga API key o kredensyal
+• Mga pangalan ng boses o personal na impormasyon</value>
   </data>
   <data name="YesHelpImprove" xml:space="preserve">
-    <value>Yes, help improve VoiceGarden</value>
+    <value>Oo, tumulong na pahusayin ang VoiceGarden</value>
   </data>
 </root>
