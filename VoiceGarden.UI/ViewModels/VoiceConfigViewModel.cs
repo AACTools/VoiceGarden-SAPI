@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using VoiceGarden.UI.Localization;
 using VoiceGarden.UI.Services;
 
 namespace VoiceGarden.UI.ViewModels;
@@ -28,7 +29,7 @@ public partial class VoiceConfigViewModel : ObservableObject
     private string _currentRegion = "";
 
     [ObservableProperty] private string searchFilter = "";
-    [ObservableProperty] private string statusText = "Ready";
+    [ObservableProperty] private string statusText = Loc.GetString("Ready");
     [ObservableProperty] private bool isLoading;
     [ObservableProperty] private bool isValidated;
     [ObservableProperty] private string validationResult = "";
@@ -68,12 +69,12 @@ public partial class VoiceConfigViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(CurrentKey))
         {
-            StatusText = "Enter an API key first";
+            StatusText = Loc.GetString("EnterApiKeyFirst");
             return;
         }
 
         IsLoading = true;
-        StatusText = $"Fetching {CurrentEngine} voices...";
+        StatusText = Loc.GetString("FetchingVoices", CurrentEngine);
         AllVoices.Clear();
         FilteredVoices.Clear();
 
@@ -106,7 +107,7 @@ public partial class VoiceConfigViewModel : ObservableObject
 
             ApplyFilter();
             await RefreshInstalledStatus();
-            StatusText = $"Found {TotalVoices} voices";
+            StatusText = Loc.GetString("FoundVoices", TotalVoices);
             IsValidated = true;
         }
         catch (Exception ex)
@@ -124,12 +125,12 @@ public partial class VoiceConfigViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(CurrentKey))
         {
-            ValidationResult = "Enter an API key";
+            ValidationResult = Loc.GetString("EnterApiKey");
             return;
         }
 
         IsLoading = true;
-        ValidationResult = "Validating...";
+        ValidationResult = Loc.GetString("Validating");
 
         try
         {
@@ -143,12 +144,12 @@ public partial class VoiceConfigViewModel : ObservableObject
             // Try to list voices as credential validation
             using var client = new RustTtsWrapper.TtsClient(CurrentEngine, creds);
             var voices = client.GetVoices();
-            ValidationResult = $"Valid ({voices.Count} voices)";
+            ValidationResult = Loc.GetString("ValidResult", voices.Count);
             IsValidated = true;
         }
         catch (RustTtsWrapper.TtsException ex)
         {
-            ValidationResult = $"Invalid: {ex.Message}";
+            ValidationResult = Loc.GetString("InvalidResult", ex.Message);
             IsValidated = false;
         }
         finally
@@ -163,7 +164,7 @@ public partial class VoiceConfigViewModel : ObservableObject
         var selected = AllVoices.Where(v => v.IsSelected && !v.IsInstalled).ToList();
         if (selected.Count == 0)
         {
-            StatusText = "Select voices to install first";
+            StatusText = Loc.GetString("SelectVoicesFirst");
             return;
         }
 
@@ -184,8 +185,8 @@ public partial class VoiceConfigViewModel : ObservableObject
 
         _ = RefreshInstalledStatus();
         StatusText = failed == 0
-            ? $"Installed {promoted} voice(s) to HKLM"
-            : $"Installed {promoted}, failed {failed}";
+            ? Loc.GetString("InstalledVoicesHKLM", promoted)
+            : Loc.GetString("InstalledModelsFailed", promoted, failed);
     }
 
     [RelayCommand]
@@ -199,7 +200,7 @@ public partial class VoiceConfigViewModel : ObservableObject
             voice.IsInstalled = false;
         }
         _ = RefreshInstalledStatus();
-        StatusText = $"Removed {selected.Count} voice(s)";
+        StatusText = Loc.GetString("RemovedVoices", selected.Count);
     }
 
     [RelayCommand]
@@ -207,11 +208,11 @@ public partial class VoiceConfigViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(CurrentKey))
         {
-            StatusText = "Enter an API key first";
+            StatusText = Loc.GetString("EnterApiKeyFirst");
             return;
         }
 
-        StatusText = $"Previewing {voice.Name}...";
+        StatusText = Loc.GetString("PreviewingVoice", voice.Name);
         try
         {
             // Use rust-tts-wrapper for cloud voice preview
@@ -235,16 +236,16 @@ public partial class VoiceConfigViewModel : ObservableObject
                     finally { try { System.IO.File.Delete(tempFile); } catch { }
                     }
                 });
-                StatusText = $"Previewing {voice.Name}";
+                StatusText = Loc.GetString("PreviewingVoice", voice.Name);
             }
             else
             {
-                StatusText = "No audio generated";
+                StatusText = Loc.GetString("NoAudio");
             }
         }
         catch (RustTtsWrapper.TtsException ex)
         {
-            StatusText = $"Preview failed: {ex.Message}";
+            StatusText = Loc.GetString("PreviewFailed", ex.Message);
         }
     }
 

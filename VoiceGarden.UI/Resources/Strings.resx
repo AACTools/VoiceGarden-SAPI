@@ -33,26 +33,149 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <!-- ===== General / App ===== -->
   <data name="AppName" xml:space="preserve"><value>VoiceGarden</value></data>
-  <data name="AdapterInstallation" xml:space="preserve"><value>Adapter Installation</value></data>
-  <data name="VoiceEngines" xml:space="preserve"><value>Voice Engines</value></data>
-  <data name="OfflineVoices" xml:space="preserve"><value>Offline Voices</value></data>
-  <data name="CloudVoices" xml:space="preserve"><value>Cloud Voices</value></data>
-  <data name="ConfigureVoices" xml:space="preserve"><value>Configure Voices...</value></data>
-  <data name="ManageModels" xml:space="preserve"><value>Manage Models...</value></data>
-  <data name="Advanced" xml:space="preserve"><value>Advanced</value></data>
   <data name="Close" xml:space="preserve"><value>Close</value></data>
   <data name="About" xml:space="preserve"><value>About</value></data>
+  <data name="Back" xml:space="preserve"><value>← Back</value></data>
+  <data name="Next" xml:space="preserve"><value>Next</value></data>
   <data name="Install" xml:space="preserve"><value>Install</value></data>
   <data name="Uninstall" xml:space="preserve"><value>Uninstall</value></data>
   <data name="Register" xml:space="preserve"><value>Register</value></data>
   <data name="Reregister" xml:space="preserve"><value>Re-register</value></data>
+  <data name="Ready" xml:space="preserve"><value>Ready</value></data>
+
+  <!-- ===== MainWindow ===== -->
+  <data name="AdapterInstallation" xml:space="preserve"><value>Adapter Installation</value></data>
+  <data name="VoiceEngines" xml:space="preserve"><value>Voice Engines</value></data>
+  <data name="OfflineVoices" xml:space="preserve"><value>Offline Voices</value></data>
+  <data name="CloudVoices" xml:space="preserve"><value>Cloud Voices</value></data>
+  <data name="SherpaOnnxNeuralTTS" xml:space="preserve"><value>SherpaOnnx Neural TTS</value></data>
+  <data name="ManageModels" xml:space="preserve"><value>Manage Models...</value></data>
+  <data name="ConfigureCredentials" xml:space="preserve"><value>Configure Credentials...</value></data>
+  <data name="ConfigureVoices" xml:space="preserve"><value>Configure Voices...</value></data>
+  <data name="Advanced" xml:space="preserve"><value>Advanced</value></data>
+  <data name="HideAdvanced" xml:space="preserve"><value>▼ Hide Advanced</value></data>
+  <data name="ShowAdvanced" xml:space="preserve"><value>▶ Show Advanced</value></data>
+  <data name="EnableEdgeVoices" xml:space="preserve"><value>Enable Edge browser voices</value></data>
+  <data name="EnableAnalytics" xml:space="preserve"><value>Send anonymous usage analytics (opt-in)</value></data>
+  <data name="AnalyticsHint" xml:space="preserve"><value>Helps us understand which engines are used. No text, keys, or PII sent.</value></data>
+  <data name="LogLevel" xml:space="preserve"><value>Log level:</value></data>
+  <data name="OpenLogs" xml:space="preserve"><value>Open Logs</value></data>
+  <data name="ModelsInstalled" xml:space="preserve"><value>{0} model(s) installed</value></data>
+  <data name="NoModelsInstalled" xml:space="preserve"><value>No models installed</value></data>
+  <data name="Bit64Registered" xml:space="preserve"><value>✓ 64-bit adapter registered</value></data>
+  <data name="Bit64NotRegistered" xml:space="preserve"><value>64-bit: not registered</value></data>
+  <data name="Bit32Registered" xml:space="preserve"><value>✓ 32-bit adapter registered</value></data>
+  <data name="Bit32NotRegistered" xml:space="preserve"><value>32-bit: not registered</value></data>
+  <data name="Checking" xml:space="preserve"><value>Checking...</value></data>
+  <data name="ConfigureVoicesTitle" xml:space="preserve"><value>Configure Voices</value></data>
+  <data name="ConfigureCredentialsTitle" xml:space="preserve"><value>Configure Credentials</value></data>
+  <data name="SherpaOnnxModels" xml:space="preserve"><value>SherpaOnnx Models</value></data>
+  <data name="OnlyEnabledEngines" xml:space="preserve"><value>Only enabled engines are shown. Toggle engines on the main page.</value></data>
+  <data name="APIKey" xml:space="preserve"><value>API Key</value></data>
+  <data name="Region" xml:space="preserve"><value>Region</value></data>
+
+  <!-- ===== Onboarding Page 1: Welcome ===== -->
+  <data name="OnboardingTitle" xml:space="preserve"><value>Welcome to VoiceGarden</value></data>
+  <data name="NeuralTTSForSAPI" xml:space="preserve"><value>Neural TTS for Windows SAPI</value></data>
+  <data name="WhatIsVoiceGarden" xml:space="preserve"><value>What is VoiceGarden?</value></data>
+  <data name="OnboardingDesc1" xml:space="preserve"><value>VoiceGarden is a free, open-source voice bridge that connects 20+ modern text-to-speech engines to any Windows application that supports SAPI 5 — including Grid 3, Mind Express, Balabolka, Tobii Communicator, and any app built on System.Speech.</value></data>
+  <data name="OnboardingDesc2" xml:space="preserve"><value>It works by registering as a standard SAPI 5 voice. Once installed, your AAC and accessibility software can use high-quality neural voices — both offline and cloud-based — without any code changes.</value></data>
+  <data name="Feature20Engines" xml:space="preserve"><value>✔  20+ engines: SherpaOnnx, Azure, Edge, OpenAI, Google, ElevenLabs, Polly</value></data>
+  <data name="FeatureOffline" xml:space="preserve"><value>✔  Fully offline with SherpaOnnx neural models</value></data>
+  <data name="FeatureWordBoundary" xml:space="preserve"><value>✔  Word boundary events for highlighting</value></data>
+  <data name="FeatureDualArch" xml:space="preserve"><value>✔  Works with both 32-bit and 64-bit applications</value></data>
+
+  <!-- ===== Onboarding Page 2: How To Use ===== -->
+  <data name="GettingStarted" xml:space="preserve"><value>Getting Started</value></data>
+  <data name="Step1Title" xml:space="preserve"><value>Install the SAPI Adapter</value></data>
+  <data name="Step1Desc" xml:space="preserve"><value>On the main screen, click Install for 64-bit (and 32-bit if needed). This registers VoiceGarden as a SAPI 5 voice that any compatible app can use.</value></data>
+  <data name="Step2Title" xml:space="preserve"><value>Download SherpaOnnx Voices (Offline)</value></data>
+  <data name="Step2Desc" xml:space="preserve"><value>Go to the SherpaOnnx Models tab to browse and download free neural voices. These run entirely on your device — no internet connection needed. After downloading, click Promote to make them available to SAPI applications.</value></data>
+  <data name="LangCompatTip" xml:space="preserve"><value>💡  Tip: Language Compatibility</value></data>
+  <data name="LangCompatDesc" xml:space="preserve"><value>If your AAC software only supports certain languages (e.g. English), enable "Add en-US alias" when promoting SherpaOnnx models. This makes voices in any language appear as English voices, so they show up in apps that filter by language.</value></data>
+  <data name="Step3Title" xml:space="preserve"><value>Add Cloud Engine Keys (Optional)</value></data>
+  <data name="Step3Desc" xml:space="preserve"><value>For premium cloud voices (Azure, OpenAI, Google, ElevenLabs, Polly), go to the Cloud Engines tab and enter your API key. Edge voices work without any key.</value></data>
+
+  <!-- ===== Onboarding Page 3: Privacy ===== -->
+  <data name="HelpImprove" xml:space="preserve"><value>Help Improve VoiceGarden</value></data>
+  <data name="PrivacyIntro" xml:space="preserve"><value>VoiceGarden is a free, open-source project built by volunteers. To help us understand which TTS engines are most used, identify bugs, and prioritise development, we'd like to collect anonymous usage analytics.</value></data>
+  <data name="WhatWeCollect" xml:space="preserve"><value>What we collect:</value></data>
+  <data name="WhatWeCollectList" xml:space="preserve"><value>• Engine types enabled
+• Number of models downloaded
+• Adapter registration events</value></data>
+  <data name="WhatWeDontCollect" xml:space="preserve"><value>What we DON'T collect:</value></data>
+  <data name="WhatWeDontCollectList" xml:space="preserve"><value>• Spoken text or audio content
+• API keys or credentials
+• Voice names or personal information</value></data>
+  <data name="PrivacyChangeAnytime" xml:space="preserve"><value>You can change this anytime in Settings → Advanced.</value></data>
+  <data name="YesHelpImprove" xml:space="preserve"><value>Yes, help improve VoiceGarden</value></data>
+  <data name="NoThanks" xml:space="preserve"><value>No thanks</value></data>
+
+  <!-- ===== VoiceConfigView ===== -->
+  <data name="Engine" xml:space="preserve"><value>Engine:</value></data>
+  <data name="Key" xml:space="preserve"><value>Key:</value></data>
   <data name="Validate" xml:space="preserve"><value>Validate</value></data>
   <data name="FetchVoices" xml:space="preserve"><value>Fetch Voices</value></data>
   <data name="InstallSelected" xml:space="preserve"><value>Install Selected</value></data>
+  <data name="SearchVoices" xml:space="preserve"><value>Search voices...</value></data>
+  <data name="All" xml:space="preserve"><value>All</value></data>
+  <data name="None" xml:space="preserve"><value>None</value></data>
+  <data name="Installed" xml:space="preserve"><value>Installed</value></data>
+  <data name="PreviewVoice" xml:space="preserve"><value>Preview voice</value></data>
+  <data name="CountSelected" xml:space="preserve"><value>{0} selected</value></data>
+  <data name="CountInstalled" xml:space="preserve"><value>{0} installed</value></data>
+  <data name="CountTotal" xml:space="preserve"><value>{0} total</value></data>
+
+  <!-- ===== SherpaModelsView ===== -->
+  <data name="Language" xml:space="preserve"><value>Language:</value></data>
+  <data name="Filter" xml:space="preserve"><value>Filter:</value></data>
+  <data name="Search" xml:space="preserve"><value>Search...</value></data>
+  <data name="InstalledOnly" xml:space="preserve"><value>Installed only</value></data>
+  <data name="Rescan" xml:space="preserve"><value>Rescan</value></data>
+  <data name="Downloaded" xml:space="preserve"><value>Downloaded</value></data>
   <data name="DownloadSelected" xml:space="preserve"><value>Download Selected</value></data>
-  <data name="InstallAllToSAPI" xml:space="preserve"><value>Install All to SAPI</value></data>
-  <data name="Back" xml:space="preserve"><value>← Back</value></data>
-  <data name="OpenLogs" xml:space="preserve"><value>Open Logs</value></data>
+  <data name="InstallToSAPI" xml:space="preserve"><value>Install to SAPI</value></data>
+  <data name="AddEnUsAlias" xml:space="preserve"><value>Add en-US alias</value></data>
   <data name="OpenModelsFolder" xml:space="preserve"><value>Open Models Folder</value></data>
+  <data name="CountDownloaded" xml:space="preserve"><value>{0} downloaded</value></data>
+
+  <!-- ===== ViewModel Status Strings ===== -->
+  <data name="LoadingCatalog" xml:space="preserve"><value>Loading catalog...</value></data>
+  <data name="RescannedModels" xml:space="preserve"><value>Rescanned: {0} model(s) ready</value></data>
+  <data name="SelectModelsFirst" xml:space="preserve"><value>Select models to download first</value></data>
+  <data name="NoDownloadUrl" xml:space="preserve"><value>No download URL</value></data>
+  <data name="DownloadingModel" xml:space="preserve"><value>Downloading {0} ({1})...</value></data>
+  <data name="DownloadedStatus" xml:space="preserve"><value>Downloaded</value></data>
+  <data name="DownloadedCount" xml:space="preserve"><value>Downloaded {0} model(s)</value></data>
+  <data name="DownloadedFailedCount" xml:space="preserve"><value>Downloaded {0}, failed {1}</value></data>
+  <data name="DownloadFailed" xml:space="preserve"><value>Download failed: {0} model(s)</value></data>
+  <data name="InstallingSAPI" xml:space="preserve"><value>Installing models to SAPI (HKLM)...</value></data>
+  <data name="NoDownloadedModels" xml:space="preserve"><value>No downloaded models found. Download a model first, then click Rescan if needed.</value></data>
+  <data name="InstalledModelsSAPI" xml:space="preserve"><value>Installed {0} model(s) to SAPI</value></data>
+  <data name="InstalledModelsFailed" xml:space="preserve"><value>Installed {0}, failed {1}</value></data>
+  <data name="RequestingAdmin" xml:space="preserve"><value>Requesting admin privileges...</value></data>
+  <data name="InstallCancelled" xml:space="preserve"><value>Install cancelled (admin permission denied)</value></data>
+  <data name="InstallFailed" xml:space="preserve"><value>Install failed: {0}</value></data>
+  <data name="DownloadModelFirst" xml:space="preserve"><value>Download the model first</value></data>
+  <data name="Previewing" xml:space="preserve"><value>Previewing...</value></data>
+  <data name="ModelFilesNotFound" xml:space="preserve"><value>Model files not found</value></data>
+  <data name="NoModelId" xml:space="preserve"><value>Could not determine model ID for preview</value></data>
+
+  <!-- VoiceConfig status -->
+  <data name="EnterApiKeyFirst" xml:space="preserve"><value>Enter an API key first</value></data>
+  <data name="FetchingVoices" xml:space="preserve"><value>Fetching {0} voices...</value></data>
+  <data name="FoundVoices" xml:space="preserve"><value>Found {0} voices</value></data>
+  <data name="EnterApiKey" xml:space="preserve"><value>Enter an API key</value></data>
+  <data name="Validating" xml:space="preserve"><value>Validating...</value></data>
+  <data name="ValidResult" xml:space="preserve"><value>Valid ({0} voices)</value></data>
+  <data name="InvalidResult" xml:space="preserve"><value>Invalid: {0}</value></data>
+  <data name="SelectVoicesFirst" xml:space="preserve"><value>Select voices to install first</value></data>
+  <data name="InstalledVoicesHKLM" xml:space="preserve"><value>Installed {0} voice(s) to HKLM</value></data>
+  <data name="RemovedVoices" xml:space="preserve"><value>Removed {0} voice(s)</value></data>
+  <data name="PreviewingVoice" xml:space="preserve"><value>Previewing {0}...</value></data>
+  <data name="NoAudio" xml:space="preserve"><value>No audio generated</value></data>
+  <data name="PreviewFailed" xml:space="preserve"><value>Preview failed: {0}</value></data>
 </root>

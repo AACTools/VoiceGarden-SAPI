@@ -1,18 +1,19 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:VoiceGarden.UI.ViewModels"
+             xmlns:lang="using:VoiceGarden.UI.Markup"
              x:Class="VoiceGarden.UI.Views.SherpaModelsView">
 
     <Grid RowDefinitions="Auto, Auto, *, Auto">
 
         <!-- Filter row -->
         <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto, *, Auto, Auto" Margin="0,0,0,8">
-            <TextBlock Grid.Column="0" Text="Language:" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
-            <TextBox Grid.Column="1" Text="{Binding LanguageFilter}" Watermark="All" Width="80" Margin="0,0,8,0"/>
-            <TextBlock Grid.Column="2" Text="Filter:" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
-            <TextBox Grid.Column="3" Text="{Binding SearchFilter}" Watermark="Search..." MinWidth="120"/>
-            <CheckBox Grid.Column="4" Content="Installed only" IsChecked="{Binding ShowInstalledOnly}" Margin="16,0,0,0"/>
-            <Button Grid.Column="5" Content="Rescan" Command="{Binding RescanCommand}" Padding="12,2" Margin="8,0,0,0"/>
+            <TextBlock Grid.Column="0" Text="{lang:Localize Language}" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
+            <TextBox Grid.Column="1" Text="{Binding LanguageFilter}" Watermark="{lang:Localize All}" Width="80" Margin="0,0,8,0"/>
+            <TextBlock Grid.Column="2" Text="{lang:Localize Filter}" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
+            <TextBox Grid.Column="3" Text="{Binding SearchFilter}" Watermark="{lang:Localize Search}" MinWidth="120"/>
+            <CheckBox Grid.Column="4" Content="{lang:Localize InstalledOnly}" IsChecked="{Binding ShowInstalledOnly}" Margin="16,0,0,0"/>
+            <Button Grid.Column="5" Content="{lang:Localize Rescan}" Command="{Binding RescanCommand}" Padding="12,2" Margin="8,0,0,0"/>
         </Grid>
 
         <!-- Model list -->
@@ -30,10 +31,10 @@
                                     <TextBlock Text="{Binding Id}" Classes="Hint" Opacity="0.4"/>
                                 </StackPanel>
                             </StackPanel>
-                            <TextBlock Grid.Column="2" Text="Downloaded" Classes="Hint"
+                            <TextBlock Grid.Column="2" Text="{lang:Localize Downloaded}" Classes="Hint"
                                        Foreground="Green" IsVisible="{Binding IsDownloaded}"
                                        Margin="8,0"/>
-                            <TextBlock Grid.Column="3" Text="Installed" Classes="Hint"
+                            <TextBlock Grid.Column="3" Text="{lang:Localize Installed}" Classes="Hint"
                                        Foreground="Blue" IsVisible="{Binding IsPromoted}"
                                        Margin="8,0"/>
                             <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="8"
@@ -59,12 +60,12 @@
 
         <!-- Actions -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0" HorizontalAlignment="Left">
-            <Button Content="Download Selected" Command="{Binding DownloadSelectedCommand}" Padding="16,4"/>
-            <Button Content="Install to SAPI" Command="{Binding PromoteAllCommand}"
+            <Button Content="{lang:Localize DownloadSelected}" Command="{Binding DownloadSelectedCommand}" Padding="16,4"/>
+            <Button Content="{lang:Localize InstallToSAPI}" Command="{Binding PromoteAllCommand}"
                     Classes="Primary" Padding="16,4"/>
-            <CheckBox Content="Add en-US alias" IsChecked="{Binding AddEnUsAlias}"
+            <CheckBox Content="{lang:Localize AddEnUsAlias}" IsChecked="{Binding AddEnUsAlias}"
                       VerticalAlignment="Center" Margin="8,0,0,0"/>
-            <Button Content="Open Models Folder" Command="{Binding OpenModelsFolderCommand}"
+            <Button Content="{lang:Localize OpenModelsFolder}" Command="{Binding OpenModelsFolderCommand}"
                     Padding="16,4" FontSize="12"/>
         </StackPanel>
 

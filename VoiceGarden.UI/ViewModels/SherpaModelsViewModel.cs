@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RustTtsWrapper;
+using VoiceGarden.UI.Localization;
 using VoiceGarden.UI.Services;
 
 namespace VoiceGarden.UI.ViewModels;
@@ -33,7 +34,7 @@ public partial class SherpaModelsViewModel : ObservableObject
     [ObservableProperty] private string searchFilter = "";
     [ObservableProperty] private string languageFilter = "";
     [ObservableProperty] private bool showInstalledOnly;
-    [ObservableProperty] private string statusText = "Ready";
+    [ObservableProperty] private string statusText = Loc.GetString("Ready");
     [ObservableProperty] private bool isLoading;
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private int downloadedCount;
@@ -53,7 +54,7 @@ public partial class SherpaModelsViewModel : ObservableObject
     private async Task LoadCatalog()
     {
         IsLoading = true;
-        StatusText = "Loading catalog...";
+        StatusText = Loc.GetString("LoadingCatalog");
 
         try
         {
@@ -107,7 +108,7 @@ public partial class SherpaModelsViewModel : ObservableObject
                 item.IsPromoted = installed?.IsPromoted ?? false;
             }
             UpdateCounts();
-            StatusText = $"Rescanned: {_installed.Count} model(s) ready";
+            StatusText = Loc.GetString("RescannedModels", _installed.Count);
         }
 
     [ObservableProperty] private bool addEnUsAlias = true;
@@ -118,7 +119,7 @@ public partial class SherpaModelsViewModel : ObservableObject
         var selected = AllModels.Where(m => m.IsSelected && !m.IsDownloaded).ToList();
         if (selected.Count == 0)
         {
-            StatusText = "Select models to download first";
+            StatusText = Loc.GetString("SelectModelsFirst");
             return;
         }
 
@@ -132,16 +133,16 @@ public partial class SherpaModelsViewModel : ObservableObject
             var catalogModel = catalog.FirstOrDefault(c => c.Id == model.Id);
             if (catalogModel == null || string.IsNullOrEmpty(catalogModel.Url))
             {
-                model.DownloadStatus = "No download URL";
+                model.DownloadStatus = Loc.GetString("NoDownloadUrl");
                 failCount++;
                 continue;
             }
 
             var sizeMb = catalogModel.FileSizeMb > 0 ? $"{catalogModel.FileSizeMb:F0}MB" : "??MB";
-            model.DownloadStatus = $"Downloading {model.Id} ({sizeMb})...";
+            model.DownloadStatus = Loc.GetString("DownloadingModel", model.Id, sizeMb);
             model.DownloadProgress = 0;
             model.IsDownloading = true;
-            StatusText = $"Downloading {model.Name} ({sizeMb})...";
+            StatusText = Loc.GetString("DownloadingModel", model.Name, sizeMb);
 
             try
             {
@@ -156,8 +157,7 @@ public partial class SherpaModelsViewModel : ObservableObject
                 model.IsDownloaded = true;
                 model.IsDownloading = false;
                 model.DownloadProgress = 100;
-                model.DownloadStatus = "Downloaded";
-                okCount++;
+                model.DownloadStatus = Loc.GetString("DownloadedStatus");
             }
             catch (Exception ex)
             {
@@ -185,17 +185,17 @@ public partial class SherpaModelsViewModel : ObservableObject
             Services.AnalyticsService.Track("model_downloaded", ("count", okCount), ("failed", failCount));
 
         StatusText = failCount == 0
-            ? $"Downloaded {okCount} model(s)"
+            ? Loc.GetString("DownloadedCount", okCount)
             : okCount > 0
-                ? $"Downloaded {okCount}, failed {failCount}"
-                : $"Download failed: {failCount} model(s)";
+                ? Loc.GetString("DownloadedFailedCount", okCount, failCount)
+                : Loc.GetString("DownloadFailed", failCount);
     }
 
     [RelayCommand]
     private void PromoteAll()
     {
         IsLoading = true;
-        StatusText = "Installing models to SAPI (HKLM)...";
+        StatusText = Loc.GetString("InstallingSAPI");
 
         try
         {
@@ -206,7 +206,7 @@ public partial class SherpaModelsViewModel : ObservableObject
             if (promoted == 0 && failed == 0)
             {
                 Rescan();
-                StatusText = "No downloaded models found. Download a model first, then click Rescan if needed.";
+                StatusText = Loc.GetString("NoDownloadedModels");
                 IsLoading = false;
                 return;
             }
@@ -216,14 +216,14 @@ public partial class SherpaModelsViewModel : ObservableObject
                 // Succeeded (running as admin)
                 Rescan();
                 StatusText = failed == 0
-                    ? $"Installed {promoted} model(s) to SAPI"
-                    : $"Installed {promoted}, failed {failed}";
+                    ? Loc.GetString("InstalledModelsSAPI", promoted)
+                    : Loc.GetString("InstalledModelsFailed", promoted, failed);
                 return;
             }
 
             // promoted == 0 && failed > 0 — need elevation.
             // Use the fast .reg import path instead of relaunching the exe.
-            StatusText = "Requesting admin privileges...";
+            StatusText = Loc.GetString("RequestingAdmin");
             var (elevPromoted, elevFailed, error) = SherpaModelService.PromoteAllElevated();
 
             Rescan();
@@ -232,16 +232,16 @@ public partial class SherpaModelsViewModel : ObservableObject
             {
                 Services.AnalyticsService.Track("voices_promoted", ("engine", "sherpaonnx"), ("count", elevPromoted));
                 StatusText = elevFailed == 0
-                    ? $"Installed {elevPromoted} model(s) to SAPI"
-                    : $"Installed {elevPromoted}, failed {elevFailed}";
+                    ? Loc.GetString("InstalledModelsSAPI", elevPromoted)
+                    : Loc.GetString("InstalledModelsFailed", elevPromoted, elevFailed);
             }
             else if (error == "UAC cancelled")
             {
-                StatusText = "Install cancelled (admin permission denied)";
+                StatusText = Loc.GetString("InstallCancelled");
             }
             else
             {
-                StatusText = $"Install failed: {error}";
+                StatusText = Loc.GetString("InstallFailed", error);
             }
         }
         catch (Exception ex)
@@ -259,17 +259,17 @@ public partial class SherpaModelsViewModel : ObservableObject
     {
         if (!model.IsDownloaded)
         {
-            StatusText = "Download the model first";
+            StatusText = Loc.GetString("DownloadModelFirst");
             return;
         }
 
-        model.DownloadStatus = "Previewing...";
+        model.DownloadStatus = Loc.GetString("Previewing");
         try
         {
             var installed = _installed.FirstOrDefault(i => i.Id == model.Id);
             if (installed?.ModelPath == null)
             {
-                StatusText = "Model files not found";
+                StatusText = Loc.GetString("ModelFilesNotFound");
                 return;
             }
 
@@ -292,7 +292,7 @@ public partial class SherpaModelsViewModel : ObservableObject
 
             if (string.IsNullOrEmpty(modelId))
             {
-                StatusText = "Could not determine model ID for preview";
+                StatusText = Loc.GetString("NoModelId");
                 return;
             }
 
@@ -318,18 +318,18 @@ public partial class SherpaModelsViewModel : ObservableObject
                     catch (Exception playEx) { System.Diagnostics.Debug.WriteLine($"SoundPlayer: {playEx.Message}"); }
                     finally { try { System.IO.File.Delete(tempFile); } catch { } }
                 });
-                model.DownloadStatus = "Downloaded";
+                model.DownloadStatus = Loc.GetString("DownloadedStatus");
                 StatusText = $"Previewing {model.Name}";
             }
             else
             {
-                model.DownloadStatus = "Downloaded";
+                model.DownloadStatus = Loc.GetString("DownloadedStatus");
                 StatusText = $"No audio generated for {model.Name}";
             }
         }
         catch (RustTtsWrapper.TtsException ex)
         {
-            model.DownloadStatus = "Downloaded";
+            model.DownloadStatus = Loc.GetString("DownloadedStatus");
             StatusText = $"Preview failed: {ex.Message}";
             System.Diagnostics.Debug.WriteLine($"Preview exception for {model.Id}: {ex}");
         }

@@ -3,8 +3,9 @@
         xmlns:vm="using:VoiceGarden.UI.ViewModels"
         xmlns:models="using:VoiceGarden.UI.Models"
         xmlns:views="using:VoiceGarden.UI.Views"
+        xmlns:lang="using:VoiceGarden.UI.Markup"
         x:Class="VoiceGarden.UI.MainWindow"
-        Title="VoiceGarden"
+        Title="{lang:Localize AppName}"
         Width="680" Height="720"
         MinWidth="560" MinHeight="560"
         WindowStartupLocation="CenterScreen"
@@ -28,19 +29,19 @@
                 <!-- Adapter Installation -->
                 <Border Classes="Card">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="Adapter Installation" Classes="CardHeader"/>
+                        <TextBlock Text="{lang:Localize AdapterInstallation}" Classes="CardHeader"/>
                         <Grid ColumnDefinitions="*, Auto, Auto" RowDefinitions="Auto, Auto">
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Status64Bit}" VerticalAlignment="Center"/>
                             <Button Grid.Row="0" Grid.Column="1" Content="{Binding Install64Text}"
                                     Command="{Binding Install64Command}" Margin="8,0,0,0" Padding="20,4" MinWidth="90"/>
-                            <Button Grid.Row="0" Grid.Column="2" Content="Uninstall"
+                            <Button Grid.Row="0" Grid.Column="2" Content="{lang:Localize Uninstall}"
                                     Command="{Binding Uninstall64Command}" Margin="8,0,0,0" Padding="20,4" MinWidth="90"
                                     IsEnabled="{Binding Is64Installed}"/>
 
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Status32Bit}" VerticalAlignment="Center" Margin="0,8,0,0"/>
                             <Button Grid.Row="1" Grid.Column="1" Content="{Binding Install32Text}"
                                     Command="{Binding Install32Command}" Margin="8,8,0,0" Padding="20,4" MinWidth="90"/>
-                            <Button Grid.Row="1" Grid.Column="2" Content="Uninstall"
+                            <Button Grid.Row="1" Grid.Column="2" Content="{lang:Localize Uninstall}"
                                     Command="{Binding Uninstall32Command}" Margin="8,8,0,0" Padding="20,4" MinWidth="90"
                                     IsEnabled="{Binding Is32Installed}"/>
                         </Grid>
@@ -50,15 +51,15 @@
                 <!-- Voice Engines -->
                 <Border Classes="Card">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="Voice Engines" Classes="CardHeader"/>
+                        <TextBlock Text="{lang:Localize VoiceEngines}" Classes="CardHeader"/>
 
                         <!-- Offline -->
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Offline Voices" Classes="SectionLabel"/>
+                            <TextBlock Text="{lang:Localize OfflineVoices}" Classes="SectionLabel"/>
                             <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,2,0,0">
-                                <CheckBox IsChecked="{Binding SherpaEnabled}" Content="SherpaOnnx Neural TTS" MinWidth="200" VerticalAlignment="Center"/>
+                                <CheckBox IsChecked="{Binding SherpaEnabled}" Content="{lang:Localize SherpaOnnxNeuralTTS}" MinWidth="200" VerticalAlignment="Center"/>
                                 <TextBlock Text="{Binding SherpaModelSummary}" Classes="Hint" VerticalAlignment="Center"/>
-                                <Button Content="Manage Models..." Command="{Binding OpenSherpaManagerCommand}"
+                                <Button Content="{lang:Localize ManageModels}" Command="{Binding OpenSherpaManagerCommand}"
                                         Padding="12,2" FontSize="12"/>
                             </StackPanel>
                         </StackPanel>
@@ -67,7 +68,7 @@
 
                         <!-- Cloud Engines -->
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Cloud Voices" Classes="SectionLabel"/>
+                            <TextBlock Text="{lang:Localize CloudVoices}" Classes="SectionLabel"/>
 
                             <!-- Scrollable engine checkbox grid -->
                             <Border BorderBrush="{DynamicResource SystemControlDefaultChromeMediumLowBrush}"
@@ -90,9 +91,9 @@
                             </Border>
 
                             <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
-                                <Button Content="Configure Credentials..." Command="{Binding OpenEngineConfigCommand}"
+                                <Button Content="{lang:Localize ConfigureCredentials}" Command="{Binding OpenEngineConfigCommand}"
                                         Padding="16,4" MinWidth="160"/>
-                                <Button Content="Configure Voices..." Command="{Binding OpenVoiceConfigCommand}"
+                                <Button Content="{lang:Localize ConfigureVoices}" Command="{Binding OpenVoiceConfigCommand}"
                                         Padding="16,4" MinWidth="140"/>
                             </StackPanel>
                         </StackPanel>
@@ -102,19 +103,19 @@
                 <!-- Advanced (Collapsible, hidden by default) -->
                 <Border Classes="Card" IsVisible="{Binding ShowAdvanced}">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="Advanced" Classes="CardHeader"/>
-                        <CheckBox Content="Enable Edge browser voices" IsChecked="{Binding EdgeEnabled}" Margin="0"/>
-                        <CheckBox Content="Send anonymous usage analytics (opt-in)" IsChecked="{Binding AnalyticsEnabled}" Margin="0"/>
-                        <TextBlock Text="Helps us understand which engines are used. No text, keys, or PII sent."
+                        <TextBlock Text="{lang:Localize Advanced}" Classes="CardHeader"/>
+                        <CheckBox Content="{lang:Localize EnableEdgeVoices}" IsChecked="{Binding EdgeEnabled}" Margin="0"/>
+                        <CheckBox Content="{lang:Localize EnableAnalytics}" IsChecked="{Binding AnalyticsEnabled}" Margin="0"/>
+                        <TextBlock Text="{lang:Localize AnalyticsHint}"
                                    Classes="Hint" Opacity="0.5" Margin="16,0,0,0" TextWrapping="Wrap"/>
                         <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
-                            <TextBlock Text="Log level:" VerticalAlignment="Center"/>
+                            <TextBlock Text="{lang:Localize LogLevel}" VerticalAlignment="Center"/>
                             <ComboBox SelectedIndex="{Binding LogLevelIndex}" MinWidth="100">
                                 <ComboBoxItem Content="Normal"/>
                                 <ComboBoxItem Content="Info"/>
                                 <ComboBoxItem Content="Trace"/>
                             </ComboBox>
-                            <Button Content="Open Logs" Command="{Binding OpenLogsCommand}" Padding="12,2"/>
+                            <Button Content="{lang:Localize OpenLogs}" Command="{Binding OpenLogsCommand}" Padding="12,2"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>
@@ -123,8 +124,8 @@
                               Padding="12,4" HorizontalAlignment="Left" FontSize="12"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,8,0,0">
-                    <Button Content="About" Command="{Binding ShowAboutCommand}" Padding="20,6"/>
-                    <Button Content="Close" Click="Close_Click" Classes="Primary" Padding="20,6"/>
+                    <Button Content="{lang:Localize About}" Command="{Binding ShowAboutCommand}" Padding="20,6"/>
+                    <Button Content="{lang:Localize Close}" Click="Close_Click" Classes="Primary" Padding="20,6"/>
                 </StackPanel>
 
             </StackPanel>
@@ -137,8 +138,8 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="24,16,24,8">
-                <Button Content="← Back" Command="{Binding BackToMainCommand}" Padding="12,4"/>
-                <TextBlock Text="Configure Voices" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                <Button Content="{lang:Localize Back}" Command="{Binding BackToMainCommand}" Padding="12,4"/>
+                <TextBlock Text="{lang:Localize ConfigureVoicesTitle}" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
             </StackPanel>
             <views:VoiceConfigView Grid.Row="1" DataContext="{Binding VoiceConfig}" Margin="24,0,24,16"/>
         </Grid>
@@ -150,8 +151,8 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="24,16,24,8">
-                <Button Content="← Back" Command="{Binding BackToMainCommand}" Padding="12,4"/>
-                <TextBlock Text="Configure Credentials" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                <Button Content="{lang:Localize Back}" Command="{Binding BackToMainCommand}" Padding="12,4"/>
+                <TextBlock Text="{lang:Localize ConfigureCredentialsTitle}" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
             </StackPanel>
             <ScrollViewer Grid.Row="1" Margin="24,0,24,16">
                 <StackPanel Spacing="8">
@@ -176,7 +177,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,16">
-                <Button Content="← Back" Command="{Binding BackToMainCommand}" Padding="12,4"/>
+                <Button Content="{lang:Localize Back}" Command="{Binding BackToMainCommand}" Padding="12,4"/>
             </StackPanel>
             <ScrollViewer Grid.Row="1">
                 <StackPanel Spacing="12" MaxWidth="500">
@@ -190,7 +191,7 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                    <TextBlock Text="Only enabled engines are shown. Toggle engines on the main page."
+                    <TextBlock Text="{lang:Localize OnlyEnabledEngines}"
                                Classes="Hint" Margin="0,8,0,0"/>
                 </StackPanel>
             </ScrollViewer>
@@ -203,8 +204,8 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="24,16,24,8">
-                <Button Content="← Back" Command="{Binding BackToMainCommand}" Padding="12,4"/>
-                <TextBlock Text="SherpaOnnx Models" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                <Button Content="{lang:Localize Back}" Command="{Binding BackToMainCommand}" Padding="12,4"/>
+                <TextBlock Text="{lang:Localize SherpaOnnxModels}" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
             </StackPanel>
             <views:SherpaModelsView Grid.Row="1" DataContext="{Binding SherpaModels}" Margin="24,0,24,16"/>
         </Grid>

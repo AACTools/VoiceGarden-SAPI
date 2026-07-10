@@ -1,10 +1,11 @@
+using System.Globalization;
 using System.Resources;
 
 namespace VoiceGarden.UI.Localization;
 
 /// <summary>
-/// Simple localization extension for .resx-based string lookup.
-/// Usage in XAML: {lang:Localize AdapterInstallation}
+/// Simple localization helper for .resx-based string lookup.
+/// Automatically uses CurrentUICulture (set by Windows OS language).
 /// </summary>
 public static class Loc
 {
@@ -13,13 +14,12 @@ public static class Loc
 
     /// <summary>
     /// Get a localized string. Falls back to the key if not found.
+    /// Supports format args: Loc.GetString("FoundVoices", count)
     /// </summary>
-    public static string GetString(string key, params object[]? args)
+    public static string GetString(string key, params object?[]? args)
     {
-        var value = _rm.GetString(key) ?? key;
-        return args != null && args.Length > 0
-            ? string.Format(value, args)
-            : value;
+        var value = _rm.GetString(key, CultureInfo.CurrentUICulture) ?? key;
+        return args is { Length: > 0 } ? string.Format(value, args) : value;
     }
 
     /// <summary>
@@ -27,7 +27,7 @@ public static class Loc
     /// </summary>
     public static bool TryGetString(string key, out string value)
     {
-        value = _rm.GetString(key) ?? key;
+        value = _rm.GetString(key, CultureInfo.CurrentUICulture) ?? key;
         return value != key;
     }
 }

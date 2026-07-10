@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using VoiceGarden.UI.Localization;
 using VoiceGarden.UI.Models;
 using VoiceGarden.UI.Services;
 
@@ -130,12 +131,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
         if (value) Services.AnalyticsService.Track("analytics_opted_in");
     }
     [ObservableProperty] private int logLevelIndex = 0;
-    [ObservableProperty] private string status64Bit = "Checking...";
-    [ObservableProperty] private string status32Bit = "Checking...";
+    [ObservableProperty] private string status64Bit = Loc.GetString("Checking");
+    [ObservableProperty] private string status32Bit = Loc.GetString("Checking");
     [ObservableProperty] private bool is64Installed = false;
     [ObservableProperty] private bool is32Installed = false;
-    [ObservableProperty] private string install64Text = "Install";
-    [ObservableProperty] private string install32Text = "Install";
+    [ObservableProperty] private string install64Text = Loc.GetString("Install");
+    [ObservableProperty] private string install32Text = Loc.GetString("Install");
     [ObservableProperty] private string sherpaModelSummary = "";
     [ObservableProperty] private bool isAboutVisible = false;
     public string AboutText =>
@@ -148,7 +149,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public ObservableCollection<CloudEngineSetting> CloudEngines { get; } = new();
 
-    public string AdvancedToggleText => ShowAdvanced ? "▼ Hide Advanced" : "▶ Show Advanced";
+    public string AdvancedToggleText => ShowAdvanced ? Loc.GetString("HideAdvanced") : Loc.GetString("ShowAdvanced");
 
     partial void OnSherpaEnabledChanged(bool value) => RegistryService.SetFlag("NoSherpaVoices", !value);
     partial void OnEdgeEnabledChanged(bool value)
@@ -210,11 +211,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
         if (Directory.Exists(modelsDir))
         {
             var count = Directory.GetDirectories(modelsDir).Length;
-            SherpaModelSummary = $"{count} model(s) installed";
+            SherpaModelSummary = Loc.GetString("ModelsInstalled", count);
         }
         else
         {
-            SherpaModelSummary = "No models installed";
+            SherpaModelSummary = Loc.GetString("NoModelsInstalled");
         }
     }
 
@@ -222,10 +223,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         Is64Installed = ComRegistrationService.IsRegistered(true);
         Is32Installed = ComRegistrationService.IsRegistered(false);
-        Status64Bit = Is64Installed ? "✓ 64-bit adapter registered" : "64-bit: not registered";
-        Status32Bit = Is32Installed ? "✓ 32-bit adapter registered" : "32-bit: not registered";
-        Install64Text = Is64Installed ? "Re-register" : "Register";
-        Install32Text = Is32Installed ? "Re-register" : "Register";
+        Status64Bit = Is64Installed ? Loc.GetString("Bit64Registered") : Loc.GetString("Bit64NotRegistered");
+        Status32Bit = Is32Installed ? Loc.GetString("Bit32Registered") : Loc.GetString("Bit32NotRegistered");
+        Install64Text = Is64Installed ? Loc.GetString("Reregister") : "Register";
+        Install32Text = Is32Installed ? Loc.GetString("Reregister") : "Register";
     }
 
     [RelayCommand]
