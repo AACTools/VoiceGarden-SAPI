@@ -1,5 +1,7 @@
+using System.Globalization;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 
 namespace VoiceGarden.UI;
 
@@ -15,6 +17,10 @@ public partial class OnboardingWindow : Window
         _vm = new OnboardingWindowViewModel();
         DataContext = _vm;
         _vm.RequestClose += () => Close();
+
+        FlowDirection = CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft
+            ? (Avalonia.Media.FlowDirection)1
+            : (Avalonia.Media.FlowDirection)0;
     }
 
     private void InitializeComponent()
