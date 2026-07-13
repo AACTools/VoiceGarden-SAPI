@@ -15,6 +15,7 @@ namespace VoiceGarden.UI.Services;
 public static class VoicePromotionService
 {
     private const string SapiTokensRoot = @"SOFTWARE\Microsoft\Speech\Voices\Tokens";
+    private const string OneCoreTokensRoot = @"SOFTWARE\Microsoft\Speech_OneCore\Voices\Tokens";
     private const string TtsEngineClsid = "{013AB33B-AD1A-401C-8BEE-F6E2B046A94E}";
 
     public class PromotedVoice
@@ -97,6 +98,31 @@ public static class VoicePromotionService
             attrs.SetValue("Vendor", Cap(engine), RegistryValueKind.String);
             attrs.SetValue("VoiceGardenType", "Cloud", RegistryValueKind.String);
 
+            // Also register in Speech_OneCore so Chrome/Edge can see the voice
+            var oneCorePath = $@"{OneCoreTokensRoot}\{tokenName}";
+            using var ocToken = Registry.LocalMachine.CreateSubKey(oneCorePath, writable: true);
+            if (ocToken != null)
+            {
+                ocToken.SetValue("", $"{Cap(engine)} {voiceId}", RegistryValueKind.String);
+                ocToken.SetValue("CLSID", TtsEngineClsid, RegistryValueKind.String);
+
+                using var ocConfig = ocToken.CreateSubKey("VoiceGardenConfig", writable: true);
+                ocConfig.SetValue("EngineType", Cap(engine), RegistryValueKind.String);
+                ocConfig.SetValue("Voice", voiceId, RegistryValueKind.String);
+                ocConfig.SetValue("Key", key ?? "", RegistryValueKind.String);
+                if (!string.IsNullOrEmpty(region))
+                    ocConfig.SetValue("Region", region, RegistryValueKind.String);
+                ocConfig.SetValue("ErrorMode", 0, RegistryValueKind.DWord);
+
+                using var ocAttrs = ocToken.CreateSubKey("Attributes", writable: true);
+                ocAttrs.SetValue("Name", voiceId, RegistryValueKind.String);
+                ocAttrs.SetValue("Gender", "Neutral", RegistryValueKind.String);
+                ocAttrs.SetValue("Age", "Adult", RegistryValueKind.String);
+                ocAttrs.SetValue("Language", "409", RegistryValueKind.String);
+                ocAttrs.SetValue("Locale", locale ?? "en-US", RegistryValueKind.String);
+                ocAttrs.SetValue("Vendor", Cap(engine), RegistryValueKind.String);
+            }
+
             // Azure backward compatibility: also save to Enumerator
             if (engine.Equals("azure", StringComparison.OrdinalIgnoreCase))
             {
@@ -150,6 +176,7 @@ public static class VoicePromotionService
         try
         {
             Registry.LocalMachine.DeleteSubKeyTree($@"{SapiTokensRoot}\{tokenName}", throwOnMissingSubKey: false);
+            Registry.LocalMachine.DeleteSubKeyTree($@"{OneCoreTokensRoot}\{tokenName}", throwOnMissingSubKey: false);
             return true;
         }
         catch

@@ -19,15 +19,19 @@ $tokensRoot = "HKLM:\SOFTWARE\Microsoft\Speech\Voices\Tokens"
 # Also check WOW6432Node for 32-bit registrations
 $wowTokensRoot = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Speech\Voices\Tokens"
 
+# Speech_OneCore tokens (Chrome/Edge voices)
+$oneCoreRoot = "HKLM:\SOFTWARE\Microsoft\Speech_OneCore\Voices\Tokens"
+$wowOneCoreRoot = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Speech_OneCore\Voices\Tokens"
+
 # Also check HKCU (promoted voices can end up here too)
 $hkcuTokensRoot = "HKCU:\SOFTWARE\Microsoft\Speech\Voices\Tokens"
 
-$prefixes = @("Sherpa-", "Cloud-", "NaturalVoice-", "eSpeak")
+$prefixes = @("Sherpa-", "Cloud-", "NaturalVoice-", "eSpeak", "VoiceGarden-")
 # Note: eSpeak voices are also from our adapter in 32-bit land
 $deleted = 0
 $kept = 0
 
-foreach ($root in @($tokensRoot, $wowTokensRoot, $hkcuTokensRoot)) {
+foreach ($root in @($tokensRoot, $wowTokensRoot, $hkcuTokensRoot, $oneCoreRoot, $wowOneCoreRoot)) {
     if (-not (Test-Path $root)) { continue }
 
     $children = Get-ChildItem $root -ErrorAction SilentlyContinue

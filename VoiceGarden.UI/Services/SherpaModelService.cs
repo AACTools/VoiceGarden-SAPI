@@ -20,6 +20,7 @@ public class SherpaModelService
         "VoiceGardenSAPIAdapter", "models");
 
     private const string SapiTokensRoot = @"SOFTWARE\Microsoft\Speech\Voices\Tokens";
+    private const string OneCoreTokensRoot = @"SOFTWARE\Microsoft\Speech_OneCore\Voices\Tokens";
     private const string TtsEngineClsid = "{013AB33B-AD1A-401C-8BEE-F6E2B046A94E}";
 
     public class CatalogModel
@@ -559,6 +560,31 @@ public class SherpaModelService
         lines.Add("\"Locale\"=\"en-US\"");
         lines.Add("\"Vendor\"=\"K2FSA\"");
         lines.Add("\"VoiceGardenType\"=\"Sherpa;Offline\"");
+
+        // Also register in Speech_OneCore for Chrome/Edge support
+        var oneCorePath = $@"HKEY_LOCAL_MACHINE\{OneCoreTokensRoot}\{tokenName}";
+        lines.Add($"[{oneCorePath}]");
+        lines.Add($"@=\"Sherpa {model.Id}\"");
+        lines.Add($"\"CLSID\"=\"{TtsEngineClsid}\"");
+        lines.Add($"[{oneCorePath}\\VoiceGardenConfig]");
+        lines.Add("\"EngineType\"=\"Sherpa\"");
+        lines.Add($"\"SherpaOnnxModelType\"=dword:{model.ModelType:X8}");
+        lines.Add($"\"SherpaOnnxModelPath\"=\"{EscapeRegPath(model.ModelPath!)}\"");
+        if (model.TokensPath != null)
+            lines.Add($"\"SherpaOnnxTokens\"=\"{EscapeRegPath(model.TokensPath)}\"");
+        if (model.DataDir != null)
+            lines.Add($"\"SherpaOnnxDataDir\"=\"{EscapeRegPath(model.DataDir)}\"");
+        if (model.VoicesPath != null)
+            lines.Add($"\"SherpaOnnxVoices\"=\"{EscapeRegPath(model.VoicesPath)}\"");
+        if (model.LexiconPath != null)
+            lines.Add($"\"SherpaOnnxLexicon\"=\"{EscapeRegPath(model.LexiconPath)}\"");
+        lines.Add($"[{oneCorePath}\\Attributes]");
+        lines.Add($"\"Name\"=\"{model.Id}\"");
+        lines.Add("\"Gender\"=\"Neutral\"");
+        lines.Add("\"Age\"=\"Adult\"");
+        lines.Add("\"Language\"=\"409\"");
+        lines.Add("\"Locale\"=\"en-US\"");
+        lines.Add("\"Vendor\"=\"K2FSA\"");
         lines.Add("");
     }
 
@@ -601,6 +627,36 @@ public class SherpaModelService
         attrs.SetValue("Locale", "en-US", Microsoft.Win32.RegistryValueKind.String);
         attrs.SetValue("Vendor", "K2FSA", Microsoft.Win32.RegistryValueKind.String);
         attrs.SetValue("VoiceGardenType", "Sherpa;Offline", Microsoft.Win32.RegistryValueKind.String);
+
+        // Also register in Speech_OneCore for Chrome/Edge support
+        var ocTokenPath = $@"{OneCoreTokensRoot}\{tokenName}";
+        using var ocKey = Microsoft.Win32.Registry.LocalMachine.CreateSubKey(ocTokenPath, writable: true);
+        if (ocKey != null)
+        {
+            ocKey.SetValue("", $"Sherpa {model.Id}", Microsoft.Win32.RegistryValueKind.String);
+            ocKey.SetValue("CLSID", TtsEngineClsid, Microsoft.Win32.RegistryValueKind.String);
+
+            using var ocConfig = ocKey.CreateSubKey("VoiceGardenConfig", writable: true);
+            ocConfig.SetValue("EngineType", "Sherpa", Microsoft.Win32.RegistryValueKind.String);
+            ocConfig.SetValue("SherpaOnnxModelType", model.ModelType, Microsoft.Win32.RegistryValueKind.DWord);
+            ocConfig.SetValue("SherpaOnnxModelPath", model.ModelPath, Microsoft.Win32.RegistryValueKind.String);
+            if (model.TokensPath != null)
+                ocConfig.SetValue("SherpaOnnxTokens", model.TokensPath, Microsoft.Win32.RegistryValueKind.String);
+            if (model.DataDir != null)
+                ocConfig.SetValue("SherpaOnnxDataDir", model.DataDir, Microsoft.Win32.RegistryValueKind.String);
+            if (model.VoicesPath != null)
+                ocConfig.SetValue("SherpaOnnxVoices", model.VoicesPath, Microsoft.Win32.RegistryValueKind.String);
+            if (model.LexiconPath != null)
+                ocConfig.SetValue("SherpaOnnxLexicon", model.LexiconPath, Microsoft.Win32.RegistryValueKind.String);
+
+            using var ocAttrs = ocKey.CreateSubKey("Attributes", writable: true);
+            ocAttrs.SetValue("Name", model.Id, Microsoft.Win32.RegistryValueKind.String);
+            ocAttrs.SetValue("Gender", "Neutral", Microsoft.Win32.RegistryValueKind.String);
+            ocAttrs.SetValue("Age", "Adult", Microsoft.Win32.RegistryValueKind.String);
+            ocAttrs.SetValue("Language", "409", Microsoft.Win32.RegistryValueKind.String);
+            ocAttrs.SetValue("Locale", "en-US", Microsoft.Win32.RegistryValueKind.String);
+            ocAttrs.SetValue("Vendor", "K2FSA", Microsoft.Win32.RegistryValueKind.String);
+        }
     }
 
     /// <summary>
@@ -613,6 +669,8 @@ public class SherpaModelService
         {
             Microsoft.Win32.Registry.LocalMachine.DeleteSubKeyTree(
                 $@"{SapiTokensRoot}\{tokenName}", throwOnMissingSubKey: false);
+            Microsoft.Win32.Registry.LocalMachine.DeleteSubKeyTree(
+                $@"{OneCoreTokensRoot}\{tokenName}", throwOnMissingSubKey: false);
         }
         catch { }
     }
