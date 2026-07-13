@@ -107,29 +107,12 @@ public partial class VoiceConfigViewModel : ObservableObject
 
         try
         {
-            var creds = BuildRustCredentials();
-            if (creds == null)
-            {
-                StatusText = $"Unknown engine: {CurrentEngine}";
-                IsLoading = false;
-                return;
-            }
-
-            using var client = new RustTtsWrapper.TtsClient(CurrentEngine, creds);
-            var voices = client.GetVoices();
+            var voices = await FetchVoicesAsync(CurrentEngine, CurrentKey, CurrentRegion);
             TotalVoices = voices.Count;
 
             foreach (var v in voices)
             {
-                var item = new VoiceItem
-                {
-                    Id = v.Id ?? "",
-                    Name = v.Name ?? v.Id ?? "",
-                    Language = string.IsNullOrEmpty(v.Language) ? "en-US" : v.Language,
-                    Gender = v.Gender ?? "Unknown",
-                    Provider = v.Engine ?? CurrentEngine,
-                };
-                AllVoices.Add(item);
+                AllVoices.Add(v);
             }
 
             ApplyFilter();
@@ -147,6 +130,87 @@ public partial class VoiceConfigViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// Fetch voices via direct HTTP for Azure (avoids native crash in RustTtsWrapper.GetVoices).
+    /// Falls back to RustTtsWrapper for other engines.
+    /// </summary>
+    private static async Task<List<VoiceItem>> FetchVoicesAsync(string engine, string key, string region)
+    {
+        if (engine.ToLowerInvariant() == "azure")
+        {
+            return await FetchAzureVoicesAsync(key, region);
+        }
+
+        // Fallback: use RustTtsWrapper for other engines
+        var creds = BuildRustCredentialsFor(engine, key, region);
+        if (creds == null) throw new InvalidOperationException($"Unknown engine: {engine}");
+
+        using var client = new RustTtsWrapper.TtsClient(engine, creds);
+        var rustVoices = client.GetVoices();
+        var result = new List<VoiceItem>();
+        foreach (var v in rustVoices)
+        {
+            result.Add(new VoiceItem
+            {
+                Id = v.Id ?? "",
+                Name = v.Name ?? v.Id ?? "",
+                Language = string.IsNullOrEmpty(v.Language) ? "en-US" : v.Language,
+                Gender = v.Gender ?? "Unknown",
+                Provider = v.Engine ?? engine,
+            });
+        }
+        return result;
+    }
+
+    private static async Task<List<VoiceItem>> FetchAzureVoicesAsync(string key, string region)
+    {
+        var url = $"https://{region}.tts.speech.microsoft.com/cognitiveservices/voices/list";
+        using var http = new System.Net.Http.HttpClient();
+        http.Timeout = TimeSpan.FromSeconds(15);
+        http.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", key);
+
+        var response = await http.GetAsync(url);
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync();
+            throw new Exception($"Azure API error {response.StatusCode}: {body}");
+        }
+
+        var json = await response.Content.ReadAsStringAsync();
+        var doc = System.Text.Json.JsonDocument.Parse(json);
+        var voices = new List<VoiceItem>();
+
+        foreach (var el in doc.RootElement.EnumerateArray())
+        {
+            voices.Add(new VoiceItem
+            {
+                Id = el.TryGetProperty("ShortName", out var sn) ? sn.GetString() ?? "" : "",
+                Name = el.TryGetProperty("LocalName", out var ln) ? ln.GetString() ?? "" : "",
+                Language = el.TryGetProperty("Locale", out var loc) ? loc.GetString() ?? "en-US" : "en-US",
+                Gender = el.TryGetProperty("Gender", out var g) ? g.GetString() ?? "Unknown" : "Unknown",
+                Provider = "azure",
+            });
+        }
+
+        return voices;
+    }
+
+    private static Dictionary<string, string>? BuildRustCredentialsFor(string engine, string key, string region)
+    {
+        return engine.ToLowerInvariant() switch
+        {
+            "azure" => new() { { "subscriptionKey", key }, { "region", region } },
+            "openai" or "elevenlabs" or "google" or "cartesia" or "deepgram" or
+            "fishaudio" or "hume" or "mistral" or "murf" or "resemble" or
+            "unrealspeech" or "upliftai" or "xai" or "modelslab" =>
+                new() { { "apiKey", key } },
+            "watson" => new() { { "apiKey", key }, { "region", region } },
+            "playht" => new() { { "apiKey", key }, { "userId", region } },
+            "witai" => new() { { "token", key } },
+            _ => null,
+        };
+    }
+
     [RelayCommand]
     private async Task ValidateKey()
     {
@@ -161,20 +225,12 @@ public partial class VoiceConfigViewModel : ObservableObject
 
         try
         {
-            var creds = BuildRustCredentials();
-            if (creds == null)
-            {
-                ValidationResult = "Unknown engine";
-                return;
-            }
-
-            // Try to list voices as credential validation
-            using var client = new RustTtsWrapper.TtsClient(CurrentEngine, creds);
-            var voices = client.GetVoices();
+            // Use HTTP-based fetch for Azure, RustTtsWrapper for others
+            var voices = await FetchVoicesAsync(CurrentEngine, CurrentKey, CurrentRegion);
             ValidationResult = Loc.GetString("ValidResult", voices.Count);
             IsValidated = true;
         }
-        catch (RustTtsWrapper.TtsException ex)
+        catch (Exception ex)
         {
             ValidationResult = Loc.GetString("InvalidResult", ex.Message);
             IsValidated = false;
