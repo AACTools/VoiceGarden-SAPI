@@ -45,19 +45,46 @@ public partial class VoiceConfigViewModel : ObservableObject
     public string CurrentEngine
     {
         get => _currentEngine;
-        set { _currentEngine = value; OnPropertyChanged(); _ = RefreshInstalledStatus(); }
+        set {
+            _currentEngine = value;
+            OnPropertyChanged();
+            // Load saved credentials when engine changes
+            var cap = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(value);
+            _currentKey = Services.RegistryService.GetString($"{cap}VoiceKey") ?? "";
+            _currentRegion = Services.RegistryService.GetString($"{cap}VoiceRegion") ?? "";
+            OnPropertyChanged(nameof(CurrentKey));
+            OnPropertyChanged(nameof(CurrentRegion));
+            OnPropertyChanged(nameof(NeedsRegion));
+            IsValidated = false;
+            _ = RefreshInstalledStatus();
+        }
     }
 
     public string CurrentKey
     {
         get => _currentKey;
-        set { _currentKey = value; OnPropertyChanged(); IsValidated = false; }
+        set {
+            _currentKey = value;
+            OnPropertyChanged();
+            IsValidated = false;
+            // Auto-save to registry
+            var cap = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(_currentEngine);
+            Services.RegistryService.SetString($"{cap}VoiceKey", value ?? "");
+            if (_currentEngine == "azure") Services.RegistryService.SetString("AzureVoiceKey", value ?? "");
+        }
     }
 
     public string CurrentRegion
     {
         get => _currentRegion;
-        set { _currentRegion = value; OnPropertyChanged(); }
+        set {
+            _currentRegion = value;
+            OnPropertyChanged();
+            // Auto-save to registry
+            var cap = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(_currentEngine);
+            Services.RegistryService.SetString($"{cap}VoiceRegion", value ?? "");
+            if (_currentEngine == "azure") Services.RegistryService.SetString("AzureVoiceRegion", value ?? "");
+        }
     }
 
     public bool NeedsRegion => CurrentEngine is "azure" or "polly";

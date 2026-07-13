@@ -65,28 +65,30 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 Enabled = !RegistryService.GetFlag($"No{Cap(def.Id)}Voices", true),
             };
 
-            // Pre-fill Azure key from legacy registry
-            if (def.Id == "azure")
-            {
-                setting.ApiKey = RegistryService.GetString("AzureVoiceKey") ?? "";
-                setting.Region = RegistryService.GetString("AzureVoiceRegion") ?? "eastus";
-            }
+            // Load saved credentials (generic + Azure legacy compat)
+            setting.ApiKey = RegistryService.GetString($"{Cap(def.Id)}VoiceKey") ??
+                (def.Id == "azure" ? RegistryService.GetString("AzureVoiceKey") : null) ?? "";
+            setting.Region = RegistryService.GetString($"{Cap(def.Id)}VoiceRegion") ??
+                (def.Id == "azure" ? RegistryService.GetString("AzureVoiceRegion") : null) ?? "";
 
-            // Store handler and setting for later cleanup
+            // Auto-save credentials when changed
             PropertyChangedEventHandler handler = (s, e) =>
             {
+                var eng = (CloudEngineSetting)s!;
                 if (e.PropertyName == nameof(CloudEngineSetting.Enabled))
                 {
-                    var eng = (CloudEngineSetting)s!;
                     RegistryService.SetFlag(eng.NoVoicesRegName, !eng.Enabled);
                     AnalyticsService.Track("engine_toggled", ("engine", eng.Id), ("enabled", eng.Enabled));
-
-                    // Save Azure key to legacy location
-                    if (eng.Id == "azure" && !string.IsNullOrEmpty(eng.ApiKey))
-                    {
-                        RegistryService.SetString("AzureVoiceKey", eng.ApiKey);
-                        RegistryService.SetString("AzureVoiceRegion", eng.Region);
-                    }
+                }
+                else if (e.PropertyName == nameof(CloudEngineSetting.ApiKey))
+                {
+                    RegistryService.SetString($"{Cap(eng.Id)}VoiceKey", eng.ApiKey ?? "");
+                    if (eng.Id == "azure") RegistryService.SetString("AzureVoiceKey", eng.ApiKey ?? "");
+                }
+                else if (e.PropertyName == nameof(CloudEngineSetting.Region))
+                {
+                    RegistryService.SetString($"{Cap(eng.Id)}VoiceRegion", eng.Region ?? "");
+                    if (eng.Id == "azure") RegistryService.SetString("AzureVoiceRegion", eng.Region ?? "");
                 }
             };
             setting.PropertyChanged += handler;

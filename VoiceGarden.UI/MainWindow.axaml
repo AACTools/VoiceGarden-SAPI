@@ -164,12 +164,23 @@
                                         <TextBlock Grid.Column="0" Text="{Binding DisplayName}"
                                                    FontWeight="Medium" VerticalAlignment="Center"/>
                                         <TextBox Grid.Column="1" Text="{Binding ApiKey}"
-                                                 Watermark="API Key" PasswordChar="*"
+                                                 Watermark="{lang:Localize APIKey}" PasswordChar="*"
                                                  Margin="8,0" VerticalAlignment="Center"/>
                                         <TextBox Grid.Column="2" Text="{Binding Region}"
-                                                 Watermark="Region" IsVisible="{Binding NeedsRegion}"
+                                                 Watermark="{lang:Localize Region}" IsVisible="{Binding NeedsRegion}"
                                                  VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="3" Text="" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="{lang:Localize OnlyEnabledEngines}"
+                               Classes="Hint" Margin="0,8,0,0"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
         <!-- ========== ABOUT VIEW ========== -->
         <Grid Grid.Row="0" IsVisible="{Binding IsAboutVisible}" Margin="24">
             <Grid.RowDefinitions>
@@ -182,17 +193,6 @@
             <ScrollViewer Grid.Row="1">
                 <StackPanel Spacing="12" MaxWidth="500">
                     <TextBlock Text="{Binding AboutText}" FontSize="14" TextWrapping="Wrap"/>
-                </StackPanel>
-            </ScrollViewer>
-        </Grid>
-
-    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    <TextBlock Text="{lang:Localize OnlyEnabledEngines}"
-                               Classes="Hint" Margin="0,8,0,0"/>
                 </StackPanel>
             </ScrollViewer>
         </Grid>
