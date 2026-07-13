@@ -286,8 +286,8 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
                         return S_OK;
                     }
                     speakText = WStringToUTF8(payload);
-                    useSsml = (fmt == L'\uE002');
-                    sentinelDetected = true;
+                useSsml = true; // Both SSML and SpeechMarkdown go through tts_speak_ssml
+                sentinelDetected = true;
 
                     // Offset map: payload position i → source position i + 3 (sentinel length)
                     m_plainToSapiMap.clear();
@@ -296,7 +296,7 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
                         m_plainToSapiMap.push_back(static_cast<ULONG>(i + 3));
 
                     if (logger.should_log(spdlog::level::info))
-                        LogInfo("Speak: PUA sentinel detected, mode={}", useSsml ? "SSML" : "SpeechMarkdown");
+                        LogInfo("Speak: PUA sentinel detected, mode={}", fmt == L'\uE002' ? "SSML" : "SpeechMarkdown");
                 }
             }
         }
