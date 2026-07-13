@@ -250,26 +250,80 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
         m_totalAudioBytesWritten = 0;
 
         std::string speakText;
-        if (m_rustTtsUseSsml)
+        bool useSsml = m_rustTtsUseSsml;
+
+        // Check for PUA sentinel: \uE000\uE001 + format selector
+        // \uE002 = SSML, \uE003 = Speech Markdown
+        bool sentinelDetected = false;
+        if (pTextFragList && pTextFragList->pTextStart && pTextFragList->ulTextLen >= 3)
         {
-            if (!BuildSSML(pTextFragList))
+            const wchar_t* rawText = pTextFragList->pTextStart;
+            ULONG rawLen = pTextFragList->ulTextLen;
+
+            // Log first 80 chars of raw text for debugging
+            if (logger.should_log(spdlog::level::info))
             {
-                if (logger.should_log(spdlog::level::debug))
-                    LogDebug("Speak: RustTts SSML built with no speech content");
-                FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
-                return S_OK;
+                std::wstring preview(rawText, rawLen > 80 ? 80 : rawLen);
+                LogInfo("Speak: raw frag[0] len={} first80='{}'", rawLen, WStringToUTF8(preview));
+                if (rawLen >= 1)
+                    LogInfo("Speak: char[0]=U+{:04X} char[1]=U+{:04X} char[2]=U+{:04X}",
+                            static_cast<unsigned>(rawText[0]),
+                            rawLen >= 2 ? static_cast<unsigned>(rawText[1]) : 0,
+                            rawLen >= 3 ? static_cast<unsigned>(rawText[2]) : 0);
             }
-            speakText = WStringToUTF8(m_ssml);
+
+            if (rawText[0] == L'\uE000' &&
+                rawLen >= 2 && rawText[1] == L'\uE001' &&
+                rawLen >= 3)
+            {
+                wchar_t fmt = rawText[2];
+                if (fmt == L'\uE002' || fmt == L'\uE003')
+                {
+                    std::wstring payload(rawText + 3, rawLen - 3);
+                    if (payload.empty())
+                    {
+                        FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
+                        return S_OK;
+                    }
+                    speakText = WStringToUTF8(payload);
+                    useSsml = (fmt == L'\uE002');
+                    sentinelDetected = true;
+
+                    // Offset map: payload position i → source position i + 3 (sentinel length)
+                    m_plainToSapiMap.clear();
+                    m_plainToSapiMap.reserve(payload.size());
+                    for (size_t i = 0; i < payload.size(); i++)
+                        m_plainToSapiMap.push_back(static_cast<ULONG>(i + 3));
+
+                    if (logger.should_log(spdlog::level::info))
+                        LogInfo("Speak: PUA sentinel detected, mode={}", useSsml ? "SSML" : "SpeechMarkdown");
+                }
+            }
         }
-        else
+
+        if (!sentinelDetected)
         {
-            std::wstring plainTextW = ExtractSherpaPlainTextWithMap(pTextFragList);
-            if (plainTextW.empty())
+            if (m_rustTtsUseSsml)
             {
-                FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
-                return S_OK;
+                if (!BuildSSML(pTextFragList))
+                {
+                    if (logger.should_log(spdlog::level::debug))
+                        LogDebug("Speak: RustTts SSML built with no speech content");
+                    FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
+                    return S_OK;
+                }
+                speakText = WStringToUTF8(m_ssml);
             }
-            speakText = WStringToUTF8(plainTextW);
+            else
+            {
+                std::wstring plainTextW = ExtractSherpaPlainTextWithMap(pTextFragList);
+                if (plainTextW.empty())
+                {
+                    FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
+                    return S_OK;
+                }
+                speakText = WStringToUTF8(plainTextW);
+            }
         }
 
         // Synchronous synthesis — prevents race condition where boundary events
@@ -278,7 +332,7 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
         if (logger.should_log(spdlog::level::info))
             LogInfo("Speak: RustTts generation begin");
         try {
-            if (m_rustTtsUseSsml)
+            if (useSsml)
                 m_rustTts->SpeakSsml(speakText);
             else
                 m_rustTts->Speak(speakText);
