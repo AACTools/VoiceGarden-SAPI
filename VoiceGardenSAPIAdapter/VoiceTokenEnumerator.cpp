@@ -643,6 +643,7 @@ static std::shared_ptr<DataKeyData> MakeAzureVoiceToken(
             { L"VoiceGardenConfig", {
                 .path = regName + L"\\VoiceGardenConfig",
                 .values = {
+                    { L"EngineType", L"Azure" },
                     { L"ErrorMode", std::to_wstring(static_cast<UINT>(errorMode)) },
                     { L"Voice", shortName },
                     { L"Key", key },
