@@ -1,3 +1,12 @@
+## What's New in v0.4.6
+
+### Chrome & Edge Support
+- **Speech_OneCore registration** — VoiceGarden voices now appear in Chrome and Edge, not just legacy SAPI applications
+- Voices are registered in both `SOFTWARE\Microsoft\Speech\Voices\Tokens` (Firefox, Grid3, Balabolka) and `SOFTWARE\Microsoft\Speech_OneCore\Voices\Tokens` (Chrome, Edge) when promoted
+- Unpromoting and uninstall cleanup removes from both paths
+
+---
+
 ## What's New in v0.4.5
 
 ### Localization (36 Languages)
