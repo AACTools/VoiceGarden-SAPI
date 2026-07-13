@@ -285,6 +285,36 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
                         FinishSimulatingBookmarkEvents(m_compensatedSilentBytes);
                         return S_OK;
                     }
+
+                    // Normalize SSML: ensure <speak> tag has required attributes for Azure
+                    if (fmt == L'\uE002')
+                    {
+                        // Check if payload starts with <speak
+                        std::wstring lower = payload;
+                        if (lower.size() > 6) std::transform(lower.begin(), lower.begin() + 6, lower.begin(), ::towlower);
+                        if (lower.starts_with(L"<speak"))
+                        {
+                            // Check if version= attribute is present
+                            if (lower.find(L"version=") == std::wstring::npos ||
+                                lower.find(L"xmlns=") == std::wstring::npos)
+                            {
+                                // Extract content inside existing <speak...> tag
+                                auto closeTag = payload.find(L'>');
+                                auto endTag = payload.rfind(L"</speak>");
+                                if (closeTag != std::wstring::npos && endTag != std::wstring::npos && endTag > closeTag)
+                                {
+                                    std::wstring inner = payload.substr(closeTag + 1, endTag - closeTag - 1);
+                                    payload = L"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\">" + inner + L"</speak>";
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Not a full <speak> document — wrap it
+                            payload = L"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\">" + payload + L"</speak>";
+                        }
+                    }
+
                     speakText = WStringToUTF8(payload);
                 useSsml = true; // Both SSML and SpeechMarkdown go through tts_speak_ssml
                 sentinelDetected = true;

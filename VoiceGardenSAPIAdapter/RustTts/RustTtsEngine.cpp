@@ -54,8 +54,13 @@ bool Engine::Speak(const std::string& text) {
 
 bool Engine::SpeakSsml(const std::string& ssml) {
     if (!m_ctx) return false;
+    // Debug: write marker file to verify SpeakSsml is called
+    FILE* f = nullptr;
+    fopen_s(&f, "C:\\Users\\WillWade\\AppData\\Local\\Temp\\vg_ssml_debug.txt", "a");
+    if (f) { fprintf(f, "SpeakSsml len=%zu first80=%.80s\n", ssml.size(), ssml.c_str()); fclose(f); }
     auto& loader = Loader::Instance();
     int32_t rc = loader.speakSsml(m_ctx, ssml.c_str());
+    if (f) { fopen_s(&f, "C:\\Users\\WillWade\\AppData\\Local\\Temp\\vg_ssml_debug.txt", "a"); if (f) { fprintf(f, "rc=%d\n", rc); fclose(f); } }
     if (rc != 0) {
         const char* err = loader.getLastError(m_ctx);
         spdlog::warn("RustTts::Engine::SpeakSsml failed: {}", err ? err : "(unknown)");
