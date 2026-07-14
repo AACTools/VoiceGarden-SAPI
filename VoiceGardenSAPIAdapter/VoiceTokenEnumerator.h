@@ -53,6 +53,10 @@ private:
 		ErrorMode errorMode);
 	static void EnumAzureVoices(TokenMap& tokens, DWORD langFlags, const std::vector<std::wstring>& languages,
 		const std::wstring& key, const std::wstring& region, ErrorMode errorMode);
+	static void EnumAzureVoicesFiltered(TokenMap& tokens, DWORD langFlags, const std::vector<std::wstring>& languages,
+		const std::wstring& key, const std::wstring& region, ErrorMode errorMode,
+		const std::set<std::string>& allowedVoiceIds);
+	static std::set<std::string> GetPromotedCloudVoiceIds();
 	static void EnumSherpaVoices(TokenMap& tokens, DWORD langFlags, const std::vector<std::wstring>& languages);
 };
 
