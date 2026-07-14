@@ -53,7 +53,7 @@ if ([string]::IsNullOrWhiteSpace($Version)) {
         }
     }
     if ([string]::IsNullOrWhiteSpace($Version)) {
-        $Version = "0.4.9.0"
+        $Version = "0.5.0.0"
     }
 }
 
