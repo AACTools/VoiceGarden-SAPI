@@ -199,9 +199,8 @@ HRESULT CVoiceTokenEnumerator::FinalConstruct() noexcept
             }
         }
 
-        // Protect the entire check-and-set sequence with mutex to prevent race condition
+        // Protect the cache expiry scheduling — mutex already held from line 98
         {
-            std::lock_guard checkLock(s_cacheMutex);
             if (!s_isCacheTaskScheduled)
             {
                 s_isCacheTaskScheduled = true;
