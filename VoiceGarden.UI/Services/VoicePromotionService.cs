@@ -146,8 +146,8 @@ public static class VoicePromotionService
     }
 
     /// <summary>
-    /// Promote via elevated helper process (when not running as admin).
-    /// Uses a temporary .reg file approach for reliability.
+    /// Promote via elevated .reg file import (when not running as admin).
+    /// EngineConfig.exe was removed — this replaces it.
     /// </summary>
     public static int PromoteElevated(string engine, string voiceId, string key, string? region = null)
     {
@@ -155,17 +155,82 @@ public static class VoicePromotionService
         if (Promote(engine, voiceId, key, region))
             return 0;
 
-        // Fall back to EngineConfig.exe if available
-        var exePath = FindEngineConfig();
-        if (exePath != null)
-        {
-            var args = $"promote --engine {engine} --voice \"{voiceId}\" --key \"{key}\"";
-            if (!string.IsNullOrEmpty(region))
-                args += $" --region {region}";
-            return ComRegistrationService.RunElevated(exePath, args);
-        }
+        // Generate .reg file and import elevated
+        var tokenName = $"Cloud-{engine}-{voiceId}".Replace("/", "_").Replace("\\", "_");
+        var cap = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(engine.ToLowerInvariant());
+        var lines = new List<string> { "Windows Registry Editor Version 5.00", "" };
 
-        return -1;
+        // Legacy SAPI token
+        var path = $@"HKEY_LOCAL_MACHINE\{SapiTokensRoot}\{tokenName}";
+        lines.Add($"[{path}]");
+        lines.Add($"@=\"{cap} {voiceId}\"");
+        lines.Add($"\"CLSID\"=\"{TtsEngineClsid}\"");
+        lines.Add($"[{path}\\VoiceGardenConfig]");
+        lines.Add($"\"EngineType\"=\"{cap}\"");
+        lines.Add($"\"Voice\"=\"{voiceId}\"");
+        lines.Add($"\"Key\"=\"{key ?? ""}\"");
+        if (!string.IsNullOrEmpty(region)) lines.Add($"\"Region\"=\"{region}\"");
+        lines.Add($"\"IsCloudVoice\"=dword:00000001");
+        lines.Add($"\"ErrorMode\"=dword:00000000");
+        lines.Add($"[{path}\\Attributes]");
+        lines.Add($"\"Name\"=\"{voiceId}\"");
+        lines.Add("\"Gender\"=\"Neutral\"");
+        lines.Add("\"Age\"=\"Adult\"");
+        lines.Add("\"Language\"=\"409\"");
+        lines.Add("\"Locale\"=\"en-US\"");
+        lines.Add($"\"Vendor\"=\"{cap}\"");
+        lines.Add("");
+
+        // Speech_OneCore token (Chrome/Edge)
+        var ocPath = $@"HKEY_LOCAL_MACHINE\{OneCoreTokensRoot}\{tokenName}";
+        lines.Add($"[{ocPath}]");
+        lines.Add($"@=\"{cap} {voiceId}\"");
+        lines.Add($"\"CLSID\"=\"{TtsEngineClsid}\"");
+        lines.Add($"[{ocPath}\\VoiceGardenConfig]");
+        lines.Add($"\"EngineType\"=\"{cap}\"");
+        lines.Add($"\"Voice\"=\"{voiceId}\"");
+        lines.Add($"\"Key\"=\"{key ?? ""}\"");
+        if (!string.IsNullOrEmpty(region)) lines.Add($"\"Region\"=\"{region}\"");
+        lines.Add($"\"ErrorMode\"=dword:00000000");
+        lines.Add($"[{ocPath}\\Attributes]");
+        lines.Add($"\"Name\"=\"{voiceId}\"");
+        lines.Add("\"Gender\"=\"Neutral\"");
+        lines.Add("\"Age\"=\"Adult\"");
+        lines.Add("\"Language\"=\"409\"");
+        lines.Add("\"Locale\"=\"en-US\"");
+        lines.Add($"\"Vendor\"=\"{cap}\"");
+        lines.Add("");
+
+        var regDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "VoiceGardenSAPIAdapter");
+        Directory.CreateDirectory(regDir);
+        var regPath = Path.Combine(regDir, "promote_voice.reg");
+        File.WriteAllLines(regPath, lines);
+
+        try
+        {
+            var psi = new ProcessStartInfo("reg.exe", $"import \"{regPath}\"")
+            {
+                Verb = "runas",
+                UseShellExecute = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                CreateNoWindow = true,
+            };
+            var p = Process.Start(psi);
+            p?.WaitForExit(15000);
+            var rc = p?.ExitCode ?? -1;
+            TryDelete(regPath);
+            return rc;
+        }
+        catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+        {
+            TryDelete(regPath);
+            return -2; // UAC cancelled
+        }
+        catch (Exception)
+        {
+            TryDelete(regPath);
+            return -1;
+        }
     }
 
     /// <summary>
@@ -187,20 +252,44 @@ public static class VoicePromotionService
 
     public static int UnpromoteElevated(string tokenName)
     {
-        var exePath = FindEngineConfig();
-        if (exePath != null)
+        if (Unpromote(tokenName))
+            return 0;
+
+        try
         {
-            return ComRegistrationService.RunElevated(exePath, $"unpromote --voice \"{tokenName}\"");
+            var psi = new ProcessStartInfo("reg.exe", $"delete \"HKLM\\{SapiTokensRoot}\\{tokenName}\" /f")
+            {
+                Verb = "runas",
+                UseShellExecute = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                CreateNoWindow = true,
+            };
+            var p = Process.Start(psi);
+            p?.WaitForExit(10000);
+
+            // Also remove from OneCore
+            var psi2 = new ProcessStartInfo("reg.exe", $"delete \"HKLM\\{OneCoreTokensRoot}\\{tokenName}\" /f")
+            {
+                Verb = "runas",
+                UseShellExecute = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                CreateNoWindow = true,
+            };
+            var p2 = Process.Start(psi2);
+            p2?.WaitForExit(10000);
+            return 0;
         }
-        return Unpromote(tokenName) ? 0 : -1;
+        catch
+        {
+            return -1;
+        }
     }
 
-    private static string? FindEngineConfig()
+    private static string Cap(string s) =>
+        System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(s.ToLowerInvariant());
+
+    private static void TryDelete(string path)
     {
-        var dir = ComRegistrationService.GetInstallDir(true);
-        var exe = Path.Combine(dir, "EngineConfig.exe");
-        return File.Exists(exe) ? exe : null;
+        try { if (File.Exists(path)) File.Delete(path); } catch { }
     }
-
-    private static string Cap(string s) => System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(s.ToLowerInvariant());
 }
