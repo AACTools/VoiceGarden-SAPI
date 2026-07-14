@@ -159,39 +159,10 @@ HRESULT CVoiceTokenEnumerator::FinalConstruct() noexcept
             // (extracting encryption keys from system files) is broken on modern
             // Windows 11 builds. SherpaOnnx provides better offline alternatives.
 
-            TokenMap onlineTokens;
-            if (!key.GetDword(L"NoEdgeVoices"))
-            {
-                EnumEdgeVoices(onlineTokens, langFlags, languages, errorMode);
-
-                // If Edge voices should override Azure voices, put them in the same map, first Edge, then Azure.
-                // If not, add the Edge voices and clear the map immediately before Azure voices, as follows.
-                if (!key.GetDword(L"EdgeVoicesOverrideAzureVoices"))
-                {
-                    for (auto& token : onlineTokens)
-                        s_cachedTokens.push_back(std::move(token.second));
-                    onlineTokens.clear();
-                }
-            }
-
-            if (!key.GetDword(L"NoAzureVoices"))
-            {
-                // Only enumerate Azure voices that have been promoted/installed to HKLM.
-                // Reading ALL Azure voices from the cache floods SAPI with 500+ voices
-                // that can't be activated in apps like Grid3.
-                auto promotedAzure = GetPromotedCloudVoiceIds();
-                if (!promotedAzure.empty())
-                {
-                    std::wstring azureKey = key.GetString(L"AzureVoiceKey"), azureRegion = key.GetString(L"AzureVoiceRegion");
-                    if (!azureKey.empty() && !azureRegion.empty())
-                    {
-                        EnumAzureVoicesFiltered(onlineTokens, langFlags, languages, azureKey, azureRegion, errorMode, promotedAzure);
-                    }
-                }
-            }
-
-            for (auto& token : onlineTokens)
-                s_cachedTokens.push_back(std::move(token.second));
+            // Cloud voices (Azure, Edge, etc.) are only registered via HKLM promotion
+            // (VoiceGarden.UI "Install Selected"). We do NOT enumerate them dynamically
+            // because in-memory tokens don't work with System.Speech apps like Grid3.
+            // Registry-backed tokens are the only source for cloud voices.
 
             // Enumerate SherpaOnnx offline voices (similar to narrator voices - local models)
             TokenMap sherpaTokens;
@@ -1041,65 +1012,6 @@ void CVoiceTokenEnumerator::EnumAzureVoices(TokenMap& tokens, DWORD langFlags, c
         {
             return MakeAzureVoiceToken(json, key, region, errorMode);
         });
-}
-
-std::set<std::string> CVoiceTokenEnumerator::GetPromotedCloudVoiceIds()
-{
-    std::set<std::string> result;
-    HKEY hTokens = nullptr;
-    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Speech\\Voices\\Tokens", 0, KEY_READ, &hTokens) != ERROR_SUCCESS)
-        return result;
-
-    DWORD index = 0;
-    WCHAR name[256];
-    DWORD nameLen;
-    while (true)
-    {
-        nameLen = 256;
-        if (RegEnumKeyExW(hTokens, index++, name, &nameLen, nullptr, nullptr, nullptr, nullptr) != ERROR_SUCCESS)
-            break;
-
-        std::wstring tokenName(name, nameLen);
-        if (tokenName.starts_with(L"Cloud-"))
-        {
-            // Read VoiceGardenConfig\Voice from this token
-            std::wstring cfgPath = std::wstring(L"SOFTWARE\\Microsoft\\Speech\\Voices\\Tokens\\") + tokenName + L"\\VoiceGardenConfig";
-            HKEY hCfg = nullptr;
-            if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, cfgPath.c_str(), 0, KEY_READ, &hCfg) == ERROR_SUCCESS)
-            {
-                WCHAR voice[256];
-                DWORD voiceLen = sizeof(voice);
-                if (RegQueryValueExW(hCfg, L"Voice", nullptr, nullptr, (LPBYTE)voice, &voiceLen) == ERROR_SUCCESS)
-                {
-                    result.insert(WStringToUTF8(std::wstring(voice, voiceLen / sizeof(WCHAR) - 1)));
-                }
-                RegCloseKey(hCfg);
-            }
-        }
-    }
-    RegCloseKey(hTokens);
-
-    LogInfo("Voice enum: Found {} promoted Cloud voice(s) in HKLM", result.size());
-    return result;
-}
-
-void CVoiceTokenEnumerator::EnumAzureVoicesFiltered(TokenMap& tokens, DWORD langFlags, const std::vector<std::wstring>& languages,
-    const std::wstring& key, const std::wstring& region, ErrorMode errorMode,
-    const std::set<std::string>& allowedVoiceIds)
-{
-    // Load all Azure voices but only keep those in the allowed set
-    TokenMap allTokens;
-    EnumAzureVoices(allTokens, langFlags, languages, key, region, errorMode);
-
-    for (auto& [id, token] : allTokens)
-    {
-        if (allowedVoiceIds.count(id))
-        {
-            tokens.try_emplace(id, std::move(token));
-        }
-    }
-
-    LogInfo("Voice enum: Filtered Azure voices: {} of {}", tokens.size(), allTokens.size());
 }
 
 void CVoiceTokenEnumerator::EnumSherpaVoices(TokenMap& tokens, DWORD langFlags, const std::vector<std::wstring>& languages)
