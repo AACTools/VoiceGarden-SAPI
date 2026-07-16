@@ -311,11 +311,15 @@ jobs:
           x86 x64 ARM64 VoiceGarden.UI.exe setup.exe VoiceGardenSAPIAdapter.msi \ \
           -i "*.exe" "*.dll" "*.json" "*.msi"
 
+        # Stable-name copy for permalink: /releases/latest/download/VoiceGarden-release-layout.zip
+        cp VoiceGardenSAPIAdapter_${ver}_release-layout.zip VoiceGarden-release-layout.zip
+
     - name: Create release
       uses: softprops/action-gh-release@v2
       with:
         body_path: ${{github.workspace}}/release_notes.md
         files: |
+          ${{github.workspace}}/artifacts/VoiceGarden-release-layout.zip
           ${{github.workspace}}/artifacts/VoiceGardenSAPIAdapter_*_release-layout.zip
           ${{github.workspace}}/artifacts/VoiceGardenSAPIAdapter_*_x86.zip
           ${{github.workspace}}/artifacts/VoiceGardenSAPIAdapter_*_x64.zip
