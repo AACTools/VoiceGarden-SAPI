@@ -1,3 +1,13 @@
+## What's New in v0.5.4
+
+### MMS Model Sample Rate Fix
+- **MMS models play at correct speed** — sample rate defaulted to 22050 Hz instead of 16000 Hz, causing wrong pitch/rate. Now defaults per model type: MMS=16000, Kokoro=24000, Vits/Piper=22050
+
+### Stable Download URL
+- **Permalink** — `https://github.com/AACTools/VoiceGarden-SAPI/releases/latest/download/VoiceGarden-release-layout.zip` always points to the latest release
+
+---
+
 ## What's New in v0.5.2
 
 ### Grid3 & System.Speech Compatibility
