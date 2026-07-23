@@ -385,7 +385,22 @@ std::vector<VoiceInfo> Models::LoadFromConfigJson(
             }
 
             info.speakerCount = c.value("speakers", c.value("speakerCount", 1));
-            info.sampleRate = c.value("sampleRate", 22050);
+            info.sampleRate = c.value("sampleRate", 0);
+            // Default sample rates by model type if not specified in config
+            if (info.sampleRate == 0)
+            {
+                switch (info.modelType) {
+                    case ModelType::MMS:
+                        info.sampleRate = 16000;
+                        break;
+                    case ModelType::Kokoro:
+                        info.sampleRate = 24000;
+                        break;
+                    default:
+                        info.sampleRate = 22050; // Vits, Piper
+                        break;
+                }
+            }
 
             switch (info.modelType) {
                 case ModelType::Matcha:
