@@ -1,7 +1,9 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:lang="using:VoiceGarden.UI.Markup"
+        xmlns:vm="using:VoiceGarden.UI"
         x:Class="VoiceGarden.UI.OnboardingWindow"
+        x:DataType="vm:OnboardingWindowViewModel"
         Title="{lang:Localize OnboardingTitle}"
         Width="560" Height="560"
         MinWidth="520" MinHeight="520"
@@ -12,6 +14,11 @@
         Background="White">
 
     <Grid RowDefinitions="*, Auto">
+
+        <!-- Screen reader page announcer -->
+        <TextBlock x:Name="PageAnnouncer" Grid.Row="0" IsVisible="False"
+                   AutomationProperties.LiveSetting="Assertive"
+                   AutomationProperties.Name=""/>
 
         <!-- ========== PAGE CONTENT (swaps via IsVisible) ========== -->
         <ScrollViewer Grid.Row="0" Padding="0">
