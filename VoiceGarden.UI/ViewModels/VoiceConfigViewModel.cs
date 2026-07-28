@@ -39,7 +39,7 @@ public partial class VoiceConfigViewModel : ObservableObject
     public ObservableCollection<VoiceItem> FilteredVoices { get; } = new();
 
     /// <summary>Only engines enabled (ticked) on the main page.</summary>
-    public string[] AvailableEngines { get; set; } = Array.Empty<string>();
+    [ObservableProperty] private string[] availableEngines = Array.Empty<string>();
 
     public string CurrentEngine
     {
