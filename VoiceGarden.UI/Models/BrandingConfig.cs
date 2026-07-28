@@ -63,7 +63,7 @@ public class CloudEngineSetting : INotifyPropertyChanged
     public string ApiKey
     {
         get => _apiKey;
-        set { _apiKey = value; OnPropertyChanged(); }
+        set { _apiKey = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasKey)); OnPropertyChanged(nameof(VerificationText)); }
     }
 
     private string _region = "";
@@ -74,6 +74,16 @@ public class CloudEngineSetting : INotifyPropertyChanged
     }
 
     public bool NeedsRegion { get; set; }
+
+    private string _verificationStatus = ""; // "", "✓ Valid", "✗ Invalid: ...", "Checking..."
+    public string VerificationStatus
+    {
+        get => _verificationStatus;
+        set { _verificationStatus = value; OnPropertyChanged(); OnPropertyChanged(nameof(VerificationText)); }
+    }
+
+    public bool HasKey => !string.IsNullOrWhiteSpace(ApiKey);
+    public string VerificationText => string.IsNullOrEmpty(VerificationStatus) ? "" : VerificationStatus;
 
     public string NoVoicesRegName => $"No{System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Id)}Voices";
 

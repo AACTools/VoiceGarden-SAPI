@@ -6,30 +6,21 @@
 
     <Grid RowDefinitions="Auto, Auto, Auto, *, Auto">
 
-        <!-- Engine + Key row -->
-        <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto, *, Auto, Auto" Margin="0,0,0,8">
+        <!-- Engine selector only — credentials come from Configure Credentials -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" Margin="0,0,0,8">
             <TextBlock Grid.Column="0" Text="{lang:Localize Engine}" VerticalAlignment="Center" Margin="0,0,8,0"/>
             <ComboBox Grid.Column="1" SelectedItem="{Binding CurrentEngine}"
-                      ItemsSource="{Binding AvailableEngines}" MinWidth="100" Margin="0,0,8,0"
+                      ItemsSource="{Binding AvailableEngines}" MinWidth="120" Margin="0,0,8,0"
                       AutomationProperties.Name="TTS engine selector"/>
-            <TextBlock Grid.Column="2" Text="{lang:Localize Key}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-            <TextBox Grid.Column="3" Text="{Binding CurrentKey}" PasswordChar="*"
-                     Watermark="{lang:Localize APIKey}" MinWidth="160" Margin="0,0,8,0"
-                     AutomationProperties.Name="API key"/>
-            <TextBox Grid.Column="4" Text="{Binding CurrentRegion}" Watermark="{lang:Localize Region}"
-                     IsVisible="{Binding NeedsRegion}" Width="80" Margin="0,0,8,0"
-                     AutomationProperties.Name="Region"/>
-            <Button Grid.Column="5" Content="{lang:Localize Validate}" Command="{Binding ValidateKeyCommand}" Padding="12,4"
-                    AutomationProperties.Name="Validate API key"/>
+            <Button Grid.Column="2" Content="{lang:Localize FetchVoices}" Command="{Binding FetchVoicesCommand}"
+                    Classes="Primary" Padding="16,4"
+                    AutomationProperties.Name="Fetch available voices"/>
         </Grid>
 
-        <!-- Validation result + action buttons -->
+        <!-- Status + action buttons -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,0,0,12">
             <TextBlock Text="{Binding ValidationResult}" VerticalAlignment="Center"
                        Classes="Hint" IsVisible="{Binding IsValidated}"/>
-            <Button Content="{lang:Localize FetchVoices}" Command="{Binding FetchVoicesCommand}"
-                    Padding="16,4"
-                    AutomationProperties.Name="Fetch available voices"/>
             <Button Content="{lang:Localize InstallSelected}" Command="{Binding PromoteSelectedCommand}"
                     Classes="Primary" Padding="16,4"
                     AutomationProperties.Name="Install selected voices to SAPI"/>

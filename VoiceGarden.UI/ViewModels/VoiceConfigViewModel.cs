@@ -25,8 +25,6 @@ public partial class VoiceItem : ObservableObject
 public partial class VoiceConfigViewModel : ObservableObject
 {
     private string _currentEngine = "azure";
-    private string _currentKey = "";
-    private string _currentRegion = "";
 
     [ObservableProperty] private string searchFilter = "";
     [ObservableProperty] private string statusText = Loc.GetString("Ready");
@@ -40,11 +38,8 @@ public partial class VoiceConfigViewModel : ObservableObject
     public ObservableCollection<VoiceItem> AllVoices { get; } = new();
     public ObservableCollection<VoiceItem> FilteredVoices { get; } = new();
 
-    public string[] AvailableEngines { get; } = {
-        "azure", "openai", "elevenlabs", "google", "polly", "cartesia", "deepgram",
-        "playht", "fishaudio", "hume", "mistral", "murf", "resemble",
-        "unrealspeech", "upliftai", "watson", "witai", "xai", "modelslab"
-    };
+    /// <summary>Only engines enabled (ticked) on the main page.</summary>
+    public string[] AvailableEngines { get; set; } = Array.Empty<string>();
 
     public string CurrentEngine
     {
@@ -52,53 +47,34 @@ public partial class VoiceConfigViewModel : ObservableObject
         set {
             _currentEngine = value;
             OnPropertyChanged();
-            // Load saved credentials when engine changes
-            var cap = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(value);
-            _currentKey = Services.RegistryService.GetString($"{cap}VoiceKey") ?? "";
-            _currentRegion = Services.RegistryService.GetString($"{cap}VoiceRegion") ?? "";
-            OnPropertyChanged(nameof(CurrentKey));
-            OnPropertyChanged(nameof(CurrentRegion));
-            OnPropertyChanged(nameof(NeedsRegion));
             IsValidated = false;
             _ = RefreshInstalledStatus();
         }
     }
 
-    public string CurrentKey
+    private string GetKey() => GetSavedKey(_currentEngine);
+    private string GetRegion() => GetSavedRegion(_currentEngine);
+
+    private static string GetSavedKey(string engine)
     {
-        get => _currentKey;
-        set {
-            _currentKey = value;
-            OnPropertyChanged();
-            IsValidated = false;
-            // Auto-save to registry
-            var cap = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(_currentEngine);
-            Services.RegistryService.SetString($"{cap}VoiceKey", value ?? "");
-            if (_currentEngine == "azure") Services.RegistryService.SetString("AzureVoiceKey", value ?? "");
-        }
+        var cap = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(engine);
+        return Services.RegistryService.GetString($"{cap}VoiceKey")
+            ?? (engine == "azure" ? Services.RegistryService.GetString("AzureVoiceKey") : null) ?? "";
     }
 
-    public string CurrentRegion
+    private static string GetSavedRegion(string engine)
     {
-        get => _currentRegion;
-        set {
-            _currentRegion = value;
-            OnPropertyChanged();
-            // Auto-save to registry
-            var cap = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(_currentEngine);
-            Services.RegistryService.SetString($"{cap}VoiceRegion", value ?? "");
-            if (_currentEngine == "azure") Services.RegistryService.SetString("AzureVoiceRegion", value ?? "");
-        }
+        var cap = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(engine);
+        return Services.RegistryService.GetString($"{cap}VoiceRegion")
+            ?? (engine == "azure" ? Services.RegistryService.GetString("AzureVoiceRegion") : null) ?? "";
     }
-
-    public bool NeedsRegion => CurrentEngine is "azure" or "polly" or "watson";
 
     partial void OnSearchFilterChanged(string value) => ApplyFilter();
 
     [RelayCommand]
     private async Task FetchVoices()
     {
-        if (string.IsNullOrWhiteSpace(CurrentKey))
+        if (string.IsNullOrWhiteSpace(GetKey()))
         {
             StatusText = Loc.GetString("EnterApiKeyFirst");
             return;
@@ -160,7 +136,7 @@ public partial class VoiceConfigViewModel : ObservableObject
     [RelayCommand]
     private async Task ValidateKey()
     {
-        if (string.IsNullOrWhiteSpace(CurrentKey))
+        if (string.IsNullOrWhiteSpace(GetKey()))
         {
             ValidationResult = Loc.GetString("EnterApiKey");
             return;
@@ -220,7 +196,7 @@ public partial class VoiceConfigViewModel : ObservableObject
         int promoted = 0, failed = 0;
         foreach (var voice in selected)
         {
-            var rc = VoicePromotionService.PromoteElevated(CurrentEngine, voice.Id, CurrentKey, CurrentRegion);
+            var rc = VoicePromotionService.PromoteElevated(CurrentEngine, voice.Id, GetKey(), GetRegion());
             if (rc == 0)
             {
                 voice.IsInstalled = true;
@@ -255,7 +231,7 @@ public partial class VoiceConfigViewModel : ObservableObject
     [RelayCommand]
     private async Task PreviewVoice(VoiceItem voice)
     {
-        if (string.IsNullOrWhiteSpace(CurrentKey))
+        if (string.IsNullOrWhiteSpace(GetKey()))
         {
             StatusText = Loc.GetString("EnterApiKeyFirst");
             return;
@@ -316,15 +292,15 @@ public partial class VoiceConfigViewModel : ObservableObject
     {
         return CurrentEngine.ToLowerInvariant() switch
         {
-            "azure" => new() { { "subscriptionKey", CurrentKey }, { "region", CurrentRegion } },
+            "azure" => new() { { "subscriptionKey", GetKey() }, { "region", GetRegion() } },
             "openai" or "elevenlabs" or "google" or "cartesia" or "deepgram" or
             "fishaudio" or "hume" or "mistral" or "murf" or "resemble" or
             "unrealspeech" or "upliftai" or "xai" or "modelslab" =>
-                new() { { "apiKey", CurrentKey } },
-            "polly" => new() { { "accessKeyId", CurrentKey }, { "secretAccessKey", CurrentRegion }, { "region", "us-east-1" } },
-            "watson" => new() { { "apiKey", CurrentKey }, { "region", CurrentRegion }, { "instanceId", "" } },
-            "playht" => new() { { "apiKey", CurrentKey }, { "userId", CurrentRegion } },
-            "witai" => new() { { "token", CurrentKey } },
+                new() { { "apiKey", GetKey() } },
+            "polly" => new() { { "accessKeyId", GetKey() }, { "secretAccessKey", GetRegion() }, { "region", "us-east-1" } },
+            "watson" => new() { { "apiKey", GetKey() }, { "region", GetRegion() }, { "instanceId", "" } },
+            "playht" => new() { { "apiKey", GetKey() }, { "userId", GetRegion() } },
+            "witai" => new() { { "token", GetKey() } },
             _ => null,
         };
     }
@@ -400,10 +376,10 @@ public partial class VoiceConfigViewModel : ObservableObject
         SelectedCount = AllVoices.Count(v => v.IsSelected);
     }
 
-    public void Initialize(string engine, string key, string region)
+    public void Initialize(string engine)
     {
         CurrentEngine = engine;
-        CurrentKey = key;
-        CurrentRegion = region;
+        // Credentials now read from registry via GetKey()/GetRegion()
     }
 }
+

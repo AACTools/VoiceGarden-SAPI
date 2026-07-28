@@ -164,7 +164,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="models:CloudEngineSetting">
                                 <Border Classes="EngineRow" IsVisible="{Binding Enabled}" Margin="0,2">
-                                    <Grid ColumnDefinitions="120, *, 100, Auto">
+                                    <Grid ColumnDefinitions="120, *, 100, Auto, Auto">
                                         <TextBlock Grid.Column="0" Text="{Binding DisplayName}"
                                                    FontWeight="Medium" VerticalAlignment="Center"/>
                                         <TextBox Grid.Column="1" Text="{Binding ApiKey}"
@@ -175,7 +175,13 @@
                                                  Watermark="{lang:Localize Region}" IsVisible="{Binding NeedsRegion}"
                                                  VerticalAlignment="Center"
                                                  AutomationProperties.Name="{Binding DisplayName}"/>
-                                        <TextBlock Grid.Column="3" Text="" />
+                                        <Button Grid.Column="3" Content="Verify" Click="VerifyCredentials_Click"
+                                                Tag="{Binding Id}" Padding="12,2" Margin="8,0"
+                                                IsEnabled="{Binding HasKey}"
+                                                AutomationProperties.Name="{Binding DisplayName, StringFormat='Verify {0} credentials'}"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding VerificationText}"
+                                                   VerticalAlignment="Center" Margin="8,0" FontSize="12"
+                                                   Foreground="{Binding VerificationStatus, Converter={x:Static vm:VerificationColorConverter.Instance}}"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>

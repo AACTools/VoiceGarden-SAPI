@@ -174,16 +174,16 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void OpenVoiceConfig()
     {
-        // Find first enabled cloud engine and pre-fill its key
-        var firstEnabled = CloudEngines.FirstOrDefault(e => e.Enabled);
-        if (firstEnabled != null)
-        {
-            VoiceConfig.Initialize(firstEnabled.Id, firstEnabled.ApiKey, firstEnabled.Region);
-        }
+        // Only show enabled engines in the dropdown
+        var enabledEngines = CloudEngines.Where(e => e.Enabled).Select(e => e.Id.ToLowerInvariant()).ToArray();
+        VoiceConfig.AvailableEngines = enabledEngines;
+
+        // Select first enabled engine
+        if (enabledEngines.Length > 0)
+            VoiceConfig.Initialize(enabledEngines[0]);
         else
-        {
-            VoiceConfig.Initialize("azure", "", "eastus");
-        }
+            VoiceConfig.Initialize("azure");
+
         IsVoiceConfigVisible = true;
         OnPropertyChanged(nameof(IsMainViewVisible));
     }
