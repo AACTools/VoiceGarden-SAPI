@@ -9,21 +9,27 @@
         <!-- Filter row -->
         <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto, *, Auto, Auto" Margin="0,0,0,8">
             <TextBlock Grid.Column="0" Text="{lang:Localize Language}" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
-            <TextBox Grid.Column="1" Text="{Binding LanguageFilter}" Watermark="{lang:Localize All}" Width="80" Margin="0,0,8,0"/>
+            <TextBox Grid.Column="1" Text="{Binding LanguageFilter}" Watermark="{lang:Localize All}" Width="80" Margin="0,0,8,0"
+                     AutomationProperties.Name="Language filter"/>
             <TextBlock Grid.Column="2" Text="{lang:Localize Filter}" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
-            <TextBox Grid.Column="3" Text="{Binding SearchFilter}" Watermark="{lang:Localize Search}" MinWidth="120"/>
-            <CheckBox Grid.Column="4" Content="{lang:Localize InstalledOnly}" IsChecked="{Binding ShowInstalledOnly}" Margin="16,0,0,0"/>
-            <Button Grid.Column="5" Content="{lang:Localize Rescan}" Command="{Binding RescanCommand}" Padding="12,2" Margin="8,0,0,0"/>
+            <TextBox Grid.Column="3" Text="{Binding SearchFilter}" Watermark="{lang:Localize Search}" MinWidth="120"
+                     AutomationProperties.Name="Search filter"/>
+            <CheckBox Grid.Column="4" Content="{lang:Localize InstalledOnly}" IsChecked="{Binding ShowInstalledOnly}" Margin="16,0,0,0"
+                      AutomationProperties.Name="Show installed models only"/>
+            <Button Grid.Column="5" Content="{lang:Localize Rescan}" Command="{Binding RescanCommand}" Padding="12,2" Margin="8,0,0,0"
+                    AutomationProperties.Name="Rescan installed models"/>
         </Grid>
 
         <!-- Model list -->
         <Border Grid.Row="1" BorderBrush="{DynamicResource SystemControlDefaultChromeMediumLowBrush}"
                 BorderThickness="1" CornerRadius="4" MinHeight="200" MaxHeight="400">
-            <ListBox ItemsSource="{Binding FilteredModels}">
+            <ListBox ItemsSource="{Binding FilteredModels}" 
+                     AutomationProperties.Name="SherpaOnnx model list">
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="vm:SherpaModelItem">
                         <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto, Auto">
-                            <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" Margin="0,0,8,0"/>
+                            <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" Margin="0,0,8,0"
+                                      AutomationProperties.Name="{Binding Name}"/>
                             <StackPanel Grid.Column="1" Spacing="2">
                                 <TextBlock Text="{Binding Name}" FontWeight="Medium"/>
                                 <StackPanel Orientation="Horizontal" Spacing="8">
@@ -60,13 +66,17 @@
 
         <!-- Actions -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0" HorizontalAlignment="Left">
-            <Button Content="{lang:Localize DownloadSelected}" Command="{Binding DownloadSelectedCommand}" Padding="16,4"/>
+            <Button Content="{lang:Localize DownloadSelected}" Command="{Binding DownloadSelectedCommand}" Padding="16,4"
+                    AutomationProperties.Name="Download selected models"/>
             <Button Content="{lang:Localize InstallToSAPI}" Command="{Binding PromoteAllCommand}"
-                    Classes="Primary" Padding="16,4"/>
+                    Classes="Primary" Padding="16,4"
+                    AutomationProperties.Name="Install models to SAPI"/>
             <CheckBox Content="{lang:Localize AddEnUsAlias}" IsChecked="{Binding AddEnUsAlias}"
-                      VerticalAlignment="Center" Margin="8,0,0,0"/>
+                      VerticalAlignment="Center" Margin="8,0,0,0"
+                      AutomationProperties.Name="Add en-US alias for language compatibility"/>
             <Button Content="{lang:Localize OpenModelsFolder}" Command="{Binding OpenModelsFolderCommand}"
-                    Padding="16,4" FontSize="12"/>
+                    Padding="16,4" FontSize="12"
+                    AutomationProperties.Name="Open models folder"/>
         </StackPanel>
 
         <!-- Status -->

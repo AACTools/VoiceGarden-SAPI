@@ -40,7 +40,11 @@ public partial class VoiceConfigViewModel : ObservableObject
     public ObservableCollection<VoiceItem> AllVoices { get; } = new();
     public ObservableCollection<VoiceItem> FilteredVoices { get; } = new();
 
-    public string[] AvailableEngines { get; } = { "azure", "openai", "elevenlabs", "google", "polly", "cartesia", "deepgram" };
+    public string[] AvailableEngines { get; } = {
+        "azure", "openai", "elevenlabs", "google", "polly", "cartesia", "deepgram",
+        "playht", "fishaudio", "hume", "mistral", "murf", "resemble",
+        "unrealspeech", "upliftai", "watson", "witai", "xai", "modelslab"
+    };
 
     public string CurrentEngine
     {
@@ -87,7 +91,7 @@ public partial class VoiceConfigViewModel : ObservableObject
         }
     }
 
-    public bool NeedsRegion => CurrentEngine is "azure" or "polly";
+    public bool NeedsRegion => CurrentEngine is "azure" or "polly" or "watson";
 
     partial void OnSearchFilterChanged(string value) => ApplyFilter();
 
@@ -118,6 +122,13 @@ public partial class VoiceConfigViewModel : ObservableObject
             using var client = new RustTtsWrapper.TtsClient(CurrentEngine, creds);
             var voices = client.GetVoices();
             TotalVoices = voices.Count;
+
+            if (voices.Count == 0)
+            {
+                StatusText = "No voices returned. Check your API key and try Validate first.";
+                IsValidated = false;
+                return;
+            }
 
             foreach (var v in voices)
             {
@@ -169,12 +180,25 @@ public partial class VoiceConfigViewModel : ObservableObject
 
             using var client = new RustTtsWrapper.TtsClient(CurrentEngine, creds);
             var voices = client.GetVoices();
-            ValidationResult = Loc.GetString("ValidResult", voices.Count);
-            IsValidated = true;
+            if (voices.Count == 0)
+            {
+                ValidationResult = "Key accepted but no voices returned. The key may be invalid or have no TTS access.";
+                IsValidated = false;
+            }
+            else
+            {
+                ValidationResult = Loc.GetString("ValidResult", voices.Count);
+                IsValidated = true;
+            }
+        }
+        catch (RustTtsWrapper.TtsException ex)
+        {
+            ValidationResult = Loc.GetString("InvalidResult", ex.Message);
+            IsValidated = false;
         }
         catch (Exception ex)
         {
-            ValidationResult = Loc.GetString("InvalidResult", ex.Message);
+            ValidationResult = $"Invalid: {ex.Message}";
             IsValidated = false;
         }
         finally
@@ -297,7 +321,8 @@ public partial class VoiceConfigViewModel : ObservableObject
             "fishaudio" or "hume" or "mistral" or "murf" or "resemble" or
             "unrealspeech" or "upliftai" or "xai" or "modelslab" =>
                 new() { { "apiKey", CurrentKey } },
-            "watson" => new() { { "apiKey", CurrentKey }, { "region", CurrentRegion } },
+            "polly" => new() { { "accessKeyId", CurrentKey }, { "secretAccessKey", CurrentRegion }, { "region", "us-east-1" } },
+            "watson" => new() { { "apiKey", CurrentKey }, { "region", CurrentRegion }, { "instanceId", "" } },
             "playht" => new() { { "apiKey", CurrentKey }, { "userId", CurrentRegion } },
             "witai" => new() { { "token", CurrentKey } },
             _ => null,

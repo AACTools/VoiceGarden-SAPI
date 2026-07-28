@@ -33,17 +33,21 @@
                         <Grid ColumnDefinitions="*, Auto, Auto" RowDefinitions="Auto, Auto">
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Status64Bit}" VerticalAlignment="Center"/>
                             <Button Grid.Row="0" Grid.Column="1" Content="{Binding Install64Text}"
-                                    Command="{Binding Install64Command}" Margin="8,0,0,0" Padding="20,4" MinWidth="90"/>
+                                    Command="{Binding Install64Command}" Margin="8,0,0,0" Padding="20,4" MinWidth="90"
+                                    AutomationProperties.Name="Install 64-bit adapter"/>
                             <Button Grid.Row="0" Grid.Column="2" Content="{lang:Localize Uninstall}"
                                     Command="{Binding Uninstall64Command}" Margin="8,0,0,0" Padding="20,4" MinWidth="90"
-                                    IsEnabled="{Binding Is64Installed}"/>
+                                    IsEnabled="{Binding Is64Installed}"
+                                    AutomationProperties.Name="Uninstall 64-bit adapter"/>
 
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Status32Bit}" VerticalAlignment="Center" Margin="0,8,0,0"/>
                             <Button Grid.Row="1" Grid.Column="1" Content="{Binding Install32Text}"
-                                    Command="{Binding Install32Command}" Margin="8,8,0,0" Padding="20,4" MinWidth="90"/>
+                                    Command="{Binding Install32Command}" Margin="8,8,0,0" Padding="20,4" MinWidth="90"
+                                    AutomationProperties.Name="Install 32-bit adapter"/>
                             <Button Grid.Row="1" Grid.Column="2" Content="{lang:Localize Uninstall}"
                                     Command="{Binding Uninstall32Command}" Margin="8,8,0,0" Padding="20,4" MinWidth="90"
-                                    IsEnabled="{Binding Is32Installed}"/>
+                                    IsEnabled="{Binding Is32Installed}"
+                                    AutomationProperties.Name="Uninstall 32-bit adapter"/>
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -165,10 +169,12 @@
                                                    FontWeight="Medium" VerticalAlignment="Center"/>
                                         <TextBox Grid.Column="1" Text="{Binding ApiKey}"
                                                  Watermark="{lang:Localize APIKey}" PasswordChar="*"
-                                                 Margin="8,0" VerticalAlignment="Center"/>
+                                                 Margin="8,0" VerticalAlignment="Center"
+                                                 AutomationProperties.Name="{Binding DisplayName}"/>
                                         <TextBox Grid.Column="2" Text="{Binding Region}"
                                                  Watermark="{lang:Localize Region}" IsVisible="{Binding NeedsRegion}"
-                                                 VerticalAlignment="Center"/>
+                                                 VerticalAlignment="Center"
+                                                 AutomationProperties.Name="{Binding DisplayName}"/>
                                         <TextBlock Grid.Column="3" Text="" />
                                     </Grid>
                                 </Border>

@@ -10,13 +10,17 @@
         <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto, *, Auto, Auto" Margin="0,0,0,8">
             <TextBlock Grid.Column="0" Text="{lang:Localize Engine}" VerticalAlignment="Center" Margin="0,0,8,0"/>
             <ComboBox Grid.Column="1" SelectedItem="{Binding CurrentEngine}"
-                      ItemsSource="{Binding AvailableEngines}" MinWidth="100" Margin="0,0,8,0"/>
+                      ItemsSource="{Binding AvailableEngines}" MinWidth="100" Margin="0,0,8,0"
+                      AutomationProperties.Name="TTS engine selector"/>
             <TextBlock Grid.Column="2" Text="{lang:Localize Key}" VerticalAlignment="Center" Margin="0,0,8,0"/>
             <TextBox Grid.Column="3" Text="{Binding CurrentKey}" PasswordChar="*"
-                     Watermark="{lang:Localize APIKey}" MinWidth="160" Margin="0,0,8,0"/>
+                     Watermark="{lang:Localize APIKey}" MinWidth="160" Margin="0,0,8,0"
+                     AutomationProperties.Name="API key"/>
             <TextBox Grid.Column="4" Text="{Binding CurrentRegion}" Watermark="{lang:Localize Region}"
-                     IsVisible="{Binding NeedsRegion}" Width="80" Margin="0,0,8,0"/>
-            <Button Grid.Column="5" Content="{lang:Localize Validate}" Command="{Binding ValidateKeyCommand}" Padding="12,4"/>
+                     IsVisible="{Binding NeedsRegion}" Width="80" Margin="0,0,8,0"
+                     AutomationProperties.Name="Region"/>
+            <Button Grid.Column="5" Content="{lang:Localize Validate}" Command="{Binding ValidateKeyCommand}" Padding="12,4"
+                    AutomationProperties.Name="Validate API key"/>
         </Grid>
 
         <!-- Validation result + action buttons -->
@@ -24,21 +28,27 @@
             <TextBlock Text="{Binding ValidationResult}" VerticalAlignment="Center"
                        Classes="Hint" IsVisible="{Binding IsValidated}"/>
             <Button Content="{lang:Localize FetchVoices}" Command="{Binding FetchVoicesCommand}"
-                    Padding="16,4"/>
+                    Padding="16,4"
+                    AutomationProperties.Name="Fetch available voices"/>
             <Button Content="{lang:Localize InstallSelected}" Command="{Binding PromoteSelectedCommand}"
-                    Classes="Primary" Padding="16,4"/>
+                    Classes="Primary" Padding="16,4"
+                    AutomationProperties.Name="Install selected voices to SAPI"/>
             <Button Content="{lang:Localize Uninstall}" Command="{Binding UnpromoteSelectedCommand}"
-                    Padding="16,4"/>
+                    Padding="16,4"
+                    AutomationProperties.Name="Uninstall selected voices"/>
         </StackPanel>
 
         <!-- Search + select controls -->
         <Grid Grid.Row="2" ColumnDefinitions="*, Auto, Auto" Margin="0,0,0,8">
             <TextBox Grid.Column="0" Text="{Binding SearchFilter}" Watermark="{lang:Localize SearchVoices}"
-                     MinWidth="200"/>
+                     MinWidth="200"
+                     AutomationProperties.Name="Search voices"/>
             <Button Grid.Column="1" Content="{lang:Localize All}" Command="{Binding SelectAllCommand}"
-                    Padding="12,2" Margin="8,0,4,0" FontSize="12"/>
+                    Padding="12,2" Margin="8,0,4,0" FontSize="12"
+                    AutomationProperties.Name="Select all voices"/>
             <Button Grid.Column="2" Content="{lang:Localize None}" Command="{Binding SelectNoneCommand}"
-                    Padding="12,2" Margin="4,0,0,0" FontSize="12"/>
+                    Padding="12,2" Margin="4,0,0,0" FontSize="12"
+                    AutomationProperties.Name="Deselect all voices"/>
         </Grid>
 
         <!-- Voice list -->

@@ -58,31 +58,40 @@ public partial class SherpaModelsViewModel : ObservableObject
 
         try
         {
-            // Load model catalog from merged_models.json (sidecar or embedded in RustTtsWrapper)
-            var catalog = await SherpaModelService.LoadCatalogAsync();
+            // Load catalog off the UI thread to prevent freezing with 1300+ models
+            var catalog = await Task.Run(() => SherpaModelService.LoadCatalogAsync().GetAwaiter().GetResult());
+            var installed = await Task.Run(() => SherpaModelService.ScanInstalledModels());
+            _installed = installed;
+
+            // Build model items off the UI thread
+            var items = await Task.Run(() =>
+            {
+                var result = new System.Collections.Concurrent.ConcurrentBag<SherpaModelItem>();
+                System.Threading.Tasks.Parallel.ForEach(catalog, cat =>
+                {
+                    var langInfo = cat.Language?.FirstOrDefault();
+                    var inst = installed.FirstOrDefault(i => i.Id == cat.Id);
+                    result.Add(new SherpaModelItem
+                    {
+                        Id = cat.Id,
+                        Name = string.IsNullOrEmpty(cat.Name) ? cat.Id : cat.Name,
+                        Language = langInfo?.LanguageName ?? "Unknown",
+                        ModelType = cat.ModelType?.Contains("kokoro") == true ? "kokoro"
+                                 : cat.ModelType?.Contains("matcha") == true ? "matcha"
+                                 : "vits",
+                        Url = cat.Url ?? "",
+                        FileSizeMb = (long)(cat.FileSizeMb ?? 0),
+                        IsDownloaded = inst != null,
+                        IsPromoted = inst?.IsPromoted ?? false,
+                    });
+                });
+                return result.ToList();
+            });
 
             AllModels.Clear();
-            foreach (var cat in catalog)
-            {
-                var langInfo = cat.Language?.FirstOrDefault();
-                var installed = _installed.FirstOrDefault(i => i.Id == cat.Id);
-                var item = new SherpaModelItem
-                {
-                    Id = cat.Id,
-                    Name = string.IsNullOrEmpty(cat.Name) ? cat.Id : cat.Name,
-                    Language = langInfo?.LanguageName ?? "Unknown",
-                    ModelType = cat.ModelType?.Contains("kokoro") == true ? "kokoro"
-                             : cat.ModelType?.Contains("matcha") == true ? "matcha"
-                             : "vits",
-                    Url = cat.Url ?? "",
-                    FileSizeMb = (long)(cat.FileSizeMb ?? 0),
-                    IsDownloaded = installed != null,
-                    IsPromoted = installed?.IsPromoted ?? false,
-                };
+            foreach (var item in items)
                 AllModels.Add(item);
-            }
 
-            RefreshInstalled();
             ApplyFilter();
             UpdateCounts();
             StatusText = $"Loaded {AllModels.Count} voices, {_installed.Count} installed";
