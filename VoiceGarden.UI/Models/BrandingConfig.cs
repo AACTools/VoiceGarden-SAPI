@@ -21,30 +21,60 @@ public class EngineDefinition
     public string DisplayName { get; set; } = "";
     public bool NeedsRegion { get; set; } = false;
     public bool NeedsSecretKey { get; set; } = false;
+    /// <summary>Credential key names from the Rust wrapper (e.g. ["subscriptionKey","region"])</summary>
+    public string[] CredentialKeys { get; set; } = Array.Empty<string>();
 
-    public static List<EngineDefinition> All => new()
+    /// <summary>
+    /// Discover all available cloud engines from the Rust wrapper.
+    /// This is the single source of truth — no hardcoded engine lists.
+    /// </summary>
+    public static List<EngineDefinition> DiscoverAll()
     {
-        new() { Id = "azure", DisplayName = "Azure", NeedsRegion = true },
-        new() { Id = "openai", DisplayName = "OpenAI" },
-        new() { Id = "elevenlabs", DisplayName = "ElevenLabs" },
-        new() { Id = "google", DisplayName = "Google" },
-        new() { Id = "polly", DisplayName = "AWS Polly", NeedsRegion = true, NeedsSecretKey = true },
-        new() { Id = "cartesia", DisplayName = "Cartesia" },
-        new() { Id = "deepgram", DisplayName = "Deepgram" },
-        new() { Id = "watson", DisplayName = "IBM Watson" },
-        new() { Id = "playht", DisplayName = "PlayHT" },
-        new() { Id = "witai", DisplayName = "Wit.ai" },
-        new() { Id = "gemini", DisplayName = "Gemini" },
-        new() { Id = "hume", DisplayName = "Hume AI" },
-        new() { Id = "xai", DisplayName = "xAI Grok" },
-        new() { Id = "fishaudio", DisplayName = "Fish Audio" },
-        new() { Id = "mistral", DisplayName = "Mistral" },
-        new() { Id = "murf", DisplayName = "Murf" },
-        new() { Id = "unrealspeech", DisplayName = "Unreal Speech" },
-        new() { Id = "resemble", DisplayName = "Resemble" },
-        new() { Id = "upliftai", DisplayName = "Uplift AI" },
-        new() { Id = "modelslab", DisplayName = "Models Lab" },
-    };
+        var result = new List<EngineDefinition>();
+        try
+        {
+            var engines = RustTtsWrapper.TtsClient.ListEngines();
+            foreach (var e in engines)
+            {
+                // Skip built-in engines that don't need credentials
+                if (!e.NeedsCredentials) continue;
+
+                var keys = ParseCredentialKeys(e.CredentialKeysJson);
+                result.Add(new EngineDefinition
+                {
+                    Id = e.Id ?? "",
+                    DisplayName = e.Name ?? e.Id ?? "",
+                    NeedsRegion = keys.Contains("region") || keys.Contains("userId"),
+                    NeedsSecretKey = keys.Contains("secretAccessKey"),
+                    CredentialKeys = keys,
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            // Fallback to minimal hardcoded list if discovery fails
+            System.Diagnostics.Debug.WriteLine($"Engine discovery failed: {ex.Message}");
+            result.Add(new EngineDefinition { Id = "azure", DisplayName = "Azure", NeedsRegion = true, CredentialKeys = new[] { "subscriptionKey", "region" } });
+            result.Add(new EngineDefinition { Id = "openai", DisplayName = "OpenAI", CredentialKeys = new[] { "apiKey" } });
+        }
+        return result;
+    }
+
+    private static string[] ParseCredentialKeys(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json) || json == "[]") return new[] { "apiKey" };
+        try
+        {
+            return System.Text.Json.JsonSerializer.Deserialize<string[]>(json) ?? new[] { "apiKey" };
+        }
+        catch
+        {
+            return new[] { "apiKey" };
+        }
+    }
+
+    [Obsolete("Use DiscoverAll() instead — queries the Rust wrapper for available engines")]
+    public static List<EngineDefinition> All => DiscoverAll();
 }
 
 public class CloudEngineSetting : INotifyPropertyChanged

@@ -86,18 +86,24 @@ public partial class MainWindow : Window
 
     private static Dictionary<string, string>? BuildCreds(string engine, string key, string region)
     {
-        return engine.ToLowerInvariant() switch
+        var def = Models.EngineDefinition.DiscoverAll()
+            .FirstOrDefault(e => e.Id.Equals(engine, StringComparison.OrdinalIgnoreCase));
+        if (def == null) return null;
+
+        var creds = new Dictionary<string, string>();
+        foreach (var credKey in def.CredentialKeys)
         {
-            "azure" => new() { { "subscriptionKey", key }, { "region", region } },
-            "openai" or "elevenlabs" or "google" or "cartesia" or "deepgram" or
-            "fishaudio" or "hume" or "mistral" or "murf" or "resemble" or
-            "unrealspeech" or "upliftai" or "xai" or "modelslab" =>
-                new() { { "apiKey", key } },
-            "polly" => new() { { "accessKeyId", key }, { "secretAccessKey", region }, { "region", "us-east-1" } },
-            "watson" => new() { { "apiKey", key }, { "region", region }, { "instanceId", "" } },
-            "playht" => new() { { "apiKey", key }, { "userId", region } },
-            "witai" => new() { { "token", key } },
-            _ => null,
-        };
+            var value = credKey switch
+            {
+                "apiKey" or "subscriptionKey" or "accessKeyId" or "token" => key,
+                "region" or "userId" or "secretAccessKey" => region,
+                "instanceId" => "",
+                _ => key,
+            };
+            creds[credKey] = value;
+        }
+        if (engine.Equals("polly", StringComparison.OrdinalIgnoreCase) && !creds.ContainsKey("region"))
+            creds["region"] = "us-east-1";
+        return creds.Count > 0 ? creds : null;
     }
 }

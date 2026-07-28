@@ -288,21 +288,38 @@ public partial class VoiceConfigViewModel : ObservableObject
         UpdateSelectedCount();
     }
 
+    /// <summary>
+    /// Build credentials dynamically using the engine's credential_keys
+    /// from the Rust wrapper. No hardcoded engine-specific logic.
+    /// </summary>
     private Dictionary<string, string>? BuildRustCredentials()
     {
-        return CurrentEngine.ToLowerInvariant() switch
+        var engine = Models.EngineDefinition.DiscoverAll()
+            .FirstOrDefault(e => e.Id.Equals(CurrentEngine, StringComparison.OrdinalIgnoreCase));
+        if (engine == null) return null;
+
+        var key = GetKey();
+        var region = GetRegion();
+        var creds = new Dictionary<string, string>();
+
+        foreach (var credKey in engine.CredentialKeys)
         {
-            "azure" => new() { { "subscriptionKey", GetKey() }, { "region", GetRegion() } },
-            "openai" or "elevenlabs" or "google" or "cartesia" or "deepgram" or
-            "fishaudio" or "hume" or "mistral" or "murf" or "resemble" or
-            "unrealspeech" or "upliftai" or "xai" or "modelslab" =>
-                new() { { "apiKey", GetKey() } },
-            "polly" => new() { { "accessKeyId", GetKey() }, { "secretAccessKey", GetRegion() }, { "region", "us-east-1" } },
-            "watson" => new() { { "apiKey", GetKey() }, { "region", GetRegion() }, { "instanceId", "" } },
-            "playht" => new() { { "apiKey", GetKey() }, { "userId", GetRegion() } },
-            "witai" => new() { { "token", GetKey() } },
-            _ => null,
-        };
+            var value = credKey switch
+            {
+                "apiKey" or "subscriptionKey" or "accessKeyId" or "token" => key,
+                "region" or "userId" => region,
+                "secretAccessKey" => region,
+                "instanceId" => "",
+                _ => key, // Default: treat as the primary key
+            };
+            creds[credKey] = value;
+        }
+
+        // Polly needs a default region if not specified
+        if (CurrentEngine.Equals("polly", StringComparison.OrdinalIgnoreCase) && !creds.ContainsKey("region"))
+            creds["region"] = "us-east-1";
+
+        return creds.Count > 0 ? creds : null;
     }
 
     /// <summary>
