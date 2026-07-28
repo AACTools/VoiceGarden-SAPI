@@ -5,6 +5,7 @@
         xmlns:views="using:VoiceGarden.UI.Views"
         xmlns:lang="using:VoiceGarden.UI.Markup"
         x:Class="VoiceGarden.UI.MainWindow"
+        x:DataType="vm:MainViewModel"
         Title="{lang:Localize AppName}"
         Width="680" Height="720"
         MinWidth="560" MinHeight="560"
@@ -306,6 +307,8 @@
     </Window.Styles>
 
 </Window>
+
+
 
 
 

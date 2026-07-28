@@ -2,7 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:VoiceGarden.UI.ViewModels"
              xmlns:lang="using:VoiceGarden.UI.Markup"
-             x:Class="VoiceGarden.UI.Views.VoiceConfigView">
+             x:Class="VoiceGarden.UI.Views.VoiceConfigView"
+             x:DataType="vm:VoiceConfigViewModel">
 
     <Grid RowDefinitions="Auto, Auto, Auto, *, Auto">
 
@@ -91,3 +92,4 @@
     </UserControl.Styles>
 
 </UserControl>
+

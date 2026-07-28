@@ -2,7 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:VoiceGarden.UI.ViewModels"
              xmlns:lang="using:VoiceGarden.UI.Markup"
-             x:Class="VoiceGarden.UI.Views.SherpaModelsView">
+             x:Class="VoiceGarden.UI.Views.SherpaModelsView"
+             x:DataType="vm:SherpaModelsViewModel">
 
     <Grid RowDefinitions="Auto, Auto, *, Auto">
 
