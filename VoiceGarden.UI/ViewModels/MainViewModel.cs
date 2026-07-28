@@ -186,6 +186,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
         IsVoiceConfigVisible = true;
         OnPropertyChanged(nameof(IsMainViewVisible));
+        AnnounceViewChange("Configure Voices");
     }
 
     [RelayCommand]
@@ -193,6 +194,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         IsEngineConfigVisible = true;
         OnPropertyChanged(nameof(IsMainViewVisible));
+        AnnounceViewChange("Configure Credentials");
     }
 
     [RelayCommand]
@@ -203,6 +205,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         IsEngineConfigVisible = false;
         IsAboutVisible = false;
         OnPropertyChanged(nameof(IsMainViewVisible));
+        AnnounceViewChange("Main view");
     }
 
     private void UpdateSherpaModelCount()
@@ -291,6 +294,14 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         IsAboutVisible = true;
         OnPropertyChanged(nameof(IsMainViewVisible));
+        AnnounceViewChange("About VoiceGarden");
+    }
+
+    [ObservableProperty] private string screenReaderAnnouncement = "";
+
+    private void AnnounceViewChange(string viewName)
+    {
+        ScreenReaderAnnouncement = $"{viewName}";
     }
 
     private static string Cap(string s) =>

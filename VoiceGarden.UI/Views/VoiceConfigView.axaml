@@ -69,7 +69,8 @@
 
         <!-- Status bar -->
         <Grid Grid.Row="4" ColumnDefinitions="*, Auto" Margin="0,8,0,0">
-            <TextBlock Grid.Column="0" Text="{Binding StatusText}" Classes="Hint"/>
+            <TextBlock Grid.Column="0" Text="{Binding StatusText}" Classes="Hint"
+                       AutomationProperties.LiveSetting="Polite"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16">
                 <TextBlock Text="{Binding SelectedCount, StringFormat='{}{0} selected'}" Classes="Hint"/>
                 <TextBlock Text="{Binding InstalledCount, StringFormat='{}{0} installed'}" Classes="Hint"/>

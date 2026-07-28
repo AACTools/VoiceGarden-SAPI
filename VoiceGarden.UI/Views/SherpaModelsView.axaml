@@ -29,20 +29,24 @@
                     <DataTemplate x:DataType="vm:SherpaModelItem">
                         <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto, Auto">
                             <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" Margin="0,0,8,0"
-                                      AutomationProperties.Name="{Binding Name}"/>
+                                      AutomationProperties.Name="{Binding Name}"
+                                      AutomationProperties.HelpText="{Binding Language}"/>
                             <StackPanel Grid.Column="1" Spacing="2">
                                 <TextBlock Text="{Binding Name}" FontWeight="Medium"/>
                                 <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBlock Text="{Binding Language}" Classes="Hint"/>
+                                    <TextBlock Text="{Binding Language}" Classes="Hint"
+                                               AutomationProperties.LiveSetting="Polite"/>
                                     <TextBlock Text="{Binding Id}" Classes="Hint" Opacity="0.4"/>
                                 </StackPanel>
                             </StackPanel>
                             <TextBlock Grid.Column="2" Text="{lang:Localize Downloaded}" Classes="Hint"
                                        Foreground="Green" IsVisible="{Binding IsDownloaded}"
-                                       Margin="8,0"/>
+                                       Margin="8,0"
+                                       AutomationProperties.LiveSetting="Polite"/>
                             <TextBlock Grid.Column="3" Text="{lang:Localize Installed}" Classes="Hint"
                                        Foreground="Blue" IsVisible="{Binding IsPromoted}"
-                                       Margin="8,0"/>
+                                       Margin="8,0"
+                                       AutomationProperties.LiveSetting="Polite"/>
                             <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="8"
                                         Margin="8,0" VerticalAlignment="Center">
                                 <ProgressBar Value="{Binding DownloadProgress}"
@@ -81,7 +85,8 @@
 
         <!-- Status -->
         <Grid Grid.Row="3" ColumnDefinitions="*, Auto" Margin="0,8,0,0">
-            <TextBlock Grid.Column="0" Text="{Binding StatusText}" Classes="Hint"/>
+            <TextBlock Grid.Column="0" Text="{Binding StatusText}" Classes="Hint"
+                       AutomationProperties.LiveSetting="Polite"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16">
                 <TextBlock Text="{Binding DownloadedCount, StringFormat='{}{0} downloaded'}" Classes="Hint"/>
                 <TextBlock Text="{Binding PromotedCount, StringFormat='{}{0} installed'}" Classes="Hint"/>

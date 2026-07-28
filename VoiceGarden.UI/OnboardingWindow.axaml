@@ -13,6 +13,11 @@
 
     <Grid RowDefinitions="*, Auto">
 
+        <!-- Screen reader page announcer -->
+        <TextBlock x:Name="PageAnnouncer" Grid.Row="0" IsVisible="False"
+                   AutomationProperties.LiveSetting="Assertive"
+                   AutomationProperties.Name=""/>
+
         <!-- ========== PAGE CONTENT (swaps via IsVisible) ========== -->
         <ScrollViewer Grid.Row="0" Padding="0">
 

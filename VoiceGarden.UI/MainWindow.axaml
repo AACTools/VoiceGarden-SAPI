@@ -17,21 +17,29 @@
 
     <Grid RowDefinitions="*">
 
+        <!-- Screen reader announcement region (invisible, announces view changes) -->
+        <TextBlock Text="{Binding ScreenReaderAnnouncement}" IsVisible="False"
+                   AutomationProperties.LiveSetting="Assertive"
+                   AutomationProperties.Name="{Binding ScreenReaderAnnouncement}"/>
+
         <!-- ========== MAIN VIEW ========== -->
         <ScrollViewer Grid.Row="0" IsVisible="{Binding IsMainViewVisible}" Padding="0">
             <StackPanel Margin="24" Spacing="16">
 
                 <!-- Header with logo -->
                 <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,8">
-                    <TextBlock Text="{Binding AppName}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource VGForegroundBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding AppName}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource VGForegroundBrush}" VerticalAlignment="Center"
+                               />
                 </StackPanel>
 
                 <!-- Adapter Installation -->
                 <Border Classes="Card">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="{lang:Localize AdapterInstallation}" Classes="CardHeader"/>
+                        <TextBlock Text="{lang:Localize AdapterInstallation}" Classes="CardHeader"
+                                   />
                         <Grid ColumnDefinitions="*, Auto, Auto" RowDefinitions="Auto, Auto">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Status64Bit}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Status64Bit}" VerticalAlignment="Center"
+                                       AutomationProperties.LiveSetting="Polite"/>
                             <Button Grid.Row="0" Grid.Column="1" Content="{Binding Install64Text}"
                                     Command="{Binding Install64Command}" Margin="8,0,0,0" Padding="20,4" MinWidth="90"
                                     AutomationProperties.Name="Install 64-bit adapter"/>
@@ -40,7 +48,8 @@
                                     IsEnabled="{Binding Is64Installed}"
                                     AutomationProperties.Name="Uninstall 64-bit adapter"/>
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Status32Bit}" VerticalAlignment="Center" Margin="0,8,0,0"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Status32Bit}" VerticalAlignment="Center" Margin="0,8,0,0"
+                                       AutomationProperties.LiveSetting="Polite"/>
                             <Button Grid.Row="1" Grid.Column="1" Content="{Binding Install32Text}"
                                     Command="{Binding Install32Command}" Margin="8,8,0,0" Padding="20,4" MinWidth="90"
                                     AutomationProperties.Name="Install 32-bit adapter"/>
@@ -55,16 +64,20 @@
                 <!-- Voice Engines -->
                 <Border Classes="Card">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="{lang:Localize VoiceEngines}" Classes="CardHeader"/>
+                        <TextBlock Text="{lang:Localize VoiceEngines}" Classes="CardHeader"
+                                   />
 
                         <!-- Offline -->
                         <StackPanel Spacing="4">
                             <TextBlock Text="{lang:Localize OfflineVoices}" Classes="SectionLabel"/>
                             <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,2,0,0">
-                                <CheckBox IsChecked="{Binding SherpaEnabled}" Content="{lang:Localize SherpaOnnxNeuralTTS}" MinWidth="200" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding SherpaModelSummary}" Classes="Hint" VerticalAlignment="Center"/>
+                                <CheckBox IsChecked="{Binding SherpaEnabled}" Content="{lang:Localize SherpaOnnxNeuralTTS}" MinWidth="200" VerticalAlignment="Center"
+                                          AutomationProperties.HelpText="Enable or disable SherpaOnnx offline neural voices"/>
+                                <TextBlock Text="{Binding SherpaModelSummary}" Classes="Hint" VerticalAlignment="Center"
+                                           AutomationProperties.LiveSetting="Polite"/>
                                 <Button Content="{lang:Localize ManageModels}" Command="{Binding OpenSherpaManagerCommand}"
-                                        Padding="12,2" FontSize="12"/>
+                                        Padding="12,2" FontSize="12"
+                                        AutomationProperties.Name="Manage SherpaOnnx models"/>
                             </StackPanel>
                         </StackPanel>
 
@@ -87,7 +100,8 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate x:DataType="models:CloudEngineSetting">
                                                 <CheckBox IsChecked="{Binding Enabled}" Content="{Binding DisplayName}"
-                                                          Margin="0,3" MinWidth="120"/>
+                                                          Margin="0,3" MinWidth="120"
+                                                          AutomationProperties.HelpText="{Binding DisplayName, StringFormat='Enable {0} cloud voices'}"/>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
@@ -96,9 +110,11 @@
 
                             <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
                                 <Button Content="{lang:Localize ConfigureCredentials}" Command="{Binding OpenEngineConfigCommand}"
-                                        Padding="16,4" MinWidth="160"/>
+                                        Padding="16,4" MinWidth="160"
+                                        AutomationProperties.Name="Configure cloud engine credentials"/>
                                 <Button Content="{lang:Localize ConfigureVoices}" Command="{Binding OpenVoiceConfigCommand}"
-                                        Padding="16,4" MinWidth="140"/>
+                                        Padding="16,4" MinWidth="140"
+                                        AutomationProperties.Name="Configure cloud voices"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -107,29 +123,34 @@
                 <!-- Advanced (Collapsible, hidden by default) -->
                 <Border Classes="Card" IsVisible="{Binding ShowAdvanced}">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="{lang:Localize Advanced}" Classes="CardHeader"/>
-                        <CheckBox Content="{lang:Localize EnableEdgeVoices}" IsChecked="{Binding EdgeEnabled}" Margin="0"/>
-                        <CheckBox Content="{lang:Localize EnableAnalytics}" IsChecked="{Binding AnalyticsEnabled}" Margin="0"/>
+                        <TextBlock Text="{lang:Localize Advanced}" Classes="CardHeader"
+                                   />
+                        <CheckBox Content="{lang:Localize EnableEdgeVoices}" IsChecked="{Binding EdgeEnabled}" Margin="0"
+                                  AutomationProperties.HelpText="Enable Microsoft Edge browser voices (free, no API key needed)"/>
+                        <CheckBox Content="{lang:Localize EnableAnalytics}" IsChecked="{Binding AnalyticsEnabled}" Margin="0"
+                                  AutomationProperties.HelpText="Enable anonymous usage analytics to help improve VoiceGarden"/>
                         <TextBlock Text="{lang:Localize AnalyticsHint}"
                                    Classes="Hint" Opacity="0.5" Margin="16,0,0,0" TextWrapping="Wrap"/>
                         <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
                             <TextBlock Text="{lang:Localize LogLevel}" VerticalAlignment="Center"/>
-                            <ComboBox SelectedIndex="{Binding LogLevelIndex}" MinWidth="100">
-                                <ComboBoxItem Content="Normal"/>
-                                <ComboBoxItem Content="Info"/>
-                                <ComboBoxItem Content="Trace"/>
-                            </ComboBox>
-                            <Button Content="{lang:Localize OpenLogs}" Command="{Binding OpenLogsCommand}" Padding="12,2"/>
+                            <ComboBox SelectedIndex="{Binding LogLevelIndex}" MinWidth="100"
+                                      AutomationProperties.Name="Log level selector"
+                                      AutomationProperties.HelpText="Set the verbosity of diagnostic logs"/>
+                            <Button Content="{lang:Localize OpenLogs}" Command="{Binding OpenLogsCommand}" Padding="12,2"
+                                    AutomationProperties.Name="Open log files folder"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>
 
                 <ToggleButton Content="{Binding AdvancedToggleText}" IsChecked="{Binding ShowAdvanced}"
-                              Padding="12,4" HorizontalAlignment="Left" FontSize="12"/>
+                              Padding="12,4" HorizontalAlignment="Left" FontSize="12"
+                              AutomationProperties.HelpText="Show or hide advanced settings"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,8,0,0">
-                    <Button Content="{lang:Localize About}" Command="{Binding ShowAboutCommand}" Padding="20,6"/>
-                    <Button Content="{lang:Localize Close}" Click="Close_Click" Classes="Primary" Padding="20,6"/>
+                    <Button Content="{lang:Localize About}" Command="{Binding ShowAboutCommand}" Padding="20,6"
+                            AutomationProperties.Name="About VoiceGarden"/>
+                    <Button Content="{lang:Localize Close}" Click="Close_Click" Classes="Primary" Padding="20,6"
+                            AutomationProperties.Name="Close VoiceGarden"/>
                 </StackPanel>
 
             </StackPanel>
@@ -171,11 +192,13 @@
                                             <TextBox Grid.Column="1" Text="{Binding ApiKey}"
                                                      Watermark="{lang:Localize APIKey}" PasswordChar="*"
                                                      Margin="8,0" VerticalAlignment="Center"
-                                                     AutomationProperties.Name="{Binding DisplayName}"/>
+                                                     AutomationProperties.Name="{Binding DisplayName}"
+                                                     AutomationProperties.HelpText="{Binding DisplayName, StringFormat='Enter your {0} API key'}"/>
                                             <TextBox Grid.Column="2" Text="{Binding Region}"
                                                      Watermark="{lang:Localize Region}" IsVisible="{Binding NeedsRegion}"
                                                      VerticalAlignment="Center"
-                                                     AutomationProperties.Name="{Binding DisplayName}"/>
+                                                     AutomationProperties.Name="Region"
+                                                     AutomationProperties.HelpText="Enter the region for this cloud provider"/>
                                             <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                                                 <Button Content="Verify" Click="VerifyCredentials_Click"
                                                         Tag="{Binding Id}" Padding="12,2" Margin="8,0"
@@ -189,7 +212,8 @@
                                         </Grid>
                                         <TextBlock Text="{Binding VerificationDetail}" FontSize="11"
                                                    Opacity="0.7" Margin="0,0,0,2" TextWrapping="Wrap"
-                                                   IsVisible="{Binding !!VerificationDetail.Length}"/>
+                                                   IsVisible="{Binding !!VerificationDetail.Length}"
+                                                   AutomationProperties.LiveSetting="Polite"/>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>
@@ -282,3 +306,6 @@
     </Window.Styles>
 
 </Window>
+
+
+
