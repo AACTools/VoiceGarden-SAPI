@@ -24,19 +24,22 @@ public class EngineDefinition
     /// <summary>Credential key names from the Rust wrapper (e.g. ["subscriptionKey","region"])</summary>
     public string[] CredentialKeys { get; set; } = Array.Empty<string>();
 
+    private static List<EngineDefinition>? _cachedEngines;
+
     /// <summary>
     /// Discover all available cloud engines from the Rust wrapper.
-    /// This is the single source of truth — no hardcoded engine lists.
+    /// Cached after first call. Falls back to a comprehensive list if discovery fails.
     /// </summary>
     public static List<EngineDefinition> DiscoverAll()
     {
+        if (_cachedEngines != null) return _cachedEngines;
+
         var result = new List<EngineDefinition>();
         try
         {
             var engines = RustTtsWrapper.TtsClient.ListEngines();
             foreach (var e in engines)
             {
-                // Skip built-in engines that don't need credentials
                 if (!e.NeedsCredentials) continue;
 
                 var keys = ParseCredentialKeys(e.CredentialKeysJson);
@@ -52,13 +55,41 @@ public class EngineDefinition
         }
         catch (Exception ex)
         {
-            // Fallback to minimal hardcoded list if discovery fails
             System.Diagnostics.Debug.WriteLine($"Engine discovery failed: {ex.Message}");
-            result.Add(new EngineDefinition { Id = "azure", DisplayName = "Azure", NeedsRegion = true, CredentialKeys = new[] { "subscriptionKey", "region" } });
-            result.Add(new EngineDefinition { Id = "openai", DisplayName = "OpenAI", CredentialKeys = new[] { "apiKey" } });
         }
+
+        // If discovery returned nothing, use fallback
+        if (result.Count == 0)
+        {
+            result = FallbackEngines();
+        }
+
+        _cachedEngines = result;
         return result;
     }
+
+    private static List<EngineDefinition> FallbackEngines() => new()
+    {
+        new() { Id = "azure", DisplayName = "Azure", NeedsRegion = true, CredentialKeys = new[] { "subscriptionKey", "region" } },
+        new() { Id = "openai", DisplayName = "OpenAI", CredentialKeys = new[] { "apiKey" } },
+        new() { Id = "elevenlabs", DisplayName = "ElevenLabs", CredentialKeys = new[] { "apiKey" } },
+        new() { Id = "google", DisplayName = "Google", CredentialKeys = new[] { "apiKey" } },
+        new() { Id = "polly", DisplayName = "AWS Polly", NeedsRegion = true, NeedsSecretKey = true, CredentialKeys = new[] { "accessKeyId", "secretAccessKey", "region" } },
+        new() { Id = "cartesia", DisplayName = "Cartesia", CredentialKeys = new[] { "apiKey" } },
+        new() { Id = "deepgram", DisplayName = "Deepgram", CredentialKeys = new[] { "apiKey" } },
+        new() { Id = "playht", DisplayName = "PlayHT", CredentialKeys = new[] { "apiKey", "userId" } },
+        new() { Id = "fishaudio", DisplayName = "Fish Audio", CredentialKeys = new[] { "apiKey" } },
+        new() { Id = "hume", DisplayName = "Hume AI", CredentialKeys = new[] { "apiKey" } },
+        new() { Id = "mistral", DisplayName = "Mistral", CredentialKeys = new[] { "apiKey" } },
+        new() { Id = "murf", DisplayName = "Murf", CredentialKeys = new[] { "apiKey" } },
+        new() { Id = "resemble", DisplayName = "Resemble", CredentialKeys = new[] { "apiKey" } },
+        new() { Id = "unrealspeech", DisplayName = "Unreal Speech", CredentialKeys = new[] { "apiKey" } },
+        new() { Id = "upliftai", DisplayName = "Uplift AI", CredentialKeys = new[] { "apiKey" } },
+        new() { Id = "watson", DisplayName = "IBM Watson", NeedsRegion = true, CredentialKeys = new[] { "apiKey", "region", "instanceId" } },
+        new() { Id = "witai", DisplayName = "Wit.ai", CredentialKeys = new[] { "token" } },
+        new() { Id = "xai", DisplayName = "xAI", CredentialKeys = new[] { "apiKey" } },
+        new() { Id = "modelslab", DisplayName = "ModelsLab", CredentialKeys = new[] { "apiKey" } },
+    };
 
     private static string[] ParseCredentialKeys(string? json)
     {
@@ -93,7 +124,7 @@ public class CloudEngineSetting : INotifyPropertyChanged
     public string ApiKey
     {
         get => _apiKey;
-        set { _apiKey = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasKey)); OnPropertyChanged(nameof(VerificationText)); }
+        set { _apiKey = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasKey)); }
     }
 
     private string _region = "";
@@ -105,15 +136,31 @@ public class CloudEngineSetting : INotifyPropertyChanged
 
     public bool NeedsRegion { get; set; }
 
-    private string _verificationStatus = ""; // "", "✓ Valid", "✗ Invalid: ...", "Checking..."
+    private string _verificationStatus = "";
     public string VerificationStatus
     {
         get => _verificationStatus;
-        set { _verificationStatus = value; OnPropertyChanged(); OnPropertyChanged(nameof(VerificationText)); }
+        set { _verificationStatus = value; OnPropertyChanged(); OnPropertyChanged(nameof(VerificationIcon)); OnPropertyChanged(nameof(VerificationDetail)); }
     }
 
     public bool HasKey => !string.IsNullOrWhiteSpace(ApiKey);
-    public string VerificationText => string.IsNullOrEmpty(VerificationStatus) ? "" : VerificationStatus;
+
+    /// <summary>Just the icon: ✓, ✗, or ?</summary>
+    public string VerificationIcon => _verificationStatus switch
+    {
+        var s when s.StartsWith("✓") => "✓",
+        var s when s.StartsWith("✗") => "✗",
+        var s when s.StartsWith("Checking") => "?",
+        _ => "",
+    };
+
+    /// <summary>The detail text without the icon prefix</summary>
+    public string VerificationDetail => _verificationStatus switch
+    {
+        var s when s.StartsWith("✓ ") => s[2..],
+        var s when s.StartsWith("✗ ") => s[2..],
+        _ => _verificationStatus == "Checking..." ? "Checking..." : "",
+    };
 
     public string NoVoicesRegName => $"No{System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Id)}Voices";
 
