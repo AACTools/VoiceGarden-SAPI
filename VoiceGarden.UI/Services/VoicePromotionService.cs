@@ -67,11 +67,14 @@ public static class VoicePromotionService
 
     /// <summary>
     /// Promote a single voice to HKLM. Requires admin.
+    /// The wrapper's get_voices carries Gender for cloud voices — pass it
+    /// through so SAPI apps (Grid 3 etc.) can filter on it.
     /// </summary>
-    public static bool Promote(string engine, string voiceId, string key, string? region = null, string? locale = "en-US")
+    public static bool Promote(string engine, string voiceId, string key, string? region = null, string? locale = "en-US", string? gender = null)
     {
         var tokenName = $"Cloud-{engine}-{voiceId}".Replace("/", "_").Replace("\\", "_");
         var tokenPath = $@"{SapiTokensRoot}\{tokenName}";
+        var genderValue = gender is "Male" or "Female" ? gender : "Neutral";
 
         try
         {
@@ -91,7 +94,7 @@ public static class VoicePromotionService
 
             using var attrs = token.CreateSubKey("Attributes", writable: true);
             attrs.SetValue("Name", voiceId, RegistryValueKind.String);
-            attrs.SetValue("Gender", "Neutral", RegistryValueKind.String);
+            attrs.SetValue("Gender", genderValue, RegistryValueKind.String);
             attrs.SetValue("Age", "Adult", RegistryValueKind.String);
             attrs.SetValue("Language", "409", RegistryValueKind.String);
             attrs.SetValue("Locale", locale ?? "en-US", RegistryValueKind.String);
@@ -116,7 +119,7 @@ public static class VoicePromotionService
 
                 using var ocAttrs = ocToken.CreateSubKey("Attributes", writable: true);
                 ocAttrs.SetValue("Name", voiceId, RegistryValueKind.String);
-                ocAttrs.SetValue("Gender", "Neutral", RegistryValueKind.String);
+                ocAttrs.SetValue("Gender", genderValue, RegistryValueKind.String);
                 ocAttrs.SetValue("Age", "Adult", RegistryValueKind.String);
                 ocAttrs.SetValue("Language", "409", RegistryValueKind.String);
                 ocAttrs.SetValue("Locale", locale ?? "en-US", RegistryValueKind.String);
@@ -149,11 +152,13 @@ public static class VoicePromotionService
     /// Promote via elevated .reg file import (when not running as admin).
     /// EngineConfig.exe was removed — this replaces it.
     /// </summary>
-    public static int PromoteElevated(string engine, string voiceId, string key, string? region = null)
+    public static int PromoteElevated(string engine, string voiceId, string key, string? region = null, string? gender = null)
     {
         // Try direct first (works if HKLM is writable without UAC)
-        if (Promote(engine, voiceId, key, region))
+        if (Promote(engine, voiceId, key, region, gender: gender))
             return 0;
+
+        var genderValue = gender is "Male" or "Female" ? gender : "Neutral";
 
         // Generate .reg file and import elevated
         var tokenName = $"Cloud-{engine}-{voiceId}".Replace("/", "_").Replace("\\", "_");
@@ -174,7 +179,7 @@ public static class VoicePromotionService
         lines.Add($"\"ErrorMode\"=dword:00000000");
         lines.Add($"[{path}\\Attributes]");
         lines.Add($"\"Name\"=\"{voiceId}\"");
-        lines.Add("\"Gender\"=\"Neutral\"");
+        lines.Add($"\"Gender\"=\"{genderValue}\"");
         lines.Add("\"Age\"=\"Adult\"");
         lines.Add("\"Language\"=\"409\"");
         lines.Add("\"Locale\"=\"en-US\"");
@@ -194,7 +199,7 @@ public static class VoicePromotionService
         lines.Add($"\"ErrorMode\"=dword:00000000");
         lines.Add($"[{ocPath}\\Attributes]");
         lines.Add($"\"Name\"=\"{voiceId}\"");
-        lines.Add("\"Gender\"=\"Neutral\"");
+        lines.Add($"\"Gender\"=\"{genderValue}\"");
         lines.Add("\"Age\"=\"Adult\"");
         lines.Add("\"Language\"=\"409\"");
         lines.Add("\"Locale\"=\"en-US\"");

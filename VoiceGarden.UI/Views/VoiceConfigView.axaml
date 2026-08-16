@@ -49,16 +49,20 @@
             <ListBox ItemsSource="{Binding FilteredVoices}">
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="vm:VoiceItem">
-                        <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto">
+                        <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto, Auto">
                             <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" Margin="0,0,8,0"/>
                             <TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="2" Text="{Binding Language}"
+                            <TextBlock Grid.Column="2" Text="{Binding Gender}"
+                                       Classes="Hint" Margin="16,0,8,0" VerticalAlignment="Center"
+                                       IsVisible="{Binding !!Gender.Length}"
+                                       ToolTip.Tip="Voice gender reported by the engine"/>
+                            <TextBlock Grid.Column="3" Text="{Binding Language}"
                                        Classes="Hint" Margin="16,0,8,0" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="3" Text="{lang:Localize Installed}"
+                            <TextBlock Grid.Column="4" Text="{lang:Localize Installed}"
                                        Classes="Hint" Foreground="Green"
                                        IsVisible="{Binding IsInstalled}"
                                        Margin="8,0,8,0" VerticalAlignment="Center"/>
-                            <Button Grid.Column="4" Content="▶" FontSize="10"
+                            <Button Grid.Column="5" Content="▶" FontSize="10"
                                     Click="PreviewVoice_Click"
                                     Tag="{Binding Id}"
                                     Padding="6,2" Margin="0,0,0,0" ToolTip.Tip="{lang:Localize PreviewVoice}"/>

@@ -113,7 +113,8 @@ public partial class VoiceConfigViewModel : ObservableObject
                     Id = v.Id ?? "",
                     Name = v.Name ?? v.Id ?? "",
                     Language = string.IsNullOrEmpty(v.Language) ? "en-US" : v.Language,
-                    Gender = v.Gender ?? "Unknown",
+                    // Only surface known genders; "Unknown" would be list noise
+                    Gender = v.Gender is "Male" or "Female" ? v.Gender : "",
                     Provider = v.Engine ?? CurrentEngine,
                 });
             }
@@ -196,7 +197,7 @@ public partial class VoiceConfigViewModel : ObservableObject
         int promoted = 0, failed = 0;
         foreach (var voice in selected)
         {
-            var rc = VoicePromotionService.PromoteElevated(CurrentEngine, voice.Id, GetKey(), GetRegion());
+            var rc = VoicePromotionService.PromoteElevated(CurrentEngine, voice.Id, GetKey(), GetRegion(), voice.Gender);
             if (rc == 0)
             {
                 voice.IsInstalled = true;
