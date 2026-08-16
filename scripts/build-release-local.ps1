@@ -405,6 +405,29 @@ foreach ($Platform in $Platforms) {
     Copy-Item $mainOut\* $platformPayload\ -Recurse -Force
 }
 
+# Rust TTS wrapper native DLL (from NuGet package cache) — CI copies this in
+# the setup-composition job (msbuild.yml); the local build had no equivalent,
+# producing payloads without rust_tts_wrapper.dll.
+$rustDllDir = Join-Path $env:USERPROFILE ".nuget\packages\rustttswrapper.bindings"
+if (Test-Path $rustDllDir) {
+    foreach ($rid in @("win-x64", "win-x86")) {
+        $arch = $rid -replace 'win-', ''
+        $targetDir = Join-Path $PayloadDir $arch
+        if (-not (Test-Path $targetDir)) { continue }
+        $dll = Get-ChildItem -Path $rustDllDir -Recurse -Filter "rust_tts_wrapper.dll" |
+            Where-Object { $_.FullName -like "*\runtimes\$rid\native\*" } |
+            Select-Object -First 1
+        if ($dll) {
+            Copy-Item $dll.FullName $targetDir -Force
+            Write-Host "  rust_tts_wrapper.dll ($rid) -> payload\$arch\" -ForegroundColor DarkGray
+        } else {
+            Write-Host "  WARNING: rust_tts_wrapper.dll not found for $rid in NuGet cache" -ForegroundColor Yellow
+        }
+    }
+} else {
+    Write-Host "  WARNING: RustTtsWrapper.Bindings not in NuGet cache; payload lacks rust_tts_wrapper.dll (run dotnet restore first)" -ForegroundColor Yellow
+}
+
 # Stage VoiceGarden.UI.exe at payload root (main entry point)
 $vgUiExe = Join-Path $voiceGardenUiOutput "VoiceGarden.UI.exe"
 if (Test-Path $vgUiExe) {
