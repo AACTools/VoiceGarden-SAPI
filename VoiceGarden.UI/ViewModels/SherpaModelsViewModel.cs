@@ -20,6 +20,11 @@ public partial class SherpaModelItem : ObservableObject
     public string ModelType { get; set; } = "vits";
     public long FileSizeMb { get; set; }
     public string Url { get; set; } = "";
+    public int SampleRate { get; set; } = 24000;
+    public string License { get; set; } = "";
+    public string LicenseUrl { get; set; } = "";
+    public string MinSherpaOnnxVersion { get; set; } = "";
+    public bool IsDeprecated { get; set; }
 
     [ObservableProperty] private bool isDownloaded;
     [ObservableProperty] private bool isPromoted;
@@ -27,6 +32,20 @@ public partial class SherpaModelItem : ObservableObject
     [ObservableProperty] private bool isDownloading;
     [ObservableProperty] private int downloadProgress;
     [ObservableProperty] private string downloadStatus = "";
+
+    public string DetailsToolTip
+    {
+        get
+        {
+            var parts = new List<string> { $"{Id} ({ModelType})" };
+            if (FileSizeMb > 0) parts.Add($"{FileSizeMb:F0} MB");
+            if (SampleRate > 0) parts.Add($"{SampleRate / 1000.0:F1} kHz");
+            if (!string.IsNullOrEmpty(License)) parts.Add($"Licence: {License}");
+            if (!string.IsNullOrEmpty(MinSherpaOnnxVersion)) parts.Add($"Needs sherpa-onnx {MinSherpaOnnxVersion}+");
+            if (IsDeprecated) parts.Add("Deprecated upstream — inference keeps working");
+            return string.Join(" | ", parts);
+        }
+    }
 }
 
 public partial class SherpaModelsViewModel : ObservableObject
@@ -60,6 +79,13 @@ public partial class SherpaModelsViewModel : ObservableObject
         {
             // Load catalog off the UI thread to prevent freezing with 1300+ models
             var catalog = await Task.Run(() => SherpaModelService.LoadCatalogAsync().GetAwaiter().GetResult());
+
+            // fp16 builds SIGABRT the wrapper's CPU-only ONNX runtime (Rust
+            // cannot catch the foreign exception) — hide them from the
+            // downloadable list.
+            var fp16Hidden = catalog.Count(c => c.Url.Contains("fp16", StringComparison.OrdinalIgnoreCase));
+            catalog = catalog.Where(c => !c.Url.Contains("fp16", StringComparison.OrdinalIgnoreCase)).ToList();
+
             var installed = await Task.Run(() => SherpaModelService.ScanInstalledModels());
             _installed = installed;
 
@@ -81,6 +107,11 @@ public partial class SherpaModelsViewModel : ObservableObject
                                  : "vits",
                         Url = cat.Url ?? "",
                         FileSizeMb = (long)(cat.FileSizeMb ?? 0),
+                        SampleRate = cat.SampleRate ?? 24000,
+                        License = cat.License ?? "",
+                        LicenseUrl = cat.LicenseUrl ?? "",
+                        MinSherpaOnnxVersion = cat.MinSherpaOnnxVersion ?? "",
+                        IsDeprecated = cat.Deprecated ?? false,
                         IsDownloaded = inst != null,
                         IsPromoted = inst?.IsPromoted ?? false,
                     });
@@ -94,7 +125,9 @@ public partial class SherpaModelsViewModel : ObservableObject
 
             ApplyFilter();
             UpdateCounts();
-            StatusText = $"Loaded {AllModels.Count} voices, {_installed.Count} installed";
+            StatusText = fp16Hidden > 0
+                ? $"Loaded {AllModels.Count} voices, {_installed.Count} installed ({fp16Hidden} fp16 models hidden — incompatible with the CPU runtime)"
+                : $"Loaded {AllModels.Count} voices, {_installed.Count} installed";
         }
         catch (Exception ex)
         {
@@ -317,8 +350,9 @@ public partial class SherpaModelsViewModel : ObservableObject
             var audioData = client.SynthToBytes(previewText);
             if (audioData.Length > 0)
             {
-                // Rust returns raw PCM16 mono — wrap in WAV header for SoundPlayer
-                var wavData = WrapPcmInWav(audioData, 24000);
+                // Rust returns raw PCM16 mono — wrap in WAV header for SoundPlayer.
+                // Use the model's catalog sample rate (not all models are 24 kHz).
+                var wavData = WrapPcmInWav(audioData, model.SampleRate > 0 ? model.SampleRate : 24000);
                 var tempFile = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"vg_sherpa_{Guid.NewGuid():N}.wav");
                 await System.IO.File.WriteAllBytesAsync(tempFile, wavData);
                 _ = Task.Run(() =>
@@ -449,6 +483,11 @@ public partial class SherpaModelsViewModel : ObservableObject
                 ModelType = cat.ModelType ?? "vits",
                 FileSizeMb = (long)(cat.FileSizeMb ?? 0),
                 Url = cat.Url ?? "",
+                SampleRate = cat.SampleRate ?? 24000,
+                License = cat.License ?? "",
+                LicenseUrl = cat.LicenseUrl ?? "",
+                MinSherpaOnnxVersion = cat.MinSherpaOnnxVersion ?? "",
+                IsDeprecated = cat.Deprecated ?? false,
                 IsDownloaded = installed != null,
                 IsPromoted = installed?.IsPromoted ?? false,
             };

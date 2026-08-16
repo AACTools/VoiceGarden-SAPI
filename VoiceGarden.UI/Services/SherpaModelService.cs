@@ -32,6 +32,10 @@ public class SherpaModelService
         [JsonPropertyName("url")] public string Url { get; set; } = "";
         [JsonPropertyName("language")] public List<CatalogLanguage>? Language { get; set; }
         [JsonPropertyName("filesize_mb")] public double? FileSizeMb { get; set; }
+        [JsonPropertyName("license")] public string? License { get; set; }
+        [JsonPropertyName("license_url")] public string? LicenseUrl { get; set; }
+        [JsonPropertyName("min_sherpa_onnx_version")] public string? MinSherpaOnnxVersion { get; set; }
+        [JsonPropertyName("deprecated")] public bool? Deprecated { get; set; }
     }
 
     public class CatalogLanguage
@@ -97,6 +101,58 @@ public class SherpaModelService
     }
 
     /// <summary>
+    /// Legacy -> canonical model IDs from the 2026-08-10 sherpa-onnx registry
+    /// canonicalisation. rust-tts-wrapper (>= 0.3.17) hard-fails on unknown
+    /// model IDs, so installed directories using legacy names are renamed on
+    /// scan (idempotent; the SAPI adapter performs the same migration).
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, string> LegacyModelIds = new Dictionary<string, string>
+    {
+        ["kokoro-en-en-19"] = "kokoro-en-v0_19",
+        ["kokoro-zh_en-int8-multi"] = "kokoro-zh_en-int8",
+        ["vits-coqui-en-vctk"] = "coqui-en-vctk",
+        ["tts-fs-khadijah"] = "matcha-fs-khadijah",
+        ["tts-fs-musa"] = "matcha-fs-musa",
+        ["mimic3-af-google-nwu_low"] = "mimic3-af-google-low",
+        ["mimic3-bn-multi"] = "mimic3-bn-multi_low",
+        ["mimic3-el-rapunzelina"] = "mimic3-el-rapunzelina_low",
+        ["mimic3-es-m-ailabs_low"] = "mimic3-es-m-low",
+        ["mimic3-fa-haaniye"] = "mimic3-fa-haaniye_low",
+        ["mimic3-ko-kss"] = "mimic3-ko-kss_low",
+        ["mimic3-pl-m-ailabs_low"] = "mimic3-pl-m-low",
+        ["mimic3-tn-google-nwu_low"] = "mimic3-tn-google-low",
+        ["mimic3-vi-vais1000"] = "mimic3-vi-vais1000_low",
+    };
+
+    /// <summary>
+    /// Rename installed model directories still using legacy registry IDs to
+    /// their canonical names, so the wrapper's registry lookups succeed and
+    /// the catalog matches installed models. Best-effort; locked or in-use
+    /// directories are left for the adapter's migration to retry.
+    /// </summary>
+    private static void MigrateLegacyModelDirs()
+    {
+        if (!Directory.Exists(ModelsDir)) return;
+
+        foreach (var (legacy, canonical) in LegacyModelIds)
+        {
+            var legacyDir = Path.Combine(ModelsDir, legacy);
+            var canonicalDir = Path.Combine(ModelsDir, canonical);
+            if (!Directory.Exists(legacyDir) || Directory.Exists(canonicalDir))
+                continue;
+
+            try
+            {
+                Directory.Move(legacyDir, canonicalDir);
+            }
+            catch
+            {
+                // In use or locked — the SAPI adapter retries on voice init.
+            }
+        }
+    }
+
+    /// <summary>
     /// Scan the local models directory for installed models.
     /// </summary>
     public static List<InstalledModel> ScanInstalledModels()
@@ -104,12 +160,16 @@ public class SherpaModelService
         var result = new List<InstalledModel>();
         if (!Directory.Exists(ModelsDir)) return result;
 
+        MigrateLegacyModelDirs();
+
         // Check which are already promoted to HKLM
         var promoted = GetPromotedSherpaTokens();
 
         foreach (var dir in Directory.GetDirectories(ModelsDir))
         {
             var modelId = Path.GetFileName(dir);
+            // A renamed directory may still be referenced by its legacy token name
+            var legacyName = LegacyModelIds.FirstOrDefault(kv => kv.Value == modelId).Key;
 
             // Auto-extract any orphaned .tar.bz2 left from a failed/aborted extraction
             TryExtractArchives(dir);
@@ -118,7 +178,8 @@ public class SherpaModelService
             {
                 Id = modelId,
                 Directory = dir,
-                IsPromoted = promoted.Contains($"Sherpa-{modelId}"),
+                IsPromoted = promoted.Contains($"Sherpa-{modelId}")
+                    || (legacyName != null && promoted.Contains($"Sherpa-{legacyName}")),
             };
 
             // Find model.onnx (could be in nested dir for Piper)

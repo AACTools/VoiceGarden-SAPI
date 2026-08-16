@@ -28,7 +28,7 @@
                      AutomationProperties.Name="SherpaOnnx model list">
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="vm:SherpaModelItem">
-                        <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto, Auto">
+                        <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto, Auto" ToolTip.Tip="{Binding DetailsToolTip}">
                             <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" Margin="0,0,8,0"
                                       AutomationProperties.Name="{Binding Name}"
                                       AutomationProperties.HelpText="{Binding Language}"/>
