@@ -445,11 +445,11 @@ namespace SherpaOnnxConfig
                 // Try to find catalog in multiple locations
                 string[] catalogPaths = new string[]
                 {
-                    Path.Combine(AppContext.BaseDirectory, "merged_models.json"),
-                    Path.Combine(AppContext.BaseDirectory, "sherpa-config", "merged_models.json"),
-                    Path.Combine(Application.StartupPath, "merged_models.json"),
-                    Path.Combine(Application.StartupPath, "sherpa-config", "merged_models.json"),
-                    "merged_models.json"
+                    Path.Combine(AppContext.BaseDirectory, "models.json"),
+                    Path.Combine(AppContext.BaseDirectory, "sherpa-config", "models.json"),
+                    Path.Combine(Application.StartupPath, "models.json"),
+                    Path.Combine(Application.StartupPath, "sherpa-config", "models.json"),
+                    "models.json"
                 };
 
                 string? catalogContent = null;
@@ -465,7 +465,7 @@ namespace SherpaOnnxConfig
 
                 if (string.IsNullOrEmpty(catalogContent))
                 {
-                    AppendOutput("WARNING: merged_models.json not found. Models will need to be added manually.", Color.FromArgb(255, 200, 100));
+                    AppendOutput("WARNING: models.json not found. Models will need to be added manually.", Color.FromArgb(255, 200, 100));
                     statusLabel!.Text = "Status: No catalog found";
                     languageComboBox!.Items.Add(AllLanguagesOption);
                     languageComboBox.SelectedIndex = 0;
@@ -1869,7 +1869,7 @@ namespace SherpaOnnxConfig
                 string? catalogPath = FindCatalogPath();
                 if (string.IsNullOrEmpty(catalogPath))
                 {
-                    Console.WriteLine("ERROR: merged_models.json not found!");
+                    Console.WriteLine("ERROR: models.json not found!");
                     return 1;
                 }
 
@@ -1953,7 +1953,7 @@ namespace SherpaOnnxConfig
                 string? catalogPath = FindCatalogPath();
                 if (string.IsNullOrEmpty(catalogPath))
                 {
-                    Console.WriteLine("ERROR: merged_models.json not found!");
+                    Console.WriteLine("ERROR: models.json not found!");
                     return 1;
                 }
 
@@ -2297,11 +2297,11 @@ namespace SherpaOnnxConfig
         {
             string[] paths = new string[]
             {
-                Path.Combine(AppContext.BaseDirectory, "merged_models.json"),
-                Path.Combine(AppContext.BaseDirectory, "sherpa-config", "merged_models.json"),
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "merged_models.json"),
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sherpa-config", "merged_models.json"),
-                "merged_models.json"
+                Path.Combine(AppContext.BaseDirectory, "models.json"),
+                Path.Combine(AppContext.BaseDirectory, "sherpa-config", "models.json"),
+                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "models.json"),
+                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sherpa-config", "models.json"),
+                "models.json"
             };
 
             foreach (string path in paths)

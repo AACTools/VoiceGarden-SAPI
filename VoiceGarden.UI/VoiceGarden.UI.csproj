@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\SherpaOnnxConfig\merged_models.json" CopyToOutputDirectory="PreserveNewest" Link="merged_models.json" />
+    <None Include="..\SherpaOnnxConfig\models.json" CopyToOutputDirectory="PreserveNewest" Link="models.json" />
   </ItemGroup>
 
   <ItemGroup>

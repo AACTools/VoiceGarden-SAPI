@@ -27,7 +27,7 @@ Files deployed:
 ├── VoiceGardenSAPIAdapter.dll (+ deps)     ← C++ SAPI adapter (unchanged)
 ├── VoiceGardenSAPIAdapter.Net.*            ← .NET adapter (unchanged)
 ├── VoiceGarden.UI.exe (+ deps)              ← NEW: replaces Installer.exe + SherpaOnnxConfig + EngineConfig
-├── merged_models.json                       ← SherpaOnnx catalog
+├── models.json                       ← SherpaOnnx catalog
 └── branding.json                            ← UI feature flags
 ```
 
@@ -249,7 +249,7 @@ VoiceGarden.UI/
 │   └── BrandingService.cs         # Load branding.json feature flags
 ├── Assets/
 │   ├── Icons/                     # Standard icons (speaker, cloud, download, etc.)
-│   └── merged_models.json         # SherpaOnnx catalog (embedded or sidecar)
+│   └── models.json         # SherpaOnnx catalog (embedded or sidecar)
 ├── Resources/
 │   ├── Strings.resx               # English (default)
 │   └── Strings.fr.resx            # French (future localization)
@@ -290,7 +290,7 @@ Examples:
   VoiceGarden.UI.exe
   VoiceGarden.UI.exe install --platform all
   VoiceGarden.UI.exe voices --engine azure --key X --region Y --promote en-US-JennyNeural
-  VoiceGarden.UI.exe models download kokoro-en-en-19
+  VoiceGarden.UI.exe models download kokoro-en-v0_19
   VoiceGarden.UI.exe models promote-all
   VoiceGarden.UI.exe config --import engines.json
 ```
@@ -315,7 +315,7 @@ Examples:
 
 ### Phase 3: SherpaOnnx Integration (Week 3)
 - Port SherpaOnnxConfig logic into SherpaModelService
-- Model catalog loading (merged_models.json)
+- Model catalog loading (models.json)
 - Model download (with progress)
 - Model scanning/validation
 - promote-all command
@@ -399,7 +399,7 @@ Step 8:   Build MSI
 | Avalonia self-contained too large | Single-file publish, LZMA compression, same as SherpaOnnxConfig |
 | COM registration from .NET | Use Process.Start(regsvr32, runas) — same as current Installer.exe |
 | Grid3 HKLM compatibility | Preserve exact token format, same CLSID, same registry paths |
-| SherpaOnnx catalog logic | Port from SherpaOnnxConfig (C# already), reference merged_models.json |
+| SherpaOnnx catalog logic | Port from SherpaOnnxConfig (C# already), reference models.json |
 | DotNetTtsWrapper version mismatch | Don't deploy native DLLs from DotNetTtsWrapper — only use it for API calls |
 | Localization | Start with English, .resx files ready for translation |
 

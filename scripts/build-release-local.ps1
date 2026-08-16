@@ -233,11 +233,11 @@ if ($LASTEXITCODE -ne 0) {
     throw "dotnet publish failed with exit code $LASTEXITCODE"
 }
 
-# Single-file publish drops content files; copy merged_models.json manually.
-$catalogSrc = Join-Path $RepoRoot "SherpaOnnxConfig\merged_models.json"
+# Single-file publish drops content files; copy models.json manually.
+$catalogSrc = Join-Path $RepoRoot "SherpaOnnxConfig\models.json"
 if (Test-Path $catalogSrc) {
     Copy-Item -Path $catalogSrc -Destination $sherpaConfigOutput -Force
-    Write-Host "  merged_models.json copied to publish output" -ForegroundColor DarkGray
+    Write-Host "  models.json copied to publish output" -ForegroundColor DarkGray
 }
 
 Write-Host "  SherpaOnnxConfig built successfully" -ForegroundColor Green
@@ -259,8 +259,8 @@ if ($LASTEXITCODE -ne 0) {
     throw "dotnet publish failed for VoiceGarden.UI with exit code $LASTEXITCODE"
 }
 
-# Copy merged_models.json
-$catalogSrc = Join-Path $RepoRoot "SherpaOnnxConfig\merged_models.json"
+# Copy models.json
+$catalogSrc = Join-Path $RepoRoot "SherpaOnnxConfig\models.json"
 if (Test-Path $catalogSrc) {
     Copy-Item -Path $catalogSrc -Destination $voiceGardenUiOutput -Force
 }
@@ -319,7 +319,7 @@ foreach ($Platform in $Platforms) {
         # Stage SherpaOnnxConfig for x86/x64 utilities (matches CI behavior)
         if ($Platform -eq "x86" -or $Platform -eq "x64") {
             Copy-Item -Path (Join-Path $sherpaConfigOutput "SherpaOnnxConfig.exe") -Destination $utilOut -Force
-            $models = Join-Path $sherpaConfigOutput "merged_models.json"
+            $models = Join-Path $sherpaConfigOutput "models.json"
             if (Test-Path $models) {
                 Copy-Item -Path $models -Destination $utilOut -Force
             }

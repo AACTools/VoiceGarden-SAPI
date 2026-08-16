@@ -59,17 +59,21 @@ public class SherpaModelService
     }
 
     /// <summary>
-    /// Load the model catalog from merged_models.json (embedded or sidecar).
+    /// Load the model catalog from models.json (embedded or sidecar).
+    /// Falls back to the pre-0.3.17 merged_models.json sidecar if present.
     /// </summary>
     public static async Task<List<CatalogModel>> LoadCatalogAsync()
     {
         var candidates = new[]
         {
+            Path.Combine(AppContext.BaseDirectory, "models.json"),
+            Path.Combine(AppContext.BaseDirectory, "..", "models.json"),
+            Path.Combine(AppContext.BaseDirectory, "x64", "models.json"),
+            Path.Combine(AppContext.BaseDirectory, "x86", "models.json"),
+            Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "SherpaOnnxConfig", "models.json"),
+            // Legacy sidecar from wrapper <= 0.3.16 installs
             Path.Combine(AppContext.BaseDirectory, "merged_models.json"),
             Path.Combine(AppContext.BaseDirectory, "..", "merged_models.json"),
-            Path.Combine(AppContext.BaseDirectory, "x64", "merged_models.json"),
-            Path.Combine(AppContext.BaseDirectory, "x86", "merged_models.json"),
-            Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "SherpaOnnxConfig", "merged_models.json"),
         };
 
         foreach (var path in candidates)
@@ -78,7 +82,7 @@ public class SherpaModelService
             {
                 var json = await File.ReadAllTextAsync(path);
 
-                // merged_models.json is a dict keyed by model ID: { "id": { ... }, ... }
+                // The catalog is a dict keyed by model ID: { "id": { ... }, ... }
                 var dict = JsonSerializer.Deserialize<Dictionary<string, CatalogModel>>(json);
                 if (dict != null && dict.Count > 0)
                     return dict.Values.ToList();

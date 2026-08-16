@@ -23,9 +23,9 @@ jobs:
     - name: Build SherpaOnnxConfig (self-contained, x64)
       run: dotnet publish SherpaOnnxConfig\SherpaOnnxConfig.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o ${{github.workspace}}\sherpa-config
 
-    - name: Copy merged_models.json (single-file publish drops it)
+    - name: Copy models.json (single-file publish drops it)
       shell: pwsh
-      run: Copy-Item SherpaOnnxConfig\merged_models.json sherpa-config\ -Force
+      run: Copy-Item SherpaOnnxConfig\models.json sherpa-config\ -Force
 
     - name: Verify Sherpa integration checks
       shell: pwsh
@@ -36,7 +36,7 @@ jobs:
         name: sherpa-onnx-config
         path: |
           sherpa-config/SherpaOnnxConfig.exe
-          sherpa-config/merged_models.json
+          sherpa-config/models.json
 
   build-voice-garden-ui:
     name: Build VoiceGarden.UI
@@ -119,7 +119,7 @@ jobs:
         name: sherpa-onnx-config
         path: ${{github.workspace}}\out\
 
-    - name: Keep only merged_models.json in ARM64 utilities
+    - name: Keep only models.json in ARM64 utilities
       if: matrix.platform == 'ARM64'
       shell: pwsh
       run: Remove-Item out\SherpaOnnxConfig.exe -ErrorAction SilentlyContinue
