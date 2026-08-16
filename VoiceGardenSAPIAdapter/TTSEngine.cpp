@@ -507,6 +507,97 @@ inline static bool CheckHrNotFound(HRESULT hr)
 
 LSTATUS TryLoadAzureSpeechSDK();
 
+// Legacy -> canonical model IDs from the 2026-08-10 sherpa-onnx registry
+// canonicalisation. rust-tts-wrapper >= 0.3.17 resolves model files at
+// <modelPath>/<modelId> and hard-fails when the ID is missing from its
+// embedded registry, so installed directories still using a legacy name
+// are renamed in place to keep existing voices working.
+static const struct { const wchar_t* legacy; const wchar_t* canonical; }
+kLegacySherpaModelIds[] = {
+    { L"kokoro-en-en-19",         L"kokoro-en-v0_19" },
+    { L"kokoro-zh_en-int8-multi", L"kokoro-zh_en-int8" },
+    { L"vits-coqui-en-vctk",      L"coqui-en-vctk" },
+    { L"tts-fs-khadijah",         L"matcha-fs-khadijah" },
+    { L"tts-fs-musa",             L"matcha-fs-musa" },
+    { L"mimic3-af-google-nwu_low", L"mimic3-af-google-low" },
+    { L"mimic3-bn-multi",         L"mimic3-bn-multi_low" },
+    { L"mimic3-el-rapunzelina",   L"mimic3-el-rapunzelina_low" },
+    { L"mimic3-es-m-ailabs_low",  L"mimic3-es-m-low" },
+    { L"mimic3-fa-haaniye",       L"mimic3-fa-haaniye_low" },
+    { L"mimic3-ko-kss",           L"mimic3-ko-kss_low" },
+    { L"mimic3-pl-m-ailabs_low",  L"mimic3-pl-m-low" },
+    { L"mimic3-tn-google-nwu_low", L"mimic3-tn-google-low" },
+    { L"mimic3-vi-vais1000",      L"mimic3-vi-vais1000_low" },
+};
+
+// If modelId names a legacy registry ID, rename the installed directory
+// <modelsDir>\<legacy> to <modelsDir>\<canonical> (unless the canonical
+// directory already exists) and update modelId. Paths stored in the voice
+// token are rewritten best-effort — HKLM writes need elevation, and on
+// failure the stale path still resolves next time because this migration
+// runs on every voice initialisation.
+static void MigrateLegacySherpaModelDir(const std::filesystem::path& modelsDir,
+                                        std::string& modelId, ISpObjectToken* pToken)
+{
+    const std::wstring legacyId = StringToWString(modelId);
+    for (const auto& mapping : kLegacySherpaModelIds)
+    {
+        if (legacyId != mapping.legacy)
+            continue;
+
+        const auto legacyDir = modelsDir / mapping.legacy;
+        const auto canonicalDir = modelsDir / mapping.canonical;
+
+        if (!std::filesystem::exists(canonicalDir))
+        {
+            if (!std::filesystem::exists(legacyDir))
+                return; // nothing installed under either name — let the wrapper report it
+
+            std::error_code ec;
+            std::filesystem::rename(legacyDir, canonicalDir, ec);
+            if (ec)
+            {
+                LogWarn("RustTts: failed to migrate model directory '{}' -> '{}': {}; "
+                        "the voice may fail to load until it is renamed manually",
+                        legacyDir.string(), canonicalDir.string(), ec.message());
+                return;
+            }
+        }
+
+        LogInfo("RustTts: migrated SherpaOnnx model ID '{}' -> '{}'",
+                WStringToUTF8(legacyId), WStringToUTF8(mapping.canonical));
+        modelId = WStringToUTF8(mapping.canonical);
+
+        // Best-effort rewrite of the token's stored paths onto the renamed
+        // directory so later loads start from the canonical name.
+        if (pToken)
+        {
+            CComPtr<ISpDataKey> pConfigKey;
+            if (SUCCEEDED(pToken->OpenKey(L"VoiceGardenConfig", &pConfigKey)) && pConfigKey)
+            {
+                const wchar_t* pathValues[] = {
+                    L"SherpaOnnxModelPath", L"SherpaOnnxTokens", L"SherpaOnnxDataDir",
+                    L"SherpaOnnxVoices", L"SherpaOnnxLexicon",
+                };
+                for (const wchar_t* valueName : pathValues)
+                {
+                    CSpDynamicString pszValue;
+                    if (FAILED(pConfigKey->GetStringValue(valueName, &pszValue)) || !pszValue.m_psz)
+                        continue;
+                    std::wstring value(pszValue.m_psz);
+                    const std::wstring legacyPrefix = legacyDir.wstring() + L"\\";
+                    if (value.starts_with(legacyPrefix))
+                    {
+                        std::wstring fixed = canonicalDir.wstring() + L"\\" + value.substr(legacyPrefix.size());
+                        pConfigKey->SetStringValue(valueName, fixed.c_str());
+                    }
+                }
+            }
+        }
+        return;
+    }
+}
+
 bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
 {
     // Try to use rust-tts-wrapper for cloud engines.
@@ -607,7 +698,7 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
         //
         // Path structures:
         //   MMS:    models/mms_eng/model.onnx          (flat — modelId = mms_eng)
-        //   Kokoro: models/kokoro-en-en-19/sub/model.onnx  (nested — modelId = kokoro-en-en-19)
+        //   Kokoro: models/kokoro-en-v0_19/sub/model.onnx  (nested — modelId = kokoro-en-v0_19)
         //   Piper:  models/piper-en-amy-low/sub/file.onnx  (nested — modelId = piper-en-amy-low)
         //
         // Solution: walk up from the .onnx file to find the "models" directory,
@@ -624,6 +715,9 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
                 auto rel = std::filesystem::relative(onnxPath.parent_path(), p);
                 std::string modelId = rel.begin()->string();
                 std::string basePath = p.string();
+                // Registry 2026-08-10 renamed several IDs; migrate legacy
+                // directory names so the wrapper's registry lookup succeeds.
+                MigrateLegacySherpaModelDir(p, modelId, m_cpToken);
                 std::replace(basePath.begin(), basePath.end(), '\\', '/');
                 credsJson = "{\"modelId\":\"" + modelId + "\",\"modelPath\":\"" + basePath + "\"}";
                 LogInfo("RustTts: SherpaOnnx credentials: {}", credsJson);
@@ -790,6 +884,17 @@ int CTTSEngine::OnAudioData(uint8_t* data, uint32_t len)
                 m_lastSilentBytes += silentBytes;
                 return len;
             }
+            // Over a second of contiguous silence held already. Flush what is
+            // held and deliver this chunk in full instead of holding it (and
+            // instead of the len - m_lastSilentBytes ULONG underflow below,
+            // which progressive/streamed chunks can now reach because the
+            // wrapper delivers audio incrementally rather than in one buffer).
+            if (m_lastSilentBytes != 0)
+            {
+                auto mem = std::make_unique<BYTE[]>(m_lastSilentBytes);  // zeroed mem
+                m_pOutputSite->Write(mem.get(), m_lastSilentBytes, &written);
+            }
+            m_lastSilentBytes = 0;
         }
         else
         {
