@@ -1,0 +1,81 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:VoiceGarden.UI.ViewModels"
+             xmlns:views="using:VoiceGarden.UI.Views"
+             xmlns:lang="using:VoiceGarden.UI.Markup"
+             x:Class="VoiceGarden.UI.Views.AdvancedView"
+             x:DataType="vm:MainViewModel">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="4" Margin="0,0,0,16">
+
+            <TextBlock Text="{lang:Localize Advanced}" Classes="PageTitle" Margin="0,0,0,10"/>
+            <TextBlock Text="{lang:Localize AdvancedIntro}" Classes="Hint" Margin="0,0,0,14"/>
+
+            <!-- Adapter installation -->
+            <Border Classes="Card">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="{lang:Localize AdapterInstallation}" Classes="CardHeader"/>
+                    <Grid ColumnDefinitions="*, Auto, Auto">
+                        <TextBlock Grid.Column="0" Text="{Binding Status64Bit}" VerticalAlignment="Center"
+                                   AutomationProperties.LiveSetting="Polite"/>
+                        <Button Grid.Column="1" Content="{Binding Install64Text}" Margin="0,0,10,0"
+                                Command="{Binding Install64Command}"
+                                AutomationProperties.Name="Register 64-bit adapter"/>
+                        <Button Grid.Column="2" Content="{lang:Localize Uninstall}"
+                                Command="{Binding Uninstall64Command}"
+                                IsEnabled="{Binding Is64Installed}"
+                                AutomationProperties.Name="Unregister 64-bit adapter"/>
+                    </Grid>
+                    <Grid ColumnDefinitions="*, Auto, Auto">
+                        <TextBlock Grid.Column="0" Text="{Binding Status32Bit}" VerticalAlignment="Center"
+                                   AutomationProperties.LiveSetting="Polite"/>
+                        <Button Grid.Column="1" Content="{Binding Install32Text}" Margin="0,0,10,0"
+                                Command="{Binding Install32Command}"
+                                AutomationProperties.Name="Register 32-bit adapter"/>
+                        <Button Grid.Column="2" Content="{lang:Localize Uninstall}"
+                                Command="{Binding Uninstall32Command}"
+                                IsEnabled="{Binding Is32Installed}"
+                                AutomationProperties.Name="Unregister 32-bit adapter"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Settings -->
+            <Border Classes="Card">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="{lang:Localize AdvancedSettings}" Classes="CardHeader"/>
+                    <CheckBox Content="{lang:Localize EnableAnalytics}" IsChecked="{Binding AnalyticsEnabled}"
+                              AutomationProperties.HelpText="{lang:Localize AnalyticsHint}"/>
+                    <TextBlock Text="{lang:Localize AnalyticsHint}" Classes="Hint" Margin="28,0,0,0"/>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="{lang:Localize LogLevel}" VerticalAlignment="Center"/>
+                        <ComboBox SelectedIndex="{Binding LogLevelIndex}" MinWidth="120"
+                                  AutomationProperties.Name="{lang:Localize LogLevel}"/>
+                        <Button Content="{lang:Localize OpenLogs}" Command="{Binding OpenLogsCommand}"
+                                AutomationProperties.Name="{lang:Localize OpenLogs}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Full SherpaOnnx model manager -->
+            <Border Classes="Card">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="{lang:Localize SherpaOnnxModels}" Classes="CardHeader"/>
+                    <TextBlock Text="{Binding SherpaModelSummary}" Classes="Hint"
+                               AutomationProperties.LiveSetting="Polite"/>
+                    <views:SherpaModelsView DataContext="{Binding SherpaModels}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- About -->
+            <Border Classes="Card">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{lang:Localize About}" Classes="CardHeader"/>
+                    <TextBlock Text="{Binding AboutText}" Classes="Hint"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

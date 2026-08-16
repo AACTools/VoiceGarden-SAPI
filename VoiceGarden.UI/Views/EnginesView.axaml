@@ -1,0 +1,113 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:VoiceGarden.UI.ViewModels"
+             xmlns:models="using:VoiceGarden.UI.Models"
+             xmlns:lang="using:VoiceGarden.UI.Markup"
+             x:Class="VoiceGarden.UI.Views.EnginesView"
+             x:DataType="vm:EnginesViewModel">
+
+    <Grid RowDefinitions="Auto, Auto, Auto, *, Auto">
+
+        <!-- Intro -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,12" Spacing="4">
+            <TextBlock Text="{lang:Localize TabEnginesTitle}" Classes="PageTitle"/>
+            <TextBlock Text="{lang:Localize TabEnginesIntro}" Classes="Hint"/>
+        </StackPanel>
+
+        <!-- Filters — wraps, never clips -->
+        <Border Grid.Row="1" Classes="Card">
+            <WrapPanel Classes="FilterRow">
+                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <TextBlock Text="{lang:Localize FilterType}" Classes="SectionLabel" VerticalAlignment="Center"/>
+                    <ComboBox SelectedIndex="{Binding TypeFilterIndex}" ItemsSource="{Binding TypeFilterOptions}"
+                              MinWidth="140"
+                              AutomationProperties.Name="{lang:Localize FilterType}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <TextBlock Text="{lang:Localize FilterCredentials}" Classes="SectionLabel" VerticalAlignment="Center"/>
+                    <ComboBox SelectedIndex="{Binding CredsFilterIndex}" ItemsSource="{Binding CredsFilterOptions}"
+                              MinWidth="170"
+                              AutomationProperties.Name="{lang:Localize FilterCredentials}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <TextBlock Text="{lang:Localize FilterLanguage}" Classes="SectionLabel" VerticalAlignment="Center"/>
+                    <ComboBox SelectedItem="{Binding LanguageFilter}" ItemsSource="{Binding LanguageOptions}"
+                              MinWidth="170"
+                              AutomationProperties.Name="{lang:Localize FilterLanguage}"/>
+                </StackPanel>
+                <TextBox Text="{Binding SearchText}" PlaceholderText="{lang:Localize SearchEngines}"
+                         MinWidth="200"
+                         AutomationProperties.Name="{lang:Localize SearchEngines}"/>
+                <Button Content="{lang:Localize SelectVisible}" Command="{Binding SelectVisibleCommand}"
+                        AutomationProperties.Name="{lang:Localize SelectVisible}"/>
+                <Button Content="{lang:Localize ClearVisible}" Command="{Binding ClearVisibleCommand}"
+                        AutomationProperties.Name="{lang:Localize ClearVisible}"/>
+            </WrapPanel>
+        </Border>
+
+        <!-- Language-filter note -->
+        <TextBlock Grid.Row="2" Text="{Binding LanguageFilterNote}" Classes="Hint" Margin="2,0,0,8"
+                   IsVisible="{Binding !!LanguageFilterNote.Length}"
+                   AutomationProperties.LiveSetting="Polite"/>
+
+        <!-- Engine list -->
+        <Border Grid.Row="3" BorderBrush="{DynamicResource SystemControlDefaultChromeMediumLowBrush}"
+                BorderThickness="1" CornerRadius="10" MinHeight="220" Margin="0,0,0,14">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding FilteredEngines}"
+                              AutomationProperties.Name="{lang:Localize TabEnginesTitle}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="models:EngineCatalogItem">
+                            <CheckBox IsChecked="{Binding IsSelected}" MinHeight="64"
+                                      Margin="6,4" HorizontalAlignment="Stretch"
+                                      AutomationProperties.Name="{Binding DisplayName, StringFormat='Enable {0}'}"
+                                      AutomationProperties.HelpText="{Binding Description}">
+                                <StackPanel Spacing="6" VerticalAlignment="Center" Margin="0,2">
+                                    <StackPanel Orientation="Horizontal" Spacing="10">
+                                        <TextBlock Text="{Binding DisplayName}" FontSize="16" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource VGForegroundBrush}"/>
+                                        <Border Classes="Badge" Background="#22C55E" IsVisible="{Binding IsOffline}"
+                                                ToolTip.Tip="{lang:Localize BadgeOffline}">
+                                            <TextBlock Text="{lang:Localize BadgeOffline}"/>
+                                        </Border>
+                                        <Border Classes="Badge" Background="#3B82F6" IsVisible="{Binding !IsOffline}"
+                                                ToolTip.Tip="{lang:Localize BadgeCloud}">
+                                            <TextBlock Text="{lang:Localize BadgeCloud}"/>
+                                        </Border>
+                                        <Border Classes="Badge" Background="#D97706" IsVisible="{Binding NeedsCredentials}"
+                                                ToolTip.Tip="{lang:Localize BadgeCredsNeeded}">
+                                            <TextBlock Text="{lang:Localize BadgeCredsNeeded}"/>
+                                        </Border>
+                                        <Border Classes="Badge" Background="#64748B" IsVisible="{Binding !NeedsCredentials}"
+                                                ToolTip.Tip="{lang:Localize BadgeNoCreds}">
+                                            <TextBlock Text="{lang:Localize BadgeNoCreds}"/>
+                                        </Border>
+                                        <Border Classes="Badge" Background="#16A34A" IsVisible="{Binding HasStoredKey}"
+                                                ToolTip.Tip="{lang:Localize BadgeKeyStored}">
+                                            <TextBlock Text="{lang:Localize BadgeKeyStored}"/>
+                                        </Border>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding Description}" Classes="Hint" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </CheckBox>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Footer: selection summary + next step -->
+        <Grid Grid.Row="4" ColumnDefinitions="*, Auto, Auto">
+            <TextBlock Grid.Column="0" Text="{Binding SelectedSummary}" Classes="SectionLabel" VerticalAlignment="Center"
+                       AutomationProperties.LiveSetting="Polite"/>
+            <Button Grid.Column="1" Content="{lang:Localize NextCredentials}" Classes="Primary"
+                    Command="{Binding GoToCredentialsCommand}" IsEnabled="{Binding CredentialsNeeded}"
+                    Margin="0,0,10,0"
+                    AutomationProperties.Name="{lang:Localize NextCredentials}"/>
+            <Button Grid.Column="2" Content="{lang:Localize NextVoices}"
+                    Command="{Binding GoToVoicesCommand}"
+                    AutomationProperties.Name="{lang:Localize NextVoices}"/>
+        </Grid>
+
+    </Grid>
+</UserControl>
