@@ -1,5 +1,17 @@
 Add-Type -AssemblyName "System.Speech"
 
+function Resolve-VoiceName([string]$wanted) {
+    # Promoted Sherpa voices are named by catalog name (e.g. 'v0_19') when
+    # promoted via SherpaOnnxConfig, or by model id when promoted via
+    # VoiceGarden.UI — accept either.
+    $s = New-Object System.Speech.Synthesis.SpeechSynthesizer
+    $hit = $s.GetInstalledVoices() | Where-Object {
+        $_.VoiceInfo.Name -eq $wanted -or $_.VoiceInfo.Description -like "*$wanted*" -or $wanted -like "*$($_.VoiceInfo.Name)*"
+    } | Select-Object -First 1
+    if ($hit) { return $hit.VoiceInfo.Name }
+    return $wanted
+}
+
 Write-Host "=== Boundary Crash Reproduction Test ===" -ForegroundColor Cyan
 Write-Host "This test uses PromptBuilder with prosody changes (like Grid3 does)"
 Write-Host "to verify boundary events don't crash System.Speech."
@@ -9,9 +21,9 @@ $synth = New-Object System.Speech.Synthesis.SpeechSynthesizer
 
 foreach ($voiceName in @("kokoro-en-v0_19", "Azure-Jenny")) {
     Write-Host "--- Testing: $voiceName ---" -ForegroundColor Yellow
-    
+
     try {
-        $synth.SelectVoice($voiceName)
+        $synth.SelectVoice((Resolve-VoiceName $voiceName))
     } catch {
         Write-Host "  Voice not available, skipping"
         continue
