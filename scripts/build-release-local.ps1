@@ -425,10 +425,15 @@ if (Test-Path $rustDllDir) {
         if (-not (Test-Path $targetDir)) { continue }
         $dll = Get-ChildItem -Path $rustDllDir -Recurse -Filter "rust_tts_wrapper.dll" |
             Where-Object { $_.FullName -like "*\runtimes\$rid\native\*" } |
+            Sort-Object {
+                $ver = $_.FullName.Substring($rustDllDir.Length + 1).Split('\')[0]
+                try { [version]$ver } catch { [version]($ver -replace '-.*$', '') }
+            } -Descending |
             Select-Object -First 1
         if ($dll) {
             Copy-Item $dll.FullName $targetDir -Force
-            Write-Host "  rust_tts_wrapper.dll ($rid) -> payload\$arch\" -ForegroundColor DarkGray
+            $dllVersion = $dll.FullName.Substring($rustDllDir.Length + 1).Split('\')[0]
+            Write-Host "  rust_tts_wrapper.dll $dllVersion ($rid) -> payload\$arch\" -ForegroundColor DarkGray
         } else {
             Write-Host "  WARNING: rust_tts_wrapper.dll not found for $rid in NuGet cache" -ForegroundColor Yellow
         }
