@@ -3,7 +3,7 @@ Add-Type -AssemblyName "System.Speech"
 Write-Host "=== Word Boundary Test ===" -ForegroundColor Cyan
 $text = "The quick brown fox jumps over the lazy dog."
 
-foreach ($voice in @("Azure-Jenny", "kokoro-en-en-19", "Microsoft David Desktop")) {
+foreach ($voice in @("Azure-Jenny", "kokoro-en-v0_19", "Microsoft David Desktop")) {
     Write-Host "`n--- $voice ---" -ForegroundColor Yellow
     $count = 0
     $synth = New-Object System.Speech.Synthesis.SpeechSynthesizer

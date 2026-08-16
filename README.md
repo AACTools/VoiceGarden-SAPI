@@ -106,7 +106,7 @@ Fully offline neural TTS — no internet, no API keys, no cloud dependency.
 ### Downloading models
 Models are stored in `%LOCALAPPDATA%\VoiceGardenSAPIAdapter\models\`. Download via:
 - **UI:** SherpaOnnx tab → select models → Download Selected (built-in extraction, no 7-Zip needed)
-- **CLI:** `VoiceGarden.UI.exe models download kokoro-en-en-19`
+- **CLI:** `VoiceGarden.UI.exe models download kokoro-en-v0_19`
 
 ### Grid 3 compatibility
 Grid 3 (`System.Speech`) only selects voices from HKLM registry tokens. Use **Install to SAPI** to promote voices to HKLM. Word boundary events work with Grid3 (tested, no crash).
@@ -148,7 +148,7 @@ Each cloud engine needs its API key set in the Engine Config tab. Search voices 
 ```powershell
 Add-Type -AssemblyName "System.Speech"
 $s = New-Object System.Speech.Synthesis.SpeechSynthesizer
-$s.SelectVoice("kokoro-en-en-19")       # or any voice name
+$s.SelectVoice("kokoro-en-v0_19")       # or any voice name
 $s.Speak("Hello, this is a test.")
 ```
 

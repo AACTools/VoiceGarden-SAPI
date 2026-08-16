@@ -266,7 +266,7 @@ namespace SherpaOnnxConfig
             Console.WriteLine("  SherpaOnnxConfig.exe list");
             Console.WriteLine("  SherpaOnnxConfig.exe list --language English");
             Console.WriteLine("  SherpaOnnxConfig.exe list --language Chinese");
-            Console.WriteLine("  SherpaOnnxConfig.exe download kokoro-en-en-19");
+            Console.WriteLine("  SherpaOnnxConfig.exe download kokoro-en-v0_19");
             Console.WriteLine("  SherpaOnnxConfig.exe promote-hklm piper-en-alan-low");
             Console.WriteLine("  SherpaOnnxConfig.exe promote-hklm piper-en-alan-low --model-dir \"C:\\Users\\WillWade\\AppData\\Local\\<InstallFolder>\\models\\piper-en-alan-low\"");
             Console.WriteLine("  SherpaOnnxConfig.exe promote-hklm piper-en-alan-low --compat-en-us");

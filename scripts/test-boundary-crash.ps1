@@ -7,7 +7,7 @@ Write-Host ""
 
 $synth = New-Object System.Speech.Synthesis.SpeechSynthesizer
 
-foreach ($voiceName in @("kokoro-en-en-19", "Azure-Jenny")) {
+foreach ($voiceName in @("kokoro-en-v0_19", "Azure-Jenny")) {
     Write-Host "--- Testing: $voiceName ---" -ForegroundColor Yellow
     
     try {
