@@ -359,22 +359,13 @@ public partial class SherpaModelsViewModel : ObservableObject
             });
 
             // Use language-appropriate preview text
-            var previewText = GetPreviewText(model);
             StatusText = $"Previewing {model.Name}...";
-            var audioData = client.SynthToBytes(previewText);
+            var audioData = client.SynthToBytes(AudioPreview.GetSherpaPreviewText(model.Id, model.Name));
             if (audioData.Length > 0)
             {
-                // Rust returns raw PCM16 mono — wrap in WAV header for SoundPlayer.
+                // Rust returns raw PCM16 mono — wrap in WAV and play.
                 // Use the model's catalog sample rate (not all models are 24 kHz).
-                var wavData = WrapPcmInWav(audioData, model.SampleRate > 0 ? model.SampleRate : 24000);
-                var tempFile = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"vg_sherpa_{Guid.NewGuid():N}.wav");
-                await System.IO.File.WriteAllBytesAsync(tempFile, wavData);
-                _ = Task.Run(() =>
-                {
-                    try { using var p = new System.Media.SoundPlayer(tempFile); p.PlaySync(); }
-                    catch (Exception playEx) { System.Diagnostics.Debug.WriteLine($"SoundPlayer: {playEx.Message}"); }
-                    finally { try { System.IO.File.Delete(tempFile); } catch { } }
-                });
+                AudioPreview.PlayPcm(audioData, model.SampleRate > 0 ? model.SampleRate : 24000, "vg_sherpa_");
                 model.DownloadStatus = Loc.GetString("DownloadedStatus");
                 StatusText = $"Previewing {model.Name}";
             }
@@ -390,80 +381,6 @@ public partial class SherpaModelsViewModel : ObservableObject
             StatusText = $"Preview failed: {ex.Message}";
             System.Diagnostics.Debug.WriteLine($"Preview exception for {model.Id}: {ex}");
         }
-    }
-
-    /// <summary>
-    /// Get language-appropriate preview text. MMS models are character-based and
-    /// only recognize characters from their target language script.
-    /// </summary>
-    private static string GetPreviewText(SherpaModelItem model)
-    {
-        var id = model.Id.ToLowerInvariant();
-
-        // English models — use English
-        if (id.Contains("eng") || id.StartsWith("piper-en") || id.StartsWith("kokoro-en"))
-            return $"Hello, this is a {model.Name} voice.";
-
-        // MMS models — extract the ISO 639-3 code and try a native greeting
-        if (id.StartsWith("mms_"))
-        {
-            var langCode = id.Substring(4); // e.g., "fas", "hyw", "ara"
-            return langCode switch
-            {
-                "fas" => "سلام، این یک صدای فارسی است.",           // Persian
-                "ara" => "مرحبا، هذه تجربة صوتية.",                // Arabic
-                "hyw" or "hye" => "Բարև, սա ձայնային փորձարկում է:", // Armenian
-                "hin" => "नमस्ते, यह एक आवाज परीक्षण है।",            // Hindi
-                "ben" => "হ্যালো, এটি একটি ভয়েস পরীক্ষা।",           // Bengali
-                "urd" => "ہیلو، یہ ایک آواز کا ٹیسٹ ہے۔",              // Urdu
-                "rus" => "Привет, это тестовое озвучивание.",         // Russian
-                "zho" or "cmn" => "你好，这是一个语音测试。",           // Chinese
-                "jpn" => "こんにちは、これは音声テストです。",          // Japanese
-                "kor" => "안녕하세요, 음성 테스트입니다.",              // Korean
-                "tur" => "Merhaba, bu bir ses testidir.",             // Turkish
-                "vie" => "Xin chào, đây là một bài kiểm tra giọng nói.", // Vietnamese
-                "tha" => "สวัสดีนี่คือการทดสอบเสียงพูด",              // Thai
-                "fra" or "fre" => "Bonjour, ceci est un test vocal.", // French
-                "deu" or "ger" => "Hallo, dies ist ein Sprachtest.",  // German
-                "spa" => "Hola, esta es una prueba de voz.",         // Spanish
-                "por" => "Olá, este é um teste de voz.",             // Portuguese
-                "ita" => "Ciao, questo è un test vocale.",           // Italian
-                "guj" => "નમસ્તે, આ એક અવાજ ચકાસણી છે.",               // Gujarati
-                _ => $"[test] {langCode}", // Fallback — may produce no audio
-            };
-        }
-
-        // Piper/Kokoro non-English — try English (Piper models often support it)
-        return $"Hello. {model.Name}.";
-    }
-
-    /// <summary>
-    /// Wrap raw PCM16 mono samples in a WAV header so SoundPlayer can play them.
-    /// </summary>
-    private static byte[] WrapPcmInWav(byte[] pcm, int sampleRate)
-    {
-        using var ms = new System.IO.MemoryStream();
-        using var bw = new System.IO.BinaryWriter(ms);
-        short channels = 1;
-        short bitsPerSample = 16;
-        int byteRate = sampleRate * channels * bitsPerSample / 8;
-        short blockAlign = (short)(channels * bitsPerSample / 8);
-
-        bw.Write(System.Text.Encoding.ASCII.GetBytes("RIFF"));
-        bw.Write(36 + pcm.Length);
-        bw.Write(System.Text.Encoding.ASCII.GetBytes("WAVE"));
-        bw.Write(System.Text.Encoding.ASCII.GetBytes("fmt "));
-        bw.Write(16);
-        bw.Write((short)1);
-        bw.Write(channels);
-        bw.Write(sampleRate);
-        bw.Write(byteRate);
-        bw.Write(blockAlign);
-        bw.Write(bitsPerSample);
-        bw.Write(System.Text.Encoding.ASCII.GetBytes("data"));
-        bw.Write(pcm.Length);
-        bw.Write(pcm);
-        return ms.ToArray();
     }
 
     [RelayCommand]

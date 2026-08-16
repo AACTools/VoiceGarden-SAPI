@@ -7,29 +7,20 @@
 
     <Grid RowDefinitions="Auto, Auto, *, Auto">
 
-        <!-- Filter row -->
-        <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto, *, Auto, Auto, Auto, Auto" Margin="0,0,0,8">
-            <TextBlock Grid.Column="0" Text="{lang:Localize Language}" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
-            <TextBox Grid.Column="1" Text="{Binding LanguageFilter}" Watermark="{lang:Localize All}" Width="80" Margin="0,0,8,0"
-                     AutomationProperties.Name="Language filter"/>
-            <TextBlock Grid.Column="2" Text="{lang:Localize Filter}" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
-            <TextBox Grid.Column="3" Text="{Binding SearchFilter}" Watermark="{lang:Localize Search}" MinWidth="120"
-                     AutomationProperties.Name="Search filter"/>
-            <TextBlock Grid.Column="4" Text="Quality" VerticalAlignment="Center" Margin="16,0,8,0" FontSize="12"/>
-            <ComboBox Grid.Column="5" SelectedItem="{Binding QualityFilter}" ItemsSource="{Binding QualityTiers}"
-                      MinWidth="90" Margin="0,0,8,0"
-                      AutomationProperties.Name="Quality tier filter">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding}"/>
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
-            <CheckBox Grid.Column="6" Content="{lang:Localize InstalledOnly}" IsChecked="{Binding ShowInstalledOnly}" Margin="8,0,0,0"
-                      AutomationProperties.Name="Show installed models only"/>
-            <Button Grid.Column="7" Content="{lang:Localize Rescan}" Command="{Binding RescanCommand}" Padding="12,2" Margin="8,0,0,0"
-                     AutomationProperties.Name="Rescan installed models"/>
-        </Grid>
+        <!-- Filter row — wraps instead of clipping -->
+        <WrapPanel Grid.Row="0" Classes="FilterRow" Margin="0,0,0,10">
+            <TextBox Text="{Binding LanguageFilter}" PlaceholderText="{lang:Localize Language}" MinWidth="120"
+                     AutomationProperties.Name="{lang:Localize FilterLanguage}"/>
+            <TextBox Text="{Binding SearchFilter}" PlaceholderText="{lang:Localize Search}" MinWidth="150"
+                     AutomationProperties.Name="{lang:Localize Search}"/>
+            <ComboBox SelectedItem="{Binding QualityFilter}" ItemsSource="{Binding QualityTiers}"
+                      MinWidth="110"
+                      AutomationProperties.Name="{lang:Localize FilterQuality}"/>
+            <CheckBox Content="{lang:Localize InstalledOnly}" IsChecked="{Binding ShowInstalledOnly}"
+                      AutomationProperties.Name="{lang:Localize InstalledOnly}"/>
+            <Button Content="{lang:Localize Rescan}" Command="{Binding RescanCommand}"
+                    AutomationProperties.Name="{lang:Localize Rescan}"/>
+        </WrapPanel>
 
         <!-- Model list -->
         <Border Grid.Row="1" BorderBrush="{DynamicResource SystemControlDefaultChromeMediumLowBrush}"

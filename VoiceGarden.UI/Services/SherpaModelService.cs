@@ -691,6 +691,77 @@ public class SherpaModelService
         }
     }
 
+    /// <summary>
+    /// Scan installed models and return one (enriched with catalog gender /
+    /// quality) by id, or null when not installed.
+    /// </summary>
+    public static InstalledModel? GetInstalledModel(string modelId)
+    {
+        var models = ScanInstalledModels().Where(m => m.ModelPath != null).ToList();
+        var model = models.FirstOrDefault(m => m.Id.Equals(modelId, StringComparison.OrdinalIgnoreCase));
+        if (model == null) return null;
+        EnrichWithCatalog(models);
+        return model;
+    }
+
+    /// <summary>
+    /// Generate a .reg file for a specific set of installed models and import
+    /// it elevated. Used by the Voices tab for single/bulk promotion of
+    /// selected models without requiring the whole install to be promoted.
+    /// Returns (promoted, failed, errorMessage).
+    /// </summary>
+    public static (int promoted, int failed, string error) PromoteModelsElevated(IEnumerable<string> modelIds)
+    {
+        var wanted = new HashSet<string>(modelIds, StringComparer.OrdinalIgnoreCase);
+        var models = ScanInstalledModels()
+            .Where(m => m.ModelPath != null && wanted.Contains(m.Id))
+            .ToList();
+        if (models.Count == 0)
+            return (0, wanted.Count, "No downloaded models found with a valid model.onnx");
+
+        EnrichWithCatalog(models);
+
+        var regDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "VoiceGardenSAPIAdapter");
+        Directory.CreateDirectory(regDir);
+        var regPath = Path.Combine(regDir, "promote_selected.reg");
+        var lines = new List<string> { "Windows Registry Editor Version 5.00", "" };
+
+        foreach (var model in models)
+            AppendModelToReg(lines, model);
+
+        File.WriteAllLines(regPath, lines);
+
+        try
+        {
+            var psi = new System.Diagnostics.ProcessStartInfo("reg.exe", $"import \"{regPath}\"")
+            {
+                Verb = "runas",
+                UseShellExecute = true,
+                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+                CreateNoWindow = true,
+            };
+            var p = System.Diagnostics.Process.Start(psi);
+            p?.WaitForExit(30000);
+            var rc = p?.ExitCode ?? -1;
+
+            TryDelete(regPath);
+
+            if (rc == 0)
+                return (models.Count, 0, "");
+            return (0, models.Count, $"reg import exited with code {rc}");
+        }
+        catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+        {
+            TryDelete(regPath);
+            return (0, 0, "UAC cancelled");
+        }
+        catch (Exception ex)
+        {
+            TryDelete(regPath);
+            return (0, models.Count, ex.Message);
+        }
+    }
+
     private static void AppendModelToReg(List<string> lines, InstalledModel model)
     {
         var tokenName = $"Sherpa-{model.Id}";
