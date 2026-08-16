@@ -36,6 +36,8 @@ public class SherpaModelService
         [JsonPropertyName("license_url")] public string? LicenseUrl { get; set; }
         [JsonPropertyName("min_sherpa_onnx_version")] public string? MinSherpaOnnxVersion { get; set; }
         [JsonPropertyName("deprecated")] public bool? Deprecated { get; set; }
+        [JsonPropertyName("quality")] public string? Quality { get; set; }
+        [JsonPropertyName("num_speakers")] public int? NumSpeakers { get; set; }
     }
 
     public class CatalogLanguage
@@ -60,6 +62,12 @@ public class SherpaModelService
         /// 0=VITS, 1=Matcha, 2=Kokoro
         /// </summary>
         public int ModelType { get; set; } = 0;
+
+        /// <summary>SAPI Gender attribute value: Male/Female/Neutral (Neutral = unknown).</summary>
+        public string Gender { get; set; } = "Neutral";
+
+        /// <summary>Registry quality tier (high/medium/low/x_low/int8/fp16), empty when unknown.</summary>
+        public string Quality { get; set; } = "";
     }
 
     /// <summary>
@@ -149,6 +157,94 @@ public class SherpaModelService
             {
                 // In use or locked — the SAPI adapter retries on voice init.
             }
+        }
+    }
+
+    /// <summary>
+    /// Derive a SAPI Gender attribute (Male/Female/Neutral) for a sherpa model.
+    /// The registry carries no gender field, so this uses naming conventions:
+    /// - word tokens female/woman/girl (checked first — "female" contains "male")
+    ///   and male/man/boy in the id or display name;
+    /// - the piper ecosystem's af_/am_ (adult female/male) underscore prefixes;
+    /// - mimic3's single-letter m/f (m-ailabs / f-ailabs) variants.
+    /// Multi-speaker models and the MMS family (whose ids are language codes and
+    /// whose names are language names, e.g. the "Male" language of Ethiopia)
+    /// are left Neutral rather than guessed.
+    /// </summary>
+    public static string DeriveSherpaGender(string id, string name, int numSpeakers)
+    {
+        if (numSpeakers > 1) return "Neutral";
+        var lower = (id + " " + name).ToLowerInvariant();
+        if (lower.StartsWith("mms_") || lower.Contains(" mms_")) return "Neutral";
+
+        // Piper af_/am_ (e.g. hand-installed af_amy, am_adam voices). The
+        // underscore form matters: "af-" / "am-" segments are Afrikaans /
+        // Armenian language codes, not gender markers.
+        if (System.Text.RegularExpressions.Regex.IsMatch(lower, @"(?:^|[^a-z0-9])af_[a-z]")) return "Female";
+        if (System.Text.RegularExpressions.Regex.IsMatch(lower, @"(?:^|[^a-z0-9])am_[a-z]")) return "Male";
+
+        var tokens = lower.Split(new[] { ' ', '-', '_', '.', '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+        var isFemale = false;
+        var isMale = false;
+        var hasSingleM = false;
+        var hasSingleF = false;
+        foreach (var tok in tokens)
+        {
+            switch (tok)
+            {
+                case "female":
+                case "woman":
+                case "girl":
+                case "women":
+                    isFemale = true;
+                    break;
+                case "male":
+                case "man":
+                case "boy":
+                case "men":
+                    isMale = true;
+                    break;
+                case "m":
+                    hasSingleM = true;
+                    break;
+                case "f":
+                    hasSingleF = true;
+                    break;
+            }
+        }
+
+        if (isFemale) return "Female";
+        if (isMale) return "Male";
+        // mimic3 m-ailabs (male) / f-ailabs (female) variants
+        if (lower.StartsWith("mimic3-"))
+        {
+            if (hasSingleF) return "Female";
+            if (hasSingleM) return "Male";
+        }
+        return "Neutral";
+    }
+
+    /// <summary>
+    /// Fill Gender/Quality on installed models from the bundled catalog
+    /// (single load), so promotion can write them into the SAPI token
+    /// attributes. Models missing from the catalog keep Neutral/empty.
+    /// </summary>
+    private static void EnrichWithCatalog(List<InstalledModel> models)
+    {
+        try
+        {
+            var catalog = LoadCatalogAsync().GetAwaiter().GetResult()
+                .ToDictionary(c => c.Id, StringComparer.OrdinalIgnoreCase);
+            foreach (var model in models)
+            {
+                if (!catalog.TryGetValue(model.Id, out var cat)) continue;
+                model.Quality = cat.Quality ?? "";
+                model.Gender = DeriveSherpaGender(cat.Id, cat.Name, cat.NumSpeakers ?? 1);
+            }
+        }
+        catch
+        {
+            // Catalog unavailable — promote without gender/quality metadata.
         }
     }
 
@@ -505,6 +601,7 @@ public class SherpaModelService
     public static (int promoted, int failed) PromoteAll(bool compatEnUs = false)
     {
         var models = ScanInstalledModels();
+        EnrichWithCatalog(models);
         int promoted = 0, failed = 0;
         var errors = new List<string>();
 
@@ -545,6 +642,8 @@ public class SherpaModelService
         var models = ScanInstalledModels().Where(m => m.ModelPath != null).ToList();
         if (models.Count == 0)
             return (0, 0, "No downloaded models found with a valid model.onnx");
+
+        EnrichWithCatalog(models);
 
         // Generate .reg file in a shared location (C:\ProgramData) so the elevated
         // process (which may run as a different admin user) can read it.
@@ -619,12 +718,14 @@ public class SherpaModelService
         // Attributes subkey
         lines.Add($"[{tokenPath}\\Attributes]");
         lines.Add($"\"Name\"=\"{model.Id}\"");
-        lines.Add("\"Gender\"=\"Neutral\"");
+        lines.Add($"\"Gender\"=\"{model.Gender}\"");
         lines.Add("\"Age\"=\"Adult\"");
         lines.Add("\"Language\"=\"409\"");
         lines.Add("\"Locale\"=\"en-US\"");
         lines.Add("\"Vendor\"=\"K2FSA\"");
         lines.Add("\"VoiceGardenType\"=\"Sherpa;Offline\"");
+        if (!string.IsNullOrEmpty(model.Quality) && model.Quality != "unknown")
+            lines.Add($"\"Quality\"=\"{model.Quality}\"");
 
         // Also register in Speech_OneCore for Chrome/Edge support
         var oneCorePath = $@"HKEY_LOCAL_MACHINE\{OneCoreTokensRoot}\{tokenName}";
@@ -645,11 +746,13 @@ public class SherpaModelService
             lines.Add($"\"SherpaOnnxLexicon\"=\"{EscapeRegPath(model.LexiconPath)}\"");
         lines.Add($"[{oneCorePath}\\Attributes]");
         lines.Add($"\"Name\"=\"{model.Id}\"");
-        lines.Add("\"Gender\"=\"Neutral\"");
+        lines.Add($"\"Gender\"=\"{model.Gender}\"");
         lines.Add("\"Age\"=\"Adult\"");
         lines.Add("\"Language\"=\"409\"");
         lines.Add("\"Locale\"=\"en-US\"");
         lines.Add("\"Vendor\"=\"K2FSA\"");
+        if (!string.IsNullOrEmpty(model.Quality) && model.Quality != "unknown")
+            lines.Add($"\"Quality\"=\"{model.Quality}\"");
         lines.Add("");
     }
 
@@ -686,12 +789,16 @@ public class SherpaModelService
 
         using var attrs = key.CreateSubKey("Attributes", writable: true);
         attrs.SetValue("Name", model.Id, Microsoft.Win32.RegistryValueKind.String);
-        attrs.SetValue("Gender", "Neutral", Microsoft.Win32.RegistryValueKind.String);
+        attrs.SetValue("Gender", model.Gender, Microsoft.Win32.RegistryValueKind.String);
         attrs.SetValue("Age", "Adult", Microsoft.Win32.RegistryValueKind.String);
         attrs.SetValue("Language", "409", Microsoft.Win32.RegistryValueKind.String);
         attrs.SetValue("Locale", "en-US", Microsoft.Win32.RegistryValueKind.String);
         attrs.SetValue("Vendor", "K2FSA", Microsoft.Win32.RegistryValueKind.String);
         attrs.SetValue("VoiceGardenType", "Sherpa;Offline", Microsoft.Win32.RegistryValueKind.String);
+        if (!string.IsNullOrEmpty(model.Quality) && model.Quality != "unknown")
+            attrs.SetValue("Quality", model.Quality, Microsoft.Win32.RegistryValueKind.String);
+        else
+            attrs.DeleteValue("Quality", throwOnMissingValue: false);
 
         // Also register in Speech_OneCore for Chrome/Edge support
         var ocTokenPath = $@"{OneCoreTokensRoot}\{tokenName}";
@@ -716,11 +823,15 @@ public class SherpaModelService
 
             using var ocAttrs = ocKey.CreateSubKey("Attributes", writable: true);
             ocAttrs.SetValue("Name", model.Id, Microsoft.Win32.RegistryValueKind.String);
-            ocAttrs.SetValue("Gender", "Neutral", Microsoft.Win32.RegistryValueKind.String);
+            ocAttrs.SetValue("Gender", model.Gender, Microsoft.Win32.RegistryValueKind.String);
             ocAttrs.SetValue("Age", "Adult", Microsoft.Win32.RegistryValueKind.String);
             ocAttrs.SetValue("Language", "409", Microsoft.Win32.RegistryValueKind.String);
             ocAttrs.SetValue("Locale", "en-US", Microsoft.Win32.RegistryValueKind.String);
             ocAttrs.SetValue("Vendor", "K2FSA", Microsoft.Win32.RegistryValueKind.String);
+            if (!string.IsNullOrEmpty(model.Quality) && model.Quality != "unknown")
+                ocAttrs.SetValue("Quality", model.Quality, Microsoft.Win32.RegistryValueKind.String);
+            else
+                ocAttrs.DeleteValue("Quality", throwOnMissingValue: false);
         }
     }
 

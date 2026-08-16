@@ -25,6 +25,8 @@ public partial class SherpaModelItem : ObservableObject
     public string LicenseUrl { get; set; } = "";
     public string MinSherpaOnnxVersion { get; set; } = "";
     public bool IsDeprecated { get; set; }
+    public string Quality { get; set; } = "";
+    public string Gender { get; set; } = "";
 
     [ObservableProperty] private bool isDownloaded;
     [ObservableProperty] private bool isPromoted;
@@ -33,6 +35,10 @@ public partial class SherpaModelItem : ObservableObject
     [ObservableProperty] private int downloadProgress;
     [ObservableProperty] private string downloadStatus = "";
 
+    public string QualityBadge => string.IsNullOrEmpty(Quality) || Quality == "unknown" ? "" : Quality;
+
+    public string GenderLabel => Gender is "Male" or "Female" ? Gender : "";
+
     public string DetailsToolTip
     {
         get
@@ -40,6 +46,8 @@ public partial class SherpaModelItem : ObservableObject
             var parts = new List<string> { $"{Id} ({ModelType})" };
             if (FileSizeMb > 0) parts.Add($"{FileSizeMb:F0} MB");
             if (SampleRate > 0) parts.Add($"{SampleRate / 1000.0:F1} kHz");
+            if (!string.IsNullOrEmpty(QualityBadge)) parts.Add($"Quality: {Quality}");
+            if (!string.IsNullOrEmpty(GenderLabel)) parts.Add($"Voice: {Gender}");
             if (!string.IsNullOrEmpty(License)) parts.Add($"Licence: {License}");
             if (!string.IsNullOrEmpty(MinSherpaOnnxVersion)) parts.Add($"Needs sherpa-onnx {MinSherpaOnnxVersion}+");
             if (IsDeprecated) parts.Add("Deprecated upstream — inference keeps working");
@@ -53,11 +61,14 @@ public partial class SherpaModelsViewModel : ObservableObject
     [ObservableProperty] private string searchFilter = "";
     [ObservableProperty] private string languageFilter = "";
     [ObservableProperty] private bool showInstalledOnly;
+    [ObservableProperty] private string qualityFilter = "";  // "", high, medium, low, x_low, int8, fp16, unknown
     [ObservableProperty] private string statusText = Loc.GetString("Ready");
     [ObservableProperty] private bool isLoading;
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private int downloadedCount;
     [ObservableProperty] private int promotedCount;
+
+    public IReadOnlyList<string> QualityTiers { get; } = new[] { "", "high", "medium", "low", "x_low", "int8", "fp16", "unknown" };
 
     public ObservableCollection<SherpaModelItem> AllModels { get; } = new();
     public ObservableCollection<SherpaModelItem> FilteredModels { get; } = new();
@@ -68,6 +79,7 @@ public partial class SherpaModelsViewModel : ObservableObject
     partial void OnSearchFilterChanged(string value) => ApplyFilter();
     partial void OnLanguageFilterChanged(string value) => ApplyFilter();
     partial void OnShowInstalledOnlyChanged(bool value) => ApplyFilter();
+    partial void OnQualityFilterChanged(string value) => ApplyFilter();
 
     [RelayCommand]
     private async Task LoadCatalog()
@@ -112,6 +124,8 @@ public partial class SherpaModelsViewModel : ObservableObject
                         LicenseUrl = cat.LicenseUrl ?? "",
                         MinSherpaOnnxVersion = cat.MinSherpaOnnxVersion ?? "",
                         IsDeprecated = cat.Deprecated ?? false,
+                        Quality = cat.Quality ?? "",
+                        Gender = SherpaModelService.DeriveSherpaGender(cat.Id, cat.Name, cat.NumSpeakers ?? 1),
                         IsDownloaded = inst != null,
                         IsPromoted = inst?.IsPromoted ?? false,
                     });
@@ -488,6 +502,8 @@ public partial class SherpaModelsViewModel : ObservableObject
                 LicenseUrl = cat.LicenseUrl ?? "",
                 MinSherpaOnnxVersion = cat.MinSherpaOnnxVersion ?? "",
                 IsDeprecated = cat.Deprecated ?? false,
+                Quality = cat.Quality ?? "",
+                Gender = SherpaModelService.DeriveSherpaGender(cat.Id, cat.Name, cat.NumSpeakers ?? 1),
                 IsDownloaded = installed != null,
                 IsPromoted = installed?.IsPromoted ?? false,
             };
@@ -512,15 +528,33 @@ public partial class SherpaModelsViewModel : ObservableObject
         UpdateCounts();
     }
 
+    private static int QualityRank(string q) => q switch
+    {
+        "high" => 0,
+        "medium" => 1,
+        "int8" => 2,
+        "low" => 3,
+        "fp16" => 4,
+        "x_low" => 5,
+        "" or "unknown" => 7,
+        _ => 6,
+    };
+
     private void ApplyFilter()
     {
         FilteredModels.Clear();
         var filter = SearchFilter?.Trim().ToLowerInvariant() ?? "";
         var langFilter = LanguageFilter?.Trim().ToLowerInvariant() ?? "";
+        var qualityFilter = QualityFilter ?? "";
 
         foreach (var m in AllModels)
         {
             if (ShowInstalledOnly && !m.IsDownloaded) continue;
+            if (!string.IsNullOrEmpty(qualityFilter))
+            {
+                var tier = string.IsNullOrEmpty(m.Quality) ? "unknown" : m.Quality;
+                if (!string.Equals(tier, qualityFilter, StringComparison.OrdinalIgnoreCase)) continue;
+            }
             if (!string.IsNullOrEmpty(filter) &&
                 !m.Name.ToLowerInvariant().Contains(filter) &&
                 !m.Id.ToLowerInvariant().Contains(filter) &&
@@ -529,6 +563,13 @@ public partial class SherpaModelsViewModel : ObservableObject
                 !m.Language.ToLowerInvariant().Contains(langFilter)) continue;
             FilteredModels.Add(m);
         }
+
+        // Sort by quality tier (high -> low, unknown last), stable within tiers
+        var sorted = FilteredModels.OrderBy(m => QualityRank(m.Quality))
+            .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+        FilteredModels.Clear();
+        foreach (var m in sorted)
+            FilteredModels.Add(m);
     }
 
     private void UpdateCounts()
