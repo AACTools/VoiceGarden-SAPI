@@ -423,4 +423,263 @@
   <data name="YesHelpImprove" xml:space="preserve">
     <value>Yes, help improve VoiceGarden</value>
   </data>
+  <!-- ===== Phase 4 UX overhaul: 3-tab flow ===== -->
+  <data name="TabEngines" xml:space="preserve">
+    <value>Voice Engines</value>
+  </data>
+  <data name="TabEnginesCount" xml:space="preserve">
+    <value>{0} selected</value>
+  </data>
+  <data name="TabEnginesTitle" xml:space="preserve">
+    <value>Voice Engines</value>
+  </data>
+  <data name="TabEnginesIntro" xml:space="preserve">
+    <value>Choose the voice engines you want to use. Pick offline voices that work without an account, free cloud voices, or cloud engines that need an API key.</value>
+  </data>
+  <data name="TabCredentials" xml:space="preserve">
+    <value>Credentials</value>
+  </data>
+  <data name="TabCredentialsCount" xml:space="preserve">
+    <value>{0} engines need keys</value>
+  </data>
+  <data name="TabCredentialsNotNeeded" xml:space="preserve">
+    <value>not needed</value>
+  </data>
+  <data name="TabCredentialsTitle" xml:space="preserve">
+    <value>Credentials</value>
+  </data>
+  <data name="TabVoices" xml:space="preserve">
+    <value>Voices</value>
+  </data>
+  <data name="TabVoicesCount" xml:space="preserve">
+    <value>{0} voices</value>
+  </data>
+  <data name="TabVoicesTitle" xml:space="preserve">
+    <value>Voices</value>
+  </data>
+  <data name="TabVoicesIntro" xml:space="preserve">
+    <value>Every voice from the engines you selected. Filter, preview, then install the ones you want into Windows SAPI.</value>
+  </data>
+  <data name="AdvancedIntro" xml:space="preserve">
+    <value>Adapter registration, app settings, offline model management and about — everything that is not part of the guided flow.</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="AdvancedTabState" xml:space="preserve">
+    <value>tools and settings</value>
+  </data>
+  <data name="FilterType" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="FilterCredentials" xml:space="preserve">
+    <value>Credentials</value>
+  </data>
+  <data name="FilterLanguage" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="FilterEngine" xml:space="preserve">
+    <value>Filter by engine</value>
+  </data>
+  <data name="FilterGender" xml:space="preserve">
+    <value>Filter by gender</value>
+  </data>
+  <data name="FilterQuality" xml:space="preserve">
+    <value>Filter by quality</value>
+  </data>
+  <data name="FilterAllTypes" xml:space="preserve">
+    <value>All types</value>
+  </data>
+  <data name="FilterOfflineOnly" xml:space="preserve">
+    <value>Offline only</value>
+  </data>
+  <data name="FilterOnlineOnly" xml:space="preserve">
+    <value>Online only</value>
+  </data>
+  <data name="FilterAllEngines" xml:space="preserve">
+    <value>All engines</value>
+  </data>
+  <data name="FilterNoCreds" xml:space="preserve">
+    <value>No key needed</value>
+  </data>
+  <data name="FilterCredsNeeded" xml:space="preserve">
+    <value>Key needed</value>
+  </data>
+  <data name="FilterAllLanguages" xml:space="preserve">
+    <value>All languages</value>
+  </data>
+  <data name="FilterAnyEngine" xml:space="preserve">
+    <value>All engines</value>
+  </data>
+  <data name="FilterAnyLanguage" xml:space="preserve">
+    <value>Any language</value>
+  </data>
+  <data name="FilterAnyGender" xml:space="preserve">
+    <value>Any gender</value>
+  </data>
+  <data name="FilterAnyQuality" xml:space="preserve">
+    <value>Any quality</value>
+  </data>
+  <data name="SearchEngines" xml:space="preserve">
+    <value>Search engines</value>
+  </data>
+  <data name="SelectVisible" xml:space="preserve">
+    <value>Select shown</value>
+  </data>
+  <data name="ClearVisible" xml:space="preserve">
+    <value>Clear shown</value>
+  </data>
+  <data name="SelectAllVoices" xml:space="preserve">
+    <value>Select all shown voices</value>
+  </data>
+  <data name="DeselectAllVoices" xml:space="preserve">
+    <value>Deselect all voices</value>
+  </data>
+  <data name="NextCredentials" xml:space="preserve">
+    <value>Next: Credentials</value>
+  </data>
+  <data name="NextVoices" xml:space="preserve">
+    <value>Next: Voices</value>
+  </data>
+  <data name="BackToEngines" xml:space="preserve">
+    <value>Back to Engines</value>
+  </data>
+  <data name="BadgeOffline" xml:space="preserve">
+    <value>Offline</value>
+  </data>
+  <data name="BadgeCloud" xml:space="preserve">
+    <value>Cloud</value>
+  </data>
+  <data name="BadgeCredsNeeded" xml:space="preserve">
+    <value>Key needed</value>
+  </data>
+  <data name="BadgeNoCreds" xml:space="preserve">
+    <value>No key</value>
+  </data>
+  <data name="BadgeKeyStored" xml:space="preserve">
+    <value>Key saved</value>
+  </data>
+  <data name="SherpaOnnxEngineName" xml:space="preserve">
+    <value>SherpaOnnx</value>
+  </data>
+  <data name="SherpaOnnxEngineDesc" xml:space="preserve">
+    <value>Offline neural voices. Downloadable models in many languages — works without an account or internet connection.</value>
+  </data>
+  <data name="EdgeEngineName" xml:space="preserve">
+    <value>Edge Voices</value>
+  </data>
+  <data name="EdgeEngineDesc" xml:space="preserve">
+    <value>Microsoft Edge Read-Aloud voices. Free cloud voices in many languages — no API key needed.</value>
+  </data>
+  <data name="EngineDescKeyOnly" xml:space="preserve">
+    <value>{0} cloud voices. Needs an API key.</value>
+  </data>
+  <data name="EngineDescKeyRegion" xml:space="preserve">
+    <value>{0} cloud voices. Needs an API key and region.</value>
+  </data>
+  <data name="EngineDescKeyUserId" xml:space="preserve">
+    <value>{0} cloud voices. Needs an API key and user ID.</value>
+  </data>
+  <data name="EngineDescKeySecretRegion" xml:space="preserve">
+    <value>{0} cloud voices. Needs an access key, secret key and region.</value>
+  </data>
+  <data name="EnginesSelectedSummary" xml:space="preserve">
+    <value>{0} of {1} engines selected</value>
+  </data>
+  <data name="LanguageFilterHiddenNote" xml:space="preserve">
+    <value>{0} engines hidden — their languages are unknown until their voices are loaded in the Voices tab.</value>
+  </data>
+  <data name="CredentialsIntro" xml:space="preserve">
+    <value>Enter the credentials for each selected engine. Values are saved on this computer only.</value>
+  </data>
+  <data name="CredentialsNoneNeeded" xml:space="preserve">
+    <value>No selected engines need credentials.</value>
+  </data>
+  <data name="CredentialsFooterHint" xml:space="preserve">
+    <value>Verify a key to check it works before loading voices. You can come back any time.</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>Verify</value>
+  </data>
+  <data name="VerifyNoVoices" xml:space="preserve">
+    <value>Key accepted but no voices returned — check the key has TTS access.</value>
+  </data>
+  <data name="UnknownEngine" xml:space="preserve">
+    <value>Unknown engine</value>
+  </data>
+  <data name="FieldAPIKey" xml:space="preserve">
+    <value>API key</value>
+  </data>
+  <data name="FieldSubscriptionKey" xml:space="preserve">
+    <value>Subscription key</value>
+  </data>
+  <data name="FieldAccessKeyId" xml:space="preserve">
+    <value>Access key ID</value>
+  </data>
+  <data name="FieldSecretAccessKey" xml:space="preserve">
+    <value>Secret access key</value>
+  </data>
+  <data name="FieldToken" xml:space="preserve">
+    <value>Token</value>
+  </data>
+  <data name="FieldRegion" xml:space="preserve">
+    <value>Region</value>
+  </data>
+  <data name="FieldUserId" xml:space="preserve">
+    <value>User ID</value>
+  </data>
+  <data name="FieldInstanceId" xml:space="preserve">
+    <value>Instance ID</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>Gender</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>Quality</value>
+  </data>
+  <data name="LoadVoices" xml:space="preserve">
+    <value>Load voices</value>
+  </data>
+  <data name="RefreshInstalled" xml:space="preserve">
+    <value>Refresh installed</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="RemoveSelected" xml:space="preserve">
+    <value>Remove selected from SAPI</value>
+  </data>
+  <data name="VoicesNoEnginesSelected" xml:space="preserve">
+    <value>Select at least one engine in the Voice Engines tab first.</value>
+  </data>
+  <data name="VoicesMissingKey" xml:space="preserve">
+    <value>{0}: no API key — add one in the Credentials tab</value>
+  </data>
+  <data name="VoicesLoaded" xml:space="preserve">
+    <value>Loaded {0} voices</value>
+  </data>
+  <data name="VoicesFetchFailed" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="VoicesCountSummary" xml:space="preserve">
+    <value>{0} voices · {1} selected · {2} installed</value>
+  </data>
+  <data name="VoicesPromotedSingle" xml:space="preserve">
+    <value>{0} installed to SAPI</value>
+  </data>
+  <data name="VoicesPromoteFailed" xml:space="preserve">
+    <value>Could not install {0} (administrator approval may be required)</value>
+  </data>
+  <data name="VoicesUnpromoteFailed" xml:space="preserve">
+    <value>Removed {0}; failed {1}</value>
+  </data>
+  <data name="RescannedVoices" xml:space="preserve">
+    <value>Refreshed — {0} voices installed</value>
+  </data>
+  <data name="UnknownLanguage" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="DownloadFailedSingle" xml:space="preserve">
+    <value>Download failed for {0}: {1}</value>
+  </data>
 </root>
