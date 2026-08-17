@@ -131,6 +131,7 @@
         <!-- Footer -->
         <Grid Grid.Row="3" ColumnDefinitions="*, Auto, Auto" Margin="0,0,0,8">
             <TextBlock Grid.Column="0" Text="{Binding CountSummary}" Classes="SectionLabel" VerticalAlignment="Center"
+                       TextWrapping="Wrap"
                        AutomationProperties.LiveSetting="Polite"/>
             <Button Grid.Column="1" Content="{lang:Localize InstallSelected}" Classes="Primary" Margin="0,0,10,0"
                     Command="{Binding PromoteSelectedCommand}"

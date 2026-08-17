@@ -99,6 +99,7 @@
         <!-- Footer: selection summary + next step -->
         <Grid Grid.Row="4" ColumnDefinitions="*, Auto, Auto">
             <TextBlock Grid.Column="0" Text="{Binding SelectedSummary}" Classes="SectionLabel" VerticalAlignment="Center"
+                       TextWrapping="Wrap"
                        AutomationProperties.LiveSetting="Polite"/>
             <Button Grid.Column="1" Content="{lang:Localize NextCredentials}" Classes="Primary"
                     Command="{Binding GoToCredentialsCommand}" IsEnabled="{Binding CredentialsNeeded}"
