@@ -33,20 +33,25 @@
 
         <!-- ===== Shared chunky, accessible styles (Phase 4 UX overhaul) ===== -->
 
-        <!-- Base buttons: >=44px touch targets, 14pt text, rounded -->
+        <!-- Base buttons: 36px touch targets, centred content, rounded.
+             VerticalContentAlignment=Center is required — the Fluent theme
+             leaves it unset, so MinHeight + top-anchored content put the
+             text at the top of tall buttons with dead space below. -->
         <Style Selector="Button">
-            <Setter Property="MinHeight" Value="44"/>
-            <Setter Property="MinWidth" Value="96"/>
-            <Setter Property="Padding" Value="18,10"/>
+            <Setter Property="MinHeight" Value="36"/>
+            <Setter Property="MinWidth" Value="80"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="CornerRadius" Value="8"/>
         </Style>
 
-        <!-- Compact icon buttons (▶, ⬇) inside list rows: 44px square-ish -->
+        <!-- Compact icon buttons (▶, ⬇) inside list rows: 32px square-ish -->
         <Style Selector="Button.Compact">
             <Setter Property="MinWidth" Value="44"/>
-            <Setter Property="MinHeight" Value="40"/>
-            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="MinHeight" Value="32"/>
+            <Setter Property="Padding" Value="10,4"/>
             <Setter Property="FontSize" Value="13"/>
         </Style>
 
@@ -83,12 +88,15 @@
             <Setter Property="Background" Value="{StaticResource VGAccentBrush}"/>
         </Style>
 
-        <!-- Chunky tabs -->
+        <!-- Chunky tabs. Bottom padding is reduced to make room for the
+             header StackPanel's own bottom margin (MainWindow), which keeps
+             the sub-text clear of the 4px selected-pipe zone at the tab
+             bottom at any font scale. -->
         <Style Selector="TabItem">
             <Setter Property="MinHeight" Value="48"/>
             <Setter Property="MinWidth" Value="140"/>
             <Setter Property="FontSize" Value="15"/>
-            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="Padding" Value="20,8"/>
             <Setter Property="CornerRadius" Value="10,10,0,0"/>
         </Style>
 
