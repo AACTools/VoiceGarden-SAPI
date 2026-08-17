@@ -521,7 +521,7 @@
     <value>Any quality</value>
   </data>
   <data name="SearchEngines" xml:space="preserve">
-    <value>Search engines</value>
+    <value>Search engines, languages…</value>
   </data>
   <data name="SelectVisible" xml:space="preserve">
     <value>Select shown</value>
@@ -654,6 +654,9 @@
   </data>
   <data name="VoicesMissingKey" xml:space="preserve">
     <value>{0}: no API key — add one in the Credentials tab</value>
+  </data>
+  <data name="VoicesSkippedNoKey" xml:space="preserve">
+    <value>{0} engines skipped — no API key set</value>
   </data>
   <data name="VoicesLoaded" xml:space="preserve">
     <value>Loaded {0} voices</value>

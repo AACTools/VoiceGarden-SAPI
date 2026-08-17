@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace VoiceGarden.UI.Models;
@@ -38,7 +40,62 @@ public partial class EngineCatalogItem : ObservableObject
     /// <summary>Languages this engine is known to support (empty = not known yet).</summary>
     public HashSet<string> Languages { get; } = new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>
+    /// Prefix-search tokens: engine name/id/description words plus language
+    /// names (English + native), BCP-47 tags and ISO 639-1/639-3 codes.
+    /// </summary>
+    public HashSet<string> SearchTokens { get; } = new(StringComparer.OrdinalIgnoreCase);
+
     [ObservableProperty] private bool isSelected;
+
+    /// <summary>Seed the static tokens (name/id/description). Call once after init.</summary>
+    public void BuildSearchTokens()
+    {
+        AddTokens(SearchTokens, DisplayName);
+        AddTokens(SearchTokens, Id);
+        AddTokens(SearchTokens, Description);
+    }
+
+    /// <summary>Derive search tokens from one language string (name or tag).</summary>
+    public static void AddLanguageTokens(HashSet<string> tokens, string lang)
+    {
+        if (string.IsNullOrWhiteSpace(lang)) return;
+        AddTokens(tokens, lang);
+
+        // "ar-SA"-style tags (and bare tags like "en") resolve to English +
+        // native display names and both ISO codes via Windows culture data.
+        var primary = lang.Split('-')[0];
+        if (primary.Length is 2 or 3)
+        {
+            TryCulture(tokens, primary);
+            if (lang.Contains('-')) TryCulture(tokens, lang);
+        }
+    }
+
+    private static void TryCulture(HashSet<string> tokens, string name)
+    {
+        try
+        {
+            var c = CultureInfo.GetCultureInfo(name);
+            tokens.Add(c.TwoLetterISOLanguageName);
+            tokens.Add(c.ThreeLetterISOLanguageName);
+            AddTokens(tokens, c.EnglishName);
+            AddTokens(tokens, c.NativeName);
+        }
+        catch (CultureNotFoundException)
+        {
+            // Not a culture name (e.g. sherpa ISO 639-3 codes) — the raw
+            // token added by the caller is all we get.
+        }
+    }
+
+    private static void AddTokens(HashSet<string> tokens, string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return;
+        tokens.Add(text.Trim());
+        foreach (var word in text.Split(new[] { ' ', '(', ')', ',', '-', '/', ';' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            tokens.Add(word);
+    }
 
     public string TypeBadge => IsOffline
         ? Localization.Loc.GetString("BadgeOffline")
