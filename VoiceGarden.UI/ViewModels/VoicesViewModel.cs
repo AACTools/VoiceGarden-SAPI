@@ -131,6 +131,12 @@ public partial class VoicesViewModel : ObservableObject
     [ObservableProperty] private int selectedCount;
     [ObservableProperty] private int installedCount;
 
+    /// <summary>True when the loaded list no longer reflects the engine selection.</summary>
+    public bool IsStale { get; private set; } = true;
+
+    /// <summary>Flag for reload on the next Voices tab activation.</summary>
+    public void MarkStale() => IsStale = true;
+
     private string AllEnginesLabel => Loc.GetString("FilterAnyEngine");
     private string AnyLanguageLabel => Loc.GetString("FilterAnyLanguage");
     private string AnyGenderLabel => Loc.GetString("FilterAnyGender");
@@ -164,6 +170,7 @@ public partial class VoicesViewModel : ObservableObject
         FilteredVoices.Clear();
         _loadedEngines.Clear();
         var notes = new List<string>();
+        var skippedNoKey = new List<string>();
 
         try
         {
@@ -183,7 +190,7 @@ public partial class VoicesViewModel : ObservableObject
                         if (setting == null) break;
                         if (!setting.HasKey)
                         {
-                            notes.Add(Loc.GetString("VoicesMissingKey", setting.DisplayName));
+                            skippedNoKey.Add(setting.DisplayName);
                             break;
                         }
                         await FetchCloudVoices(setting.Id, setting.DisplayName, setting.ApiKey ?? "", setting.Region ?? "", notes);
@@ -197,9 +204,18 @@ public partial class VoicesViewModel : ObservableObject
             ApplyFilter();
             UpdateCounts();
             _owner.OnVoicesLoaded();
+            IsStale = false;
 
+            // One quiet status line: summary + a single no-key note (the
+            // per-engine hint when it's the only one, a count otherwise).
             var summary = Loc.GetString("VoicesLoaded", AllVoices.Count);
-            StatusText = notes.Count > 0 ? $"{summary} — {string.Join("; ", notes)}" : summary;
+            var suffixes = new List<string>();
+            if (skippedNoKey.Count == 1)
+                suffixes.Add(Loc.GetString("VoicesMissingKey", skippedNoKey[0]));
+            else if (skippedNoKey.Count > 1)
+                suffixes.Add(Loc.GetString("VoicesSkippedNoKey", skippedNoKey.Count));
+            if (notes.Count > 0) suffixes.AddRange(notes);
+            StatusText = suffixes.Count > 0 ? $"{summary} — {string.Join("; ", suffixes)}" : summary;
         }
         finally
         {

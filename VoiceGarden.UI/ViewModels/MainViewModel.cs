@@ -115,8 +115,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
         OnEngineSelectionChanged();
         Engines.RefreshKeyHints();
 
-        // Learn the Sherpa catalog languages for the Engines filter in the background
+        // Learn the Sherpa catalog languages and the free Edge voice-list
+        // languages for the Engines filter/search in the background
         _ = Engines.LoadSherpaLanguagesAsync();
+        _ = Engines.LoadEdgeLanguagesAsync();
 
         // Count installed SherpaOnnx models
         UpdateSherpaModelCount();
@@ -169,6 +171,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
         // Lazy-load the full model manager the first time Advanced opens
         if (value == AdvancedTabIndex && SherpaModels.TotalCount == 0)
             _ = SherpaModels.LoadCatalogCommand.ExecuteAsync(null);
+
+        // Voices load themselves the first time the tab is shown (and again
+        // if the engine selection changed since the last load) — the user
+        // should never have to press Load.
+        if (value == VoicesTabIndex && (Voices.TotalCount == 0 || Voices.IsStale))
+            _ = Voices.LoadVoicesCommand.ExecuteAsync(null);
     }
 
     public EnginesViewModel Engines { get; private set; } = null!;
@@ -207,6 +215,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
         Credentials.Refresh();
         Engines.RefreshKeyHints();
+        Voices.MarkStale();
 
         // If the Credentials tab just became unnecessary while it is open, fall back to Engines.
         if (!CredentialsTabEnabled && SelectedTabIndex == CredentialsTabIndex)
@@ -233,12 +242,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         if (CredentialsTabEnabled) SelectedTabIndex = CredentialsTabIndex;
     }
 
-    internal void GoToVoices()
-    {
-        SelectedTabIndex = VoicesTabIndex;
-        if (Voices.TotalCount == 0)
-            _ = Voices.LoadVoicesCommand.ExecuteAsync(null);
-    }
+    internal void GoToVoices() => SelectedTabIndex = VoicesTabIndex;
 
     // ----- Advanced tab state -----
 
