@@ -1,4 +1,4 @@
-<Window xmlns="https://github.com/avaloniaui"
+﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:VoiceGarden.UI.ViewModels"
         xmlns:views="using:VoiceGarden.UI.Views"
@@ -34,10 +34,10 @@
         <!-- 3-tab accessible flow + Advanced -->
         <TabControl Grid.Row="1" SelectedIndex="{Binding SelectedTabIndex}" Background="Transparent">
 
-            <!-- Tab 1 — Voice Engines -->
+            <!-- Tab 1 â€” Voice Engines -->
             <TabItem AutomationProperties.Name="{Binding EnginesTabHeader}">
                 <TabItem.Header>
-                    <StackPanel Spacing="1">
+                    <StackPanel Spacing="1" Margin="0,0,0,8">
                         <TextBlock Text="{Binding EnginesTabHeader}" FontWeight="SemiBold"/>
                         <TextBlock Text="{Binding EnginesTabState}" FontSize="11" Opacity="0.7"/>
                     </StackPanel>
@@ -45,11 +45,11 @@
                 <views:EnginesView DataContext="{Binding Engines}" Margin="0,16,0,0"/>
             </TabItem>
 
-            <!-- Tab 2 — Credentials (disabled unless a selected engine needs them) -->
+            <!-- Tab 2 â€” Credentials (disabled unless a selected engine needs them) -->
             <TabItem IsEnabled="{Binding CredentialsTabEnabled}"
                      AutomationProperties.Name="{Binding CredentialsTabState, StringFormat='Credentials tab: {0}'}">
                 <TabItem.Header>
-                    <StackPanel Spacing="1">
+                    <StackPanel Spacing="1" Margin="0,0,0,8">
                         <TextBlock Text="{Binding CredentialsTabHeader}" FontWeight="SemiBold"/>
                         <TextBlock Text="{Binding CredentialsTabState}" FontSize="11" Opacity="0.7"/>
                     </StackPanel>
@@ -57,10 +57,10 @@
                 <views:CredentialsView DataContext="{Binding Credentials}" Margin="0,16,0,0"/>
             </TabItem>
 
-            <!-- Tab 3 — Voices -->
+            <!-- Tab 3 â€” Voices -->
             <TabItem AutomationProperties.Name="{Binding VoicesTabState, StringFormat='Voices tab: {0}'}">
                 <TabItem.Header>
-                    <StackPanel Spacing="1">
+                    <StackPanel Spacing="1" Margin="0,0,0,8">
                         <TextBlock Text="{Binding VoicesTabHeader}" FontWeight="SemiBold"/>
                         <TextBlock Text="{Binding VoicesTabState}" FontSize="11" Opacity="0.7"/>
                     </StackPanel>
@@ -68,10 +68,10 @@
                 <views:VoicesView DataContext="{Binding Voices}" Margin="0,16,0,0"/>
             </TabItem>
 
-            <!-- Advanced — everything else -->
+            <!-- Advanced â€” everything else -->
             <TabItem AutomationProperties.Name="{lang:Localize Advanced}">
                 <TabItem.Header>
-                    <StackPanel Spacing="1">
+                    <StackPanel Spacing="1" Margin="0,0,0,8">
                         <TextBlock Text="{lang:Localize Advanced}" FontWeight="SemiBold"/>
                         <TextBlock Text="{lang:Localize AdvancedTabState}" FontSize="11" Opacity="0.7"/>
                     </StackPanel>
