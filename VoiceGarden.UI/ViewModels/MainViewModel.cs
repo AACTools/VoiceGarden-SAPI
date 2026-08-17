@@ -51,8 +51,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public MainViewModel()
     {
-        AppName = BrandingConfig.AppName;
-
         // Track app launch (only if opted in)
         AnalyticsService.Track("app_launched");
 
@@ -134,8 +132,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         _eventSubscriptions.Clear();
     }
-
-    [ObservableProperty] private string appName = "VoiceGarden";
 
     // ----- Engine enable state (persisted; driven from the Engines tab) -----
 

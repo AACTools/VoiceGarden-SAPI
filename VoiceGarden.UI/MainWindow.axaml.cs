@@ -60,9 +60,4 @@ public partial class MainWindow : Window
         }
         catch { /* never block launch on screen math */ }
     }
-
-    private void Close_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        Close();
-    }
 }

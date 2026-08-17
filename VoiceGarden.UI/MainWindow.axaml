@@ -16,23 +16,17 @@
         <vm:MainViewModel/>
     </Design.DataContext>
 
-    <Grid RowDefinitions="Auto, *" Margin="20,16,20,16">
+    <!-- No in-app header: the window title bar carries the app name and
+         standard close/minimise/maximise chrome; content starts at the top. -->
+    <Grid Margin="20,16,20,16">
 
         <!-- Screen reader announcement region (invisible, announces tab changes) -->
         <TextBlock Text="{Binding ScreenReaderAnnouncement}" IsVisible="False"
                    AutomationProperties.LiveSetting="Assertive"
                    AutomationProperties.Name="{Binding ScreenReaderAnnouncement}"/>
 
-        <!-- App header -->
-        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,14">
-            <TextBlock Grid.Column="0" Text="{Binding AppName}" FontSize="26" FontWeight="Bold"
-                       Foreground="{StaticResource VGForegroundBrush}" VerticalAlignment="Center"/>
-            <Button Grid.Column="1" Content="{lang:Localize Close}" Click="Close_Click" Classes="Primary"
-                    AutomationProperties.Name="Close VoiceGarden"/>
-        </Grid>
-
         <!-- 3-tab accessible flow + Advanced -->
-        <TabControl Grid.Row="1" SelectedIndex="{Binding SelectedTabIndex}" Background="Transparent">
+        <TabControl SelectedIndex="{Binding SelectedTabIndex}" Background="Transparent">
 
             <!-- Tab 1 â€” Voice Engines -->
             <TabItem AutomationProperties.Name="{Binding EnginesTabHeader}">
