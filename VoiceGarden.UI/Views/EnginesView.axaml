@@ -50,9 +50,10 @@
                    IsVisible="{Binding !!LanguageFilterNote.Length}"
                    AutomationProperties.LiveSetting="Polite"/>
 
-        <!-- Engine list -->
+        <!-- Engine list. No MinHeight (star row is bounded by the grid; a
+             minimum would overflow into the footer on short windows). -->
         <Border Grid.Row="3" BorderBrush="{DynamicResource SystemControlDefaultChromeMediumLowBrush}"
-                BorderThickness="1" CornerRadius="10" MinHeight="220" Margin="0,0,0,14">
+                BorderThickness="1" CornerRadius="10" Margin="0,0,0,14">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <ItemsControl ItemsSource="{Binding FilteredEngines}"
                               AutomationProperties.Name="{lang:Localize TabEnginesTitle}">

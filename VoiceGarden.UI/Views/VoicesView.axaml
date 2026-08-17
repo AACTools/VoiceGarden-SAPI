@@ -57,9 +57,11 @@
             </WrapPanel>
         </Border>
 
-        <!-- Voice list -->
+        <!-- Voice list. No MinHeight: this row is star-sized and bounded —
+             a minimum here overflows the grid cell and overlaps the footer
+             action row on short windows. -->
         <Border Grid.Row="2" BorderBrush="{DynamicResource SystemControlDefaultChromeMediumLowBrush}"
-                BorderThickness="1" CornerRadius="10" MinHeight="220" Margin="0,0,0,14">
+                BorderThickness="1" CornerRadius="10" Margin="0,0,0,14">
             <ListBox ItemsSource="{Binding FilteredVoices}" Background="Transparent"
                      AutomationProperties.Name="{lang:Localize TabVoicesTitle}">
                 <ListBox.ItemTemplate>
