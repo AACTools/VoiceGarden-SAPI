@@ -285,12 +285,10 @@ foreach ($Platform in $Platforms) {
     # closing quote escapes it and breaks argument parsing on paths with spaces.
     $utilOutArg = ($utilOut.Replace('\', '/')) + '/'
 
-    if ($Platform -ne "ARM64") {
-        Write-Host "  AzureSpeechSDKShim ($Platform)..." -ForegroundColor Cyan
-        Invoke-Restore -InputPath (Join-Path $RepoRoot "AzureSpeechSDKShim")
-        & $msbuild /m /p:Configuration=$Configuration /p:Platform=$Platform /p:OutDir="$utilOutArg" (Join-Path $RepoRoot "AzureSpeechSDKShim")
-        if ($LASTEXITCODE -ne 0) { throw "AzureSpeechSDKShim build failed ($Platform)" }
-    }
+    # AzureSpeechSDKShim/Patcher are no longer built or shipped: the local
+    # Narrator voice feature they supported was dropped (TOS concerns) and
+    # EnumLocalVoices has no callers, so the Azure Speech SDK runtime chain
+    # is never loaded.
 
     $ttsAppDir = Join-Path $RepoRoot "TtsApplication"
     if (Test-Path $ttsAppDir) {

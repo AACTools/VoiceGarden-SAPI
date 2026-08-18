@@ -53,10 +53,25 @@ function Copy-ArchTree([string]$archDirPath, [string]$archName) {
     # SherpaOnnxConfig.exe is superseded by VoiceGarden.UI.exe — it must
     # never ship again (146 MB of dead weight; nothing launches it).
     $excludeNames = @("TtsApplication.exe", "SherpaOnnxConfig.exe")
+    # The Azure Speech SDK runtime chain is not shipped: the local Narrator
+    # voice feature it served was dropped (TOS concerns), EnumLocalVoices has
+    # no callers, and the adapter only delay-loads the SDK — never triggered.
+    $excludePatterns = @(
+        "Microsoft.CognitiveServices.Speech.*.dll",
+        "SpeechSDKShim.dll",
+        "SpeechSDKPatcher.exe"
+    )
 
     foreach ($pattern in $includeExt) {
         Get-ChildItem -Path $archDirPath -Recurse -File -Filter $pattern | ForEach-Object {
             if ($excludeNames -contains $_.Name) {
+                return
+            }
+            $isExcluded = $false
+            foreach ($ex in $excludePatterns) {
+                if ($_.Name -like $ex) { $isExcluded = $true; break }
+            }
+            if ($isExcluded) {
                 return
             }
             $rel = $_.FullName.Substring($archDirPath.Length).TrimStart('\')
