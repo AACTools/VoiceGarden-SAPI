@@ -19,6 +19,13 @@ public class SherpaModelService
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "VoiceGardenSAPIAdapter", "models");
 
+    /// <summary>
+    /// Serialises every archive download/extract/cleanup: the Voices tab can
+    /// rescan (TryExtractArchives) while a download is writing the same
+    /// archive, and two writers on one file throw sharing violations.
+    /// </summary>
+    private static readonly SemaphoreSlim ArchiveLock = new(1, 1);
+
     private const string SapiTokensRoot = @"SOFTWARE\Microsoft\Speech\Voices\Tokens";
     private const string OneCoreTokensRoot = @"SOFTWARE\Microsoft\Speech_OneCore\Voices\Tokens";
     private const string TtsEngineClsid = "{013AB33B-AD1A-401C-8BEE-F6E2B046A94E}";
@@ -561,7 +568,7 @@ public class SherpaModelService
     /// </summary>
     private static void TryExtractArchives(string dir)
     {
-        // Already extracted — has an onnx file
+        // Downloads stage as *.part until complete — never touch those.
         if (Directory.GetFiles(dir, "*.onnx", SearchOption.AllDirectories).Length > 0)
         {
             // Clean up any leftover archives from a partial extraction
@@ -572,29 +579,37 @@ public class SherpaModelService
             return;
         }
 
-        var bz2 = Directory.GetFiles(dir, "*.tar.bz2", SearchOption.TopDirectoryOnly).FirstOrDefault();
-        if (bz2 != null)
+        ArchiveLock.Wait();
+        try
         {
-            var tarFile = bz2.Replace(".tar.bz2", ".tar");
-            // Stage 1: bz2 → tar using SharpCompress
-            try { ExtractBz2(bz2, tarFile); } catch { return; }
-            // Stage 2: tar → contents
-            if (File.Exists(tarFile))
+            var bz2 = Directory.GetFiles(dir, "*.tar.bz2", SearchOption.TopDirectoryOnly).FirstOrDefault();
+            if (bz2 != null)
             {
-                try { ExtractTar(tarFile, dir); } catch { }
-                TryDelete(tarFile);
+                var tarFile = bz2.Replace(".tar.bz2", ".tar");
+                // Stage 1: bz2 → tar using SharpCompress
+                try { ExtractBz2(bz2, tarFile); } catch { return; }
+                // Stage 2: tar → contents
+                if (File.Exists(tarFile))
+                {
+                    try { ExtractTar(tarFile, dir); } catch { }
+                    TryDelete(tarFile);
+                }
+                TryDelete(bz2);
             }
-            TryDelete(bz2);
+            else
+            {
+                // Lone .tar
+                var tar = Directory.GetFiles(dir, "*.tar", SearchOption.TopDirectoryOnly).FirstOrDefault();
+                if (tar != null)
+                {
+                    try { ExtractTar(tar, dir); } catch { }
+                    TryDelete(tar);
+                }
+            }
         }
-        else
+        finally
         {
-            // Lone .tar
-            var tar = Directory.GetFiles(dir, "*.tar", SearchOption.TopDirectoryOnly).FirstOrDefault();
-            if (tar != null)
-            {
-                try { ExtractTar(tar, dir); } catch { }
-                TryDelete(tar);
-            }
+            ArchiveLock.Release();
         }
     }
 
@@ -663,8 +678,13 @@ public class SherpaModelService
             return;
         }
 
-        // Route 2: Single archive download + extract
+        // Route 2: Single archive download + extract.
+        // Downloads stage as "<name>.part" so directory scans never see a
+        // partial archive, then extract under the archive lock (scans and
+        // double-clicks used to race the same files and fail with
+        // "being used by another process").
         var destFile = Path.Combine(destDir, lastSegment);
+        var partFile = destFile + ".part";
         progress?.Report((0, $"Connecting to {lastSegment}..."));
 
         using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(30) };
@@ -680,56 +700,77 @@ public class SherpaModelService
         var totalMb = totalBytes > 0 ? totalBytes / (1024.0 * 1024.0) : 0;
 
         Directory.CreateDirectory(destDir);
+        TryDelete(partFile);
         using var contentStream = await response.Content.ReadAsStreamAsync();
-        using var fileStream = File.Create(destFile);
-
-        var buffer = new byte[81920];
-        long bytesRead = 0;
-        int read;
-        var lastReport = DateTime.UtcNow;
-
-        while ((read = await contentStream.ReadAsync(buffer)) > 0)
+        using (var fileStream = File.Create(partFile))
         {
-            await fileStream.WriteAsync(buffer.AsMemory(0, read));
-            bytesRead += read;
-            if (totalBytes > 0)
+            var buffer = new byte[81920];
+            long bytesRead = 0;
+            int read;
+            var lastReport = DateTime.UtcNow;
+
+            while ((read = await contentStream.ReadAsync(buffer)) > 0)
             {
-                var now = DateTime.UtcNow;
-                if ((now - lastReport).TotalMilliseconds >= 250 || bytesRead == totalBytes)
+                await fileStream.WriteAsync(buffer.AsMemory(0, read));
+                bytesRead += read;
+                if (totalBytes > 0)
                 {
-                    lastReport = now;
-                    var pct = (int)(bytesRead * 100 / totalBytes);
+                    var now = DateTime.UtcNow;
+                    if ((now - lastReport).TotalMilliseconds >= 250 || bytesRead == totalBytes)
+                    {
+                        lastReport = now;
+                        var pct = (int)(bytesRead * 100 / totalBytes);
+                        var doneMb = bytesRead / (1024.0 * 1024.0);
+                        progress?.Report((pct, $"{pct}% ({doneMb:F0}/{totalMb:F0}MB)"));
+                    }
+                }
+                else
+                {
                     var doneMb = bytesRead / (1024.0 * 1024.0);
-                    progress?.Report((pct, $"{pct}% ({doneMb:F0}/{totalMb:F0}MB)"));
-                }
-            }
-            else
-            {
-                var doneMb = bytesRead / (1024.0 * 1024.0);
-                var now = DateTime.UtcNow;
-                if ((now - lastReport).TotalMilliseconds >= 500)
-                {
-                    lastReport = now;
-                    progress?.Report((0, $"{doneMb:F0}MB downloaded"));
+                    var now = DateTime.UtcNow;
+                    if ((now - lastReport).TotalMilliseconds >= 500)
+                    {
+                        lastReport = now;
+                        progress?.Report((0, $"{doneMb:F0}MB downloaded"));
+                    }
                 }
             }
         }
 
-        // Extract the archive using built-in SharpCompress (no 7-Zip needed)
-        progress?.Report((100, "Extracting..."));
-        if (lastSegment.EndsWith(".tar.bz2"))
+        // Download complete — promote the .part to the real archive name and
+        // extract under the lock.
+        await ArchiveLock.WaitAsync();
+        try
         {
-            var tarFile = destFile.Replace(".tar.bz2", ".tar");
-            ExtractBz2(destFile, tarFile);
-            if (File.Exists(tarFile))
-                ExtractTar(tarFile, destDir);
-            TryDelete(tarFile);
+            TryDelete(destFile);
+            File.Move(partFile, destFile);
+
+            // Extract the archive using built-in SharpCompress (no 7-Zip needed)
+            progress?.Report((100, "Extracting..."));
+            if (lastSegment.EndsWith(".tar.bz2"))
+            {
+                var tarFile = destFile.Replace(".tar.bz2", ".tar");
+                ExtractBz2(destFile, tarFile);
+                if (File.Exists(tarFile))
+                    ExtractTar(tarFile, destDir);
+                TryDelete(tarFile);
+            }
+            else if (lastSegment.EndsWith(".tar"))
+            {
+                ExtractTar(destFile, destDir);
+            }
+            TryDelete(destFile);
         }
-        else if (lastSegment.EndsWith(".tar"))
+        catch (IOException ex) when (ex.Message.Contains("being used by another process"))
         {
-            ExtractTar(destFile, destDir);
+            throw new InvalidOperationException(
+                "The model's files are open in another download or scan — wait a moment and try again. " +
+                "If it keeps failing, close and reopen VoiceGarden.", ex);
         }
-        TryDelete(destFile);
+        finally
+        {
+            ArchiveLock.Release();
+        }
 
         // Zipvoice archives do not bundle the vocoder — fetch it into the
         // shared models dir so synthesis works out of the box.
