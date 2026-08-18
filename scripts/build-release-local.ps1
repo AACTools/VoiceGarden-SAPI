@@ -21,6 +21,8 @@ param(
     [ValidateSet("x64", "x86", "ARM64", "all")]
     [string[]]$Platforms = @("x64"),
 
+    [string]$InstallerVersion = "",
+
     [switch]$SkipSherpaDeps,
     [switch]$ForceSherpaDeps,
     [switch]$SkipSubmodules,
@@ -466,10 +468,19 @@ Write-Host ""
 # Step 8: Build MSI + setup.exe (optional)
 if ($BuildSetup) {
     Write-Host "[Step 8/8] Building MSI and setup.exe..." -ForegroundColor Cyan
+    # Version the MSI so Windows Installer actually replaces files on
+    # upgrade — a repeated version is treated as a no-op. Default is
+    # date-based (0.<yy>.<mmdd>); pass -InstallerVersion to override
+    # (e.g. for same-day rebuilds).
+    if ([string]::IsNullOrWhiteSpace($InstallerVersion)) {
+        $now = Get-Date
+        $InstallerVersion = "0.{0}.{1}" -f $now.ToString("yy"), ([int]$now.ToString("MMdd"))
+    }
+    Write-Host "  Installer version: $InstallerVersion" -ForegroundColor DarkGray
     # CI calls build-setup.ps1 without -BrandingFile; only pass it when a
     # branding.json is actually present (empty string fails the mandatory
     # parameter validation).
-    $setupArgs = @("-PayloadDir", $PayloadDir, "-OutputDir", $InstallerOutputDir)
+    $setupArgs = @("-PayloadDir", $PayloadDir, "-OutputDir", $InstallerOutputDir, "-Version", $InstallerVersion)
     if ($brandingSource) { $setupArgs += @("-BrandingFile", $brandingSource) }
     & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\build-setup.ps1") @setupArgs
     if ($LASTEXITCODE -ne 0) { throw "MSI build failed" }
