@@ -569,13 +569,13 @@
     <value>SherpaOnnx</value>
   </data>
   <data name="SherpaOnnxEngineDesc" xml:space="preserve">
-    <value>Offline neural voices. Downloadable models in many languages — works without an account or internet connection.</value>
+    <value>Offline neural voices in many languages. Best for reliability and privacy — works without an account or internet once downloaded.</value>
   </data>
   <data name="EdgeEngineName" xml:space="preserve">
     <value>Edge Voices</value>
   </data>
   <data name="EdgeEngineDesc" xml:space="preserve">
-    <value>Microsoft Edge Read-Aloud voices. Free cloud voices in many languages — no API key needed.</value>
+    <value>Free Microsoft cloud voices in many languages. Best free online option — natural quality, no API key, needs internet.</value>
   </data>
   <data name="EngineDescKeyOnly" xml:space="preserve">
     <value>{0} cloud voices. Needs an API key.</value>
@@ -689,7 +689,22 @@
     <value>Unknown</value>
   </data>
   <data name="DownloadFailedSingle" xml:space="preserve">
-    <value>Download failed for {0}: {1}</value>
+    <value>Download failed for {0}</value>
+  </data>
+  <data name="DownloadFailedTitle" xml:space="preserve">
+    <value>Download failed for {0}. Check your internet connection and try again — if it keeps failing, close other voice apps and restart VoiceGarden.</value>
+  </data>
+  <data name="PreviewFailedTitle" xml:space="preserve">
+    <value>Preview failed for {0}.</value>
+  </data>
+  <data name="VoicesEmptyTitle" xml:space="preserve">
+    <value>No voices yet</value>
+  </data>
+  <data name="VoicesEmptyHint" xml:space="preserve">
+    <value>Choose your voice engines in the Voice Engines tab first (add credentials there too if the engine needs a key), then load voices here.</value>
+  </data>
+  <data name="VoicesEmptyNoEngines" xml:space="preserve">
+    <value>No engines selected — open the Voice Engines tab and tick at least one engine.</value>
   </data>
   <data name="AliasSettingsTitle" xml:space="preserve">
     <value>SAPI voice aliases</value>

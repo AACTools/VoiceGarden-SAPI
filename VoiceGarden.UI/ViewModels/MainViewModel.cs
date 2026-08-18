@@ -58,7 +58,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         sherpaEnabled = !RegistryService.GetFlag("NoSherpaVoices", !BrandingConfig.DefaultSherpaEnabled);
         edgeEnabled = !RegistryService.GetFlag("NoEdgeVoices");
         AnalyticsEnabled = Services.AnalyticsService.IsEnabled;
-        LogLevelIndex = RegistryService.GetDword("LogLevel", 0);
+        // spdlog levels: 0=trace … 4=error, 6=off; adapter defaults to info(2)
+        LogLevelIndex = RegistryService.GetDword("LogLevel", 2);
         SapiAliasEnUs = Services.SapiAliasSettings.EnUsEnabled;
         SapiAliasArabic = Services.SapiAliasSettings.ArabicEnabled;
 
@@ -247,7 +248,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         if (value) Services.AnalyticsService.Track("analytics_opted_in");
     }
 
-    [ObservableProperty] private int logLevelIndex = 0;
+    [ObservableProperty] private int logLevelIndex = 2;
     partial void OnLogLevelIndexChanged(int value) => RegistryService.SetDword("LogLevel", value);
 
     // ----- SAPI alias settings (applied whenever voices are promoted) -----

@@ -47,6 +47,9 @@ public partial class VoiceEntry : ObservableObject
     [ObservableProperty] private int downloadProgress;
     [ObservableProperty] private string downloadStatus = "";
 
+    /// <summary>Show the internal ID on the row — only set for duplicate display names.</summary>
+    [ObservableProperty] private bool showId;
+
     public string TokenName => IsSherpa
         ? $"Sherpa-{Id}"
         : $"Cloud-{EngineId}-{Id}".Replace("/", "_").Replace("\\", "_");
@@ -142,6 +145,37 @@ public partial class VoicesViewModel : ObservableObject
     [ObservableProperty] private int selectedCount;
     [ObservableProperty] private int installedCount;
 
+    /// <summary>Error banner at the top of the Voices tab (icon + text, cleared by the next action).</summary>
+    [ObservableProperty] private string? errorText;
+
+    /// <summary>Optional technical detail line under the banner (file paths, raw messages).</summary>
+    [ObservableProperty] private string? errorDetail;
+
+    public bool HasError => !string.IsNullOrEmpty(ErrorText);
+
+    /// <summary>True when the list is empty and idle — show the guiding empty state.</summary>
+    public bool ShowEmptyState => !IsLoading && TotalCount == 0 && !HasError;
+
+    partial void OnErrorTextChanged(string? value)
+    {
+        OnPropertyChanged(nameof(HasError));
+        OnPropertyChanged(nameof(ShowEmptyState));
+    }
+
+    partial void OnIsLoadingChanged(bool value) => OnPropertyChanged(nameof(ShowEmptyState));
+
+    private void ShowError(string friendly, string? detail = null)
+    {
+        ErrorText = friendly;
+        ErrorDetail = detail;
+    }
+
+    private void ClearError()
+    {
+        ErrorText = null;
+        ErrorDetail = null;
+    }
+
     /// <summary>True when the loaded list no longer reflects the engine selection.</summary>
     public bool IsStale { get; private set; } = true;
 
@@ -161,7 +195,11 @@ public partial class VoicesViewModel : ObservableObject
 
     public string CountSummary => Loc.GetString("VoicesCountSummary", TotalCount, SelectedCount, InstalledCount);
 
-    partial void OnTotalCountChanged(int value) => OnPropertyChanged(nameof(CountSummary));
+    partial void OnTotalCountChanged(int value)
+    {
+        OnPropertyChanged(nameof(CountSummary));
+        OnPropertyChanged(nameof(ShowEmptyState));
+    }
     partial void OnSelectedCountChanged(int value) => OnPropertyChanged(nameof(CountSummary));
     partial void OnInstalledCountChanged(int value) => OnPropertyChanged(nameof(CountSummary));
 
@@ -169,10 +207,12 @@ public partial class VoicesViewModel : ObservableObject
     private async Task LoadVoices()
     {
         if (IsLoading) return;
+        ClearError();
         var selected = _owner.Engines.SelectedEngines();
         if (selected.Count == 0)
         {
             StatusText = Loc.GetString("VoicesNoEnginesSelected");
+            ShowError(Loc.GetString("VoicesEmptyNoEngines"));
             return;
         }
 
@@ -212,6 +252,7 @@ public partial class VoicesViewModel : ObservableObject
 
             await RefreshInstalledStatus();
             RebuildFilterOptions();
+            MarkDuplicateNames();
             ApplyFilter();
             UpdateCounts();
             _owner.OnVoicesLoaded();
@@ -227,11 +268,37 @@ public partial class VoicesViewModel : ObservableObject
                 suffixes.Add(Loc.GetString("VoicesSkippedNoKey", skippedNoKey.Count));
             if (notes.Count > 0) suffixes.AddRange(notes);
             StatusText = suffixes.Count > 0 ? $"{summary} — {string.Join("; ", suffixes)}" : summary;
+
+            // Fetch failures and missing keys go to the banner so they are
+            // seen even when the status line scrolls away.
+            var bannerProblems = new List<string>();
+            if (skippedNoKey.Count > 0)
+                bannerProblems.Add(skippedNoKey.Count == 1
+                    ? Loc.GetString("VoicesMissingKey", skippedNoKey[0])
+                    : Loc.GetString("VoicesSkippedNoKey", skippedNoKey.Count));
+            bannerProblems.AddRange(notes.Where(n => n.Contains(':')));
+            if (bannerProblems.Count > 0)
+                ShowError(string.Join("  ·  ", bannerProblems));
         }
         finally
         {
             IsLoading = false;
         }
+    }
+
+    /// <summary>
+    /// Show the internal model ID only where the display name is duplicated
+    /// (e.g. the three Urdu script variants) — otherwise the row stays clean.
+    /// </summary>
+    private void MarkDuplicateNames()
+    {
+        var duplicated = AllVoices
+            .GroupBy(v => v.Name, StringComparer.OrdinalIgnoreCase)
+            .Where(g => g.Count() > 1)
+            .Select(g => g.Key)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        foreach (var v in AllVoices)
+            v.ShowId = duplicated.Contains(v.Name);
     }
 
     private async Task LoadSherpaEntries(List<string> notes)
@@ -466,10 +533,12 @@ public partial class VoicesViewModel : ObservableObject
         catch (RustTtsWrapper.TtsException ex)
         {
             StatusText = Loc.GetString("PreviewFailed", ex.Message);
+            ShowError(Loc.GetString("PreviewFailedTitle", voice.Name), ex.Message);
         }
         catch (Exception ex)
         {
             StatusText = Loc.GetString("PreviewFailed", ex.Message);
+            ShowError(Loc.GetString("PreviewFailedTitle", voice.Name), ex.Message);
         }
     }
 
@@ -477,6 +546,7 @@ public partial class VoicesViewModel : ObservableObject
     private async Task Download(VoiceEntry? voice)
     {
         if (voice == null || !voice.IsSherpa || voice.CatalogModel == null || voice.IsDownloading) return;
+        ClearError();
 
         var sizeMb = voice.CatalogModel.FileSizeMb > 0 ? $"{voice.CatalogModel.FileSizeMb:F0}MB" : "??MB";
         voice.IsDownloading = true;
@@ -500,10 +570,10 @@ public partial class VoicesViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            var msg = ex.Message;
-            if (ex.InnerException != null) msg += $" → {ex.InnerException.Message}";
-            voice.DownloadStatus = $"Failed: {msg}";
-            StatusText = Loc.GetString("DownloadFailedSingle", voice.Name, msg);
+            var detail = ex.InnerException?.Message ?? ex.Message;
+            voice.DownloadStatus = $"Failed: {detail}";
+            StatusText = Loc.GetString("DownloadFailedSingle", voice.Name);
+            ShowError(Loc.GetString("DownloadFailedTitle", voice.Name), detail);
         }
         finally
         {
@@ -533,10 +603,12 @@ public partial class VoicesViewModel : ObservableObject
             {
                 voice.IsInstalled = true;
                 StatusText = Loc.GetString("VoicesPromotedSingle", voice.Name);
+                ClearError();
             }
             else
             {
                 StatusText = message;
+                ShowError(message);
             }
         }
         finally
@@ -582,9 +654,17 @@ public partial class VoicesViewModel : ObservableObject
             await RefreshInstalledStatus();
             UpdateCounts();
 
-            StatusText = failed == 0
-                ? Loc.GetString("InstalledVoicesHKLM", promoted)
-                : Loc.GetString("InstalledModelsFailed", promoted, failed) + (lastError.Length > 0 ? $" ({lastError})" : "");
+            if (failed == 0)
+            {
+                StatusText = Loc.GetString("InstalledVoicesHKLM", promoted);
+                ClearError();
+            }
+            else
+            {
+                var friendly = Loc.GetString("InstalledModelsFailed", promoted, failed);
+                StatusText = friendly + (lastError.Length > 0 ? $" ({lastError})" : "");
+                ShowError(friendly, lastError.Length > 0 ? lastError : null);
+            }
         }
         finally
         {
@@ -621,9 +701,17 @@ public partial class VoicesViewModel : ObservableObject
             }
 
             UpdateCounts();
-            StatusText = failed == 0
-                ? Loc.GetString("RemovedVoices", removed)
-                : Loc.GetString("VoicesUnpromoteFailed", removed, failed);
+            if (failed == 0)
+            {
+                StatusText = Loc.GetString("RemovedVoices", removed);
+                ClearError();
+            }
+            else
+            {
+                var friendly = Loc.GetString("VoicesUnpromoteFailed", removed, failed);
+                StatusText = friendly;
+                ShowError(friendly);
+            }
         }
         finally
         {

@@ -38,9 +38,9 @@
                 <TextBox Text="{Binding SearchText}" PlaceholderText="{lang:Localize SearchEngines}"
                          MinWidth="200"
                          AutomationProperties.Name="{lang:Localize SearchEngines}"/>
-                <Button Content="{lang:Localize SelectVisible}" Command="{Binding SelectVisibleCommand}"
+                <Button Content="{lang:Localize SelectVisible}" Classes="Secondary" Command="{Binding SelectVisibleCommand}"
                         AutomationProperties.Name="{lang:Localize SelectVisible}"/>
-                <Button Content="{lang:Localize ClearVisible}" Command="{Binding ClearVisibleCommand}"
+                <Button Content="{lang:Localize ClearVisible}" Classes="Secondary" Command="{Binding ClearVisibleCommand}"
                         AutomationProperties.Name="{lang:Localize ClearVisible}"/>
             </WrapPanel>
         </Border>
@@ -106,7 +106,7 @@
                     Command="{Binding GoToCredentialsCommand}" IsEnabled="{Binding CredentialsNeeded}"
                     Margin="0,0,10,0"
                     AutomationProperties.Name="{lang:Localize NextCredentials}"/>
-            <Button Grid.Column="2" Content="{lang:Localize NextVoices}"
+            <Button Grid.Column="2" Content="{lang:Localize NextVoices}" Classes="Secondary"
                     Command="{Binding GoToVoicesCommand}"
                     AutomationProperties.Name="{lang:Localize NextVoices}"/>
         </Grid>

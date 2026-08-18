@@ -70,6 +70,34 @@
             <Setter Property="Opacity" Value="0.5"/>
         </Style>
 
+        <!-- Secondary button — outlined, high contrast. Active secondary
+             actions (Preview/Download/Verify/Select…) must never look
+             disabled, so flat low-contrast grey is reserved for :disabled. -->
+        <Style Selector="Button.Secondary">
+            <Setter Property="Background" Value="{StaticResource VGCardBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource VGForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource VGForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        <Style Selector="Button.Secondary:pointerover">
+            <Setter Property="Background" Value="{StaticResource VGAccentBrush}"/>
+        </Style>
+        <Style Selector="Button.Secondary:pressed">
+            <Setter Property="Background" Value="{StaticResource VGBorderBrush}"/>
+        </Style>
+        <Style Selector="Button.Secondary:disabled">
+            <Setter Property="Background" Value="{StaticResource VGAccentBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource VGMutedBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource VGBorderBrush}"/>
+            <Setter Property="Opacity" Value="0.55"/>
+        </Style>
+
+        <!-- Disabled = flat low-contrast grey, never an active style -->
+        <Style Selector="Button:disabled">
+            <Setter Property="Opacity" Value="0.5"/>
+        </Style>
+
         <!-- Visible keyboard focus everywhere -->
         <Style Selector="Button:focus-visible, ToggleButton:focus-visible, TabItem:focus-visible, CheckBox:focus-visible, RadioButton:focus-visible, ComboBox:focus-visible, TextBox:focus-visible, ListBoxItem:focus-visible">
             <Setter Property="BorderBrush" Value="{StaticResource VGPrimaryBrush}"/>
@@ -190,6 +218,28 @@
         <Style Selector="WrapPanel.FilterRow">
             <Setter Property="ItemSpacing" Value="12"/>
             <Setter Property="LineSpacing" Value="10"/>
+        </Style>
+
+        <!-- Error / warning banners: icon + text, never colour alone (WCAG 1.4.1) -->
+        <Style Selector="Border.Banner">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="14,10"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style Selector="Border.BannerError">
+            <Setter Property="Background" Value="#FEF2F2"/>
+            <Setter Property="BorderBrush" Value="#DC2626"/>
+        </Style>
+        <Style Selector="Border.BannerError > TextBlock">
+            <Setter Property="Foreground" Value="#7F1D1D"/>
+        </Style>
+        <Style Selector="Border.BannerWarning">
+            <Setter Property="Background" Value="#FFFBEB"/>
+            <Setter Property="BorderBrush" Value="#D97706"/>
+        </Style>
+        <Style Selector="Border.BannerWarning > TextBlock">
+            <Setter Property="Foreground" Value="#78350F"/>
         </Style>
     </Application.Styles>
 </Application>
