@@ -321,9 +321,10 @@ foreach ($Platform in $Platforms) {
         # Installer.exe removed — VoiceGarden.UI.exe is the main app
     }
 
-        # Stage SherpaOnnxConfig for x86/x64 utilities (matches CI behavior)
+        # Stage the model catalog for x86/x64 utilities (matches CI).
+        # SherpaOnnxConfig.exe itself is NOT shipped — VoiceGarden.UI.exe
+        # replaced all of its functionality and nothing launches it.
         if ($Platform -eq "x86" -or $Platform -eq "x64") {
-            Copy-Item -Path (Join-Path $sherpaConfigOutput "SherpaOnnxConfig.exe") -Destination $utilOut -Force
             $models = Join-Path $sherpaConfigOutput "models.json"
             if (Test-Path $models) {
                 Copy-Item -Path $models -Destination $utilOut -Force

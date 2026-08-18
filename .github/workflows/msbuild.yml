@@ -119,8 +119,7 @@ jobs:
         name: sherpa-onnx-config
         path: ${{github.workspace}}\out\
 
-    - name: Keep only models.json in ARM64 utilities
-      if: matrix.platform == 'ARM64'
+    - name: Keep only models.json in utilities (drop the superseded SherpaOnnxConfig.exe)
       shell: pwsh
       run: Remove-Item out\SherpaOnnxConfig.exe -ErrorAction SilentlyContinue
 

@@ -28,7 +28,6 @@ $rootAllow = @(
     "VoiceGarden.UI.exe",
     "install-plan.json",
     "_branding.json.removed",
-    "SherpaOnnxConfig.exe",
     "models.json",
     "LICENSE.txt",
     "README.md"
@@ -50,8 +49,10 @@ function Copy-ArchTree([string]$archDirPath, [string]$archName) {
 
     # Include runtime-oriented files only.
     $includeExt = @("*.dll", "*.exe", "*.json", "*.txt")
-    # Exclude debug/development tools from installer payload
-    $excludeNames = @("TtsApplication.exe")
+    # Exclude debug/development tools from installer payload.
+    # SherpaOnnxConfig.exe is superseded by VoiceGarden.UI.exe — it must
+    # never ship again (146 MB of dead weight; nothing launches it).
+    $excludeNames = @("TtsApplication.exe", "SherpaOnnxConfig.exe")
 
     foreach ($pattern in $includeExt) {
         Get-ChildItem -Path $archDirPath -Recurse -File -Filter $pattern | ForEach-Object {
