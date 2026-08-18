@@ -39,6 +39,10 @@ static class Program
                     return 3;
                 }
 
+                // Uninstall removes the apps' files too — they must not run.
+                if (!EnsureAppsClosed(quiet))
+                    return 1602; // ERROR_INSTALL_USEREXIT
+
                 msiexecArgs = $"/x {productCode}";
                 if (quiet)
                     msiexecArgs += " /qn";
@@ -49,6 +53,11 @@ static class Program
             }
             else
             {
+                // Upgrades replace the apps' files — a running instance keeps
+                // them locked and the MSI fails or leaves a half-mixed install.
+                if (!EnsureAppsClosed(quiet))
+                    return 1602; // ERROR_INSTALL_USEREXIT
+
                 msiexecArgs = $"/i \"{msiPath}\"";
                 if (quiet)
                     msiexecArgs += " /qn";
@@ -106,6 +115,72 @@ static class Program
 
     static bool HasArg(string[] args, string needle) =>
         args.Any(a => string.Equals(a, needle, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>Apps whose files the MSI replaces — they must be closed first.</summary>
+    static readonly string[] AppProcessNames = { "VoiceGarden.UI", "SherpaOnnxConfig" };
+
+    /// <summary>
+    /// Make sure none of the shipped apps are running. Asks the user first
+    /// (with the option to close them automatically); silent runs close
+    /// everything without asking. Returns false when the user declines.
+    /// </summary>
+    static bool EnsureAppsClosed(bool quiet)
+    {
+        if (!EnumerateAppProcesses().Any())
+            return true; // nothing was running
+
+        if (quiet)
+        {
+            CloseAppProcesses();
+            return true;
+        }
+
+        var choice = MessageBox.Show(
+            "VoiceGarden is currently running and must be closed before setup can continue.\n\n" +
+            "Click OK to close it now and continue, or Cancel to stop setup.",
+            Branding.SetupCaption,
+            MessageBoxButtons.OKCancel,
+            MessageBoxIcon.Information,
+            MessageBoxDefaultButton.Button1);
+        if (choice != DialogResult.OK)
+            return false;
+
+        CloseAppProcesses();
+
+        // If something still refuses to die, say so rather than failing
+        // the MSI with a cryptic file-in-use error.
+        if (EnumerateAppProcesses().Any())
+        {
+            Notify("Could not close VoiceGarden (another user may be running it, or it may be busy). " +
+                   "Close it manually and run setup again.",
+                Branding.SetupCaption, quiet: false, error: true);
+            return false;
+        }
+        return true;
+    }
+
+    static IEnumerable<Process> EnumerateAppProcesses() =>
+        AppProcessNames.SelectMany(Process.GetProcessesByName).Distinct();
+
+    static void CloseAppProcesses()
+    {
+        foreach (var proc in EnumerateAppProcesses().ToList())
+        {
+            try
+            {
+                // Ask nicely first (WM_CLOSE); the single-instance app exits on it.
+                proc.CloseMainWindow();
+                if (!proc.WaitForExit(3000))
+                    proc.Kill();
+            }
+            catch
+            {
+                try { proc.Kill(); } catch { }
+            }
+        }
+        // Give the OS a moment to release file handles.
+        Thread.Sleep(1500);
+    }
 
     static int RunMsiexec(string arguments)
     {

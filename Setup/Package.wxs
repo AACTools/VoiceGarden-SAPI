@@ -12,6 +12,13 @@
       DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
     <MediaTemplate EmbedCab="yes" />
 
+    <!--
+      Running apps are closed by the SetupLauncher bootstrapper before the
+      MSI starts (ask-first, terminate on refusal) — their locked files
+      otherwise fail the upgrade. Kept out of util:CloseApplication because
+      the PanelSw WiX build cannot load official wixext packages.
+    -->
+
     <StandardDirectory Id="ProgramFiles6432Folder">
       <Directory Id="INSTALLFOLDER" Name="$(var.InstallFolderName)" />
     </StandardDirectory>
