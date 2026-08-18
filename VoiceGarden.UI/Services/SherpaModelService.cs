@@ -37,6 +37,7 @@ public class SherpaModelService
         [JsonPropertyName("min_sherpa_onnx_version")] public string? MinSherpaOnnxVersion { get; set; }
         [JsonPropertyName("deprecated")] public bool? Deprecated { get; set; }
         [JsonPropertyName("quality")] public string? Quality { get; set; }
+        [JsonPropertyName("quantization")] public string? Quantization { get; set; }
         [JsonPropertyName("num_speakers")] public int? NumSpeakers { get; set; }
     }
 
@@ -109,27 +110,257 @@ public class SherpaModelService
     }
 
     /// <summary>
-    /// Legacy -> canonical model IDs from the 2026-08-10 sherpa-onnx registry
-    /// canonicalisation. rust-tts-wrapper (>= 0.3.17) hard-fails on unknown
-    /// model IDs, so installed directories using legacy names are renamed on
-    /// scan (idempotent; the SAPI adapter performs the same migration).
+    /// Legacy -> canonical model IDs from the sherpa-onnx registry
+    /// canonicalisations (2026-08-10 and 2026-08-18 syncs). rust-tts-wrapper
+    /// (>= 0.3.17) hard-fails on unknown model IDs, so installed directories
+    /// using legacy names are renamed on scan (idempotent; the SAPI adapter
+    /// performs the same migration). Pre-2026-08-10 names map straight to
+    /// their 2026-08-18 canonical ID.
     /// </summary>
     public static readonly IReadOnlyDictionary<string, string> LegacyModelIds = new Dictionary<string, string>
     {
+        ["cantonese-fs-xiaomaiiwn"] = "cantonese-yue-xiaomaiiwn",
+        ["icefall-fs-aishell3"] = "icefall-zh-aishell3",
+        ["icefall-fs-baker"] = "icefall-zh-baker",
+        ["icefall-fs-en"] = "icefall-zh_en-zh-en",
+        ["icefall-fs-ljspeech"] = "icefall-en-ljspeech",
+        ["icefall-fs-ljspeech-low"] = "icefall-en-ljspeech-low",
+        ["icefall-fs-ljspeech-medium"] = "icefall-en-ljspeech-medium",
+        ["inflect-fs-micro-v2"] = "inflect-en-micro-v2",
+        ["inflect-fs-nano-v2"] = "inflect-en-nano-v2",
         ["kokoro-en-en-19"] = "kokoro-en-v0_19",
         ["kokoro-zh_en-int8-multi"] = "kokoro-zh_en-int8",
-        ["vits-coqui-en-vctk"] = "coqui-en-vctk",
-        ["tts-fs-khadijah"] = "matcha-fs-khadijah",
-        ["tts-fs-musa"] = "matcha-fs-musa",
-        ["mimic3-af-google-nwu_low"] = "mimic3-af-google-low",
+        ["ljs-fs-unknown"] = "ljs-en-ljspeech",
+        ["matcha-fs-khadijah"] = "matcha-fa_en-khadijah",
+        ["matcha-fs-musa"] = "matcha-fa_en-musa",
+        ["melo-fs-en"] = "melo-en-melo-tts",
+        ["melo-fs-zh_en"] = "melo-zh_en-melo-tts",
+        ["micro-fs-v0_8"] = "micro-en-v0_8",
+        ["mimic3-af-google-low"] = "mimic3-af_ZA-google-low",
+        ["mimic3-af-google-nwu_low"] = "mimic3-af_ZA-google-low",
         ["mimic3-bn-multi"] = "mimic3-bn-multi_low",
-        ["mimic3-el-rapunzelina"] = "mimic3-el-rapunzelina_low",
-        ["mimic3-es-m-ailabs_low"] = "mimic3-es-m-low",
+        ["mimic3-el-rapunzelina"] = "mimic3-el_GR-rapunzelina_low",
+        ["mimic3-el-rapunzelina_low"] = "mimic3-el_GR-rapunzelina_low",
+        ["mimic3-es-m-ailabs_low"] = "mimic3-es_ES-m-low",
+        ["mimic3-es-m-low"] = "mimic3-es_ES-m-low",
         ["mimic3-fa-haaniye"] = "mimic3-fa-haaniye_low",
-        ["mimic3-ko-kss"] = "mimic3-ko-kss_low",
-        ["mimic3-pl-m-ailabs_low"] = "mimic3-pl-m-low",
-        ["mimic3-tn-google-nwu_low"] = "mimic3-tn-google-low",
-        ["mimic3-vi-vais1000"] = "mimic3-vi-vais1000_low",
+        ["mimic3-fi-harri-tapani"] = "mimic3-fi_FI-harri-tapani",
+        ["mimic3-gu-cmu-low"] = "mimic3-gu_IN-cmu-low",
+        ["mimic3-hu-diana-low"] = "mimic3-hu_HU-diana-low",
+        ["mimic3-ko-kss"] = "mimic3-ko_KO-kss_low",
+        ["mimic3-ko-kss_low"] = "mimic3-ko_KO-kss_low",
+        ["mimic3-ne-ne-low"] = "mimic3-ne_NP-ne-low",
+        ["mimic3-pl-m-ailabs_low"] = "mimic3-pl_PL-m-low",
+        ["mimic3-pl-m-low"] = "mimic3-pl_PL-m-low",
+        ["mimic3-tn-google-low"] = "mimic3-tn_ZA-google-low",
+        ["mimic3-tn-google-nwu_low"] = "mimic3-tn_ZA-google-low",
+        ["mimic3-vi-vais1000"] = "mimic3-vi_VN-vais1000_low",
+        ["mimic3-vi-vais1000_low"] = "mimic3-vi_VN-vais1000_low",
+        ["mini-fs-v0_1-fp16"] = "mini-en-v0_1-fp16",
+        ["mini-fs-v0_8"] = "mini-en-v0_8",
+        ["nano-fs-v0_1-fp16"] = "nano-en-v0_1-fp16",
+        ["nano-fs-v0_2-fp16"] = "nano-en-v0_2-fp16",
+        ["nano-fs-v0_8-fp32"] = "nano-en-v0_8",
+        ["nano-fs-v0_8-int8"] = "nano-en-v0_8-int8",
+        ["piper-ar-SA_dii-high"] = "piper-ar_JO-SA_dii-high",
+        ["piper-ar-SA_miro-high"] = "piper-ar_JO-SA_miro-high",
+        ["piper-ar-SA_miro_V2-high"] = "piper-ar_JO-SA_miro_V2-high",
+        ["piper-ar-kareem-low"] = "piper-ar_JO-kareem-low",
+        ["piper-ar-kareem-medium"] = "piper-ar_JO-kareem-medium",
+        ["piper-ca-upc_ona-low"] = "piper-ca_ES-upc_ona-low",
+        ["piper-ca-upc_ona-medium"] = "piper-ca_ES-upc_ona-medium",
+        ["piper-ca-upc_pau-low"] = "piper-ca_ES-upc_pau-low",
+        ["piper-cs-jirka-low"] = "piper-cs_CZ-jirka-low",
+        ["piper-cs-jirka-medium"] = "piper-cs_CZ-jirka-medium",
+        ["piper-cy-bu_tts-medium"] = "piper-cy_GB-bu_tts-medium",
+        ["piper-cy-gwryw_gogleddol-medium"] = "piper-cy_GB-gwryw_gogleddol-medium",
+        ["piper-da-talesyntese-medium"] = "piper-da_DK-talesyntese-medium",
+        ["piper-de-dii-high"] = "piper-de_DE-dii-high",
+        ["piper-de-eva_k-low"] = "piper-de_DE-eva_k-low",
+        ["piper-de-glados-high"] = "piper-de_DE-glados-high",
+        ["piper-de-glados-low"] = "piper-de_DE-glados-low",
+        ["piper-de-glados-medium"] = "piper-de_DE-glados-medium",
+        ["piper-de-glados_turret-high"] = "piper-de_DE-glados_turret-high",
+        ["piper-de-glados_turret-low"] = "piper-de_DE-glados_turret-low",
+        ["piper-de-glados_turret-medium"] = "piper-de_DE-glados_turret-medium",
+        ["piper-de-karlsson-low"] = "piper-de_DE-karlsson-low",
+        ["piper-de-kerstin-low"] = "piper-de_DE-kerstin-low",
+        ["piper-de-miro-high"] = "piper-de_DE-miro-high",
+        ["piper-de-pavoque-low"] = "piper-de_DE-pavoque-low",
+        ["piper-de-ramona-low"] = "piper-de_DE-ramona-low",
+        ["piper-de-thorsten-high"] = "piper-de_DE-thorsten-high",
+        ["piper-de-thorsten-low"] = "piper-de_DE-thorsten-low",
+        ["piper-de-thorsten-medium"] = "piper-de_DE-thorsten-medium",
+        ["piper-de-thorsten_emotional-medium"] = "piper-de_DE-thorsten_emotional-medium",
+        ["piper-el-rapunzelina-low"] = "piper-el_GR-rapunzelina-low",
+        ["piper-en-alan-low"] = "piper-en_GB-alan-low",
+        ["piper-en-alan-medium"] = "piper-en_GB-alan-medium",
+        ["piper-en-alba-medium"] = "piper-en_GB-alba-medium",
+        ["piper-en-amy-low"] = "piper-en_US-amy-low",
+        ["piper-en-amy-medium"] = "piper-en_US-amy-medium",
+        ["piper-en-arctic-medium"] = "piper-en_US-arctic-medium",
+        ["piper-en-aru-medium"] = "piper-en_GB-aru-medium",
+        ["piper-en-bryce-medium"] = "piper-en_US-bryce-medium",
+        ["piper-en-cori-high"] = "piper-en_GB-cori-high",
+        ["piper-en-cori-medium"] = "piper-en_GB-cori-medium",
+        ["piper-en-danny-low"] = "piper-en_US-danny-low",
+        ["piper-en-dii-high"] = "piper-en_GB-dii-high",
+        ["piper-en-glados"] = "piper-en_US-glados",
+        ["piper-en-glados-high"] = "piper-en_US-glados-high",
+        ["piper-en-hfc_female-medium"] = "piper-en_US-hfc_female-medium",
+        ["piper-en-hfc_male-medium"] = "piper-en_US-hfc_male-medium",
+        ["piper-en-jenny_dioco-medium"] = "piper-en_GB-jenny_dioco-medium",
+        ["piper-en-joe-medium"] = "piper-en_US-joe-medium",
+        ["piper-en-john-medium"] = "piper-en_US-john-medium",
+        ["piper-en-kathleen-low"] = "piper-en_US-kathleen-low",
+        ["piper-en-kristin-medium"] = "piper-en_US-kristin-medium",
+        ["piper-en-kusal-medium"] = "piper-en_US-kusal-medium",
+        ["piper-en-l2arctic-medium"] = "piper-en_US-l2arctic-medium",
+        ["piper-en-lessac-high"] = "piper-en_US-lessac-high",
+        ["piper-en-lessac-low"] = "piper-en_US-lessac-low",
+        ["piper-en-lessac-medium"] = "piper-en_US-lessac-medium",
+        ["piper-en-libritts-high"] = "piper-en_US-libritts-high",
+        ["piper-en-libritts_r-medium"] = "piper-en_US-libritts_r-medium",
+        ["piper-en-ljspeech-high"] = "piper-en_US-ljspeech-high",
+        ["piper-en-ljspeech-medium"] = "piper-en_US-ljspeech-medium",
+        ["piper-en-miro-high"] = "piper-en_GB-miro-high",
+        ["piper-en-norman-medium"] = "piper-en_US-norman-medium",
+        ["piper-en-northern_english_male-medium"] = "piper-en_GB-northern_english_male-medium",
+        ["piper-en-reza_ibrahim-medium"] = "piper-en_US-reza_ibrahim-medium",
+        ["piper-en-ryan-high"] = "piper-en_US-ryan-high",
+        ["piper-en-ryan-low"] = "piper-en_US-ryan-low",
+        ["piper-en-ryan-medium"] = "piper-en_US-ryan-medium",
+        ["piper-en-sam-medium"] = "piper-en_US-sam-medium",
+        ["piper-en-semaine-medium"] = "piper-en_GB-semaine-medium",
+        ["piper-en-southern_english_female-low"] = "piper-en_GB-southern_english_female-low",
+        ["piper-en-southern_english_female-medium"] = "piper-en_GB-southern_english_female-medium",
+        ["piper-en-southern_english_female_medium"] = "piper-en_GB-southern_english_female_medium",
+        ["piper-en-southern_english_male-medium"] = "piper-en_GB-southern_english_male-medium",
+        ["piper-en-sweetbbak-amy"] = "piper-en_GB-sweetbbak-amy",
+        ["piper-en-vctk-medium"] = "piper-en_GB-vctk-medium",
+        ["piper-es-ald-medium"] = "piper-es_MX-ald-medium",
+        ["piper-es-carlfm-low"] = "piper-es_ES-carlfm-low",
+        ["piper-es-claude-high"] = "piper-es_MX-claude-high",
+        ["piper-es-daniela-high"] = "piper-es_AR-daniela-high",
+        ["piper-es-davefx-medium"] = "piper-es_ES-davefx-medium",
+        ["piper-es-miro-high"] = "piper-es_ES-miro-high",
+        ["piper-es-sharvard-medium"] = "piper-es_ES-sharvard-medium",
+        ["piper-eu-antton-medium"] = "piper-eu_ES-antton-medium",
+        ["piper-eu-maider-medium"] = "piper-eu_ES-maider-medium",
+        ["piper-fa-amir-medium"] = "piper-fa_IR-amir-medium",
+        ["piper-fa-ganji-medium"] = "piper-fa_IR-ganji-medium",
+        ["piper-fa-ganji_adabi-medium"] = "piper-fa_IR-ganji_adabi-medium",
+        ["piper-fa-gyro-medium"] = "piper-fa_IR-gyro-medium",
+        ["piper-fa-reza_ibrahim-medium"] = "piper-fa_IR-reza_ibrahim-medium",
+        ["piper-fa-rezahedayatfar-ibrahimwalk"] = "piper-fa_en-rezahedayatfar-ibrahimwalk",
+        ["piper-fi-harri-low"] = "piper-fi_FI-harri-low",
+        ["piper-fi-harri-medium"] = "piper-fi_FI-harri-medium",
+        ["piper-fr-gilles-low"] = "piper-fr_FR-gilles-low",
+        ["piper-fr-miro-high"] = "piper-fr_FR-miro-high",
+        ["piper-fr-siwis-low"] = "piper-fr_FR-siwis-low",
+        ["piper-fr-siwis-medium"] = "piper-fr_FR-siwis-medium",
+        ["piper-fr-tjiho-model1"] = "piper-fr_FR-tjiho-model1",
+        ["piper-fr-tjiho-model2"] = "piper-fr_FR-tjiho-model2",
+        ["piper-fr-tjiho-model3"] = "piper-fr_FR-tjiho-model3",
+        ["piper-fr-tom-medium"] = "piper-fr_FR-tom-medium",
+        ["piper-fr-upmc-medium"] = "piper-fr_FR-upmc-medium",
+        ["piper-fs-glados-medium"] = "piper-es-glados-medium",
+        ["piper-fs-haaniye_low"] = "piper-fa-haaniye_low",
+        ["piper-hi-pratham-medium"] = "piper-hi_IN-pratham-medium",
+        ["piper-hi-priyamvada-medium"] = "piper-hi_IN-priyamvada-medium",
+        ["piper-hi-rohan-medium"] = "piper-hi_IN-rohan-medium",
+        ["piper-hu-anna-medium"] = "piper-hu_HU-anna-medium",
+        ["piper-hu-berta-medium"] = "piper-hu_HU-berta-medium",
+        ["piper-hu-imre-medium"] = "piper-hu_HU-imre-medium",
+        ["piper-id-news_tts-medium"] = "piper-id_ID-news_tts-medium",
+        ["piper-is-bui-medium"] = "piper-is_IS-bui-medium",
+        ["piper-is-salka-medium"] = "piper-is_IS-salka-medium",
+        ["piper-is-steinn-medium"] = "piper-is_IS-steinn-medium",
+        ["piper-is-ugla-medium"] = "piper-is_IS-ugla-medium",
+        ["piper-it-dii-high"] = "piper-it_IT-dii-high",
+        ["piper-it-miro-high"] = "piper-it_IT-miro-high",
+        ["piper-it-paola-medium"] = "piper-it_IT-paola-medium",
+        ["piper-it-riccardo-low"] = "piper-it_IT-riccardo-low",
+        ["piper-ka-natia-medium"] = "piper-ka_GE-natia-medium",
+        ["piper-kk-iseke-low"] = "piper-kk_KZ-iseke-low",
+        ["piper-kk-issai-high"] = "piper-kk_KZ-issai-high",
+        ["piper-kk-raya-low"] = "piper-kk_KZ-raya-low-int8",
+        ["piper-ku-berfin_renas-medium"] = "piper-ku_TR-berfin_renas-medium",
+        ["piper-lb-marylux-medium"] = "piper-lb_LU-marylux-medium",
+        ["piper-lv-aivars-medium"] = "piper-lv_LV-aivars-medium",
+        ["piper-ml-arjun-medium"] = "piper-ml_IN-arjun-medium",
+        ["piper-ml-meera-medium"] = "piper-ml_IN-meera-medium",
+        ["piper-ne-chitwan-medium"] = "piper-ne_NP-chitwan-medium",
+        ["piper-ne-google-low"] = "piper-ne_NP-google-low",
+        ["piper-ne-google-medium"] = "piper-ne_NP-google-medium",
+        ["piper-nl-alex-medium"] = "piper-nl_NL-alex-medium",
+        ["piper-nl-dii-high"] = "piper-nl_NL-dii-high",
+        ["piper-nl-miro-high"] = "piper-nl_NL-miro-high",
+        ["piper-nl-nathalie-low"] = "piper-nl_BE-nathalie-low",
+        ["piper-nl-nathalie-medium"] = "piper-nl_BE-nathalie-medium",
+        ["piper-nl-pim-medium"] = "piper-nl_NL-pim-medium",
+        ["piper-nl-rdh-low"] = "piper-nl_BE-rdh-low",
+        ["piper-nl-rdh-medium"] = "piper-nl_BE-rdh-medium",
+        ["piper-nl-ronnie-medium"] = "piper-nl_NL-ronnie-medium",
+        ["piper-no-talesyntese-medium"] = "piper-no_NO-talesyntese-medium",
+        ["piper-pl-bass-high"] = "piper-pl_PL-bass-high",
+        ["piper-pl-darkman-medium"] = "piper-pl_PL-darkman-medium",
+        ["piper-pl-gosia-medium"] = "piper-pl_PL-gosia-medium",
+        ["piper-pl-jarvis_wg_glos-medium"] = "piper-pl_PL-jarvis_wg_glos-medium",
+        ["piper-pl-justyna_wg_glos-medium"] = "piper-pl_PL-justyna_wg_glos-medium",
+        ["piper-pl-mc_speech-medium"] = "piper-pl_PL-mc_speech-medium",
+        ["piper-pl-meski_wg_glos-medium"] = "piper-pl_PL-meski_wg_glos-medium",
+        ["piper-pl-zenski_wg_glos-medium"] = "piper-pl_PL-zenski_wg_glos-medium",
+        ["piper-pt-cadu-medium"] = "piper-pt_BR-cadu-medium",
+        ["piper-pt-dii-high"] = "piper-pt_PT-dii-high",
+        ["piper-pt-edresson-low"] = "piper-pt_BR-edresson-low",
+        ["piper-pt-faber-medium"] = "piper-pt_BR-faber-medium",
+        ["piper-pt-jeff-medium"] = "piper-pt_BR-jeff-medium",
+        ["piper-pt-miro-high"] = "piper-pt_PT-miro-high",
+        ["piper-pt-tugao-medium"] = "piper-pt_PT-tugao-medium",
+        ["piper-ro-mihai-medium"] = "piper-ro_RO-mihai-medium-int8",
+        ["piper-ru-denis-medium"] = "piper-ru_RU-denis-medium",
+        ["piper-ru-dmitri-medium"] = "piper-ru_RU-dmitri-medium",
+        ["piper-ru-irina-medium"] = "piper-ru_RU-irina-medium",
+        ["piper-ru-ruslan-medium"] = "piper-ru_RU-ruslan-medium",
+        ["piper-sk-lili-medium"] = "piper-sk_SK-lili-medium",
+        ["piper-sl-artur-medium"] = "piper-sl_SI-artur-medium",
+        ["piper-sq-edon-medium"] = "piper-sq_AL-edon-medium",
+        ["piper-sr-serbski_institut-medium"] = "piper-sr_RS-serbski_institut-medium-int8",
+        ["piper-sv-alma-medium"] = "piper-sv_SE-alma-medium",
+        ["piper-sv-lisa-medium"] = "piper-sv_SE-lisa-medium",
+        ["piper-sv-nst-medium"] = "piper-sv_SE-nst-medium",
+        ["piper-sw-lanfrica-medium"] = "piper-sw_CD-lanfrica-medium",
+        ["piper-tr-dfki-medium"] = "piper-tr_TR-dfki-medium",
+        ["piper-tr-fahrettin-medium"] = "piper-tr_TR-fahrettin-medium",
+        ["piper-tr-fettah-medium"] = "piper-tr_TR-fettah-medium",
+        ["piper-uk-lada-low"] = "piper-uk_UA-lada-low",
+        ["piper-uk-ukrainian_tts-medium"] = "piper-uk_UA-ukrainian_tts-medium",
+        ["piper-ur-fasih-medium"] = "piper-ur_PK-fasih-medium",
+        ["piper-vi-25hours_single-low"] = "piper-vi_VN-25hours_single-low",
+        ["piper-vi-vais1000-medium"] = "piper-vi_VN-vais1000-medium",
+        ["piper-vi-vivos-low"] = "piper-vi_VN-vivos-low",
+        ["piper-zh-chaowen-medium"] = "piper-zh_CN-chaowen-medium",
+        ["piper-zh-huayan-medium"] = "piper-zh_CN-huayan-medium",
+        ["piper-zh-xiao_ya-medium"] = "piper-zh_CN-xiao_ya-medium",
+        ["tts-fs-khadijah"] = "matcha-fa_en-khadijah",
+        ["tts-fs-musa"] = "matcha-fa_en-musa",
+        ["vctk-fs-unknown"] = "vctk-en-vctk",
+        ["vits-coqui-en-vctk"] = "coqui-en-vctk",
+        ["zh-fs-abyssinvoker"] = "zh-zh-abyssinvoker",
+        ["zh-fs-bronya"] = "zh-zh-bronya",
+        ["zh-fs-doom"] = "zh-zh-doom",
+        ["zh-fs-echo"] = "zh-zh-echo",
+        ["zh-fs-eula"] = "zh-zh-eula",
+        ["zh-fs-fanchen-C"] = "zh-zh-fanchen-C",
+        ["zh-fs-fanchen-ZhiHuiLaoZhe"] = "zh-zh-fanchen-ZhiHuiLaoZhe",
+        ["zh-fs-fanchen-new"] = "zh-zh-fanchen-new",
+        ["zh-fs-fanchen-unity"] = "zh-zh-fanchen-unity",
+        ["zh-fs-fanchen-wnj"] = "zh-zh-fanchen-wnj",
+        ["zh-fs-keqing"] = "zh-zh-keqing",
+        ["zh-fs-theresa"] = "zh-zh-theresa",
+        ["zh-fs-unknown"] = "zh-zh-aishell3",
+        ["zh-fs-zenyatta"] = "zh-zh-zenyatta",
     };
 
     /// <summary>
@@ -495,7 +726,45 @@ public class SherpaModelService
         }
         TryDelete(destFile);
 
+        // Zipvoice archives do not bundle the vocoder — fetch it into the
+        // shared models dir so synthesis works out of the box.
+        await EnsureZipvoiceVocoderAsync(model, progress);
+
         progress?.Report((100, "Done"));
+    }
+
+    /// <summary>
+    /// Zipvoice models need the vocos_24khz.onnx vocoder, which lives in a
+    /// separate sherpa-onnx release and is resolved from the models base dir
+    /// by the wrapper. Download it once and reuse for every zipvoice model.
+    /// </summary>
+    private static async Task EnsureZipvoiceVocoderAsync(CatalogModel model,
+        IProgress<(int percent, string status)>? progress)
+    {
+        if (!string.Equals(model.ModelType, "zipvoice", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        var vocoderPath = Path.Combine(ModelsDir, "vocos_24khz.onnx");
+        if (File.Exists(vocoderPath) && new FileInfo(vocoderPath).Length > 0)
+            return;
+
+        const string vocoderUrl =
+            "https://github.com/k2-fsa/sherpa-onnx/releases/download/vocoder-models/vocos_24khz.onnx";
+        progress?.Report((100, "Fetching vocos vocoder (needed by zipvoice)..."));
+        try
+        {
+            using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(10) };
+            using var response = await http.GetAsync(vocoderUrl, HttpCompletionOption.ResponseHeadersRead);
+            response.EnsureSuccessStatusCode();
+            await using var src = await response.Content.ReadAsStreamAsync();
+            await using var dst = File.Create(vocoderPath);
+            await src.CopyToAsync(dst);
+        }
+        catch
+        {
+            // Leave it missing — the wrapper errors with the download URL.
+            try { if (File.Exists(vocoderPath)) File.Delete(vocoderPath); } catch { }
+        }
     }
 
     /// <summary>
