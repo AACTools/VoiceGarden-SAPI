@@ -63,8 +63,6 @@ using ATL::CComPtr; // put this here to avoid 'CComPtr undeclared' in spddkhlp.h
 #include <winrt/windows.foundation.collections.h>
 
 // Third-party libraries
-#include "AzacException.h"  // overrides Azure SDK's exception
-#include <speechapi_cxx.h>
 #define ASIO_STANDALONE 1
 #include <websocketpp/client.hpp>
 #include <websocketpp/config/asio_client.hpp>

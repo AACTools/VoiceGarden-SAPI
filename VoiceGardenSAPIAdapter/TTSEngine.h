@@ -4,7 +4,6 @@
 #include "resource.h"
 
 #include "pch.h"
-#include <speechapi_cxx.h>  // needed for sapi_category in SapiException
 #include "Logger.h"
 #include "SapiException.h"
 
@@ -17,8 +16,6 @@
 #endif
 
 using namespace ATL;
-using namespace Microsoft::CognitiveServices::Speech;
-using namespace Microsoft::CognitiveServices::Speech::Audio;
 
 
 
@@ -239,8 +236,6 @@ HRESULT CTTSEngine::OnException(
 			return HRESULT_FROM_WIN32(ex.code().value());
 		else if (cat == sapi_category())
 			return static_cast<HRESULT>(ex.code().value());
-		else if (cat == azac_category())
-			return ex.code().value() == AZAC_ERR_INVALID_ARG ? E_INVALIDARG : E_FAIL;
 		return E_FAIL;
 	}
 	else if constexpr (std::is_base_of_v<std::invalid_argument, T>)

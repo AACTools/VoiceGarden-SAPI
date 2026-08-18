@@ -505,7 +505,6 @@ inline static bool CheckHrNotFound(HRESULT hr)
     return false;
 }
 
-LSTATUS TryLoadAzureSpeechSDK();
 
 // Legacy -> canonical model IDs from the sherpa-onnx registry
 // canonicalisations (2026-08-10 and 2026-08-18 syncs; rust-tts-wrapper
