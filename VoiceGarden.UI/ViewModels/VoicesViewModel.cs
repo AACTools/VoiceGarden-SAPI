@@ -454,31 +454,31 @@ public partial class VoicesViewModel : ObservableObject
         {
             if (voice.IsSherpa)
             {
-                var installed = SherpaModelService.GetInstalledModel(voice.Id);
-                if (installed?.ModelPath == null)
+                // Scan + path derivation off the UI thread (the scan takes
+                // the archive lock and loads the catalog — seconds, and can
+                // deadlock against a finishing download if run on the UI thread).
+                var resolved = await Task.Run(() =>
+                {
+                    var installed = SherpaModelService.GetInstalledModel(voice.Id);
+                    if (installed?.ModelPath == null) return (modelId: "", basePath: "");
+
+                    var p = System.IO.Path.GetDirectoryName(installed.ModelPath);
+                    while (p != null && System.IO.Path.GetFileName(p) != "models")
+                        p = System.IO.Path.GetDirectoryName(p);
+                    if (p == null || System.IO.Path.GetFileName(p) != "models")
+                        return (modelId: "", basePath: "");
+
+                    var rel = System.IO.Path.GetRelativePath(p, System.IO.Path.GetDirectoryName(installed.ModelPath)!);
+                    return (modelId: rel.Split(System.IO.Path.DirectorySeparatorChar)[0], basePath: p);
+                });
+
+                if (string.IsNullOrEmpty(resolved.modelId))
                 {
                     StatusText = Loc.GetString("ModelFilesNotFound");
                     return;
                 }
-
-                // Derive modelId and models base path from the installed model path
-                var modelId = "";
-                var modelBasePath = "";
-                var p = System.IO.Path.GetDirectoryName(installed.ModelPath);
-                while (p != null && System.IO.Path.GetFileName(p) != "models")
-                    p = System.IO.Path.GetDirectoryName(p);
-                if (p != null && System.IO.Path.GetFileName(p) == "models")
-                {
-                    var rel = System.IO.Path.GetRelativePath(p, System.IO.Path.GetDirectoryName(installed.ModelPath)!);
-                    modelId = rel.Split(System.IO.Path.DirectorySeparatorChar)[0];
-                    modelBasePath = p;
-                }
-
-                if (string.IsNullOrEmpty(modelId))
-                {
-                    StatusText = Loc.GetString("NoModelId");
-                    return;
-                }
+                var modelId = resolved.modelId;
+                var modelBasePath = resolved.basePath;
 
                 var audio = await Task.Run(() =>
                 {
@@ -721,31 +721,38 @@ public partial class VoicesViewModel : ObservableObject
 
     private async Task<(bool ok, string message)> PromoteSherpaModels(IReadOnlyList<string> modelIds)
     {
-        // Direct write works when running elevated
-        var anyDirect = false;
-        var failures = 0;
-        foreach (var id in modelIds)
+        // Everything here (directory scan, catalog load, HKLM writes) runs off
+        // the UI thread: ScanInstalledModels takes the archive lock, and if a
+        // download's continuation is waiting on the UI thread to release it,
+        // running this synchronously deadlocks the whole window.
+        return await Task.Run(() =>
         {
-            var installed = SherpaModelService.GetInstalledModel(id);
-            if (installed?.ModelPath == null) { failures++; continue; }
-            try
+            // Direct write works when running elevated
+            var anyDirect = false;
+            var failures = 0;
+            foreach (var id in modelIds)
             {
-                SherpaModelService.PromoteSherpaModel(installed);
-                anyDirect = true;
+                var installed = SherpaModelService.GetInstalledModel(id);
+                if (installed?.ModelPath == null) { failures++; continue; }
+                try
+                {
+                    SherpaModelService.PromoteSherpaModel(installed);
+                    anyDirect = true;
+                }
+                catch
+                {
+                    failures++;
+                }
             }
-            catch
-            {
-                failures++;
-            }
-        }
 
-        if (anyDirect && failures == 0) return (true, "");
+            if (anyDirect && failures == 0) return (true, "");
 
-        // Not elevated — one .reg import for the whole batch via UAC
-        var (promoted, failed, error) = await Task.Run(() => SherpaModelService.PromoteModelsElevated(modelIds));
-        if (promoted > 0) return (true, "");
-        if (error == "UAC cancelled") return (false, Loc.GetString("InstallCancelled"));
-        return (false, Loc.GetString("InstallFailed", error));
+            // Not elevated — one .reg import for the whole batch via UAC
+            var (promoted, failed, error) = SherpaModelService.PromoteModelsElevated(modelIds);
+            if (promoted > 0) return (true, "");
+            if (error == "UAC cancelled") return (false, Loc.GetString("InstallCancelled"));
+            return (false, Loc.GetString("InstallFailed", error));
+        });
     }
 
     private async Task<(bool ok, string message)> PromoteCloudVoice(VoiceEntry voice)
