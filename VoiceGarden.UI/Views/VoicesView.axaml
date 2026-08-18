@@ -73,7 +73,7 @@
                                 </Style>
                             </Grid.Styles>
                             <CheckBox IsChecked="{Binding IsSelected}" MinWidth="44" VerticalAlignment="Center"
-                                      AutomationProperties.Name="{Binding Name, StringFormat='Select {0}'}"
+                                      AutomationProperties.Name="{Binding AutomationLabel, StringFormat='Select {0}'}"
                                       AutomationProperties.HelpText="{Binding Language}"/>
                             <StackPanel Grid.Column="1" Spacing="4" Margin="4,0,12,0" VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
@@ -84,6 +84,10 @@
                                             ToolTip.Tip="{lang:Localize Quality}">
                                         <TextBlock Text="{Binding QualityBadge}"/>
                                     </Border>
+                                    <Border Classes="Badge BadgeNoCreds" IsVisible="{Binding !!QuantizationBadge.Length}"
+                                            ToolTip.Tip="{Binding QuantizationBadge, StringFormat='Weights: {0}'}">
+                                        <TextBlock Text="{Binding QuantizationBadge}"/>
+                                    </Border>
                                     <Border Classes="Badge BadgeGender" IsVisible="{Binding !!GenderLabel.Length}"
                                             ToolTip.Tip="{lang:Localize Gender}">
                                         <TextBlock Text="{Binding GenderLabel}"/>
@@ -92,6 +96,7 @@
                                 <StackPanel Orientation="Horizontal" Spacing="12">
                                     <TextBlock Text="{Binding EngineName}" Classes="Hint"/>
                                     <TextBlock Text="{Binding Language}" Classes="Hint"/>
+                                    <TextBlock Text="{Binding Id}" Classes="Hint" Opacity="0.55" TextTrimming="CharacterEllipsis"/>
                                     <TextBlock Text="{Binding SizeText}" Classes="Hint"
                                                IsVisible="{Binding !!SizeText.Length}"/>
                                 </StackPanel>
@@ -114,15 +119,15 @@
                                 <Button Classes="Compact" Content="{lang:Localize PreviewVoice}"
                                         Command="{Binding $parent[ListBox].((vm:VoicesViewModel)DataContext).PreviewCommand}"
                                         CommandParameter="{Binding}" IsEnabled="{Binding CanPreview}"
-                                        AutomationProperties.Name="{Binding Name, StringFormat='Preview {0}'}"/>
+                                        AutomationProperties.Name="{Binding AutomationLabel, StringFormat='Preview {0}'}"/>
                                 <Button Classes="Compact" Content="{lang:Localize Download}"
                                         Command="{Binding $parent[ListBox].((vm:VoicesViewModel)DataContext).DownloadCommand}"
                                         CommandParameter="{Binding}" IsVisible="{Binding ShowDownload}"
-                                        AutomationProperties.Name="{Binding Name, StringFormat='Download {0}'}"/>
+                                        AutomationProperties.Name="{Binding AutomationLabel, StringFormat='Download {0}'}"/>
                                 <Button Classes="Compact Primary" Content="{lang:Localize Install}"
                                         Command="{Binding $parent[ListBox].((vm:VoicesViewModel)DataContext).PromoteCommand}"
                                         CommandParameter="{Binding}" IsEnabled="{Binding CanPromote}"
-                                        AutomationProperties.Name="{Binding Name, StringFormat='Install {0} to SAPI'}"/>
+                                        AutomationProperties.Name="{Binding AutomationLabel, StringFormat='Install {0} to SAPI'}"/>
                             </StackPanel>
                         </Grid>
                     </DataTemplate>

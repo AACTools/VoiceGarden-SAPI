@@ -38,6 +38,10 @@ public partial class SherpaModelItem : ObservableObject
 
     public string QualityBadge => string.IsNullOrEmpty(Quality) || Quality == "unknown" ? "" : Quality;
 
+    /// <summary>Weight-type badge for quantized builds (int8/fp16/…); fp32 is the silent default.</summary>
+    public string QuantizationBadge =>
+        !string.IsNullOrEmpty(Quantization) && Quantization != "fp32" ? Quantization : "";
+
     public string GenderLabel => Gender is "Male" or "Female" ? Gender : "";
 
     public string DetailsToolTip

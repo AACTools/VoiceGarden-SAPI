@@ -59,6 +59,15 @@ public partial class VoiceEntry : ObservableObject
 
     public string QualityBadge => string.IsNullOrEmpty(Quality) || Quality == "unknown" ? "" : Quality;
 
+    public string Quantization { get; init; } = "";
+
+    /// <summary>Weight-type badge for quantized builds (int8/fp16/…); fp32 is the silent default.</summary>
+    public string QuantizationBadge =>
+        !string.IsNullOrEmpty(Quantization) && Quantization != "fp32" ? Quantization : "";
+
+    /// <summary>Disambiguates rows that share a display name (e.g. the three Urdu script variants).</summary>
+    public string AutomationLabel => Id == Name ? Name : $"{Name} ({Id})";
+
     public string GenderLabel => Gender is "Male" or "Female" ? Gender : "";
 
     public string SizeText => CatalogModel is { FileSizeMb: > 0 } m ? $"{m.FileSizeMb:F0} MB" : "";
@@ -253,6 +262,7 @@ public partial class VoicesViewModel : ObservableObject
                         Name = string.IsNullOrEmpty(cat.Name) ? cat.Id : cat.Name,
                         Language = cat.Language?.FirstOrDefault()?.LanguageName ?? Loc.GetString("UnknownLanguage"),
                         Quality = cat.Quality ?? "",
+                        Quantization = cat.Quantization ?? "",
                         Gender = SherpaModelService.DeriveSherpaGender(cat.Id, cat.Name, cat.NumSpeakers ?? 1),
                         SampleRate = cat.SampleRate ?? 24000,
                         CatalogModel = cat,

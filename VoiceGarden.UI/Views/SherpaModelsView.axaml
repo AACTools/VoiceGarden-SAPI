@@ -40,6 +40,10 @@
                                             VerticalAlignment="Center" ToolTip.Tip="Model quality tier">
                                         <TextBlock Text="{Binding QualityBadge}" FontSize="10" Foreground="White"/>
                                     </Border>
+                                    <Border Background="#64748B" CornerRadius="3" Padding="5,1" IsVisible="{Binding !!QuantizationBadge.Length}"
+                                            VerticalAlignment="Center" ToolTip.Tip="{Binding QuantizationBadge, StringFormat='Weights: {0}'}">
+                                        <TextBlock Text="{Binding QuantizationBadge}" FontSize="10" Foreground="White"/>
+                                    </Border>
                                     <Border Background="#6B8E23" CornerRadius="3" Padding="5,1" IsVisible="{Binding !!GenderLabel.Length}"
                                             VerticalAlignment="Center" ToolTip.Tip="Derived voice gender">
                                         <TextBlock Text="{Binding GenderLabel}" FontSize="10" Foreground="White"/>
