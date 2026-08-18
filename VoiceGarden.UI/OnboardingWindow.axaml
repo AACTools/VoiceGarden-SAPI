@@ -5,8 +5,8 @@
         x:Class="VoiceGarden.UI.OnboardingWindow"
         x:DataType="vm:OnboardingWindowViewModel"
         Title="{lang:Localize OnboardingTitle}"
-        Width="560" Height="560"
-        MinWidth="520" MinHeight="520"
+        Width="600" Height="620"
+        MinWidth="560" MinHeight="560"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
@@ -142,7 +142,7 @@
                             </StackPanel>
                         </Border>
 
-                        <!-- Step 4: Cloud engines -->
+                        <!-- Step 4: Cloud engine keys -->
                         <StackPanel Spacing="6">
                             <StackPanel Orientation="Horizontal" Spacing="10">
                                 <Border Background="{StaticResource VGPrimaryBrush}"
@@ -154,14 +154,36 @@
                                                VerticalAlignment="Center"/>
                                 </Border>
                                 <TextBlock Text="{lang:Localize Step3Title}"
-                                            FontSize="16" FontWeight="SemiBold"
-                                            Foreground="{StaticResource VGForegroundBrush}"
-                                            VerticalAlignment="Center"/>
+                                             FontSize="16" FontWeight="SemiBold"
+                                             Foreground="{StaticResource VGForegroundBrush}"
+                                             VerticalAlignment="Center"/>
                             </StackPanel>
                             <TextBlock TextWrapping="Wrap" FontSize="13" LineHeight="20"
                                         Foreground="{StaticResource VGMutedBrush}"
                                         Margin="38,0,0,0"
                                         Text="{lang:Localize Step3Desc}"/>
+                        </StackPanel>
+
+                        <!-- Step 5: Get your voices -->
+                        <StackPanel Spacing="6">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <Border Background="{StaticResource VGPrimaryBrush}"
+                                        CornerRadius="14" Width="28" Height="28"
+                                        HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock Text="4" FontSize="14" FontWeight="Bold"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="{lang:Localize Step4Title}"
+                                             FontSize="16" FontWeight="SemiBold"
+                                             Foreground="{StaticResource VGForegroundBrush}"
+                                             VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock TextWrapping="Wrap" FontSize="13" LineHeight="20"
+                                        Foreground="{StaticResource VGMutedBrush}"
+                                        Margin="38,0,0,0"
+                                        Text="{lang:Localize Step4Desc}"/>
                         </StackPanel>
 
                     </StackPanel>

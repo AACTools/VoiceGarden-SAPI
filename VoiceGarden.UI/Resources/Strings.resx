@@ -234,7 +234,7 @@
     <value>Key:</value>
   </data>
   <data name="LangCompatDesc" xml:space="preserve">
-    <value>If your AAC software only supports certain languages (e.g. English), enable "Add en-US alias" when promoting SherpaOnnx models. This makes voices in any language appear as English voices, so they show up in apps that filter by language.</value>
+    <value>If your AAC software only supports certain languages (e.g. English), enable "Add en-US alias" in the Advanced tab's model manager when installing SherpaOnnx voices. This makes voices in any language appear as English voices, so they show up in apps that filter by language.</value>
   </data>
   <data name="LangCompatTip" xml:space="preserve">
     <value>💡  Tip: Language Compatibility</value>
@@ -369,22 +369,28 @@
     <value>▶ Show Advanced</value>
   </data>
   <data name="Step1Desc" xml:space="preserve">
-    <value>On the main screen, click Install for 64-bit (and 32-bit if needed). This registers VoiceGarden as a SAPI 5 voice that any compatible app can use.</value>
+    <value>Open the Advanced tab and click Register for 64-bit (and 32-bit if your software needs it). This installs VoiceGarden as a SAPI 5 voice that any compatible app can use.</value>
   </data>
   <data name="Step1Title" xml:space="preserve">
-    <value>Install the SAPI Adapter</value>
+    <value>Register the SAPI adapter</value>
   </data>
   <data name="Step2Desc" xml:space="preserve">
-    <value>Go to the SherpaOnnx Models tab to browse and download free neural voices. These run entirely on your device — no internet connection needed. After downloading, click Promote to make them available to SAPI applications.</value>
+    <value>In the Voice Engines tab, tick the engines you want. SherpaOnnx voices run offline with no account, Edge voices are free cloud voices with no key, and engines like Azure or OpenAI need an API key.</value>
   </data>
   <data name="Step2Title" xml:space="preserve">
-    <value>Download SherpaOnnx Voices (Offline)</value>
+    <value>Choose your voice engines</value>
   </data>
   <data name="Step3Desc" xml:space="preserve">
-    <value>For premium cloud voices (Azure, OpenAI, Google, ElevenLabs, Polly), go to the Cloud Engines tab and enter your API key. Edge voices work without any key.</value>
+    <value>If a selected engine needs a key, the Credentials tab switches on — enter the key there and press Verify. Picked only offline or Edge voices? The tab stays greyed out and you can skip this step.</value>
   </data>
   <data name="Step3Title" xml:space="preserve">
-    <value>Add Cloud Engine Keys (Optional)</value>
+    <value>Add credentials (only if needed)</value>
+  </data>
+  <data name="Step4Desc" xml:space="preserve">
+    <value>Open the Voices tab and click Load voices. Filter by language, gender or quality, preview the ones you like, then use Download (offline models) and Install to SAPI. Installed voices appear in your apps straight away.</value>
+  </data>
+  <data name="Step4Title" xml:space="preserve">
+    <value>Get your voices</value>
   </data>
   <data name="Uninstall" xml:space="preserve">
     <value>Uninstall</value>
