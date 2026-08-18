@@ -69,6 +69,9 @@ public class SherpaModelService
 
         /// <summary>Registry quality tier (high/medium/low/x_low/int8/fp16), empty when unknown.</summary>
         public string Quality { get; set; } = "";
+
+        /// <summary>Language tag from the catalog (e.g. "urd", "nl_BE", "en"). Empty when unknown.</summary>
+        public string Language { get; set; } = "";
     }
 
     /// <summary>
@@ -471,6 +474,8 @@ public class SherpaModelService
                 if (!catalog.TryGetValue(model.Id, out var cat)) continue;
                 model.Quality = cat.Quality ?? "";
                 model.Gender = DeriveSherpaGender(cat.Id, cat.Name, cat.NumSpeakers ?? 1);
+                model.Language = cat.Language?.FirstOrDefault()?.LangCode
+                    ?? cat.Language?.FirstOrDefault()?.LanguageName ?? "";
             }
         }
         catch
@@ -1031,15 +1036,49 @@ public class SherpaModelService
         }
     }
 
+    /// <summary>
+    /// Resolve a model's catalog language to SAPI attributes; unresolvable
+    /// languages stay en-US (the historical behaviour, and the fallback apps
+    /// understand).
+    /// </summary>
+    private static (string locale, string langId) ResolveModelLocale(InstalledModel model) =>
+        SapiLanguage.TryResolve(model.Language, out var locale, out var langId)
+            ? (locale, langId)
+            : (SapiLanguage.EnUsLocale, SapiLanguage.EnUsLangId);
+
     private static void AppendModelToReg(List<string> lines, InstalledModel model)
     {
-        var tokenName = $"Sherpa-{model.Id}";
+        var (locale, langId) = ResolveModelLocale(model);
+
+        // Alias tokens are rebuilt from scratch on every promote so toggling
+        // the settings in Advanced takes effect next time voices are installed.
+        foreach (var alias in SapiAliasSettings.AliasesFor(model.Language))
+        {
+            lines.Add($"[-HKEY_LOCAL_MACHINE\\{SapiTokensRoot}\\Sherpa-{model.Id}{alias.suffix}]");
+            lines.Add($"[-HKEY_LOCAL_MACHINE\\{OneCoreTokensRoot}\\Sherpa-{model.Id}{alias.suffix}]");
+        }
+
+        AppendSherpaTokenToReg(lines, model, $"Sherpa-{model.Id}", $"Sherpa {model.Id}",
+            locale, langId, aliasMarker: null);
+
+        foreach (var alias in SapiAliasSettings.AliasesFor(model.Language))
+        {
+            AppendSherpaTokenToReg(lines, model, $"Sherpa-{model.Id}{alias.suffix}",
+                $"Sherpa {model.Id} ({alias.marker} alias)", alias.locale, alias.langId, alias.marker);
+        }
+    }
+
+    private static void AppendSherpaTokenToReg(List<string> lines, InstalledModel model, string tokenName,
+        string friendlyName, string locale, string langId, string? aliasMarker)
+    {
         var tokenPath = $@"HKEY_LOCAL_MACHINE\{SapiTokensRoot}\{tokenName}";
 
         // Main token key
         lines.Add($"[{tokenPath}]");
-        lines.Add($"@=\"Sherpa {model.Id}\"");
+        lines.Add($"@=\"{friendlyName}\"");
         lines.Add($"\"CLSID\"=\"{TtsEngineClsid}\"");
+        if (aliasMarker != null)
+            lines.Add($"\"{SapiLanguage.AliasMarkerValue}\"=\"{aliasMarker}\"");
 
         // VoiceGardenConfig subkey
         lines.Add($"[{tokenPath}\\VoiceGardenConfig]");
@@ -1060,8 +1099,8 @@ public class SherpaModelService
         lines.Add($"\"Name\"=\"{model.Id}\"");
         lines.Add($"\"Gender\"=\"{model.Gender}\"");
         lines.Add("\"Age\"=\"Adult\"");
-        lines.Add("\"Language\"=\"409\"");
-        lines.Add("\"Locale\"=\"en-US\"");
+        lines.Add($"\"Language\"=\"{langId}\"");
+        lines.Add($"\"Locale\"=\"{locale}\"");
         lines.Add("\"Vendor\"=\"K2FSA\"");
         lines.Add("\"VoiceGardenType\"=\"Sherpa;Offline\"");
         if (!string.IsNullOrEmpty(model.Quality) && model.Quality != "unknown")
@@ -1070,7 +1109,7 @@ public class SherpaModelService
         // Also register in Speech_OneCore for Chrome/Edge support
         var oneCorePath = $@"HKEY_LOCAL_MACHINE\{OneCoreTokensRoot}\{tokenName}";
         lines.Add($"[{oneCorePath}]");
-        lines.Add($"@=\"Sherpa {model.Id}\"");
+        lines.Add($"@=\"{friendlyName}\"");
         lines.Add($"\"CLSID\"=\"{TtsEngineClsid}\"");
         lines.Add($"[{oneCorePath}\\VoiceGardenConfig]");
         lines.Add("\"EngineType\"=\"Sherpa\"");
@@ -1088,8 +1127,8 @@ public class SherpaModelService
         lines.Add($"\"Name\"=\"{model.Id}\"");
         lines.Add($"\"Gender\"=\"{model.Gender}\"");
         lines.Add("\"Age\"=\"Adult\"");
-        lines.Add("\"Language\"=\"409\"");
-        lines.Add("\"Locale\"=\"en-US\"");
+        lines.Add($"\"Language\"=\"{langId}\"");
+        lines.Add($"\"Locale\"=\"{locale}\"");
         lines.Add("\"Vendor\"=\"K2FSA\"");
         if (!string.IsNullOrEmpty(model.Quality) && model.Quality != "unknown")
             lines.Add($"\"Quality\"=\"{model.Quality}\"");
@@ -1099,20 +1138,45 @@ public class SherpaModelService
     private static string EscapeRegPath(string path) => path.Replace("\\", "\\\\");
 
     /// <summary>
-    /// Promote a single SherpaOnnx model to HKLM.
+    /// Promote a single SherpaOnnx model to HKLM: a primary token carrying
+    /// the model's real language plus alias tokens per the Advanced settings.
     /// </summary>
     public static void PromoteSherpaModel(InstalledModel model)
     {
         if (model.ModelPath == null) return;
 
-        var tokenName = $"Sherpa-{model.Id}";
-        var tokenPath = $@"{SapiTokensRoot}\{tokenName}";
+        var (locale, langId) = ResolveModelLocale(model);
+
+        // Drop stale aliases first so settings changes apply on re-promote
+        foreach (var alias in SapiAliasSettings.AliasesFor(model.Language))
+            DeleteSherpaTokenPair($"Sherpa-{model.Id}{alias.suffix}");
+
+        WriteSherpaToken(SapiTokensRoot, model, $"Sherpa-{model.Id}", $"Sherpa {model.Id}",
+            locale, langId, aliasMarker: null);
+        WriteSherpaToken(OneCoreTokensRoot, model, $"Sherpa-{model.Id}", $"Sherpa {model.Id}",
+            locale, langId, aliasMarker: null);
+
+        foreach (var alias in SapiAliasSettings.AliasesFor(model.Language))
+        {
+            WriteSherpaToken(SapiTokensRoot, model, $"Sherpa-{model.Id}{alias.suffix}",
+                $"Sherpa {model.Id} ({alias.marker} alias)", alias.locale, alias.langId, alias.marker);
+            WriteSherpaToken(OneCoreTokensRoot, model, $"Sherpa-{model.Id}{alias.suffix}",
+                $"Sherpa {model.Id} ({alias.marker} alias)", alias.locale, alias.langId, alias.marker);
+        }
+    }
+
+    private static void WriteSherpaToken(string tokensRoot, InstalledModel model, string tokenName,
+        string friendlyName, string locale, string langId, string? aliasMarker)
+    {
+        var tokenPath = $@"{tokensRoot}\{tokenName}";
 
         using var key = Microsoft.Win32.Registry.LocalMachine.CreateSubKey(tokenPath, writable: true)
             ?? throw new InvalidOperationException("Cannot create HKLM token (admin required)");
 
-        key.SetValue("", $"Sherpa {model.Id}", Microsoft.Win32.RegistryValueKind.String);
+        key.SetValue("", friendlyName, Microsoft.Win32.RegistryValueKind.String);
         key.SetValue("CLSID", TtsEngineClsid, Microsoft.Win32.RegistryValueKind.String);
+        if (aliasMarker != null)
+            key.SetValue(SapiLanguage.AliasMarkerValue, aliasMarker, Microsoft.Win32.RegistryValueKind.String);
 
         using var config = key.CreateSubKey("VoiceGardenConfig", writable: true);
         config.SetValue("EngineType", "Sherpa", Microsoft.Win32.RegistryValueKind.String);
@@ -1131,56 +1195,28 @@ public class SherpaModelService
         attrs.SetValue("Name", model.Id, Microsoft.Win32.RegistryValueKind.String);
         attrs.SetValue("Gender", model.Gender, Microsoft.Win32.RegistryValueKind.String);
         attrs.SetValue("Age", "Adult", Microsoft.Win32.RegistryValueKind.String);
-        attrs.SetValue("Language", "409", Microsoft.Win32.RegistryValueKind.String);
-        attrs.SetValue("Locale", "en-US", Microsoft.Win32.RegistryValueKind.String);
+        attrs.SetValue("Language", langId, Microsoft.Win32.RegistryValueKind.String);
+        attrs.SetValue("Locale", locale, Microsoft.Win32.RegistryValueKind.String);
         attrs.SetValue("Vendor", "K2FSA", Microsoft.Win32.RegistryValueKind.String);
         attrs.SetValue("VoiceGardenType", "Sherpa;Offline", Microsoft.Win32.RegistryValueKind.String);
         if (!string.IsNullOrEmpty(model.Quality) && model.Quality != "unknown")
             attrs.SetValue("Quality", model.Quality, Microsoft.Win32.RegistryValueKind.String);
         else
             attrs.DeleteValue("Quality", throwOnMissingValue: false);
-
-        // Also register in Speech_OneCore for Chrome/Edge support
-        var ocTokenPath = $@"{OneCoreTokensRoot}\{tokenName}";
-        using var ocKey = Microsoft.Win32.Registry.LocalMachine.CreateSubKey(ocTokenPath, writable: true);
-        if (ocKey != null)
-        {
-            ocKey.SetValue("", $"Sherpa {model.Id}", Microsoft.Win32.RegistryValueKind.String);
-            ocKey.SetValue("CLSID", TtsEngineClsid, Microsoft.Win32.RegistryValueKind.String);
-
-            using var ocConfig = ocKey.CreateSubKey("VoiceGardenConfig", writable: true);
-            ocConfig.SetValue("EngineType", "Sherpa", Microsoft.Win32.RegistryValueKind.String);
-            ocConfig.SetValue("SherpaOnnxModelType", model.ModelType, Microsoft.Win32.RegistryValueKind.DWord);
-            ocConfig.SetValue("SherpaOnnxModelPath", model.ModelPath, Microsoft.Win32.RegistryValueKind.String);
-            if (model.TokensPath != null)
-                ocConfig.SetValue("SherpaOnnxTokens", model.TokensPath, Microsoft.Win32.RegistryValueKind.String);
-            if (model.DataDir != null)
-                ocConfig.SetValue("SherpaOnnxDataDir", model.DataDir, Microsoft.Win32.RegistryValueKind.String);
-            if (model.VoicesPath != null)
-                ocConfig.SetValue("SherpaOnnxVoices", model.VoicesPath, Microsoft.Win32.RegistryValueKind.String);
-            if (model.LexiconPath != null)
-                ocConfig.SetValue("SherpaOnnxLexicon", model.LexiconPath, Microsoft.Win32.RegistryValueKind.String);
-
-            using var ocAttrs = ocKey.CreateSubKey("Attributes", writable: true);
-            ocAttrs.SetValue("Name", model.Id, Microsoft.Win32.RegistryValueKind.String);
-            ocAttrs.SetValue("Gender", model.Gender, Microsoft.Win32.RegistryValueKind.String);
-            ocAttrs.SetValue("Age", "Adult", Microsoft.Win32.RegistryValueKind.String);
-            ocAttrs.SetValue("Language", "409", Microsoft.Win32.RegistryValueKind.String);
-            ocAttrs.SetValue("Locale", "en-US", Microsoft.Win32.RegistryValueKind.String);
-            ocAttrs.SetValue("Vendor", "K2FSA", Microsoft.Win32.RegistryValueKind.String);
-            if (!string.IsNullOrEmpty(model.Quality) && model.Quality != "unknown")
-                ocAttrs.SetValue("Quality", model.Quality, Microsoft.Win32.RegistryValueKind.String);
-            else
-                ocAttrs.DeleteValue("Quality", throwOnMissingValue: false);
-        }
     }
 
     /// <summary>
-    /// Remove a SherpaOnnx voice from HKLM.
+    /// Remove a SherpaOnnx voice (and any of its alias tokens) from HKLM.
     /// </summary>
     public static void UnpromoteSherpaModel(string modelId)
     {
-        var tokenName = $"Sherpa-{modelId}";
+        DeleteSherpaTokenPair($"Sherpa-{modelId}");
+        DeleteSherpaTokenPair($"Sherpa-{modelId}{SapiLanguage.EnUsAliasSuffix}");
+        DeleteSherpaTokenPair($"Sherpa-{modelId}{SapiLanguage.ArabicAliasSuffix}");
+    }
+
+    private static void DeleteSherpaTokenPair(string tokenName)
+    {
         try
         {
             Microsoft.Win32.Registry.LocalMachine.DeleteSubKeyTree(

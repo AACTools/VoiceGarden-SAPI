@@ -1,7 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:VoiceGarden.UI.ViewModels"
-             xmlns:views="using:VoiceGarden.UI.Views"
              xmlns:lang="using:VoiceGarden.UI.Markup"
              x:Class="VoiceGarden.UI.Views.AdvancedView"
              x:DataType="vm:MainViewModel">
@@ -41,6 +40,39 @@
                 </StackPanel>
             </Border>
 
+            <!-- SAPI voice aliases -->
+            <Border Classes="Card">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="{lang:Localize AliasSettingsTitle}" Classes="CardHeader"/>
+                    <TextBlock Text="{lang:Localize AliasSettingsIntro}" Classes="Hint"/>
+                    <CheckBox Content="{lang:Localize AliasEnUsLabel}" IsChecked="{Binding SapiAliasEnUs}"
+                              AutomationProperties.Name="{lang:Localize AliasEnUsLabel}"
+                              AutomationProperties.HelpText="{lang:Localize AliasEnUsHint}"/>
+                    <TextBlock Text="{lang:Localize AliasEnUsHint}" Classes="Hint" Margin="28,0,0,0"/>
+                    <CheckBox Content="{lang:Localize AliasArabicLabel}" IsChecked="{Binding SapiAliasArabic}"
+                              AutomationProperties.Name="{lang:Localize AliasArabicLabel}"
+                              AutomationProperties.HelpText="{lang:Localize AliasArabicHint}"/>
+                    <TextBlock Text="{lang:Localize AliasArabicHint}" Classes="Hint" Margin="28,0,0,0"/>
+                    <TextBlock Text="{lang:Localize AliasApplyNote}" Classes="Hint" Margin="0,4,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Offline models -->
+            <Border Classes="Card">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="{lang:Localize AdvancedModelsTitle}" Classes="CardHeader"/>
+                    <TextBlock Text="{Binding SherpaModelSummary}" Classes="Hint"
+                               AutomationProperties.LiveSetting="Polite"/>
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button Content="{lang:Localize OpenModelsFolder}" Command="{Binding OpenModelsFolderCommand}"
+                                AutomationProperties.Name="{lang:Localize OpenModelsFolder}"/>
+                        <Button Content="{lang:Localize OpenLogs}" Command="{Binding OpenLogsCommand}"
+                                AutomationProperties.Name="{lang:Localize OpenLogs}"/>
+                    </StackPanel>
+                    <TextBlock Text="{lang:Localize AdvancedModelsHint}" Classes="Hint"/>
+                </StackPanel>
+            </Border>
+
             <!-- Settings -->
             <Border Classes="Card">
                 <StackPanel Spacing="12">
@@ -52,19 +84,7 @@
                         <TextBlock Text="{lang:Localize LogLevel}" VerticalAlignment="Center"/>
                         <ComboBox SelectedIndex="{Binding LogLevelIndex}" MinWidth="120"
                                   AutomationProperties.Name="{lang:Localize LogLevel}"/>
-                        <Button Content="{lang:Localize OpenLogs}" Command="{Binding OpenLogsCommand}"
-                                AutomationProperties.Name="{lang:Localize OpenLogs}"/>
                     </StackPanel>
-                </StackPanel>
-            </Border>
-
-            <!-- Full SherpaOnnx model manager -->
-            <Border Classes="Card">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="{lang:Localize SherpaOnnxModels}" Classes="CardHeader"/>
-                    <TextBlock Text="{Binding SherpaModelSummary}" Classes="Hint"
-                               AutomationProperties.LiveSetting="Polite"/>
-                    <views:SherpaModelsView DataContext="{Binding SherpaModels}"/>
                 </StackPanel>
             </Border>
 

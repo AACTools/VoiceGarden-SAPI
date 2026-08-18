@@ -59,6 +59,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         edgeEnabled = !RegistryService.GetFlag("NoEdgeVoices");
         AnalyticsEnabled = Services.AnalyticsService.IsEnabled;
         LogLevelIndex = RegistryService.GetDword("LogLevel", 0);
+        SapiAliasEnUs = Services.SapiAliasSettings.EnUsEnabled;
+        SapiAliasArabic = Services.SapiAliasSettings.ArabicEnabled;
 
         // Load cloud engines
         foreach (var def in EngineDefinition.DiscoverAll())
@@ -164,10 +166,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
         };
         AnnounceViewChange(name);
 
-        // Lazy-load the full model manager the first time Advanced opens
-        if (value == AdvancedTabIndex && SherpaModels.TotalCount == 0)
-            _ = SherpaModels.LoadCatalogCommand.ExecuteAsync(null);
-
         // Voices load themselves the first time the tab is shown (and again
         // if the engine selection changed since the last load) — the user
         // should never have to press Load.
@@ -178,7 +176,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public EnginesViewModel Engines { get; private set; } = null!;
     public CredentialsViewModel Credentials { get; private set; } = null!;
     public VoicesViewModel Voices { get; private set; } = null!;
-    public SherpaModelsViewModel SherpaModels { get; } = new();
 
     /// <summary>Selected engines that need credentials — enables the Credentials tab.</summary>
     [ObservableProperty] private int selectedCredsEngineCount;
@@ -252,6 +249,16 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     [ObservableProperty] private int logLevelIndex = 0;
     partial void OnLogLevelIndexChanged(int value) => RegistryService.SetDword("LogLevel", value);
+
+    // ----- SAPI alias settings (applied whenever voices are promoted) -----
+
+    [ObservableProperty] private bool sapiAliasEnUs;
+
+    partial void OnSapiAliasEnUsChanged(bool value) => Services.SapiAliasSettings.EnUsEnabled = value;
+
+    [ObservableProperty] private bool sapiAliasArabic;
+
+    partial void OnSapiAliasArabicChanged(bool value) => Services.SapiAliasSettings.ArabicEnabled = value;
 
     [ObservableProperty] private string status64Bit = Loc.GetString("Checking");
     [ObservableProperty] private string status32Bit = Loc.GetString("Checking");
@@ -341,6 +348,14 @@ public partial class MainViewModel : ObservableObject, IDisposable
             "VoiceGardenSAPIAdapter");
         if (Directory.Exists(logDir))
             Process.Start("explorer.exe", $"\"{logDir}\"");
+    }
+
+    [RelayCommand]
+    private void OpenModelsFolder()
+    {
+        var dir = Services.SherpaModelService.GetModelsDir();
+        if (Directory.Exists(dir))
+            Process.Start("explorer.exe", $"\"{dir}\"");
     }
 
     [ObservableProperty] private string screenReaderAnnouncement = "";

@@ -581,7 +581,6 @@ public partial class VoicesViewModel : ObservableObject
 
             await RefreshInstalledStatus();
             UpdateCounts();
-            _owner.SherpaModels.RescanCommand.Execute(null);
 
             StatusText = failed == 0
                 ? Loc.GetString("InstalledVoicesHKLM", promoted)
@@ -622,7 +621,6 @@ public partial class VoicesViewModel : ObservableObject
             }
 
             UpdateCounts();
-            _owner.SherpaModels.RescanCommand.Execute(null);
             StatusText = failed == 0
                 ? Loc.GetString("RemovedVoices", removed)
                 : Loc.GetString("VoicesUnpromoteFailed", removed, failed);
@@ -668,9 +666,10 @@ public partial class VoicesViewModel : ObservableObject
         var engineId = voice.EngineId;
         var voiceId = voice.Id;
         var gender = voice.Gender;
+        var language = voice.Language;
 
         var rc = await Task.Run(() =>
-            VoicePromotionService.PromoteElevated(engineId, voiceId, key, region, gender));
+            VoicePromotionService.PromoteElevated(engineId, voiceId, key, region, gender, language));
 
         return rc switch
         {

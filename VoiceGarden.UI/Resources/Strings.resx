@@ -691,4 +691,31 @@
   <data name="DownloadFailedSingle" xml:space="preserve">
     <value>Download failed for {0}: {1}</value>
   </data>
+  <data name="AliasSettingsTitle" xml:space="preserve">
+    <value>SAPI voice aliases</value>
+  </data>
+  <data name="AliasSettingsIntro" xml:space="preserve">
+    <value>Voices are installed with their real language. Aliases add extra copies under a second language so apps that filter by language can still find them.</value>
+  </data>
+  <data name="AliasEnUsLabel" xml:space="preserve">
+    <value>Add an en-US alias for non-English voices</value>
+  </data>
+  <data name="AliasEnUsHint" xml:space="preserve">
+    <value>Voice in any other language also appears as English (en-US), so apps that only list English voices — like some AAC titles — can use it.</value>
+  </data>
+  <data name="AliasArabicLabel" xml:space="preserve">
+    <value>Also alias right-to-left voices under Arabic</value>
+  </data>
+  <data name="AliasArabicHint" xml:space="preserve">
+    <value>Voice in a right-to-left language (Arabic, Urdu, Persian, Hebrew, Pashto…) also appears under Arabic (ar-SA), so apps set up for Arabic voices can find it.</value>
+  </data>
+  <data name="AliasApplyNote" xml:space="preserve">
+    <value>Applied whenever voices are installed or re-installed from the Voices tab. Existing voices pick the change up next time you install them.</value>
+  </data>
+  <data name="AdvancedModelsTitle" xml:space="preserve">
+    <value>Offline models</value>
+  </data>
+  <data name="AdvancedModelsHint" xml:space="preserve">
+    <value>Browse, download and install offline voices from the Voices tab — select the SherpaOnnx engine there.</value>
+  </data>
 </root>
