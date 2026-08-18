@@ -27,6 +27,7 @@ public partial class SherpaModelItem : ObservableObject
     public bool IsDeprecated { get; set; }
     public string Quality { get; set; } = "";
     public string Gender { get; set; } = "";
+    public string Quantization { get; set; } = "";
 
     [ObservableProperty] private bool isDownloaded;
     [ObservableProperty] private bool isPromoted;
@@ -48,6 +49,7 @@ public partial class SherpaModelItem : ObservableObject
             if (SampleRate > 0) parts.Add($"{SampleRate / 1000.0:F1} kHz");
             if (!string.IsNullOrEmpty(QualityBadge)) parts.Add($"Quality: {Quality}");
             if (!string.IsNullOrEmpty(GenderLabel)) parts.Add($"Voice: {Gender}");
+            if (!string.IsNullOrEmpty(Quantization) && Quantization != "fp32") parts.Add($"Weights: {Quantization}");
             if (!string.IsNullOrEmpty(License)) parts.Add($"Licence: {License}");
             if (!string.IsNullOrEmpty(MinSherpaOnnxVersion)) parts.Add($"Needs sherpa-onnx {MinSherpaOnnxVersion}+");
             if (IsDeprecated) parts.Add("Deprecated upstream — inference keeps working");
@@ -114,9 +116,7 @@ public partial class SherpaModelsViewModel : ObservableObject
                         Id = cat.Id,
                         Name = string.IsNullOrEmpty(cat.Name) ? cat.Id : cat.Name,
                         Language = langInfo?.LanguageName ?? "Unknown",
-                        ModelType = cat.ModelType?.Contains("kokoro") == true ? "kokoro"
-                                 : cat.ModelType?.Contains("matcha") == true ? "matcha"
-                                 : "vits",
+                        ModelType = cat.ModelType ?? "vits",
                         Url = cat.Url ?? "",
                         FileSizeMb = (long)(cat.FileSizeMb ?? 0),
                         SampleRate = cat.SampleRate ?? 24000,
@@ -125,6 +125,7 @@ public partial class SherpaModelsViewModel : ObservableObject
                         MinSherpaOnnxVersion = cat.MinSherpaOnnxVersion ?? "",
                         IsDeprecated = cat.Deprecated ?? false,
                         Quality = cat.Quality ?? "",
+                        Quantization = cat.Quantization ?? "",
                         Gender = SherpaModelService.DeriveSherpaGender(cat.Id, cat.Name, cat.NumSpeakers ?? 1),
                         IsDownloaded = inst != null,
                         IsPromoted = inst?.IsPromoted ?? false,
@@ -420,6 +421,7 @@ public partial class SherpaModelsViewModel : ObservableObject
                 MinSherpaOnnxVersion = cat.MinSherpaOnnxVersion ?? "",
                 IsDeprecated = cat.Deprecated ?? false,
                 Quality = cat.Quality ?? "",
+                Quantization = cat.Quantization ?? "",
                 Gender = SherpaModelService.DeriveSherpaGender(cat.Id, cat.Name, cat.NumSpeakers ?? 1),
                 IsDownloaded = installed != null,
                 IsPromoted = installed?.IsPromoted ?? false,

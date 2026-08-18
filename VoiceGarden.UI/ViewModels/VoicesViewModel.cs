@@ -74,6 +74,8 @@ public partial class VoiceEntry : ObservableObject
             if (!string.IsNullOrEmpty(GenderLabel)) parts.Add($"Voice: {Gender}");
             if (CatalogModel is { } cm)
             {
+                if (!string.IsNullOrEmpty(cm.Quantization) && cm.Quantization != "fp32")
+                    parts.Add($"Weights: {cm.Quantization}");
                 if (!string.IsNullOrEmpty(cm.License)) parts.Add($"Licence: {cm.License}");
                 if (!string.IsNullOrEmpty(cm.MinSherpaOnnxVersion)) parts.Add($"Needs sherpa-onnx {MinVersionText(cm)}+");
                 if (cm.Deprecated == true) parts.Add("Deprecated upstream — inference keeps working");
