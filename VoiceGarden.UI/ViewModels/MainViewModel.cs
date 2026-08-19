@@ -38,24 +38,33 @@ internal static class Disposable
     }
 }
 
+/// <summary>
+/// Tab shell for the 3-tab accessible flow (Engines → Credentials → Voices)
+/// plus an Advanced tab that keeps every pre-existing function available.
+/// </summary>
 public partial class MainViewModel : ObservableObject, IDisposable
 {
+    public const int EnginesTabIndex = 0;
+    public const int CredentialsTabIndex = 1;
+    public const int VoicesTabIndex = 2;
+    public const int AdvancedTabIndex = 3;
+
     public MainViewModel()
     {
-        AppName = BrandingConfig.AppName;
-        ShowAdvanced = false;
-
         // Track app launch (only if opted in)
         AnalyticsService.Track("app_launched");
 
         // Load settings from registry
-        SherpaEnabled = !RegistryService.GetFlag("NoSherpaVoices", !BrandingConfig.DefaultSherpaEnabled);
-        EdgeEnabled = !RegistryService.GetFlag("NoEdgeVoices");
+        sherpaEnabled = !RegistryService.GetFlag("NoSherpaVoices", !BrandingConfig.DefaultSherpaEnabled);
+        edgeEnabled = !RegistryService.GetFlag("NoEdgeVoices");
         AnalyticsEnabled = Services.AnalyticsService.IsEnabled;
-        LogLevelIndex = RegistryService.GetDword("LogLevel", 0);
+        // spdlog levels: 0=trace … 4=error, 6=off; adapter defaults to info(2)
+        LogLevelIndex = RegistryService.GetDword("LogLevel", 2);
+        SapiAliasEnUs = Services.SapiAliasSettings.EnUsEnabled;
+        SapiAliasArabic = Services.SapiAliasSettings.ArabicEnabled;
 
         // Load cloud engines
-        foreach (var def in EngineDefinition.All)
+        foreach (var def in EngineDefinition.DiscoverAll())
         {
             var setting = new CloudEngineSetting
             {
@@ -93,12 +102,24 @@ public partial class MainViewModel : ObservableObject, IDisposable
             };
             setting.PropertyChanged += handler;
 
-            // Track subscription for cleanup using simple tuple
+            // Track subscription for cleanup
             _eventSubscriptions.Add(Disposable.Create(() =>
                 setting.PropertyChanged -= handler));
 
             CloudEngines.Add(setting);
         }
+
+        // Build the tab view models once the engine settings exist
+        Engines = new EnginesViewModel(this);
+        Credentials = new CredentialsViewModel(this);
+        Voices = new VoicesViewModel(this);
+        OnEngineSelectionChanged();
+        Engines.RefreshKeyHints();
+
+        // Learn the Sherpa catalog languages and the free Edge voice-list
+        // languages for the Engines filter/search in the background
+        _ = Engines.LoadSherpaLanguagesAsync();
+        _ = Engines.LoadEdgeLanguagesAsync();
 
         // Count installed SherpaOnnx models
         UpdateSherpaModelCount();
@@ -112,19 +133,113 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
-        // Unsubscribe from all CloudEngineSetting events
-        foreach (var setting in CloudEngines.OfType<CloudEngineSetting>())
-        {
-            // Manually unsubscribe by replacing with empty handler
-            // (C# event pattern doesn't provide direct unsubscribe for lambdas)
-        }
         _eventSubscriptions.Clear();
     }
 
-    [ObservableProperty] private string appName = "VoiceGarden";
-    [ObservableProperty] private bool showAdvanced = true;
-    [ObservableProperty] private bool sherpaEnabled = true;
-    [ObservableProperty] private bool edgeEnabled = false;
+    // ----- Engine enable state (persisted; driven from the Engines tab) -----
+
+    [ObservableProperty] private bool sherpaEnabled;
+    [ObservableProperty] private bool edgeEnabled;
+
+    partial void OnSherpaEnabledChanged(bool value) => RegistryService.SetFlag("NoSherpaVoices", !value);
+
+    partial void OnEdgeEnabledChanged(bool value)
+    {
+        RegistryService.SetFlag("NoEdgeVoices", !value);
+        AnalyticsService.Track("engine_toggled", ("engine", "edge"), ("enabled", value));
+    }
+
+    internal void SetSherpaEngineEnabled(bool value) => SherpaEnabled = value;
+    internal void SetEdgeEngineEnabled(bool value) => EdgeEnabled = value;
+
+    // ----- Tabs -----
+
+    [ObservableProperty] private int selectedTabIndex;
+
+    partial void OnSelectedTabIndexChanged(int value)
+    {
+        var name = value switch
+        {
+            CredentialsTabIndex => Loc.GetString("TabCredentials"),
+            VoicesTabIndex => Loc.GetString("TabVoices"),
+            AdvancedTabIndex => Loc.GetString("Advanced"),
+            _ => Loc.GetString("TabEngines"),
+        };
+        AnnounceViewChange(name);
+
+        // Voices load themselves the first time the tab is shown (and again
+        // if the engine selection changed since the last load) — the user
+        // should never have to press Load.
+        if (value == VoicesTabIndex && (Voices.TotalCount == 0 || Voices.IsStale))
+            _ = Voices.LoadVoicesCommand.ExecuteAsync(null);
+    }
+
+    public EnginesViewModel Engines { get; private set; } = null!;
+    public CredentialsViewModel Credentials { get; private set; } = null!;
+    public VoicesViewModel Voices { get; private set; } = null!;
+
+    /// <summary>Selected engines that need credentials — enables the Credentials tab.</summary>
+    [ObservableProperty] private int selectedCredsEngineCount;
+
+    public bool CredentialsTabEnabled => SelectedCredsEngineCount > 0;
+
+    public string CredentialsTabHeader => Loc.GetString("TabCredentials");
+
+    public string CredentialsTabState => CredentialsTabEnabled
+        ? Loc.GetString("TabCredentialsCount", SelectedCredsEngineCount)
+        : Loc.GetString("TabCredentialsNotNeeded");
+
+    public string VoicesTabHeader => Loc.GetString("TabVoices");
+
+    public string VoicesTabState { get; private set; } = "";
+
+    public string EnginesTabHeader => Loc.GetString("TabEngines");
+
+    public string EnginesTabState { get; private set; } = "";
+
+    /// <summary>Called by the Engines tab after any selection change.</summary>
+    internal void OnEngineSelectionChanged()
+    {
+        SelectedCredsEngineCount = Engines.SelectedCredsEngines().Count;
+        OnPropertyChanged(nameof(CredentialsTabEnabled));
+        OnPropertyChanged(nameof(CredentialsTabState));
+        EnginesTabState = Loc.GetString("TabEnginesCount", Engines.SelectedCount);
+        OnPropertyChanged(nameof(EnginesTabState));
+        Engines.CredentialsNeeded = CredentialsTabEnabled;
+
+        Credentials.Refresh();
+        Engines.RefreshKeyHints();
+        Voices.MarkStale();
+
+        // If the Credentials tab just became unnecessary while it is open, fall back to Engines.
+        if (!CredentialsTabEnabled && SelectedTabIndex == CredentialsTabIndex)
+            SelectedTabIndex = EnginesTabIndex;
+    }
+
+    /// <summary>Called by the Voices tab after a load so the header count refreshes.</summary>
+    internal void OnVoicesLoaded()
+    {
+        VoicesTabState = Loc.GetString("TabVoicesCount", Voices.TotalCount);
+        OnPropertyChanged(nameof(VoicesTabState));
+    }
+
+    partial void OnSelectedCredsEngineCountChanged(int value)
+    {
+        OnPropertyChanged(nameof(CredentialsTabEnabled));
+        OnPropertyChanged(nameof(CredentialsTabState));
+    }
+
+    internal void GoToEngines() => SelectedTabIndex = EnginesTabIndex;
+
+    internal void GoToCredentials()
+    {
+        if (CredentialsTabEnabled) SelectedTabIndex = CredentialsTabIndex;
+    }
+
+    internal void GoToVoices() => SelectedTabIndex = VoicesTabIndex;
+
+    // ----- Advanced tab state -----
+
     [ObservableProperty] private bool analyticsEnabled = false;
 
     partial void OnAnalyticsEnabledChanged(bool value)
@@ -132,7 +247,20 @@ public partial class MainViewModel : ObservableObject, IDisposable
         Services.AnalyticsService.IsEnabled = value;
         if (value) Services.AnalyticsService.Track("analytics_opted_in");
     }
-    [ObservableProperty] private int logLevelIndex = 0;
+
+    [ObservableProperty] private int logLevelIndex = 2;
+    partial void OnLogLevelIndexChanged(int value) => RegistryService.SetDword("LogLevel", value);
+
+    // ----- SAPI alias settings (applied whenever voices are promoted) -----
+
+    [ObservableProperty] private bool sapiAliasEnUs;
+
+    partial void OnSapiAliasEnUsChanged(bool value) => Services.SapiAliasSettings.EnUsEnabled = value;
+
+    [ObservableProperty] private bool sapiAliasArabic;
+
+    partial void OnSapiAliasArabicChanged(bool value) => Services.SapiAliasSettings.ArabicEnabled = value;
+
     [ObservableProperty] private string status64Bit = Loc.GetString("Checking");
     [ObservableProperty] private string status32Bit = Loc.GetString("Checking");
     [ObservableProperty] private bool is64Installed = false;
@@ -140,7 +268,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private string install64Text = Loc.GetString("Install");
     [ObservableProperty] private string install32Text = Loc.GetString("Install");
     [ObservableProperty] private string sherpaModelSummary = "";
-    [ObservableProperty] private bool isAboutVisible = false;
+
     public string AboutText =>
         $"VoiceGarden v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)}\n\n" +
         "SAPI Voice Adapter Configuration Tool\n\n" +
@@ -150,63 +278,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
         "https://github.com/AACTools/VoiceGarden-SAPI";
 
     public ObservableCollection<CloudEngineSetting> CloudEngines { get; } = new();
-
-    public string AdvancedToggleText => ShowAdvanced ? Loc.GetString("HideAdvanced") : Loc.GetString("ShowAdvanced");
-
-    partial void OnSherpaEnabledChanged(bool value) => RegistryService.SetFlag("NoSherpaVoices", !value);
-    partial void OnEdgeEnabledChanged(bool value)
-    {
-        RegistryService.SetFlag("NoEdgeVoices", !value);
-        AnalyticsService.Track("engine_toggled", ("engine", "edge"), ("enabled", value));
-    }
-    partial void OnLogLevelIndexChanged(int value) => RegistryService.SetDword("LogLevel", value);
-    partial void OnShowAdvancedChanged(bool value) => OnPropertyChanged(nameof(AdvancedToggleText));
-
-    [ObservableProperty] private bool isVoiceConfigVisible = false;
-    [ObservableProperty] private bool isSherpaManagerVisible = false;
-    [ObservableProperty] private bool isEngineConfigVisible = false;
-
-    public bool IsMainViewVisible => !IsVoiceConfigVisible && !IsSherpaManagerVisible && !IsEngineConfigVisible;
-
-    public VoiceConfigViewModel VoiceConfig { get; } = new();
-    public SherpaModelsViewModel SherpaModels { get; } = new();
-
-    [RelayCommand]
-    private void OpenVoiceConfig()
-    {
-        // Only show enabled engines in the dropdown
-        var enabledEngines = CloudEngines.Where(e => e.Enabled).Select(e => e.Id.ToLowerInvariant()).ToArray();
-        VoiceConfig.AvailableEngines = enabledEngines;
-
-        // Select first enabled engine
-        if (enabledEngines.Length > 0)
-            VoiceConfig.Initialize(enabledEngines[0]);
-        else
-            VoiceConfig.Initialize("azure");
-
-        IsVoiceConfigVisible = true;
-        OnPropertyChanged(nameof(IsMainViewVisible));
-        AnnounceViewChange("Configure Voices");
-    }
-
-    [RelayCommand]
-    private void OpenEngineConfig()
-    {
-        IsEngineConfigVisible = true;
-        OnPropertyChanged(nameof(IsMainViewVisible));
-        AnnounceViewChange("Configure Credentials");
-    }
-
-    [RelayCommand]
-    private void BackToMain()
-    {
-        IsVoiceConfigVisible = false;
-        IsSherpaManagerVisible = false;
-        IsEngineConfigVisible = false;
-        IsAboutVisible = false;
-        OnPropertyChanged(nameof(IsMainViewVisible));
-        AnnounceViewChange("Main view");
-    }
 
     private void UpdateSherpaModelCount()
     {
@@ -271,15 +342,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     [RelayCommand]
-    private void OpenSherpaManager()
-    {
-        IsSherpaManagerVisible = true;
-        OnPropertyChanged(nameof(IsMainViewVisible));
-        _ = SherpaModels.LoadCatalogCommand.ExecuteAsync(null);
-    }
-
-
-    [RelayCommand]
     private void OpenLogs()
     {
         var logDir = Path.Combine(
@@ -290,11 +352,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     [RelayCommand]
-    private void ShowAbout()
+    private void OpenModelsFolder()
     {
-        IsAboutVisible = true;
-        OnPropertyChanged(nameof(IsMainViewVisible));
-        AnnounceViewChange("About VoiceGarden");
+        var dir = Services.SherpaModelService.GetModelsDir();
+        if (Directory.Exists(dir))
+            Process.Start("explorer.exe", $"\"{dir}\"");
     }
 
     [ObservableProperty] private string screenReaderAnnouncement = "";

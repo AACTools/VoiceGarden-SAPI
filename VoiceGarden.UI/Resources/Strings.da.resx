@@ -56,9 +56,6 @@
   <data name="AdapterInstallation" xml:space="preserve">
     <value>Installation af adapter</value>
   </data>
-  <data name="AddEnUsAlias" xml:space="preserve">
-    <value>Tilføj en-US alias</value>
-  </data>
   <data name="Advanced" xml:space="preserve">
     <value>Fremskreden</value>
   </data>
@@ -67,9 +64,6 @@
   </data>
   <data name="AnalyticsHint" xml:space="preserve">
     <value>Hjælper os med at forstå, hvilke motorer der bruges. Ingen tekst, nøgler eller PII sendt.</value>
-  </data>
-  <data name="APIKey" xml:space="preserve">
-    <value>API nøgle</value>
   </data>
   <data name="AppName" xml:space="preserve">
     <value>VoiceGarden</value>
@@ -92,50 +86,11 @@
   <data name="Checking" xml:space="preserve">
     <value>Tjekker...</value>
   </data>
-  <data name="Close" xml:space="preserve">
-    <value>Tæt</value>
-  </data>
-  <data name="CloudVoices" xml:space="preserve">
-    <value>Cloud Stemmer</value>
-  </data>
-  <data name="ConfigureCredentials" xml:space="preserve">
-    <value>Konfigurer legitimationsoplysninger...</value>
-  </data>
-  <data name="ConfigureCredentialsTitle" xml:space="preserve">
-    <value>Konfigurer legitimationsoplysninger</value>
-  </data>
-  <data name="ConfigureVoices" xml:space="preserve">
-    <value>Konfigurer stemmer...</value>
-  </data>
-  <data name="ConfigureVoicesTitle" xml:space="preserve">
-    <value>Konfigurer stemmer</value>
-  </data>
-  <data name="CountDownloaded" xml:space="preserve">
-    <value>{0} downloadet</value>
-  </data>
-  <data name="CountInstalled" xml:space="preserve">
-    <value>{0} installeret</value>
-  </data>
-  <data name="CountSelected" xml:space="preserve">
-    <value>{0} valgt</value>
-  </data>
-  <data name="CountTotal" xml:space="preserve">
-    <value>{0} i alt</value>
-  </data>
   <data name="Downloaded" xml:space="preserve">
     <value>Downloadet</value>
   </data>
-  <data name="DownloadedCount" xml:space="preserve">
-    <value>Downloadede {0} modeller</value>
-  </data>
-  <data name="DownloadedFailedCount" xml:space="preserve">
-    <value>Downloadede {0}, mislykkedes {1}</value>
-  </data>
   <data name="DownloadedStatus" xml:space="preserve">
     <value>Downloadet</value>
-  </data>
-  <data name="DownloadFailed" xml:space="preserve">
-    <value>Download mislykkedes: {0} model(er)</value>
   </data>
   <data name="DownloadingModel" xml:space="preserve">
     <value>Downloader {0} ({1})...</value>
@@ -143,14 +98,8 @@
   <data name="DownloadModelFirst" xml:space="preserve">
     <value>Download modellen først</value>
   </data>
-  <data name="DownloadSelected" xml:space="preserve">
-    <value>Download valgt</value>
-  </data>
   <data name="EnableAnalytics" xml:space="preserve">
     <value>Send anonym brugsanalyse (opt-in)</value>
-  </data>
-  <data name="EnableEdgeVoices" xml:space="preserve">
-    <value>Aktiver Edge-browserstemmer</value>
   </data>
   <data name="Engine" xml:space="preserve">
     <value>Motor:</value>
@@ -176,12 +125,6 @@
   <data name="FetchingVoices" xml:space="preserve">
     <value>Henter {0} stemmer...</value>
   </data>
-  <data name="FetchVoices" xml:space="preserve">
-    <value>Hent stemmer</value>
-  </data>
-  <data name="Filter" xml:space="preserve">
-    <value>Filter:</value>
-  </data>
   <data name="FoundVoices" xml:space="preserve">
     <value>Fandt {0} stemmer</value>
   </data>
@@ -190,9 +133,6 @@
   </data>
   <data name="HelpImprove" xml:space="preserve">
     <value>Hjælp med at forbedre VoiceGarden</value>
-  </data>
-  <data name="HideAdvanced" xml:space="preserve">
-    <value>▼ Skjul Avanceret</value>
   </data>
   <data name="Install" xml:space="preserve">
     <value>Installere</value>
@@ -206,32 +146,14 @@
   <data name="InstalledModelsFailed" xml:space="preserve">
     <value>Installeret {0}, mislykkedes {1}</value>
   </data>
-  <data name="InstalledModelsSAPI" xml:space="preserve">
-    <value>Installerede {0} model(er) til SAPI</value>
-  </data>
-  <data name="InstalledOnly" xml:space="preserve">
-    <value>Kun installeret</value>
-  </data>
   <data name="InstalledVoicesHKLM" xml:space="preserve">
     <value>Installerede {0} stemme(r) til HKLM</value>
   </data>
   <data name="InstallFailed" xml:space="preserve">
     <value>Installation mislykkedes: {0}</value>
   </data>
-  <data name="InstallingSAPI" xml:space="preserve">
-    <value>Installerer modeller til SAPI (HKLM)...</value>
-  </data>
   <data name="InstallSelected" xml:space="preserve">
     <value>Installer valgt</value>
-  </data>
-  <data name="InstallToSAPI" xml:space="preserve">
-    <value>Installer til SAPI</value>
-  </data>
-  <data name="InvalidResult" xml:space="preserve">
-    <value>Ugyldig: {0}</value>
-  </data>
-  <data name="Key" xml:space="preserve">
-    <value>Nøgle:</value>
   </data>
   <data name="LangCompatDesc" xml:space="preserve">
     <value>Hvis din AAC-software kun understøtter visse sprog (f.eks. engelsk), skal du aktivere "Add en-US alias", når du promoverer SherpaOnnx-modeller. Dette får stemmer på ethvert sprog til at fremstå som engelske stemmer, så de vises i apps, der filtrerer efter sprog.</value>
@@ -248,9 +170,6 @@
   <data name="LogLevel" xml:space="preserve">
     <value>Log niveau:</value>
   </data>
-  <data name="ManageModels" xml:space="preserve">
-    <value>Administrer modeller...</value>
-  </data>
   <data name="ModelFilesNotFound" xml:space="preserve">
     <value>Modelfiler blev ikke fundet</value>
   </data>
@@ -266,15 +185,6 @@
   <data name="NoAudio" xml:space="preserve">
     <value>Ingen lyd genereret</value>
   </data>
-  <data name="NoDownloadedModels" xml:space="preserve">
-    <value>Ingen downloadede modeller fundet. Download først en model, og klik derefter på Scan igen, hvis det er nødvendigt.</value>
-  </data>
-  <data name="NoDownloadUrl" xml:space="preserve">
-    <value>Ingen download-URL</value>
-  </data>
-  <data name="NoModelId" xml:space="preserve">
-    <value>Kunne ikke bestemme model-id til forhåndsvisning</value>
-  </data>
   <data name="NoModelsInstalled" xml:space="preserve">
     <value>Ingen modeller installeret</value>
   </data>
@@ -283,9 +193,6 @@
   </data>
   <data name="NoThanks" xml:space="preserve">
     <value>Nej tak</value>
-  </data>
-  <data name="OfflineVoices" xml:space="preserve">
-    <value>Offline stemmer</value>
   </data>
   <data name="OnboardingDesc1" xml:space="preserve">
     <value>VoiceGarden er en gratis, open source-stemmebro, der forbinder 20+ moderne tekst-til-tale-motorer til enhver Windows-applikation, der understøtter SAPI 5 - inklusive Grid 3, Mind Express, Balabolka, Tobii Communicator og enhver app bygget på System.Speech.</value>
@@ -296,9 +203,6 @@
   <data name="OnboardingTitle" xml:space="preserve">
     <value>Velkommen til VoiceGarden</value>
   </data>
-  <data name="OnlyEnabledEngines" xml:space="preserve">
-    <value>Kun aktiverede motorer vises. Skift motorer på hovedsiden.</value>
-  </data>
   <data name="OpenLogs" xml:space="preserve">
     <value>Åbn Logs</value>
   </data>
@@ -307,9 +211,6 @@
   </data>
   <data name="PreviewFailed" xml:space="preserve">
     <value>Forhåndsvisning mislykkedes: {0}</value>
-  </data>
-  <data name="Previewing" xml:space="preserve">
-    <value>Forhåndsvisning...</value>
   </data>
   <data name="PreviewingVoice" xml:space="preserve">
     <value>Forhåndsviser {0}...</value>
@@ -323,50 +224,17 @@
   <data name="PrivacyIntro" xml:space="preserve">
     <value>VoiceGarden er et gratis, open source-projekt bygget af frivillige. For at hjælpe os med at forstå, hvilke TTS-motorer der er mest brugt, identificere fejl og prioritere udvikling, vil vi gerne indsamle anonyme brugsanalyser.</value>
   </data>
-  <data name="Ready" xml:space="preserve">
-    <value>Parat</value>
-  </data>
-  <data name="Region" xml:space="preserve">
-    <value>Område</value>
-  </data>
-  <data name="Register" xml:space="preserve">
-    <value>Register</value>
-  </data>
   <data name="RemovedVoices" xml:space="preserve">
     <value>Fjernede {0} stemme(r)</value>
-  </data>
-  <data name="RequestingAdmin" xml:space="preserve">
-    <value>Anmoder om administratorrettigheder...</value>
   </data>
   <data name="Reregister" xml:space="preserve">
     <value>Genregistrer dig</value>
   </data>
-  <data name="Rescan" xml:space="preserve">
-    <value>Scan igen</value>
-  </data>
-  <data name="RescannedModels" xml:space="preserve">
-    <value>Genscannet: {0} model(er) klar</value>
-  </data>
-  <data name="Search" xml:space="preserve">
-    <value>Søge...</value>
-  </data>
   <data name="SearchVoices" xml:space="preserve">
     <value>Søg efter stemmer...</value>
   </data>
-  <data name="SelectModelsFirst" xml:space="preserve">
-    <value>Vælg modeller, der skal downloades først</value>
-  </data>
   <data name="SelectVoicesFirst" xml:space="preserve">
     <value>Vælg stemmer, der skal installeres først</value>
-  </data>
-  <data name="SherpaOnnxModels" xml:space="preserve">
-    <value>Sherpa Onnx modeller</value>
-  </data>
-  <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
-    <value>Sherpa Onnx Neural TTS</value>
-  </data>
-  <data name="ShowAdvanced" xml:space="preserve">
-    <value>▶ Vis Avanceret</value>
   </data>
   <data name="Step1Desc" xml:space="preserve">
     <value>På hovedskærmen skal du klikke på Installer for 64-bit (og 32-bit, hvis det er nødvendigt). Dette registrerer VoiceGarden som en SAPI 5-stemme, som enhver kompatibel app kan bruge.</value>
@@ -389,17 +257,11 @@
   <data name="Uninstall" xml:space="preserve">
     <value>Afinstaller</value>
   </data>
-  <data name="Validate" xml:space="preserve">
-    <value>Valider</value>
-  </data>
   <data name="Validating" xml:space="preserve">
     <value>Validerer...</value>
   </data>
   <data name="ValidResult" xml:space="preserve">
     <value>Gyldig ({0} stemmer)</value>
-  </data>
-  <data name="VoiceEngines" xml:space="preserve">
-    <value>Stemmemotorer</value>
   </data>
   <data name="WhatIsVoiceGarden" xml:space="preserve">
     <value>Hvad er VoiceGarden?</value>
@@ -422,5 +284,317 @@
   </data>
   <data name="YesHelpImprove" xml:space="preserve">
     <value>Ja, vær med til at forbedre VoiceGarden</value>
+  </data>
+  <data name="AdvancedIntro" xml:space="preserve">
+    <value>Adapterregistrering, appindstillinger, offline modelhåndtering og om — alt, der ikke er en del af den guidede proces.</value>
+  </data>
+  <data name="AdvancedModelsHint" xml:space="preserve">
+    <value>Gennemse, download og installer offline-stemmer fra fanen Stemmer — vælg SherpaOnnx-motoren der.</value>
+  </data>
+  <data name="AdvancedModelsTitle" xml:space="preserve">
+    <value>Offline-modeller</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>Indstillinger</value>
+  </data>
+  <data name="AdvancedTabState" xml:space="preserve">
+    <value>værktøjer og indstillinger</value>
+  </data>
+  <data name="AliasApplyNote" xml:space="preserve">
+    <value>Anvendes, når stemmer installeres eller geninstalleres fra fanen Stemmer. Eksisterende stemmer registrerer ændringen næste gang du installerer dem.</value>
+  </data>
+  <data name="AliasArabicHint" xml:space="preserve">
+    <value>Stem på et højre-til-venstre sprog (arabisk, urdu, persisk, hebraisk, pashto…) vises også under arabisk (ar-SA), så apps, der er indstillet til arabiske stemmer, kan finde den.</value>
+  </data>
+  <data name="AliasArabicLabel" xml:space="preserve">
+    <value>Også alias højre-til-venstre stemmer under arabisk</value>
+  </data>
+  <data name="AliasEnUsHint" xml:space="preserve">
+    <value>Stemmer på ethvert andet sprog vises også som engelsk (en-US), så apps, der kun viser engelske stemmer — som nogle AAC-titler — kan bruge den.</value>
+  </data>
+  <data name="AliasEnUsLabel" xml:space="preserve">
+    <value>Tilføj et en-US alias for ikke-engelske stemmer</value>
+  </data>
+  <data name="AliasSettingsIntro" xml:space="preserve">
+    <value>Stemmer installeres med deres rigtige sprog. Aliasser tilføjer ekstra kopier under et andet sprog, så apps, der filtrerer efter sprog, stadig kan finde dem.</value>
+  </data>
+  <data name="AliasSettingsTitle" xml:space="preserve">
+    <value>SAPI stemaliaser</value>
+  </data>
+  <data name="BackToEngines" xml:space="preserve">
+    <value>Tilbage til motorer</value>
+  </data>
+  <data name="BadgeCloud" xml:space="preserve">
+    <value>Sky</value>
+  </data>
+  <data name="BadgeCredsNeeded" xml:space="preserve">
+    <value>Nøgle nødvendig</value>
+  </data>
+  <data name="BadgeKeyStored" xml:space="preserve">
+    <value>Nøgle gemt</value>
+  </data>
+  <data name="BadgeNoCreds" xml:space="preserve">
+    <value>Ingen nøgle</value>
+  </data>
+  <data name="BadgeOffline" xml:space="preserve">
+    <value>Offline</value>
+  </data>
+  <data name="ClearVisible" xml:space="preserve">
+    <value>Klart vist</value>
+  </data>
+  <data name="CredentialsFooterHint" xml:space="preserve">
+    <value>Bekræft en nøgle for at kontrollere, at den virker, før du indlæser stemmer. Du kan komme tilbage når som helst.</value>
+  </data>
+  <data name="CredentialsIntro" xml:space="preserve">
+    <value>Indtast legitimationsoplysningerne for hver valgt motor. Værdierne gemmes kun på denne computer.</value>
+  </data>
+  <data name="CredentialsNoneNeeded" xml:space="preserve">
+    <value>Ingen valgte motorer kræver legitimationsoplysninger.</value>
+  </data>
+  <data name="DeselectAllVoices" xml:space="preserve">
+    <value>Fravælg alle stemmer</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="DownloadFailedSingle" xml:space="preserve">
+    <value>Download mislykkedes for {0}</value>
+  </data>
+  <data name="DownloadFailedTitle" xml:space="preserve">
+    <value>Download mislykkedes for {0}. Tjek din internetforbindelse og prøv igen — hvis det fortsætter med at mislykkes, luk andre stemmeapps og genstart VoiceGarden.</value>
+  </data>
+  <data name="EdgeEngineDesc" xml:space="preserve">
+    <value>Gratis Microsoft cloud-stemmer på mange sprog. Bedste gratis online mulighed — naturlig kvalitet, ingen API-nøgle, kræver internet.</value>
+  </data>
+  <data name="EdgeEngineName" xml:space="preserve">
+    <value>Edge Stemmer</value>
+  </data>
+  <data name="EngineDescKeyOnly" xml:space="preserve">
+    <value>{0} cloudstemmer. Kræver en API-nøgle.</value>
+  </data>
+  <data name="EngineDescKeyRegion" xml:space="preserve">
+    <value>{0} cloud-stemmer. Kræver en API-nøgle og region.</value>
+  </data>
+  <data name="EngineDescKeySecretRegion" xml:space="preserve">
+    <value>{0} cloud-stemmer. Kræver en adgangsnøgle, hemmelig nøgle og region.</value>
+  </data>
+  <data name="EngineDescKeyUserId" xml:space="preserve">
+    <value>{0} cloud-stemmer. Kræver en API-nøgle og bruger-ID.</value>
+  </data>
+  <data name="EnginesSelectedSummary" xml:space="preserve">
+    <value>{0} af {1} motorer valgt</value>
+  </data>
+  <data name="FieldAPIKey" xml:space="preserve">
+    <value>API-nøgle</value>
+  </data>
+  <data name="FieldAccessKeyId" xml:space="preserve">
+    <value>Adgangsnøgle-ID</value>
+  </data>
+  <data name="FieldInstanceId" xml:space="preserve">
+    <value>Forekomst-ID</value>
+  </data>
+  <data name="FieldRegion" xml:space="preserve">
+    <value>Område</value>
+  </data>
+  <data name="FieldSecretAccessKey" xml:space="preserve">
+    <value>Hemmelig adgangsnøgle</value>
+  </data>
+  <data name="FieldSubscriptionKey" xml:space="preserve">
+    <value>Abonnementsnøgle</value>
+  </data>
+  <data name="FieldToken" xml:space="preserve">
+    <value>Token</value>
+  </data>
+  <data name="FieldUserId" xml:space="preserve">
+    <value>Bruger-ID</value>
+  </data>
+  <data name="FilterAllEngines" xml:space="preserve">
+    <value>Alle motorer</value>
+  </data>
+  <data name="FilterAllLanguages" xml:space="preserve">
+    <value>Alle sprog</value>
+  </data>
+  <data name="FilterAllTypes" xml:space="preserve">
+    <value>Alle typer</value>
+  </data>
+  <data name="FilterAnyEngine" xml:space="preserve">
+    <value>Alle motorer</value>
+  </data>
+  <data name="FilterAnyGender" xml:space="preserve">
+    <value>Ethvert køn</value>
+  </data>
+  <data name="FilterAnyLanguage" xml:space="preserve">
+    <value>Enhver sprog</value>
+  </data>
+  <data name="FilterAnyQuality" xml:space="preserve">
+    <value>Enhver kvalitet</value>
+  </data>
+  <data name="FilterCredentials" xml:space="preserve">
+    <value>Legitimationsoplysninger</value>
+  </data>
+  <data name="FilterCredsNeeded" xml:space="preserve">
+    <value>Nøgle nødvendig</value>
+  </data>
+  <data name="FilterEngine" xml:space="preserve">
+    <value>Filtrer efter motor</value>
+  </data>
+  <data name="FilterGender" xml:space="preserve">
+    <value>Filtrer efter køn</value>
+  </data>
+  <data name="FilterLanguage" xml:space="preserve">
+    <value>Sprog</value>
+  </data>
+  <data name="FilterNoCreds" xml:space="preserve">
+    <value>Ingen nøgle nødvendig</value>
+  </data>
+  <data name="FilterOfflineOnly" xml:space="preserve">
+    <value>Kun offline</value>
+  </data>
+  <data name="FilterOnlineOnly" xml:space="preserve">
+    <value>Kun online</value>
+  </data>
+  <data name="FilterQuality" xml:space="preserve">
+    <value>Filtrer efter kvalitet</value>
+  </data>
+  <data name="FilterType" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>Køn</value>
+  </data>
+  <data name="LanguageFilterHiddenNote" xml:space="preserve">
+    <value>{0} motorer skjult — deres sprog er ukendt, indtil deres stemmer indlæses i fanen Stemmer.</value>
+  </data>
+  <data name="LoadVoices" xml:space="preserve">
+    <value>Indlæs stemmer</value>
+  </data>
+  <data name="NextCredentials" xml:space="preserve">
+    <value>Næste: Legitimationsoplysninger</value>
+  </data>
+  <data name="NextVoices" xml:space="preserve">
+    <value>Næste: Stemmer</value>
+  </data>
+  <data name="PreviewFailedTitle" xml:space="preserve">
+    <value>Forhåndsvisning mislykkedes for {0}.</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>Kvalitet</value>
+  </data>
+  <data name="RefreshInstalled" xml:space="preserve">
+    <value>Opdateret installeret</value>
+  </data>
+  <data name="RemoveSelected" xml:space="preserve">
+    <value>Fjern valgte fra SAPI</value>
+  </data>
+  <data name="RescannedVoices" xml:space="preserve">
+    <value>Opdateret — {0} stemmer installeret</value>
+  </data>
+  <data name="SearchEngines" xml:space="preserve">
+    <value>Søgemaskiner, sprog…</value>
+  </data>
+  <data name="SelectAllVoices" xml:space="preserve">
+    <value>Vælg alle viste stemmer</value>
+  </data>
+  <data name="SelectVisible" xml:space="preserve">
+    <value>Vælg vist</value>
+  </data>
+  <data name="SherpaOnnxEngineDesc" xml:space="preserve">
+    <value>Offline neurale stemmer på mange sprog. Bedst til pålidelighed og privatliv — fungerer uden en konto eller internet, når det er downloadet.</value>
+  </data>
+  <data name="SherpaOnnxEngineName" xml:space="preserve">
+    <value>Sherpa Onnx</value>
+  </data>
+  <data name="Step4Desc" xml:space="preserve">
+    <value>Åbn fanen Stemmer og klik på Indlæs stemmer. Filtrer efter sprog, køn eller kvalitet, forhåndsvis dem, du kan lide, og brug derefter Download (offline-modeller) og Installer til SAPI. Installerede stemmer vises med det samme i dine apps.</value>
+  </data>
+  <data name="Step4Title" xml:space="preserve">
+    <value>Få jeres stemmer</value>
+  </data>
+  <data name="TabCredentials" xml:space="preserve">
+    <value>Legitimationsoplysninger</value>
+  </data>
+  <data name="TabCredentialsCount" xml:space="preserve">
+    <value>{0} motorer har brug for nøgler</value>
+  </data>
+  <data name="TabCredentialsNotNeeded" xml:space="preserve">
+    <value>ikke nødvendigt</value>
+  </data>
+  <data name="TabCredentialsTitle" xml:space="preserve">
+    <value>Legitimationsoplysninger</value>
+  </data>
+  <data name="TabEngines" xml:space="preserve">
+    <value>Stemmeengine</value>
+  </data>
+  <data name="TabEnginesCount" xml:space="preserve">
+    <value>{0} valgt</value>
+  </data>
+  <data name="TabEnginesIntro" xml:space="preserve">
+    <value>Vælg de stemmemotorer, du vil bruge. Vælg offline-stemmer, der virker uden en konto, gratis cloud-stemmer, eller cloud-motorer, der kræver en API-nøgle.</value>
+  </data>
+  <data name="TabEnginesTitle" xml:space="preserve">
+    <value>Stemmeengine</value>
+  </data>
+  <data name="TabVoices" xml:space="preserve">
+    <value>Stemmer</value>
+  </data>
+  <data name="TabVoicesCount" xml:space="preserve">
+    <value>{0} stemmer</value>
+  </data>
+  <data name="TabVoicesIntro" xml:space="preserve">
+    <value>Hver stemme fra de motorer, du har valgt. Filtrer, forhåndsvis, og installer derefter dem, du vil have, i Windows SAPI.</value>
+  </data>
+  <data name="TabVoicesTitle" xml:space="preserve">
+    <value>Stemmer</value>
+  </data>
+  <data name="UnknownEngine" xml:space="preserve">
+    <value>Ukendt motor</value>
+  </data>
+  <data name="UnknownLanguage" xml:space="preserve">
+    <value>Ukendt</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>Bekræft</value>
+  </data>
+  <data name="VerifyNoVoices" xml:space="preserve">
+    <value>Nøgle accepteret, men ingen stemmer returneret – tjek at nøglen har TTS-adgang.</value>
+  </data>
+  <data name="VoicesCountSummary" xml:space="preserve">
+    <value>{0} stemmer · {1} valgt · {2} installeret</value>
+  </data>
+  <data name="VoicesEmptyHint" xml:space="preserve">
+    <value>Vælg dine stemmemotorer i fanen Stemmemotorer først (tilføj også legitimationsoplysninger der, hvis motoren har brug for en nøgle), og indlæs derefter stemmer her.</value>
+  </data>
+  <data name="VoicesEmptyNoEngines" xml:space="preserve">
+    <value>Ingen motorer valgt — åbn fanen Voice Engines og marker mindst én motor.</value>
+  </data>
+  <data name="VoicesEmptyTitle" xml:space="preserve">
+    <value>Ingen stemmer endnu</value>
+  </data>
+  <data name="VoicesFetchFailed" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="VoicesLoaded" xml:space="preserve">
+    <value>Indlæst {0} stemmer</value>
+  </data>
+  <data name="VoicesMissingKey" xml:space="preserve">
+    <value>{0}: ingen API-nøgle — tilføj en på fanen Godkendelsesoplysninger</value>
+  </data>
+  <data name="VoicesNoEnginesSelected" xml:space="preserve">
+    <value>Vælg først mindst en motor på fanen Stemmemotorer.</value>
+  </data>
+  <data name="VoicesPromoteFailed" xml:space="preserve">
+    <value>Kunne ikke installere {0} (administratorgodkendelse kan være påkrævet)</value>
+  </data>
+  <data name="VoicesPromotedSingle" xml:space="preserve">
+    <value>{0} installeret til SAPI</value>
+  </data>
+  <data name="VoicesSkippedNoKey" xml:space="preserve">
+    <value>{0} motorer blev sprunget over — ingen API-nøgle indstillet</value>
+  </data>
+  <data name="VoicesUnpromoteFailed" xml:space="preserve">
+    <value>Fjernet {0}; mislykkedes {1}</value>
+  </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>Vis kun installerede stemmer</value>
   </data>
 </root>

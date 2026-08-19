@@ -3,7 +3,7 @@
     End-to-end test: download SherpaOnnx models, promote to SAPI, speak via COM.
 #>
 param(
-    [string[]]$ModelIds = @("kokoro-en-en-19", "mms_eng", "piper-en-amy-low")
+    [string[]]$ModelIds = @("kokoro-en-v0_19", "mms_eng", "piper-en-amy-low")
 )
 
 $ErrorActionPreference = "Continue"

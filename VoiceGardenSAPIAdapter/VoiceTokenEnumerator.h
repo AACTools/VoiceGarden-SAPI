@@ -47,8 +47,6 @@ END_COM_MAP()
 
 private:
 	typedef std::map<std::string, std::shared_ptr<DataKeyData>> TokenMap;
-	static void EnumLocalVoices(TokenMap& tokens, ErrorMode errorMode);
-	static void EnumLocalVoicesInFolder(TokenMap& tokens, LPCWSTR basepath, ErrorMode errorMode);
 	static void EnumEdgeVoices(TokenMap& tokens, DWORD langFlags, const std::vector<std::wstring>& languages,
 		ErrorMode errorMode);
 	static void EnumAzureVoices(TokenMap& tokens, DWORD langFlags, const std::vector<std::wstring>& languages,

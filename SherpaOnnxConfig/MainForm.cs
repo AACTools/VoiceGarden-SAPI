@@ -445,11 +445,11 @@ namespace SherpaOnnxConfig
                 // Try to find catalog in multiple locations
                 string[] catalogPaths = new string[]
                 {
-                    Path.Combine(AppContext.BaseDirectory, "merged_models.json"),
-                    Path.Combine(AppContext.BaseDirectory, "sherpa-config", "merged_models.json"),
-                    Path.Combine(Application.StartupPath, "merged_models.json"),
-                    Path.Combine(Application.StartupPath, "sherpa-config", "merged_models.json"),
-                    "merged_models.json"
+                    Path.Combine(AppContext.BaseDirectory, "models.json"),
+                    Path.Combine(AppContext.BaseDirectory, "sherpa-config", "models.json"),
+                    Path.Combine(Application.StartupPath, "models.json"),
+                    Path.Combine(Application.StartupPath, "sherpa-config", "models.json"),
+                    "models.json"
                 };
 
                 string? catalogContent = null;
@@ -465,7 +465,7 @@ namespace SherpaOnnxConfig
 
                 if (string.IsNullOrEmpty(catalogContent))
                 {
-                    AppendOutput("WARNING: merged_models.json not found. Models will need to be added manually.", Color.FromArgb(255, 200, 100));
+                    AppendOutput("WARNING: models.json not found. Models will need to be added manually.", Color.FromArgb(255, 200, 100));
                     statusLabel!.Text = "Status: No catalog found";
                     languageComboBox!.Items.Add(AllLanguagesOption);
                     languageComboBox.SelectedIndex = 0;
@@ -495,6 +495,14 @@ namespace SherpaOnnxConfig
                             var model = kvp.Value;
                             var languageNames = GetLanguageDisplayNames(model).ToList();
                             if (languageNames.Count == 0)
+                            {
+                                skippedCount++;
+                                continue;
+                            }
+
+                            // fp16 builds SIGABRT the CPU-only ONNX runtime in
+                            // the SAPI host process — hide them like the UI does.
+                            if ((model.url ?? model.url_ ?? "").Contains("fp16", StringComparison.OrdinalIgnoreCase))
                             {
                                 skippedCount++;
                                 continue;
@@ -1869,7 +1877,7 @@ namespace SherpaOnnxConfig
                 string? catalogPath = FindCatalogPath();
                 if (string.IsNullOrEmpty(catalogPath))
                 {
-                    Console.WriteLine("ERROR: merged_models.json not found!");
+                    Console.WriteLine("ERROR: models.json not found!");
                     return 1;
                 }
 
@@ -1953,7 +1961,7 @@ namespace SherpaOnnxConfig
                 string? catalogPath = FindCatalogPath();
                 if (string.IsNullOrEmpty(catalogPath))
                 {
-                    Console.WriteLine("ERROR: merged_models.json not found!");
+                    Console.WriteLine("ERROR: models.json not found!");
                     return 1;
                 }
 
@@ -1987,6 +1995,17 @@ namespace SherpaOnnxConfig
                 if (string.IsNullOrEmpty(modelUrl))
                 {
                     Console.WriteLine($"ERROR: No download URL for model '{modelId}'!");
+                    return 1;
+                }
+
+                // fp16 builds SIGABRT the CPU-only ONNX runtime in the SAPI
+                // host process (Rust cannot catch the foreign exception), so
+                // they are not downloadable — the UI model list filters them
+                // out for the same reason.
+                if (modelUrl.Contains("fp16", StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine($"ERROR: '{modelId}' is an fp16 build; fp16 models crash the CPU-only ONNX runtime used for local synthesis.");
+                    Console.WriteLine("Pick a non-fp16 variant (use 'list' to see alternatives).");
                     return 1;
                 }
 
@@ -2297,11 +2316,11 @@ namespace SherpaOnnxConfig
         {
             string[] paths = new string[]
             {
-                Path.Combine(AppContext.BaseDirectory, "merged_models.json"),
-                Path.Combine(AppContext.BaseDirectory, "sherpa-config", "merged_models.json"),
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "merged_models.json"),
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sherpa-config", "merged_models.json"),
-                "merged_models.json"
+                Path.Combine(AppContext.BaseDirectory, "models.json"),
+                Path.Combine(AppContext.BaseDirectory, "sherpa-config", "models.json"),
+                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "models.json"),
+                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sherpa-config", "models.json"),
+                "models.json"
             };
 
             foreach (string path in paths)
@@ -2625,6 +2644,7 @@ namespace SherpaOnnxConfig
             public int SampleRate { get; set; } = 22050;
             public int SpeakerCount { get; set; } = 1;
             public string ModelName { get; set; } = "";
+            public string Quality { get; set; } = "";
         }
 
         private sealed class TokenSyncResult
@@ -2879,7 +2899,8 @@ namespace SherpaOnnxConfig
                 Vocoder = meta.Vocoder,
                 SampleRate = meta.SampleRate,
                 SpeakerCount = meta.SpeakerCount,
-                ModelName = meta.ModelName
+                ModelName = meta.ModelName,
+                Quality = meta.Quality
             };
         }
 
@@ -3033,7 +3054,13 @@ namespace SherpaOnnxConfig
             string displayName = !string.IsNullOrWhiteSpace(catalogModel?.name) ? catalogModel!.name! : modelId;
             string locale = GetPrimaryLocale(catalogModel) ?? "en-US";
             string langHexChain = BuildSapiLanguageHexChain(locale);
-            string gender = InferGenderFromText($"{modelId} {displayName}");
+            int numSpeakers = catalogModel?.num_speakers ?? 1;
+            // Multi-speaker models and the MMS family (ids are language codes,
+            // names are language names) get no gender — guessing wrong data
+            // into SAPI tokens is worse than Neutral.
+            string gender = "Neutral";
+            if (numSpeakers <= 1 && !modelId.StartsWith("mms_", StringComparison.OrdinalIgnoreCase))
+                gender = InferGenderFromText($"{modelId} {displayName}");
             string friendly = $"Sherpa {displayName}";
 
             meta.FriendlyName = friendly;
@@ -3050,7 +3077,8 @@ namespace SherpaOnnxConfig
             meta.Vocoder = vocoder ?? "";
             int defaultSampleRate = modelId.StartsWith("mms_", StringComparison.OrdinalIgnoreCase) ? 16000 : 22050;
             meta.SampleRate = catalogModel?.sample_rate ?? defaultSampleRate;
-            meta.SpeakerCount = 1;
+            meta.SpeakerCount = numSpeakers;
+            meta.Quality = !string.IsNullOrWhiteSpace(catalogModel?.quality) ? catalogModel!.quality!.Trim() : "";
             meta.ModelName = modelId;
             return true;
         }
@@ -3161,10 +3189,50 @@ namespace SherpaOnnxConfig
         private static string InferGenderFromText(string text)
         {
             string v = text.ToLowerInvariant();
-            if (v.Contains("female") || v.Contains("woman") || v.Contains("girl"))
-                return "Female";
-            if (v.Contains("male") || v.Contains("man") || v.Contains("boy"))
-                return "Male";
+            // Whole-token matching avoids false positives like the "Male"
+            // language of Ethiopia or "German" containing "man". Check female
+            // markers first — "female" contains "male".
+            var tokens = v.Split(new[] { ' ', '-', '_', '.', '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+            bool isFemale = false, isMale = false, hasM = false, hasF = false;
+            foreach (var tok in tokens)
+            {
+                switch (tok)
+                {
+                    case "female":
+                    case "woman":
+                    case "girl":
+                    case "women":
+                        isFemale = true;
+                        break;
+                    case "male":
+                    case "man":
+                    case "boy":
+                    case "men":
+                        isMale = true;
+                        break;
+                    case "m":
+                        hasM = true;
+                        break;
+                    case "f":
+                        hasF = true;
+                        break;
+                }
+            }
+            if (isFemale) return "Female";
+            if (isMale) return "Male";
+
+            // Piper ecosystem af_/am_ (adult female/male) prefixes; the
+            // underscore matters — "af-"/"am-" segments are Afrikaans /
+            // Armenian language codes, not gender markers.
+            if (System.Text.RegularExpressions.Regex.IsMatch(v, @"(?:^|[^a-z0-9])af_[a-z]")) return "Female";
+            if (System.Text.RegularExpressions.Regex.IsMatch(v, @"(?:^|[^a-z0-9])am_[a-z]")) return "Male";
+
+            // mimic3 m-ailabs (male) / f-ailabs (female) variants
+            if (v.Contains("mimic3-"))
+            {
+                if (hasF) return "Female";
+                if (hasM) return "Male";
+            }
             return "Neutral";
         }
 
@@ -3185,6 +3253,10 @@ namespace SherpaOnnxConfig
                 attrs.SetValue("Vendor", "K2FSA", RegistryValueKind.String);
                 attrs.SetValue("VoiceGardenType", "Sherpa;Offline", RegistryValueKind.String);
                 attrs.SetValue("SherpaModelName", m.ModelName, RegistryValueKind.String);
+                if (!string.IsNullOrWhiteSpace(m.Quality) && m.Quality != "unknown")
+                    attrs.SetValue("Quality", m.Quality, RegistryValueKind.String);
+                else
+                    attrs.DeleteValue("Quality", throwOnMissingValue: false);
             }
 
             using (RegistryKey cfg = tokenKey.CreateSubKey("VoiceGardenConfig", writable: true)!)
@@ -3240,6 +3312,12 @@ namespace SherpaOnnxConfig
         // Note: filesize_MB is handled by the same property due to case-insensitive deserialization
         [System.Text.Json.Serialization.JsonPropertyName("filesize_mb")]
         public double? filesize_mb { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("quality")]
+        public string? quality { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("num_speakers")]
+        public int? num_speakers { get; set; }
     }
 
     public class SherpaLanguage

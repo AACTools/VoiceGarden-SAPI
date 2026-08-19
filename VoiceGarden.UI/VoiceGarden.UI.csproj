@@ -20,14 +20,14 @@
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.0" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="RustTtsWrapper.Bindings" Version="0.3.16" />
+    <PackageReference Include="RustTtsWrapper.Bindings" Version="0.3.20" />
     <PackageReference Include="SharpCompress" Version="0.49.1" />
     <PackageReference Include="System.Speech" Version="8.0.0" />
     <PackageReference Include="System.Windows.Extensions" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\SherpaOnnxConfig\merged_models.json" CopyToOutputDirectory="PreserveNewest" Link="merged_models.json" />
+    <None Include="..\SherpaOnnxConfig\models.json" CopyToOutputDirectory="PreserveNewest" Link="models.json" />
   </ItemGroup>
 
   <ItemGroup>

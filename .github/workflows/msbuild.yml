@@ -23,9 +23,9 @@ jobs:
     - name: Build SherpaOnnxConfig (self-contained, x64)
       run: dotnet publish SherpaOnnxConfig\SherpaOnnxConfig.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o ${{github.workspace}}\sherpa-config
 
-    - name: Copy merged_models.json (single-file publish drops it)
+    - name: Copy models.json (single-file publish drops it)
       shell: pwsh
-      run: Copy-Item SherpaOnnxConfig\merged_models.json sherpa-config\ -Force
+      run: Copy-Item SherpaOnnxConfig\models.json sherpa-config\ -Force
 
     - name: Verify Sherpa integration checks
       shell: pwsh
@@ -36,7 +36,7 @@ jobs:
         name: sherpa-onnx-config
         path: |
           sherpa-config/SherpaOnnxConfig.exe
-          sherpa-config/merged_models.json
+          sherpa-config/models.json
 
   build-voice-garden-ui:
     name: Build VoiceGarden.UI
@@ -84,19 +84,9 @@ jobs:
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
 
-    - name: Build AzureSpeechSDKShim (x64)
-      if: matrix.platform == 'x64'
-      working-directory: ${{github.workspace}}\AzureSpeechSDKShim
-      run: |
-        nuget restore AzureSpeechSDKShim.sln
-        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 /p:OutDir=${{github.workspace}}\out\ AzureSpeechSDKShim.sln
-
-    - name: Build AzureSpeechSDKShim (x86)
-      if: matrix.platform == 'x86'
-      working-directory: ${{github.workspace}}\AzureSpeechSDKShim
-      run: |
-        nuget restore AzureSpeechSDKShim.sln
-        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x86 /p:OutDir=${{github.workspace}}\out\ AzureSpeechSDKShim.sln
+    # AzureSpeechSDKShim is no longer built: the local Narrator voice feature
+    # it supported was dropped (TOS concerns) and the SDK runtime chain is
+    # excluded from the payload at compose time.
 
     - name: Build Arm64XForwarder (ARM64 only)
       if: matrix.platform == 'ARM64'
@@ -119,8 +109,7 @@ jobs:
         name: sherpa-onnx-config
         path: ${{github.workspace}}\out\
 
-    - name: Keep only merged_models.json in ARM64 utilities
-      if: matrix.platform == 'ARM64'
+    - name: Keep only models.json in utilities (drop the superseded SherpaOnnxConfig.exe)
       shell: pwsh
       run: Remove-Item out\SherpaOnnxConfig.exe -ErrorAction SilentlyContinue
 
@@ -228,6 +217,12 @@ jobs:
         # VoiceGarden.UI.exe (the main configuration app)
         Copy-Item artifacts\voice-garden-ui\VoiceGarden.UI.exe payload\ -Force
 
+        # The Azure Speech SDK runtime chain is not shipped (local Narrator
+        # voices dropped — TOS; the adapter never loads the SDK at runtime).
+        Get-ChildItem payload -Recurse -File |
+          Where-Object { $_.Name -like 'Microsoft.CognitiveServices.Speech.*.dll' -or $_.Name -in 'SpeechSDKShim.dll','SpeechSDKPatcher.exe' } |
+          Remove-Item -Force
+
         # Rust TTS wrapper native DLL (from NuGet package)
         dotnet restore VoiceGarden.UI\VoiceGarden.UI.csproj
         $rustDll = Get-ChildItem "$env:USERPROFILE\.nuget\packages\rustttswrapper.bindings" -Recurse -Filter "rust_tts_wrapper.dll" | Select-Object -First 1
@@ -293,6 +288,11 @@ jobs:
 
         # VoiceGarden.UI.exe goes to payload root
         cp voice-garden-ui/VoiceGarden.UI.exe . 2>/dev/null || true
+
+        # The Azure Speech SDK runtime chain is not shipped (local Narrator
+        # voices dropped — TOS; the adapter never loads the SDK at runtime).
+        rm -f x64/Microsoft.CognitiveServices.Speech.*.dll x64/SpeechSDKShim.dll x64/SpeechSDKPatcher.exe
+        rm -f x86/Microsoft.CognitiveServices.Speech.*.dll x86/SpeechSDKShim.dll x86/SpeechSDKPatcher.exe
 
         # MSI + setup.exe
         cp setup-msi/VoiceGardenSAPIAdapter.msi . 2>/dev/null || true

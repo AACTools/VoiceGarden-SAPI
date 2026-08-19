@@ -56,9 +56,6 @@
   <data name="AdapterInstallation" xml:space="preserve">
     <value>Installazione dell'adattatore</value>
   </data>
-  <data name="AddEnUsAlias" xml:space="preserve">
-    <value>Aggiungi l'alias en-US</value>
-  </data>
   <data name="Advanced" xml:space="preserve">
     <value>Avanzato</value>
   </data>
@@ -67,9 +64,6 @@
   </data>
   <data name="AnalyticsHint" xml:space="preserve">
     <value>Ci aiuta a capire quali motori vengono utilizzati. Nessun testo, chiavi o PII inviati.</value>
-  </data>
-  <data name="APIKey" xml:space="preserve">
-    <value>Chiave API</value>
   </data>
   <data name="AppName" xml:space="preserve">
     <value>VoiceGarden</value>
@@ -92,50 +86,11 @@
   <data name="Checking" xml:space="preserve">
     <value>Controllo...</value>
   </data>
-  <data name="Close" xml:space="preserve">
-    <value>Vicino</value>
-  </data>
-  <data name="CloudVoices" xml:space="preserve">
-    <value>Voci delle nuvole</value>
-  </data>
-  <data name="ConfigureCredentials" xml:space="preserve">
-    <value>Configura credenziali...</value>
-  </data>
-  <data name="ConfigureCredentialsTitle" xml:space="preserve">
-    <value>Configura credenziali</value>
-  </data>
-  <data name="ConfigureVoices" xml:space="preserve">
-    <value>Configura voci...</value>
-  </data>
-  <data name="ConfigureVoicesTitle" xml:space="preserve">
-    <value>Configura voci</value>
-  </data>
-  <data name="CountDownloaded" xml:space="preserve">
-    <value>{0} scaricato</value>
-  </data>
-  <data name="CountInstalled" xml:space="preserve">
-    <value>{0} installato</value>
-  </data>
-  <data name="CountSelected" xml:space="preserve">
-    <value>{0} selezionato</value>
-  </data>
-  <data name="CountTotal" xml:space="preserve">
-    <value>{0} totale</value>
-  </data>
   <data name="Downloaded" xml:space="preserve">
     <value>Scaricato</value>
   </data>
-  <data name="DownloadedCount" xml:space="preserve">
-    <value>{0} modello/i scaricato/i</value>
-  </data>
-  <data name="DownloadedFailedCount" xml:space="preserve">
-    <value>Scaricato {0}, errore {1}</value>
-  </data>
   <data name="DownloadedStatus" xml:space="preserve">
     <value>Scaricato</value>
-  </data>
-  <data name="DownloadFailed" xml:space="preserve">
-    <value>Download non riuscito: {0} modello/i</value>
   </data>
   <data name="DownloadingModel" xml:space="preserve">
     <value>Download di {0} ({1})...</value>
@@ -143,14 +98,8 @@
   <data name="DownloadModelFirst" xml:space="preserve">
     <value>Scarica prima il modello</value>
   </data>
-  <data name="DownloadSelected" xml:space="preserve">
-    <value>Scarica selezionati</value>
-  </data>
   <data name="EnableAnalytics" xml:space="preserve">
     <value>Invia analisi di utilizzo anonime (attivazione)</value>
-  </data>
-  <data name="EnableEdgeVoices" xml:space="preserve">
-    <value>Abilita le voci del browser Edge</value>
   </data>
   <data name="Engine" xml:space="preserve">
     <value>Motore:</value>
@@ -176,12 +125,6 @@
   <data name="FetchingVoices" xml:space="preserve">
     <value>Recupero di {0} voci in corso...</value>
   </data>
-  <data name="FetchVoices" xml:space="preserve">
-    <value>Recupera voci</value>
-  </data>
-  <data name="Filter" xml:space="preserve">
-    <value>Filtro:</value>
-  </data>
   <data name="FoundVoices" xml:space="preserve">
     <value>Trovate {0} voci</value>
   </data>
@@ -190,9 +133,6 @@
   </data>
   <data name="HelpImprove" xml:space="preserve">
     <value>Aiutaci a migliorare VoiceGarden</value>
-  </data>
-  <data name="HideAdvanced" xml:space="preserve">
-    <value>▼ Nascondi Avanzate</value>
   </data>
   <data name="Install" xml:space="preserve">
     <value>Installare</value>
@@ -206,32 +146,14 @@
   <data name="InstalledModelsFailed" xml:space="preserve">
     <value>Installato {0}, errore {1}</value>
   </data>
-  <data name="InstalledModelsSAPI" xml:space="preserve">
-    <value>{0} modello/i installato/i su SAPI</value>
-  </data>
-  <data name="InstalledOnly" xml:space="preserve">
-    <value>Solo installato</value>
-  </data>
   <data name="InstalledVoicesHKLM" xml:space="preserve">
     <value>{0} voce/i installata/e su HKLM</value>
   </data>
   <data name="InstallFailed" xml:space="preserve">
     <value>Installazione non riuscita: {0}</value>
   </data>
-  <data name="InstallingSAPI" xml:space="preserve">
-    <value>Installazione dei modelli in SAPI (HKLM) in corso...</value>
-  </data>
   <data name="InstallSelected" xml:space="preserve">
     <value>Installa selezionato</value>
-  </data>
-  <data name="InstallToSAPI" xml:space="preserve">
-    <value>Installa su SAPI</value>
-  </data>
-  <data name="InvalidResult" xml:space="preserve">
-    <value>Non valido: {0}</value>
-  </data>
-  <data name="Key" xml:space="preserve">
-    <value>Chiave:</value>
   </data>
   <data name="LangCompatDesc" xml:space="preserve">
     <value>Se il tuo software AAC supporta solo determinate lingue (ad esempio l'inglese), abilita "Aggiungi alias en-US" quando promuovi i modelli SherpaOnnx. Ciò fa sì che le voci in qualsiasi lingua vengano visualizzate come voci inglesi, quindi vengono visualizzate nelle app che filtrano in base alla lingua.</value>
@@ -248,9 +170,6 @@
   <data name="LogLevel" xml:space="preserve">
     <value>Livello di registro:</value>
   </data>
-  <data name="ManageModels" xml:space="preserve">
-    <value>Gestisci modelli...</value>
-  </data>
   <data name="ModelFilesNotFound" xml:space="preserve">
     <value>File del modello non trovati</value>
   </data>
@@ -266,15 +185,6 @@
   <data name="NoAudio" xml:space="preserve">
     <value>Nessun audio generato</value>
   </data>
-  <data name="NoDownloadedModels" xml:space="preserve">
-    <value>Nessun modello scaricato trovato. Scarica prima un modello, quindi fai clic su Nuova scansione se necessario.</value>
-  </data>
-  <data name="NoDownloadUrl" xml:space="preserve">
-    <value>Nessun URL di download</value>
-  </data>
-  <data name="NoModelId" xml:space="preserve">
-    <value>Impossibile determinare l'ID modello per l'anteprima</value>
-  </data>
   <data name="NoModelsInstalled" xml:space="preserve">
     <value>Nessun modello installato</value>
   </data>
@@ -283,9 +193,6 @@
   </data>
   <data name="NoThanks" xml:space="preserve">
     <value>No grazie</value>
-  </data>
-  <data name="OfflineVoices" xml:space="preserve">
-    <value>Voci offline</value>
   </data>
   <data name="OnboardingDesc1" xml:space="preserve">
     <value>VoiceGarden è un bridge vocale gratuito e open source che collega oltre 20 moderni motori di sintesi vocale a qualsiasi applicazione Windows che supporti SAPI 5, inclusi Grid 3, Mind Express, Balabolka, Tobii Communicator e qualsiasi app basata su System.Speech.</value>
@@ -296,9 +203,6 @@
   <data name="OnboardingTitle" xml:space="preserve">
     <value>Benvenuti a VoiceGarden</value>
   </data>
-  <data name="OnlyEnabledEngines" xml:space="preserve">
-    <value>Vengono visualizzati solo i motori abilitati. Attiva/disattiva i motori nella pagina principale.</value>
-  </data>
   <data name="OpenLogs" xml:space="preserve">
     <value>Apri registri</value>
   </data>
@@ -307,9 +211,6 @@
   </data>
   <data name="PreviewFailed" xml:space="preserve">
     <value>Anteprima non riuscita: {0}</value>
-  </data>
-  <data name="Previewing" xml:space="preserve">
-    <value>Anteprima...</value>
   </data>
   <data name="PreviewingVoice" xml:space="preserve">
     <value>Anteprima di {0}...</value>
@@ -323,50 +224,17 @@
   <data name="PrivacyIntro" xml:space="preserve">
     <value>VoiceGarden è un progetto gratuito e open source creato da volontari. Per aiutarci a capire quali motori TTS sono più utilizzati, identificare i bug e dare priorità allo sviluppo, vorremmo raccogliere analisi anonime sull'utilizzo.</value>
   </data>
-  <data name="Ready" xml:space="preserve">
-    <value>Pronto</value>
-  </data>
-  <data name="Region" xml:space="preserve">
-    <value>Regione</value>
-  </data>
-  <data name="Register" xml:space="preserve">
-    <value>Registro</value>
-  </data>
   <data name="RemovedVoices" xml:space="preserve">
     <value>{0} voce/i rimossa/e</value>
-  </data>
-  <data name="RequestingAdmin" xml:space="preserve">
-    <value>Richiesta dei privilegi di amministratore...</value>
   </data>
   <data name="Reregister" xml:space="preserve">
     <value>Registrati nuovamente</value>
   </data>
-  <data name="Rescan" xml:space="preserve">
-    <value>Nuova scansione</value>
-  </data>
-  <data name="RescannedModels" xml:space="preserve">
-    <value>Nuova scansione: {0} modello/i pronto/i</value>
-  </data>
-  <data name="Search" xml:space="preserve">
-    <value>Ricerca...</value>
-  </data>
   <data name="SearchVoices" xml:space="preserve">
     <value>Cerca voci...</value>
   </data>
-  <data name="SelectModelsFirst" xml:space="preserve">
-    <value>Seleziona prima i modelli da scaricare</value>
-  </data>
   <data name="SelectVoicesFirst" xml:space="preserve">
     <value>Seleziona prima le voci da installare</value>
-  </data>
-  <data name="SherpaOnnxModels" xml:space="preserve">
-    <value>Modelli Sherpa Onnx</value>
-  </data>
-  <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
-    <value>Sherpa Onnx TTS neurale</value>
-  </data>
-  <data name="ShowAdvanced" xml:space="preserve">
-    <value>▶ Mostra Avanzate</value>
   </data>
   <data name="Step1Desc" xml:space="preserve">
     <value>Nella schermata principale, fai clic su Installa per 64 bit (e 32 bit se necessario). Ciò registra VoiceGarden come voce SAPI 5 che qualsiasi app compatibile può utilizzare.</value>
@@ -389,17 +257,11 @@
   <data name="Uninstall" xml:space="preserve">
     <value>Disinstallare</value>
   </data>
-  <data name="Validate" xml:space="preserve">
-    <value>Convalidare</value>
-  </data>
   <data name="Validating" xml:space="preserve">
     <value>Convalida...</value>
   </data>
   <data name="ValidResult" xml:space="preserve">
     <value>Valido ({0} voci)</value>
-  </data>
-  <data name="VoiceEngines" xml:space="preserve">
-    <value>Motori vocali</value>
   </data>
   <data name="WhatIsVoiceGarden" xml:space="preserve">
     <value>Cos'è VoiceGarden?</value>
@@ -422,5 +284,317 @@
   </data>
   <data name="YesHelpImprove" xml:space="preserve">
     <value>Sì, aiutaci a migliorare VoiceGarden</value>
+  </data>
+  <data name="AdvancedIntro" xml:space="preserve">
+    <value>Registrazione degli adattatori, impostazioni dell'app, gestione dei modelli offline e informazioni — tutto ciò che non fa parte del flusso guidato.</value>
+  </data>
+  <data name="AdvancedModelsHint" xml:space="preserve">
+    <value>Sfoglia, scarica e installa le voci offline dalla scheda Voci — seleziona lì il motore SherpaOnnx.</value>
+  </data>
+  <data name="AdvancedModelsTitle" xml:space="preserve">
+    <value>Modelli offline</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>Impostazioni</value>
+  </data>
+  <data name="AdvancedTabState" xml:space="preserve">
+    <value>strumenti e impostazioni</value>
+  </data>
+  <data name="AliasApplyNote" xml:space="preserve">
+    <value>Applicato ogni volta che le voci vengono installate o reinstallate dalla scheda Voci. Le voci esistenti rileveranno la modifica la prossima volta che le installerai.</value>
+  </data>
+  <data name="AliasArabicHint" xml:space="preserve">
+    <value>La voce in una lingua da destra a sinistra (arabo, urdu, persiano, ebraico, pashto…) appare anche sotto Arabo (ar-SA), quindi le app configurate per le voci arabe possono trovarla.</value>
+  </data>
+  <data name="AliasArabicLabel" xml:space="preserve">
+    <value>Mostra anche gli alias delle voci da destra a sinistra sotto l'arabo</value>
+  </data>
+  <data name="AliasEnUsHint" xml:space="preserve">
+    <value>La voce in qualsiasi altra lingua appare anche come inglese (en-US), quindi le app che elencano solo le voci in inglese — come alcuni titoli AAC — possono usarla.</value>
+  </data>
+  <data name="AliasEnUsLabel" xml:space="preserve">
+    <value>Aggiungi un alias en-US per le voci non inglesi</value>
+  </data>
+  <data name="AliasSettingsIntro" xml:space="preserve">
+    <value>Le voci sono installate con la loro lingua reale. Gli alias aggiungono copie extra sotto una seconda lingua in modo che le app che filtrano per lingua possano comunque trovarle.</value>
+  </data>
+  <data name="AliasSettingsTitle" xml:space="preserve">
+    <value>Alias vocali SAPI</value>
+  </data>
+  <data name="BackToEngines" xml:space="preserve">
+    <value>Torna ai Motori</value>
+  </data>
+  <data name="BadgeCloud" xml:space="preserve">
+    <value>Nuvola</value>
+  </data>
+  <data name="BadgeCredsNeeded" xml:space="preserve">
+    <value>Chiave necessaria</value>
+  </data>
+  <data name="BadgeKeyStored" xml:space="preserve">
+    <value>Chiave salvata</value>
+  </data>
+  <data name="BadgeNoCreds" xml:space="preserve">
+    <value>Nessuna chiave</value>
+  </data>
+  <data name="BadgeOffline" xml:space="preserve">
+    <value>Non in linea</value>
+  </data>
+  <data name="ClearVisible" xml:space="preserve">
+    <value>Chiaramente mostrato</value>
+  </data>
+  <data name="CredentialsFooterHint" xml:space="preserve">
+    <value>Verifica una chiave per controllare che funzioni prima di caricare le voci. Puoi tornare in qualsiasi momento.</value>
+  </data>
+  <data name="CredentialsIntro" xml:space="preserve">
+    <value>Inserisci le credenziali per ogni motore selezionato. I valori vengono salvati solo su questo computer.</value>
+  </data>
+  <data name="CredentialsNoneNeeded" xml:space="preserve">
+    <value>Nessun motore selezionato necessita di credenziali.</value>
+  </data>
+  <data name="DeselectAllVoices" xml:space="preserve">
+    <value>Deseleziona tutte le voci</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>Scarica</value>
+  </data>
+  <data name="DownloadFailedSingle" xml:space="preserve">
+    <value>Download fallito per {0}</value>
+  </data>
+  <data name="DownloadFailedTitle" xml:space="preserve">
+    <value>Download non riuscito per {0}. Controlla la tua connessione a Internet e riprova — se continua a fallire, chiudi altre app vocali e riavvia VoiceGarden.</value>
+  </data>
+  <data name="EdgeEngineDesc" xml:space="preserve">
+    <value>Voci cloud gratuite di Microsoft in molte lingue. La migliore opzione online gratuita — qualità naturale, senza chiave API, necessita di internet.</value>
+  </data>
+  <data name="EdgeEngineName" xml:space="preserve">
+    <value>Voci di Edge</value>
+  </data>
+  <data name="EngineDescKeyOnly" xml:space="preserve">
+    <value>{0} voci cloud. Richiede una chiave API.</value>
+  </data>
+  <data name="EngineDescKeyRegion" xml:space="preserve">
+    <value>{0} voci cloud. Richiede una chiave API e la regione.</value>
+  </data>
+  <data name="EngineDescKeySecretRegion" xml:space="preserve">
+    <value>Voci cloud {0}. Richiede una chiave di accesso, una chiave segreta e una regione.</value>
+  </data>
+  <data name="EngineDescKeyUserId" xml:space="preserve">
+    <value>{0} voci cloud. Richiede una chiave API e un ID utente.</value>
+  </data>
+  <data name="EnginesSelectedSummary" xml:space="preserve">
+    <value>{0} di {1} motori selezionati</value>
+  </data>
+  <data name="FieldAPIKey" xml:space="preserve">
+    <value>Chiave API</value>
+  </data>
+  <data name="FieldAccessKeyId" xml:space="preserve">
+    <value>ID chiave di accesso</value>
+  </data>
+  <data name="FieldInstanceId" xml:space="preserve">
+    <value>ID istanza</value>
+  </data>
+  <data name="FieldRegion" xml:space="preserve">
+    <value>Regione</value>
+  </data>
+  <data name="FieldSecretAccessKey" xml:space="preserve">
+    <value>Chiave di accesso segreta</value>
+  </data>
+  <data name="FieldSubscriptionKey" xml:space="preserve">
+    <value>Chiave di abbonamento</value>
+  </data>
+  <data name="FieldToken" xml:space="preserve">
+    <value>Gettone</value>
+  </data>
+  <data name="FieldUserId" xml:space="preserve">
+    <value>ID utente</value>
+  </data>
+  <data name="FilterAllEngines" xml:space="preserve">
+    <value>Tutti i motori</value>
+  </data>
+  <data name="FilterAllLanguages" xml:space="preserve">
+    <value>Tutte le lingue</value>
+  </data>
+  <data name="FilterAllTypes" xml:space="preserve">
+    <value>Tutti i tipi</value>
+  </data>
+  <data name="FilterAnyEngine" xml:space="preserve">
+    <value>Tutti i motori</value>
+  </data>
+  <data name="FilterAnyGender" xml:space="preserve">
+    <value>Qualsiasi genere</value>
+  </data>
+  <data name="FilterAnyLanguage" xml:space="preserve">
+    <value>Qualsiasi lingua</value>
+  </data>
+  <data name="FilterAnyQuality" xml:space="preserve">
+    <value>Qualsiasi qualità</value>
+  </data>
+  <data name="FilterCredentials" xml:space="preserve">
+    <value>Credenziali</value>
+  </data>
+  <data name="FilterCredsNeeded" xml:space="preserve">
+    <value>Chiave necessaria</value>
+  </data>
+  <data name="FilterEngine" xml:space="preserve">
+    <value>Filtra per motore</value>
+  </data>
+  <data name="FilterGender" xml:space="preserve">
+    <value>Filtra per genere</value>
+  </data>
+  <data name="FilterLanguage" xml:space="preserve">
+    <value>Lingua</value>
+  </data>
+  <data name="FilterNoCreds" xml:space="preserve">
+    <value>Non serve chiave</value>
+  </data>
+  <data name="FilterOfflineOnly" xml:space="preserve">
+    <value>Solo offline</value>
+  </data>
+  <data name="FilterOnlineOnly" xml:space="preserve">
+    <value>Solo online</value>
+  </data>
+  <data name="FilterQuality" xml:space="preserve">
+    <value>Filtra per qualità</value>
+  </data>
+  <data name="FilterType" xml:space="preserve">
+    <value>Tipo</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>Genere</value>
+  </data>
+  <data name="LanguageFilterHiddenNote" xml:space="preserve">
+    <value>{0} motori nascosti — le loro lingue sono sconosciute fino a quando le loro voci non vengono caricate nella scheda Voci.</value>
+  </data>
+  <data name="LoadVoices" xml:space="preserve">
+    <value>Carica voci</value>
+  </data>
+  <data name="NextCredentials" xml:space="preserve">
+    <value>Successivo: Credenziali</value>
+  </data>
+  <data name="NextVoices" xml:space="preserve">
+    <value>Successivo: Voci</value>
+  </data>
+  <data name="PreviewFailedTitle" xml:space="preserve">
+    <value>Anteprima fallita per {0}.</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>Qualità</value>
+  </data>
+  <data name="RefreshInstalled" xml:space="preserve">
+    <value>Aggiornamento installato</value>
+  </data>
+  <data name="RemoveSelected" xml:space="preserve">
+    <value>Rimuovi selezionato da SAPI</value>
+  </data>
+  <data name="RescannedVoices" xml:space="preserve">
+    <value>Aggiornato — {0} voci installate</value>
+  </data>
+  <data name="SearchEngines" xml:space="preserve">
+    <value>Motori di ricerca, lingue…</value>
+  </data>
+  <data name="SelectAllVoices" xml:space="preserve">
+    <value>Seleziona tutte le voci mostrate</value>
+  </data>
+  <data name="SelectVisible" xml:space="preserve">
+    <value>Seleziona mostrato</value>
+  </data>
+  <data name="SherpaOnnxEngineDesc" xml:space="preserve">
+    <value>Voci neurali offline in molte lingue. Ideale per affidabilità e privacy — funziona senza un account o internet una volta scaricato.</value>
+  </data>
+  <data name="SherpaOnnxEngineName" xml:space="preserve">
+    <value>Sherpa Onnx</value>
+  </data>
+  <data name="Step4Desc" xml:space="preserve">
+    <value>Apri la scheda Voci e clicca su Carica voci. Filtra per lingua, genere o qualità, anteprima quelle che ti piacciono, quindi usa Download (modelli offline) e Installa in SAPI. Le voci installate appaiono immediatamente nelle tue app.</value>
+  </data>
+  <data name="Step4Title" xml:space="preserve">
+    <value>Prendete le vostre voci</value>
+  </data>
+  <data name="TabCredentials" xml:space="preserve">
+    <value>Credenziali</value>
+  </data>
+  <data name="TabCredentialsCount" xml:space="preserve">
+    <value>I motori {0} necessitano di chiavi</value>
+  </data>
+  <data name="TabCredentialsNotNeeded" xml:space="preserve">
+    <value>non necessario</value>
+  </data>
+  <data name="TabCredentialsTitle" xml:space="preserve">
+    <value>Credenziali</value>
+  </data>
+  <data name="TabEngines" xml:space="preserve">
+    <value>Motori vocali</value>
+  </data>
+  <data name="TabEnginesCount" xml:space="preserve">
+    <value>{0} selezionato</value>
+  </data>
+  <data name="TabEnginesIntro" xml:space="preserve">
+    <value>Scegli i motori vocali che desideri utilizzare. Seleziona voci offline che funzionano senza un account, voci cloud gratuite o motori cloud che richiedono una chiave API.</value>
+  </data>
+  <data name="TabEnginesTitle" xml:space="preserve">
+    <value>Motori vocali</value>
+  </data>
+  <data name="TabVoices" xml:space="preserve">
+    <value>Voci</value>
+  </data>
+  <data name="TabVoicesCount" xml:space="preserve">
+    <value>{0} voci</value>
+  </data>
+  <data name="TabVoicesIntro" xml:space="preserve">
+    <value>Ogni voce dai motori che hai selezionato. Filtra, visualizza l'anteprima, quindi installa quelli che desideri in Windows SAPI.</value>
+  </data>
+  <data name="TabVoicesTitle" xml:space="preserve">
+    <value>Voci</value>
+  </data>
+  <data name="UnknownEngine" xml:space="preserve">
+    <value>Motore sconosciuto</value>
+  </data>
+  <data name="UnknownLanguage" xml:space="preserve">
+    <value>Sconosciuto</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>Verificare</value>
+  </data>
+  <data name="VerifyNoVoices" xml:space="preserve">
+    <value>Chiave accettata ma nessuna voce restituita — verifica che la chiave abbia accesso al TTS.</value>
+  </data>
+  <data name="VoicesCountSummary" xml:space="preserve">
+    <value>{0} voci · {1} selezionate · {2} installate</value>
+  </data>
+  <data name="VoicesEmptyHint" xml:space="preserve">
+    <value>Scegli prima i tuoi motori vocali nella scheda Motori Vocali (aggiungi anche le credenziali lì se il motore necessita di una chiave), poi carica le voci qui.</value>
+  </data>
+  <data name="VoicesEmptyNoEngines" xml:space="preserve">
+    <value>Nessun motore selezionato — apri la scheda Motori Vocali e seleziona almeno un motore.</value>
+  </data>
+  <data name="VoicesEmptyTitle" xml:space="preserve">
+    <value>Ancora nessuna voce</value>
+  </data>
+  <data name="VoicesFetchFailed" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="VoicesLoaded" xml:space="preserve">
+    <value>Caricate {0} voci</value>
+  </data>
+  <data name="VoicesMissingKey" xml:space="preserve">
+    <value>{0}: nessuna chiave API — aggiungine una nella scheda Credenziali</value>
+  </data>
+  <data name="VoicesNoEnginesSelected" xml:space="preserve">
+    <value>Seleziona prima almeno un motore nella scheda Motori Vocali.</value>
+  </data>
+  <data name="VoicesPromoteFailed" xml:space="preserve">
+    <value>Impossibile installare {0} (potrebbe essere necessaria l'approvazione dell'amministratore)</value>
+  </data>
+  <data name="VoicesPromotedSingle" xml:space="preserve">
+    <value>{0} installato su SAPI</value>
+  </data>
+  <data name="VoicesSkippedNoKey" xml:space="preserve">
+    <value>{0} motori saltati — nessuna chiave API impostata</value>
+  </data>
+  <data name="VoicesUnpromoteFailed" xml:space="preserve">
+    <value>Rimosso {0}; non riuscito {1}</value>
+  </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>Mostra solo le voci installate</value>
   </data>
 </root>

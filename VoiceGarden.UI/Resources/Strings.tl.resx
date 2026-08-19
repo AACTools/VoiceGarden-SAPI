@@ -56,9 +56,6 @@
   <data name="AdapterInstallation" xml:space="preserve">
     <value>Pag-install ng Adapter</value>
   </data>
-  <data name="AddEnUsAlias" xml:space="preserve">
-    <value>Magdagdag ng en-US alias</value>
-  </data>
   <data name="Advanced" xml:space="preserve">
     <value>Advanced</value>
   </data>
@@ -67,9 +64,6 @@
   </data>
   <data name="AnalyticsHint" xml:space="preserve">
     <value>Tumutulong sa amin na maunawaan kung aling mga makina ang ginagamit. Walang text, key, o PII na ipinadala.</value>
-  </data>
-  <data name="APIKey" xml:space="preserve">
-    <value>API Key</value>
   </data>
   <data name="AppName" xml:space="preserve">
     <value>VoiceGarden</value>
@@ -92,50 +86,11 @@
   <data name="Checking" xml:space="preserve">
     <value>Sinusuri...</value>
   </data>
-  <data name="Close" xml:space="preserve">
-    <value>Isara</value>
-  </data>
-  <data name="CloudVoices" xml:space="preserve">
-    <value>Cloud Voices</value>
-  </data>
-  <data name="ConfigureCredentials" xml:space="preserve">
-    <value>I-configure ang Mga Kredensyal...</value>
-  </data>
-  <data name="ConfigureCredentialsTitle" xml:space="preserve">
-    <value>I-configure ang Mga Kredensyal</value>
-  </data>
-  <data name="ConfigureVoices" xml:space="preserve">
-    <value>I-configure ang Mga Boses...</value>
-  </data>
-  <data name="ConfigureVoicesTitle" xml:space="preserve">
-    <value>I-configure ang Mga Boses</value>
-  </data>
-  <data name="CountDownloaded" xml:space="preserve">
-    <value>Na-download ang {0}.</value>
-  </data>
-  <data name="CountInstalled" xml:space="preserve">
-    <value>Naka-install ang {0}.</value>
-  </data>
-  <data name="CountSelected" xml:space="preserve">
-    <value>{0} ang napili</value>
-  </data>
-  <data name="CountTotal" xml:space="preserve">
-    <value>{0} sa kabuuan</value>
-  </data>
   <data name="Downloaded" xml:space="preserve">
     <value>Na-download</value>
   </data>
-  <data name="DownloadedCount" xml:space="preserve">
-    <value>Nag-download ng {0} (na) modelo</value>
-  </data>
-  <data name="DownloadedFailedCount" xml:space="preserve">
-    <value>Na-download ang {0}, nabigo {1}</value>
-  </data>
   <data name="DownloadedStatus" xml:space="preserve">
     <value>Na-download</value>
-  </data>
-  <data name="DownloadFailed" xml:space="preserve">
-    <value>Nabigo ang pag-download: {0} (mga) modelo</value>
   </data>
   <data name="DownloadingModel" xml:space="preserve">
     <value>Dina-download ang {0} ({1})...</value>
@@ -143,14 +98,8 @@
   <data name="DownloadModelFirst" xml:space="preserve">
     <value>I-download muna ang modelo</value>
   </data>
-  <data name="DownloadSelected" xml:space="preserve">
-    <value>I-download ang Napili</value>
-  </data>
   <data name="EnableAnalytics" xml:space="preserve">
     <value>Magpadala ng anonymous na analytics sa paggamit (opt-in)</value>
-  </data>
-  <data name="EnableEdgeVoices" xml:space="preserve">
-    <value>Paganahin ang Edge browser voices</value>
   </data>
   <data name="Engine" xml:space="preserve">
     <value>Engine:</value>
@@ -176,12 +125,6 @@
   <data name="FetchingVoices" xml:space="preserve">
     <value>Kinukuha ang {0} (na) boses...</value>
   </data>
-  <data name="FetchVoices" xml:space="preserve">
-    <value>Kunin ang Mga Boses</value>
-  </data>
-  <data name="Filter" xml:space="preserve">
-    <value>Salain:</value>
-  </data>
   <data name="FoundVoices" xml:space="preserve">
     <value>Nakakita ng {0} (na) boses</value>
   </data>
@@ -190,9 +133,6 @@
   </data>
   <data name="HelpImprove" xml:space="preserve">
     <value>Tumulong na Pahusayin ang VoiceGarden</value>
-  </data>
-  <data name="HideAdvanced" xml:space="preserve">
-    <value>▼ Itago ang Advanced</value>
   </data>
   <data name="Install" xml:space="preserve">
     <value>I-install</value>
@@ -206,32 +146,14 @@
   <data name="InstalledModelsFailed" xml:space="preserve">
     <value>Na-install ang {0}, nabigo ang {1}</value>
   </data>
-  <data name="InstalledModelsSAPI" xml:space="preserve">
-    <value>Nag-install ng {0} (mga) modelo sa SAPI</value>
-  </data>
-  <data name="InstalledOnly" xml:space="preserve">
-    <value>Naka-install lang</value>
-  </data>
   <data name="InstalledVoicesHKLM" xml:space="preserve">
     <value>Nag-install ng {0} (na) boses sa HKLM</value>
   </data>
   <data name="InstallFailed" xml:space="preserve">
     <value>Nabigo ang pag-install: {0}</value>
   </data>
-  <data name="InstallingSAPI" xml:space="preserve">
-    <value>Pag-install ng mga modelo sa SAPI (HKLM)...</value>
-  </data>
   <data name="InstallSelected" xml:space="preserve">
     <value>I-install ang Napili</value>
-  </data>
-  <data name="InstallToSAPI" xml:space="preserve">
-    <value>I-install sa SAPI</value>
-  </data>
-  <data name="InvalidResult" xml:space="preserve">
-    <value>Di-wasto: {0}</value>
-  </data>
-  <data name="Key" xml:space="preserve">
-    <value>Susi:</value>
   </data>
   <data name="LangCompatDesc" xml:space="preserve">
     <value>Kung ang iyong AAC software ay sumusuporta lamang sa ilang mga wika (hal. English), paganahin ang "Magdagdag ng en-US alias" kapag nagpo-promote ng mga modelo ng SherpaOnnx. Ginagawa nitong lumilitaw ang mga boses sa anumang wika bilang mga boses na English, kaya lumalabas ang mga ito sa mga app na nagpi-filter ayon sa wika.</value>
@@ -248,9 +170,6 @@
   <data name="LogLevel" xml:space="preserve">
     <value>Antas ng log:</value>
   </data>
-  <data name="ManageModels" xml:space="preserve">
-    <value>Pamahalaan ang Mga Modelo...</value>
-  </data>
   <data name="ModelFilesNotFound" xml:space="preserve">
     <value>Hindi nakita ang mga file ng modelo</value>
   </data>
@@ -266,15 +185,6 @@
   <data name="NoAudio" xml:space="preserve">
     <value>Walang nabuong audio</value>
   </data>
-  <data name="NoDownloadedModels" xml:space="preserve">
-    <value>Walang nakitang na-download na mga modelo. Mag-download muna ng modelo, pagkatapos ay i-click ang I-scan muli kung kinakailangan.</value>
-  </data>
-  <data name="NoDownloadUrl" xml:space="preserve">
-    <value>Walang download URL</value>
-  </data>
-  <data name="NoModelId" xml:space="preserve">
-    <value>Hindi matukoy ang ID ng modelo para sa preview</value>
-  </data>
   <data name="NoModelsInstalled" xml:space="preserve">
     <value>Walang naka-install na mga modelo</value>
   </data>
@@ -283,9 +193,6 @@
   </data>
   <data name="NoThanks" xml:space="preserve">
     <value>Hindi salamat</value>
-  </data>
-  <data name="OfflineVoices" xml:space="preserve">
-    <value>Mga Offline na Boses</value>
   </data>
   <data name="OnboardingDesc1" xml:space="preserve">
     <value>Ang VoiceGarden ay isang libre, open-source na voice bridge na nag-uugnay sa 20+ modernong text-to-speech engine sa anumang Windows application na sumusuporta sa SAPI 5 — kabilang ang Grid 3, Mind Express, Balabolka, Tobii Communicator, at anumang app na binuo sa System.Speech.</value>
@@ -296,9 +203,6 @@
   <data name="OnboardingTitle" xml:space="preserve">
     <value>Maligayang pagdating sa VoiceGarden</value>
   </data>
-  <data name="OnlyEnabledEngines" xml:space="preserve">
-    <value>Mga pinaganang makina lang ang ipinapakita. I-toggle ang mga makina sa pangunahing pahina.</value>
-  </data>
   <data name="OpenLogs" xml:space="preserve">
     <value>Buksan ang Mga Log</value>
   </data>
@@ -307,9 +211,6 @@
   </data>
   <data name="PreviewFailed" xml:space="preserve">
     <value>Nabigo ang preview: {0}</value>
-  </data>
-  <data name="Previewing" xml:space="preserve">
-    <value>Pini-preview...</value>
   </data>
   <data name="PreviewingVoice" xml:space="preserve">
     <value>Pini-preview ang {0}...</value>
@@ -323,50 +224,17 @@
   <data name="PrivacyIntro" xml:space="preserve">
     <value>Ang VoiceGarden ay isang libre, open-source na proyekto na binuo ng mga boluntaryo. Upang matulungan kaming maunawaan kung aling mga TTS engine ang pinakamadalas na ginagamit, tukuyin ang mga bug, at bigyang-priyoridad ang pagbuo, gusto naming mangolekta ng anonymous na analytics ng paggamit.</value>
   </data>
-  <data name="Ready" xml:space="preserve">
-    <value>handa na</value>
-  </data>
-  <data name="Region" xml:space="preserve">
-    <value>Rehiyon</value>
-  </data>
-  <data name="Register" xml:space="preserve">
-    <value>Magrehistro</value>
-  </data>
   <data name="RemovedVoices" xml:space="preserve">
     <value>Inalis ang {0} (na) boses</value>
-  </data>
-  <data name="RequestingAdmin" xml:space="preserve">
-    <value>Humihiling ng mga pribilehiyo ng admin...</value>
   </data>
   <data name="Reregister" xml:space="preserve">
     <value>Magparehistro muli</value>
   </data>
-  <data name="Rescan" xml:space="preserve">
-    <value>Muling i-scan</value>
-  </data>
-  <data name="RescannedModels" xml:space="preserve">
-    <value>Muling na-scan: {0} (mga) modelo ang handa na</value>
-  </data>
-  <data name="Search" xml:space="preserve">
-    <value>Hanapin...</value>
-  </data>
   <data name="SearchVoices" xml:space="preserve">
     <value>Maghanap ng mga boses...</value>
   </data>
-  <data name="SelectModelsFirst" xml:space="preserve">
-    <value>Pumili ng mga modelong ida-download muna</value>
-  </data>
   <data name="SelectVoicesFirst" xml:space="preserve">
     <value>Pumili ng mga boses na ii-install muna</value>
-  </data>
-  <data name="SherpaOnnxModels" xml:space="preserve">
-    <value>Mga Modelong Sherpa Onnx</value>
-  </data>
-  <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
-    <value>Sherpa Onnx Neural TTS</value>
-  </data>
-  <data name="ShowAdvanced" xml:space="preserve">
-    <value>▶ Ipakita ang Advanced</value>
   </data>
   <data name="Step1Desc" xml:space="preserve">
     <value>Sa pangunahing screen, i-click ang I-install para sa 64-bit (at 32-bit kung kinakailangan). Nirerehistro nito ang VoiceGarden bilang isang SAPI 5 na boses na magagamit ng anumang katugmang app.</value>
@@ -389,17 +257,11 @@
   <data name="Uninstall" xml:space="preserve">
     <value>I-uninstall</value>
   </data>
-  <data name="Validate" xml:space="preserve">
-    <value>Patunayan</value>
-  </data>
   <data name="Validating" xml:space="preserve">
     <value>Pinapatunayan...</value>
   </data>
   <data name="ValidResult" xml:space="preserve">
     <value>Wasto ({0} mga boses)</value>
-  </data>
-  <data name="VoiceEngines" xml:space="preserve">
-    <value>Mga Voice Engine</value>
   </data>
   <data name="WhatIsVoiceGarden" xml:space="preserve">
     <value>Ano ang VoiceGarden?</value>
@@ -422,5 +284,317 @@
   </data>
   <data name="YesHelpImprove" xml:space="preserve">
     <value>Oo, tumulong na pahusayin ang VoiceGarden</value>
+  </data>
+  <data name="AdvancedIntro" xml:space="preserve">
+    <value>Pagpaparehistro ng adapter, mga setting ng app, pamamahala ng offline na modelo at tungkol sa — lahat ng bagay na hindi bahagi ng pinamamahalaang daloy.</value>
+  </data>
+  <data name="AdvancedModelsHint" xml:space="preserve">
+    <value>Mag-browse, mag-download at mag-install ng offline na boses mula sa tab na Voices — piliin ang engine na SherpaOnnx doon.</value>
+  </data>
+  <data name="AdvancedModelsTitle" xml:space="preserve">
+    <value>Mga offline na modelo</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>Mga Setting</value>
+  </data>
+  <data name="AdvancedTabState" xml:space="preserve">
+    <value>mga kasangkapan at mga setting</value>
+  </data>
+  <data name="AliasApplyNote" xml:space="preserve">
+    <value>Ipinapatupad tuwing ini-install o muling ini-install ang mga boses mula sa tab na Boses. Makukuha ng mga umiiral na boses ang pagbabago sa susunod na i-install mo ang mga ito.</value>
+  </data>
+  <data name="AliasArabicHint" xml:space="preserve">
+    <value>Ang boses sa isang wika na mula kanan-punta-kaliwa (Arabo, Urdu, Persian, Hebreo, Pashto…) ay lumilitaw din sa ilalim ng Arabo (ar-SA), kaya ang mga app na naka-set up para sa mga Arabic na boses ay maaari itong matagpuan.</value>
+  </data>
+  <data name="AliasArabicLabel" xml:space="preserve">
+    <value>Gayundin alias mga boses mula kanan-pakanan sa ilalim ng Arabic</value>
+  </data>
+  <data name="AliasEnUsHint" xml:space="preserve">
+    <value>Ang boses sa anumang ibang wika ay lumalabas din bilang Ingles (en-US), kaya't ang mga app na naglilista lamang ng mga boses na Ingles — tulad ng ilang AAC na pamagat — ay maaaring gamitin ito.</value>
+  </data>
+  <data name="AliasEnUsLabel" xml:space="preserve">
+    <value>Magdagdag ng en-US alias para sa mga tinig na hindi Ingles</value>
+  </data>
+  <data name="AliasSettingsIntro" xml:space="preserve">
+    <value>Ang mga boses ay naka-install sa kanilang tunay na wika. Ang mga alyas ay nagdaragdag ng karagdagang mga kopya sa ilalim ng ikalawang wika upang ang mga app na nagsasala ayon sa wika ay maaari pa ring mahanap ang mga ito.</value>
+  </data>
+  <data name="AliasSettingsTitle" xml:space="preserve">
+    <value>mga alias ng tinig ng SAPI</value>
+  </data>
+  <data name="BackToEngines" xml:space="preserve">
+    <value>Bumalik sa Mga Makina</value>
+  </data>
+  <data name="BadgeCloud" xml:space="preserve">
+    <value>Ulap</value>
+  </data>
+  <data name="BadgeCredsNeeded" xml:space="preserve">
+    <value>Kailangan ang susi</value>
+  </data>
+  <data name="BadgeKeyStored" xml:space="preserve">
+    <value>Nai-save ang susi</value>
+  </data>
+  <data name="BadgeNoCreds" xml:space="preserve">
+    <value>Walang susi</value>
+  </data>
+  <data name="BadgeOffline" xml:space="preserve">
+    <value>Hindi konektado</value>
+  </data>
+  <data name="ClearVisible" xml:space="preserve">
+    <value>Malinaw na ipinakita</value>
+  </data>
+  <data name="CredentialsFooterHint" xml:space="preserve">
+    <value>Suriin ang isang susi upang tiyakin na gumagana ito bago i-load ang mga boses. Maaari kang bumalik anumang oras.</value>
+  </data>
+  <data name="CredentialsIntro" xml:space="preserve">
+    <value>Ilagay ang mga kredensyal para sa bawat napiling engine. Ang mga halaga ay nai-save lamang sa computer na ito.</value>
+  </data>
+  <data name="CredentialsNoneNeeded" xml:space="preserve">
+    <value>Walang napiling mga makina na nangangailangan ng mga kredensyal.</value>
+  </data>
+  <data name="DeselectAllVoices" xml:space="preserve">
+    <value>Alisin ang pagpili sa lahat ng mga boses</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>I-download</value>
+  </data>
+  <data name="DownloadFailedSingle" xml:space="preserve">
+    <value>Nabigo ang pag-download para sa {0}</value>
+  </data>
+  <data name="DownloadFailedTitle" xml:space="preserve">
+    <value>Nabigong i-download ang {0}. Suriin ang iyong koneksyon sa internet at subukang muli — kung patuloy na nabibigo, isara ang iba pang voice apps at i-restart ang VoiceGarden.</value>
+  </data>
+  <data name="EdgeEngineDesc" xml:space="preserve">
+    <value>Libreng mga boses ng Microsoft sa ulap sa maraming wika. Pinakamahusay na libreng online na opsyon — likas na kalidad, walang API key, kailangan ng internet.</value>
+  </data>
+  <data name="EdgeEngineName" xml:space="preserve">
+    <value>Mga Tinig ng Gilid</value>
+  </data>
+  <data name="EngineDescKeyOnly" xml:space="preserve">
+    <value>{0} mga boses sa ulap. Kailangan ng API key.</value>
+  </data>
+  <data name="EngineDescKeyRegion" xml:space="preserve">
+    <value>{0} boses ng ulap. Nangangailangan ng API key at rehiyon.</value>
+  </data>
+  <data name="EngineDescKeySecretRegion" xml:space="preserve">
+    <value>{0} mga boses sa ulap. Nangangailangan ng access key, secret key at rehiyon.</value>
+  </data>
+  <data name="EngineDescKeyUserId" xml:space="preserve">
+    <value>{0} mga tinig sa ulap. Nangangailangan ng API key at user ID.</value>
+  </data>
+  <data name="EnginesSelectedSummary" xml:space="preserve">
+    <value>{0} ng {1} na mga makina ang napili</value>
+  </data>
+  <data name="FieldAPIKey" xml:space="preserve">
+    <value>Susi ng API</value>
+  </data>
+  <data name="FieldAccessKeyId" xml:space="preserve">
+    <value>ID ng access key</value>
+  </data>
+  <data name="FieldInstanceId" xml:space="preserve">
+    <value>ID ng Instance</value>
+  </data>
+  <data name="FieldRegion" xml:space="preserve">
+    <value>Rehiyon</value>
+  </data>
+  <data name="FieldSecretAccessKey" xml:space="preserve">
+    <value>Lihim na susi ng pag-access</value>
+  </data>
+  <data name="FieldSubscriptionKey" xml:space="preserve">
+    <value>Susi ng subskripsyon</value>
+  </data>
+  <data name="FieldToken" xml:space="preserve">
+    <value>Tseke</value>
+  </data>
+  <data name="FieldUserId" xml:space="preserve">
+    <value>ID ng Gumagamit</value>
+  </data>
+  <data name="FilterAllEngines" xml:space="preserve">
+    <value>Lahat ng makina</value>
+  </data>
+  <data name="FilterAllLanguages" xml:space="preserve">
+    <value>Lahat ng wika</value>
+  </data>
+  <data name="FilterAllTypes" xml:space="preserve">
+    <value>Lahat ng uri</value>
+  </data>
+  <data name="FilterAnyEngine" xml:space="preserve">
+    <value>Lahat ng makina</value>
+  </data>
+  <data name="FilterAnyGender" xml:space="preserve">
+    <value>Anumang kasarian</value>
+  </data>
+  <data name="FilterAnyLanguage" xml:space="preserve">
+    <value>Anumang wika</value>
+  </data>
+  <data name="FilterAnyQuality" xml:space="preserve">
+    <value>Anumang kalidad</value>
+  </data>
+  <data name="FilterCredentials" xml:space="preserve">
+    <value>Mga Kredensyal</value>
+  </data>
+  <data name="FilterCredsNeeded" xml:space="preserve">
+    <value>Kailangan ang susi</value>
+  </data>
+  <data name="FilterEngine" xml:space="preserve">
+    <value>Salain ayon sa makina</value>
+  </data>
+  <data name="FilterGender" xml:space="preserve">
+    <value>Salain ayon sa kasarian</value>
+  </data>
+  <data name="FilterLanguage" xml:space="preserve">
+    <value>Wika</value>
+  </data>
+  <data name="FilterNoCreds" xml:space="preserve">
+    <value>Hindi kailangan ng susi</value>
+  </data>
+  <data name="FilterOfflineOnly" xml:space="preserve">
+    <value>Offline lamang</value>
+  </data>
+  <data name="FilterOnlineOnly" xml:space="preserve">
+    <value>Online lamang</value>
+  </data>
+  <data name="FilterQuality" xml:space="preserve">
+    <value>Salain ayon sa kalidad</value>
+  </data>
+  <data name="FilterType" xml:space="preserve">
+    <value>Uri</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>Kasarian</value>
+  </data>
+  <data name="LanguageFilterHiddenNote" xml:space="preserve">
+    <value>Mga {0} na nakatagong makina — ang kanilang mga wika ay hindi alam hanggang sa ma-load ang kanilang mga boses sa tab na Boses.</value>
+  </data>
+  <data name="LoadVoices" xml:space="preserve">
+    <value>I-load ang mga boses</value>
+  </data>
+  <data name="NextCredentials" xml:space="preserve">
+    <value>Sunod: Kredensyal</value>
+  </data>
+  <data name="NextVoices" xml:space="preserve">
+    <value>Sunod: Mga Tinig</value>
+  </data>
+  <data name="PreviewFailedTitle" xml:space="preserve">
+    <value>Nabigong i-preview ang {0}.</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>Kalidad</value>
+  </data>
+  <data name="RefreshInstalled" xml:space="preserve">
+    <value>Na-refresh na ang naka-install</value>
+  </data>
+  <data name="RemoveSelected" xml:space="preserve">
+    <value>Alisin ang napili mula sa SAPI</value>
+  </data>
+  <data name="RescannedVoices" xml:space="preserve">
+    <value>Na-refresh — {0} na mga boses ang na-install</value>
+  </data>
+  <data name="SearchEngines" xml:space="preserve">
+    <value>Mga search engine, mga wika…</value>
+  </data>
+  <data name="SelectAllVoices" xml:space="preserve">
+    <value>Piliin ang lahat ng ipinakitang boses</value>
+  </data>
+  <data name="SelectVisible" xml:space="preserve">
+    <value>Piliin na ipinapakita</value>
+  </data>
+  <data name="SherpaOnnxEngineDesc" xml:space="preserve">
+    <value>Offline na neural na boses sa maraming wika. Pinakamainam para sa pagiging maaasahan at privacy — gumagana nang walang account o internet kapag na-download na.</value>
+  </data>
+  <data name="SherpaOnnxEngineName" xml:space="preserve">
+    <value>Sherpa Onnx</value>
+  </data>
+  <data name="Step4Desc" xml:space="preserve">
+    <value>Buksan ang tab na Voices at i-click ang Load voices. I-filter ayon sa wika, kasarian o kalidad, i-preview ang mga gusto mo, pagkatapos ay gamitin ang Download (offline models) at Install sa SAPI. Agad na lalabas sa iyong mga app ang mga naka-install na boses.</value>
+  </data>
+  <data name="Step4Title" xml:space="preserve">
+    <value>Kunin ang inyong mga tinig</value>
+  </data>
+  <data name="TabCredentials" xml:space="preserve">
+    <value>Mga Kredensyal</value>
+  </data>
+  <data name="TabCredentialsCount" xml:space="preserve">
+    <value>Kailangan ng mga {0} na makina ng mga susi</value>
+  </data>
+  <data name="TabCredentialsNotNeeded" xml:space="preserve">
+    <value>hindi kailangan</value>
+  </data>
+  <data name="TabCredentialsTitle" xml:space="preserve">
+    <value>Mga Kredensyal</value>
+  </data>
+  <data name="TabEngines" xml:space="preserve">
+    <value>Mga Engine ng Tinig</value>
+  </data>
+  <data name="TabEnginesCount" xml:space="preserve">
+    <value>{0} napili</value>
+  </data>
+  <data name="TabEnginesIntro" xml:space="preserve">
+    <value>Piliin ang mga voice engine na gusto mong gamitin. Pumili ng mga offline na boses na gumagana nang walang account, libreng cloud na boses, o mga cloud engine na nangangailangan ng API key.</value>
+  </data>
+  <data name="TabEnginesTitle" xml:space="preserve">
+    <value>Mga Engine ng Tinig</value>
+  </data>
+  <data name="TabVoices" xml:space="preserve">
+    <value>Mga tinig</value>
+  </data>
+  <data name="TabVoicesCount" xml:space="preserve">
+    <value>{0} na boses</value>
+  </data>
+  <data name="TabVoicesIntro" xml:space="preserve">
+    <value>Bawat boses mula sa mga engine na pinili mo. I-filter, i-preview, pagkatapos ay i-install ang mga gusto mo sa Windows SAPI.</value>
+  </data>
+  <data name="TabVoicesTitle" xml:space="preserve">
+    <value>Mga tinig</value>
+  </data>
+  <data name="UnknownEngine" xml:space="preserve">
+    <value>Hindi kilalang makina</value>
+  </data>
+  <data name="UnknownLanguage" xml:space="preserve">
+    <value>Hindi kilala</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>Suriin</value>
+  </data>
+  <data name="VerifyNoVoices" xml:space="preserve">
+    <value>Tinanggap ang key ngunit walang naibalik na mga boses — suriin kung ang key ay may access sa TTS.</value>
+  </data>
+  <data name="VoicesCountSummary" xml:space="preserve">
+    <value>{0} boses · {1} pinili · {2} na-install</value>
+  </data>
+  <data name="VoicesEmptyHint" xml:space="preserve">
+    <value>Piliin muna ang iyong mga voice engine sa tab na Voice Engines (magdagdag din ng mga kredensyal doon kung ang engine ay nangangailangan ng key), pagkatapos ay i-load ang mga boses dito.</value>
+  </data>
+  <data name="VoicesEmptyNoEngines" xml:space="preserve">
+    <value>Walang napiling mga makina — buksan ang tab na Voice Engines at lagyan ng tsek ang kahit isang makina.</value>
+  </data>
+  <data name="VoicesEmptyTitle" xml:space="preserve">
+    <value>Wala pang boses</value>
+  </data>
+  <data name="VoicesFetchFailed" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="VoicesLoaded" xml:space="preserve">
+    <value>Na-load na ang {0} mga boses</value>
+  </data>
+  <data name="VoicesMissingKey" xml:space="preserve">
+    <value>{0}: walang API key — magdagdag ng isa sa tab na Credentials</value>
+  </data>
+  <data name="VoicesNoEnginesSelected" xml:space="preserve">
+    <value>Pumili muna ng hindi bababa sa isang engine sa tab na Voice Engines.</value>
+  </data>
+  <data name="VoicesPromoteFailed" xml:space="preserve">
+    <value>Hindi mai-install ang {0} (maaaring kailanganin ang pag-apruba ng administrador)</value>
+  </data>
+  <data name="VoicesPromotedSingle" xml:space="preserve">
+    <value>{0} naka-install sa SAPI</value>
+  </data>
+  <data name="VoicesSkippedNoKey" xml:space="preserve">
+    <value>Nilaktawan ang {0} na mga makina — walang naka-set na API key</value>
+  </data>
+  <data name="VoicesUnpromoteFailed" xml:space="preserve">
+    <value>Tinanggal {0}; nabigo {1}</value>
+  </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>Ipakita lamang ang mga naka-install na boses</value>
   </data>
 </root>

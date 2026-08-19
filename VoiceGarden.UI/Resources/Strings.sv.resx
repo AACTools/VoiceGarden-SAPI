@@ -56,9 +56,6 @@
   <data name="AdapterInstallation" xml:space="preserve">
     <value>Adapterinstallation</value>
   </data>
-  <data name="AddEnUsAlias" xml:space="preserve">
-    <value>Lägg till en-US alias</value>
-  </data>
   <data name="Advanced" xml:space="preserve">
     <value>Avancerad</value>
   </data>
@@ -67,9 +64,6 @@
   </data>
   <data name="AnalyticsHint" xml:space="preserve">
     <value>Hjälper oss att förstå vilka motorer som används. Inget textmeddelande, nycklar eller PII har skickats.</value>
-  </data>
-  <data name="APIKey" xml:space="preserve">
-    <value>API-nyckel</value>
   </data>
   <data name="AppName" xml:space="preserve">
     <value>VoiceGarden</value>
@@ -92,50 +86,11 @@
   <data name="Checking" xml:space="preserve">
     <value>Kontroll...</value>
   </data>
-  <data name="Close" xml:space="preserve">
-    <value>Nära</value>
-  </data>
-  <data name="CloudVoices" xml:space="preserve">
-    <value>Molnröster</value>
-  </data>
-  <data name="ConfigureCredentials" xml:space="preserve">
-    <value>Konfigurera autentiseringsuppgifter...</value>
-  </data>
-  <data name="ConfigureCredentialsTitle" xml:space="preserve">
-    <value>Konfigurera autentiseringsuppgifter</value>
-  </data>
-  <data name="ConfigureVoices" xml:space="preserve">
-    <value>Konfigurera röster...</value>
-  </data>
-  <data name="ConfigureVoicesTitle" xml:space="preserve">
-    <value>Konfigurera röster</value>
-  </data>
-  <data name="CountDownloaded" xml:space="preserve">
-    <value>{0} har laddats ned</value>
-  </data>
-  <data name="CountInstalled" xml:space="preserve">
-    <value>{0} installerat</value>
-  </data>
-  <data name="CountSelected" xml:space="preserve">
-    <value>{0} har valts</value>
-  </data>
-  <data name="CountTotal" xml:space="preserve">
-    <value>{0} totalt</value>
-  </data>
   <data name="Downloaded" xml:space="preserve">
     <value>Nedladdat</value>
   </data>
-  <data name="DownloadedCount" xml:space="preserve">
-    <value>Laddade ned {0} modell(er)</value>
-  </data>
-  <data name="DownloadedFailedCount" xml:space="preserve">
-    <value>Laddade ned {0}, misslyckades {1}</value>
-  </data>
   <data name="DownloadedStatus" xml:space="preserve">
     <value>Nedladdat</value>
-  </data>
-  <data name="DownloadFailed" xml:space="preserve">
-    <value>Nedladdning misslyckades: {0} modell(er)</value>
   </data>
   <data name="DownloadingModel" xml:space="preserve">
     <value>Laddar ned {0} ({1})...</value>
@@ -143,14 +98,8 @@
   <data name="DownloadModelFirst" xml:space="preserve">
     <value>Ladda ner modellen först</value>
   </data>
-  <data name="DownloadSelected" xml:space="preserve">
-    <value>Ladda ner valt</value>
-  </data>
   <data name="EnableAnalytics" xml:space="preserve">
     <value>Skicka anonym användningsanalys (opt-in)</value>
-  </data>
-  <data name="EnableEdgeVoices" xml:space="preserve">
-    <value>Aktivera Edge webbläsarröster</value>
   </data>
   <data name="Engine" xml:space="preserve">
     <value>Motor:</value>
@@ -176,12 +125,6 @@
   <data name="FetchingVoices" xml:space="preserve">
     <value>Hämtar {0} röster...</value>
   </data>
-  <data name="FetchVoices" xml:space="preserve">
-    <value>Hämta röster</value>
-  </data>
-  <data name="Filter" xml:space="preserve">
-    <value>Filtrera:</value>
-  </data>
   <data name="FoundVoices" xml:space="preserve">
     <value>Hittade {0} röster</value>
   </data>
@@ -190,9 +133,6 @@
   </data>
   <data name="HelpImprove" xml:space="preserve">
     <value>Hjälp till att förbättra VoiceGarden</value>
-  </data>
-  <data name="HideAdvanced" xml:space="preserve">
-    <value>▼ Göm Avancerat</value>
   </data>
   <data name="Install" xml:space="preserve">
     <value>Installera</value>
@@ -206,32 +146,14 @@
   <data name="InstalledModelsFailed" xml:space="preserve">
     <value>Installerade {0}, misslyckades {1}</value>
   </data>
-  <data name="InstalledModelsSAPI" xml:space="preserve">
-    <value>Installerade {0} modell(er) till SAPI</value>
-  </data>
-  <data name="InstalledOnly" xml:space="preserve">
-    <value>Endast installerad</value>
-  </data>
   <data name="InstalledVoicesHKLM" xml:space="preserve">
     <value>Installerade {0} röst(er) till HKLM</value>
   </data>
   <data name="InstallFailed" xml:space="preserve">
     <value>Installationen misslyckades: {0}</value>
   </data>
-  <data name="InstallingSAPI" xml:space="preserve">
-    <value>Installerar modeller till SAPI (HKLM)...</value>
-  </data>
   <data name="InstallSelected" xml:space="preserve">
     <value>Installera valt</value>
-  </data>
-  <data name="InstallToSAPI" xml:space="preserve">
-    <value>Installera till SAPI</value>
-  </data>
-  <data name="InvalidResult" xml:space="preserve">
-    <value>Ogiltig: {0}</value>
-  </data>
-  <data name="Key" xml:space="preserve">
-    <value>Nyckel:</value>
   </data>
   <data name="LangCompatDesc" xml:space="preserve">
     <value>Om din AAC-programvara endast stöder vissa språk (t.ex. engelska), aktivera "Lägg till en-US alias" när du marknadsför SherpaOnnx-modeller. Detta gör att röster på alla språk visas som engelska röster, så de dyker upp i appar som filtrerar efter språk.</value>
@@ -248,9 +170,6 @@
   <data name="LogLevel" xml:space="preserve">
     <value>Loggnivå:</value>
   </data>
-  <data name="ManageModels" xml:space="preserve">
-    <value>Hantera modeller...</value>
-  </data>
   <data name="ModelFilesNotFound" xml:space="preserve">
     <value>Modellfilerna hittades inte</value>
   </data>
@@ -266,15 +185,6 @@
   <data name="NoAudio" xml:space="preserve">
     <value>Inget ljud genererat</value>
   </data>
-  <data name="NoDownloadedModels" xml:space="preserve">
-    <value>Inga nedladdade modeller hittades. Ladda ner en modell först och klicka sedan på Skanna igen om det behövs.</value>
-  </data>
-  <data name="NoDownloadUrl" xml:space="preserve">
-    <value>Ingen nedladdningsadress</value>
-  </data>
-  <data name="NoModelId" xml:space="preserve">
-    <value>Det gick inte att fastställa modell-ID för förhandsgranskning</value>
-  </data>
   <data name="NoModelsInstalled" xml:space="preserve">
     <value>Inga modeller installerade</value>
   </data>
@@ -283,9 +193,6 @@
   </data>
   <data name="NoThanks" xml:space="preserve">
     <value>Nej tack</value>
-  </data>
-  <data name="OfflineVoices" xml:space="preserve">
-    <value>Offline röster</value>
   </data>
   <data name="OnboardingDesc1" xml:space="preserve">
     <value>VoiceGarden är en gratis röstbrygga med öppen källkod som ansluter 20+ moderna text-till-tal-motorer till alla Windows-program som stöder SAPI 5 – inklusive Grid 3, Mind Express, Balabolka, Tobii Communicator och alla appar som är byggda på System.Speech.</value>
@@ -296,9 +203,6 @@
   <data name="OnboardingTitle" xml:space="preserve">
     <value>Välkommen till VoiceGarden</value>
   </data>
-  <data name="OnlyEnabledEngines" xml:space="preserve">
-    <value>Endast aktiverade motorer visas. Växla motorer på huvudsidan.</value>
-  </data>
   <data name="OpenLogs" xml:space="preserve">
     <value>Öppna Loggar</value>
   </data>
@@ -307,9 +211,6 @@
   </data>
   <data name="PreviewFailed" xml:space="preserve">
     <value>Förhandsgranskningen misslyckades: {0}</value>
-  </data>
-  <data name="Previewing" xml:space="preserve">
-    <value>Förhandsvisning...</value>
   </data>
   <data name="PreviewingVoice" xml:space="preserve">
     <value>Förhandsgranskar {0}...</value>
@@ -323,50 +224,17 @@
   <data name="PrivacyIntro" xml:space="preserve">
     <value>VoiceGarden är ett gratis, öppen källkodsprojekt byggt av volontärer. För att hjälpa oss förstå vilka TTS-motorer som används mest, identifiera buggar och prioritera utveckling, vill vi samla in anonym användningsanalys.</value>
   </data>
-  <data name="Ready" xml:space="preserve">
-    <value>Redo</value>
-  </data>
-  <data name="Region" xml:space="preserve">
-    <value>Område</value>
-  </data>
-  <data name="Register" xml:space="preserve">
-    <value>Register</value>
-  </data>
   <data name="RemovedVoices" xml:space="preserve">
     <value>Tog bort {0} röst(er)</value>
-  </data>
-  <data name="RequestingAdmin" xml:space="preserve">
-    <value>Begär administratörsbehörigheter...</value>
   </data>
   <data name="Reregister" xml:space="preserve">
     <value>Omregistrera dig</value>
   </data>
-  <data name="Rescan" xml:space="preserve">
-    <value>Skanna igen</value>
-  </data>
-  <data name="RescannedModels" xml:space="preserve">
-    <value>Skannade om: {0} modell(er) redo</value>
-  </data>
-  <data name="Search" xml:space="preserve">
-    <value>Söka...</value>
-  </data>
   <data name="SearchVoices" xml:space="preserve">
     <value>Sök efter röster...</value>
   </data>
-  <data name="SelectModelsFirst" xml:space="preserve">
-    <value>Välj modeller att ladda ner först</value>
-  </data>
   <data name="SelectVoicesFirst" xml:space="preserve">
     <value>Välj röster att installera först</value>
-  </data>
-  <data name="SherpaOnnxModels" xml:space="preserve">
-    <value>Sherpa Onnx-modeller</value>
-  </data>
-  <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
-    <value>Sherpa Onnx Neural TTS</value>
-  </data>
-  <data name="ShowAdvanced" xml:space="preserve">
-    <value>▶ Visa Avancerat</value>
   </data>
   <data name="Step1Desc" xml:space="preserve">
     <value>På huvudskärmen klickar du på Installera för 64-bitars (och 32-bitars om det behövs). Detta registrerar VoiceGarden som en SAPI 5-röst som alla kompatibla appar kan använda.</value>
@@ -389,17 +257,11 @@
   <data name="Uninstall" xml:space="preserve">
     <value>Avinstallera</value>
   </data>
-  <data name="Validate" xml:space="preserve">
-    <value>Bekräfta</value>
-  </data>
   <data name="Validating" xml:space="preserve">
     <value>Validerar...</value>
   </data>
   <data name="ValidResult" xml:space="preserve">
     <value>Giltig ({0} röster)</value>
-  </data>
-  <data name="VoiceEngines" xml:space="preserve">
-    <value>Röstmotorer</value>
   </data>
   <data name="WhatIsVoiceGarden" xml:space="preserve">
     <value>Vad är VoiceGarden?</value>
@@ -422,5 +284,317 @@
   </data>
   <data name="YesHelpImprove" xml:space="preserve">
     <value>Ja, hjälp till att förbättra VoiceGarden</value>
+  </data>
+  <data name="AdvancedIntro" xml:space="preserve">
+    <value>Adapterregistrering, appinställningar, hantering av offline-modeller och om — allt som inte är en del av den guidade processen.</value>
+  </data>
+  <data name="AdvancedModelsHint" xml:space="preserve">
+    <value>Bläddra, ladda ner och installera offline-röster från fliken Röster — välj SherpaOnnx-motorn där.</value>
+  </data>
+  <data name="AdvancedModelsTitle" xml:space="preserve">
+    <value>Offline-modeller</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>Inställningar</value>
+  </data>
+  <data name="AdvancedTabState" xml:space="preserve">
+    <value>verktyg och inställningar</value>
+  </data>
+  <data name="AliasApplyNote" xml:space="preserve">
+    <value>Tillämpas när som helst röster installeras eller installeras om från fliken Röster. Befintliga röster får ändringen nästa gång du installerar dem.</value>
+  </data>
+  <data name="AliasArabicHint" xml:space="preserve">
+    <value>Röst på ett språk som skrivs från höger till vänster (arabiska, urdu, persiska, hebreiska, pashto…) visas också under arabiska (ar-SA), så appar som är inställda på arabiska röster kan hitta den.</value>
+  </data>
+  <data name="AliasArabicLabel" xml:space="preserve">
+    <value>Ange också alias för höger-till-vänster-röster under arabiska</value>
+  </data>
+  <data name="AliasEnUsHint" xml:space="preserve">
+    <value>Röst på vilket annat språk som helst visas också som engelska (en-US), så appar som bara listar engelska röster — som vissa AAC-titlar — kan använda den.</value>
+  </data>
+  <data name="AliasEnUsLabel" xml:space="preserve">
+    <value>Lägg till en en-US-alias för icke-engelska röster</value>
+  </data>
+  <data name="AliasSettingsIntro" xml:space="preserve">
+    <value>Röster installeras med sitt verkliga språk. Alias lägger till extra kopior under ett andra språk så att appar som filtrerar efter språk fortfarande kan hitta dem.</value>
+  </data>
+  <data name="AliasSettingsTitle" xml:space="preserve">
+    <value>SAPI-röstalias</value>
+  </data>
+  <data name="BackToEngines" xml:space="preserve">
+    <value>Tillbaka till motorer</value>
+  </data>
+  <data name="BadgeCloud" xml:space="preserve">
+    <value>Moln</value>
+  </data>
+  <data name="BadgeCredsNeeded" xml:space="preserve">
+    <value>Nyckel behövs</value>
+  </data>
+  <data name="BadgeKeyStored" xml:space="preserve">
+    <value>Nyckel sparad</value>
+  </data>
+  <data name="BadgeNoCreds" xml:space="preserve">
+    <value>Ingen nyckel</value>
+  </data>
+  <data name="BadgeOffline" xml:space="preserve">
+    <value>Off-line</value>
+  </data>
+  <data name="ClearVisible" xml:space="preserve">
+    <value>Tydligt visad</value>
+  </data>
+  <data name="CredentialsFooterHint" xml:space="preserve">
+    <value>Verifiera en nyckel för att kontrollera att den fungerar innan du laddar röster. Du kan komma tillbaka när som helst.</value>
+  </data>
+  <data name="CredentialsIntro" xml:space="preserve">
+    <value>Ange uppgifterna för varje valt motor. Värdena sparas endast på den här datorn.</value>
+  </data>
+  <data name="CredentialsNoneNeeded" xml:space="preserve">
+    <value>Inga valda motorer behöver autentiseringsuppgifter.</value>
+  </data>
+  <data name="DeselectAllVoices" xml:space="preserve">
+    <value>Avmarkera alla röster</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>Ladda ner</value>
+  </data>
+  <data name="DownloadFailedSingle" xml:space="preserve">
+    <value>Nedladdning misslyckades för {0}</value>
+  </data>
+  <data name="DownloadFailedTitle" xml:space="preserve">
+    <value>Nedladdning misslyckades för {0}. Kontrollera din internetanslutning och försök igen — om det fortsätter att misslyckas, stäng andra röstappar och starta om VoiceGarden.</value>
+  </data>
+  <data name="EdgeEngineDesc" xml:space="preserve">
+    <value>Gratis Microsoft moln-röster på många språk. Bästa gratis online-alternativet — naturlig kvalitet, ingen API-nyckel, kräver internet.</value>
+  </data>
+  <data name="EdgeEngineName" xml:space="preserve">
+    <value>Edge-röster</value>
+  </data>
+  <data name="EngineDescKeyOnly" xml:space="preserve">
+    <value>{0} molnröster. Kräver en API-nyckel.</value>
+  </data>
+  <data name="EngineDescKeyRegion" xml:space="preserve">
+    <value>{0} moln-röster. Kräver en API-nyckel och region.</value>
+  </data>
+  <data name="EngineDescKeySecretRegion" xml:space="preserve">
+    <value>{0} moln-röster. Kräver en åtkomstnyckel, hemlig nyckel och region.</value>
+  </data>
+  <data name="EngineDescKeyUserId" xml:space="preserve">
+    <value>{0} moln-röster. Kräver en API-nyckel och användar-ID.</value>
+  </data>
+  <data name="EnginesSelectedSummary" xml:space="preserve">
+    <value>{0} av {1} motorer valda</value>
+  </data>
+  <data name="FieldAPIKey" xml:space="preserve">
+    <value>API-nyckel</value>
+  </data>
+  <data name="FieldAccessKeyId" xml:space="preserve">
+    <value>Åtkomstnyckel-ID</value>
+  </data>
+  <data name="FieldInstanceId" xml:space="preserve">
+    <value>Instans-ID</value>
+  </data>
+  <data name="FieldRegion" xml:space="preserve">
+    <value>Område</value>
+  </data>
+  <data name="FieldSecretAccessKey" xml:space="preserve">
+    <value>Hemlig åtkomstnyckel</value>
+  </data>
+  <data name="FieldSubscriptionKey" xml:space="preserve">
+    <value>Prenumerationsnyckel</value>
+  </data>
+  <data name="FieldToken" xml:space="preserve">
+    <value>Tecken</value>
+  </data>
+  <data name="FieldUserId" xml:space="preserve">
+    <value>Användar-ID</value>
+  </data>
+  <data name="FilterAllEngines" xml:space="preserve">
+    <value>Alla motorer</value>
+  </data>
+  <data name="FilterAllLanguages" xml:space="preserve">
+    <value>Alla språk</value>
+  </data>
+  <data name="FilterAllTypes" xml:space="preserve">
+    <value>Alla typer</value>
+  </data>
+  <data name="FilterAnyEngine" xml:space="preserve">
+    <value>Alla motorer</value>
+  </data>
+  <data name="FilterAnyGender" xml:space="preserve">
+    <value>Vilket kön som helst</value>
+  </data>
+  <data name="FilterAnyLanguage" xml:space="preserve">
+    <value>Vilket språk som helst</value>
+  </data>
+  <data name="FilterAnyQuality" xml:space="preserve">
+    <value>Vilken kvalitet som helst</value>
+  </data>
+  <data name="FilterCredentials" xml:space="preserve">
+    <value>Referenser</value>
+  </data>
+  <data name="FilterCredsNeeded" xml:space="preserve">
+    <value>Nyckel behövs</value>
+  </data>
+  <data name="FilterEngine" xml:space="preserve">
+    <value>Filtrera efter motor</value>
+  </data>
+  <data name="FilterGender" xml:space="preserve">
+    <value>Filtrera efter kön</value>
+  </data>
+  <data name="FilterLanguage" xml:space="preserve">
+    <value>Språk</value>
+  </data>
+  <data name="FilterNoCreds" xml:space="preserve">
+    <value>Ingen nyckel behövs</value>
+  </data>
+  <data name="FilterOfflineOnly" xml:space="preserve">
+    <value>Endast offline</value>
+  </data>
+  <data name="FilterOnlineOnly" xml:space="preserve">
+    <value>Endast online</value>
+  </data>
+  <data name="FilterQuality" xml:space="preserve">
+    <value>Filtrera efter kvalitet</value>
+  </data>
+  <data name="FilterType" xml:space="preserve">
+    <value>Typ</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>Kön</value>
+  </data>
+  <data name="LanguageFilterHiddenNote" xml:space="preserve">
+    <value>{0} motorer dolda — deras språk är okända tills deras röster laddas i fliken Röster.</value>
+  </data>
+  <data name="LoadVoices" xml:space="preserve">
+    <value>Ladda röster</value>
+  </data>
+  <data name="NextCredentials" xml:space="preserve">
+    <value>Nästa: Referenser</value>
+  </data>
+  <data name="NextVoices" xml:space="preserve">
+    <value>Nästa: Röster</value>
+  </data>
+  <data name="PreviewFailedTitle" xml:space="preserve">
+    <value>Förhandsgranskning misslyckades för {0}.</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>Kvalitet</value>
+  </data>
+  <data name="RefreshInstalled" xml:space="preserve">
+    <value>Uppdatera installerad</value>
+  </data>
+  <data name="RemoveSelected" xml:space="preserve">
+    <value>Ta bort markerade från SAPI</value>
+  </data>
+  <data name="RescannedVoices" xml:space="preserve">
+    <value>Uppdaterad — {0} röster installerade</value>
+  </data>
+  <data name="SearchEngines" xml:space="preserve">
+    <value>Sökmotorer, språk…</value>
+  </data>
+  <data name="SelectAllVoices" xml:space="preserve">
+    <value>Välj alla visade röster</value>
+  </data>
+  <data name="SelectVisible" xml:space="preserve">
+    <value>Välj visad</value>
+  </data>
+  <data name="SherpaOnnxEngineDesc" xml:space="preserve">
+    <value>Offline neurala röster på många språk. Bäst för pålitlighet och integritet — fungerar utan konto eller internet när det väl är nedladdat.</value>
+  </data>
+  <data name="SherpaOnnxEngineName" xml:space="preserve">
+    <value>Sherpa Onnx</value>
+  </data>
+  <data name="Step4Desc" xml:space="preserve">
+    <value>Öppna fliken Röster och klicka på Ladda röster. Filtrera efter språk, kön eller kvalitet, förhandsgranska de du gillar och använd sedan Ladda ner (offline-modeller) och Installera till SAPI. Installerade röster visas direkt i dina appar.</value>
+  </data>
+  <data name="Step4Title" xml:space="preserve">
+    <value>Få era röster</value>
+  </data>
+  <data name="TabCredentials" xml:space="preserve">
+    <value>Referenser</value>
+  </data>
+  <data name="TabCredentialsCount" xml:space="preserve">
+    <value>{0} motorer behöver nycklar</value>
+  </data>
+  <data name="TabCredentialsNotNeeded" xml:space="preserve">
+    <value>inte behövs</value>
+  </data>
+  <data name="TabCredentialsTitle" xml:space="preserve">
+    <value>Referenser</value>
+  </data>
+  <data name="TabEngines" xml:space="preserve">
+    <value>Röstmotorer</value>
+  </data>
+  <data name="TabEnginesCount" xml:space="preserve">
+    <value>{0} markerad</value>
+  </data>
+  <data name="TabEnginesIntro" xml:space="preserve">
+    <value>Välj de röstmotorer du vill använda. Välj offline-röster som fungerar utan konto, gratis molnröster eller molnmotorer som kräver en API-nyckel.</value>
+  </data>
+  <data name="TabEnginesTitle" xml:space="preserve">
+    <value>Röstmotorer</value>
+  </data>
+  <data name="TabVoices" xml:space="preserve">
+    <value>Röster</value>
+  </data>
+  <data name="TabVoicesCount" xml:space="preserve">
+    <value>{0} röster</value>
+  </data>
+  <data name="TabVoicesIntro" xml:space="preserve">
+    <value>Varje röst från de motorer du valde. Filtrera, förhandsgranska och installera sedan de du vill ha i Windows SAPI.</value>
+  </data>
+  <data name="TabVoicesTitle" xml:space="preserve">
+    <value>Röster</value>
+  </data>
+  <data name="UnknownEngine" xml:space="preserve">
+    <value>Okänd motor</value>
+  </data>
+  <data name="UnknownLanguage" xml:space="preserve">
+    <value>Okänd</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>Verifiera</value>
+  </data>
+  <data name="VerifyNoVoices" xml:space="preserve">
+    <value>Nyckel accepterad men inga röster returnerades – kontrollera att nyckeln har TTS-åtkomst.</value>
+  </data>
+  <data name="VoicesCountSummary" xml:space="preserve">
+    <value>{0} röster · {1} markerade · {2} installerade</value>
+  </data>
+  <data name="VoicesEmptyHint" xml:space="preserve">
+    <value>Välj dina röstmotorer i fliken Röstmotorer först (lägg till uppgifter där också om motorn behöver en nyckel), och ladda sedan röster här.</value>
+  </data>
+  <data name="VoicesEmptyNoEngines" xml:space="preserve">
+    <value>Inga motorer valda — öppna fliken Röstmotorer och markera minst en motor.</value>
+  </data>
+  <data name="VoicesEmptyTitle" xml:space="preserve">
+    <value>Inga röster än</value>
+  </data>
+  <data name="VoicesFetchFailed" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="VoicesLoaded" xml:space="preserve">
+    <value>Laddade {0} röster</value>
+  </data>
+  <data name="VoicesMissingKey" xml:space="preserve">
+    <value>{0}: ingen API-nyckel — lägg till en i fliken Credentials</value>
+  </data>
+  <data name="VoicesNoEnginesSelected" xml:space="preserve">
+    <value>Välj minst en motor i fliken Röstmotorer först.</value>
+  </data>
+  <data name="VoicesPromoteFailed" xml:space="preserve">
+    <value>Kunde inte installera {0} (administratörsgodkännande kan krävas)</value>
+  </data>
+  <data name="VoicesPromotedSingle" xml:space="preserve">
+    <value>{0} installerad till SAPI</value>
+  </data>
+  <data name="VoicesSkippedNoKey" xml:space="preserve">
+    <value>{0} motorer hoppades över — ingen API-nyckel satt</value>
+  </data>
+  <data name="VoicesUnpromoteFailed" xml:space="preserve">
+    <value>Borttagen {0}; misslyckades {1}</value>
+  </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>Visa endast installerade röster</value>
   </data>
 </root>

@@ -74,6 +74,9 @@ Write-Host "Generating setup payload manifest..." -ForegroundColor Cyan
 & (Join-Path $PSScriptRoot "generate-setup-payload-wxs.ps1") -PayloadDir $payloadFull -OutputPath $manifestPath
 
 Write-Host "Building MSI..." -ForegroundColor Cyan
+# Forward slashes: a trailing backslash before the closing quote escapes it
+# and redirects WiX output to obj\ instead of the requested directory.
+$outputPathArg = ($outputFull.Replace('\', '/')) + '/'
 dotnet build (Join-Path $setupDir "Setup.wixproj") `
     -c $Configuration `
     -p:PayloadDir="$payloadFull" `
@@ -83,7 +86,7 @@ dotnet build (Join-Path $setupDir "Setup.wixproj") `
     -p:InstallFolderName="$installFolderName" `
     -p:InstallerShortcutName="$installerShortcutName" `
     -p:ProjectUrl="$projectUrl" `
-    -p:OutputPath="$outputFull\" `
+    -p:OutputPath="$outputPathArg" `
     /nologo
 
 if ($LASTEXITCODE -ne 0) {

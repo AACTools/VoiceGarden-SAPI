@@ -3,10 +3,6 @@
              x:Class="VoiceGarden.UI.App"
              RequestedThemeVariant="Light">
 
-    <Application.Styles>
-        <FluentTheme />
-    </Application.Styles>
-
     <Application.Resources>
         <!-- VoiceGarden Brand Colors (from voice-garden-website) -->
         <Color x:Key="VGPrimary">#F97316</Color>
@@ -31,4 +27,219 @@
         <SolidColorBrush x:Key="VGSuccessBrush" Color="{StaticResource VGSuccess}"/>
         <SolidColorBrush x:Key="VGDestructiveBrush" Color="{StaticResource VGDestructive}"/>
     </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+
+        <!-- ===== Shared chunky, accessible styles (Phase 4 UX overhaul) ===== -->
+
+        <!-- Base buttons: 36px touch targets, centred content, rounded.
+             VerticalContentAlignment=Center is required — the Fluent theme
+             leaves it unset, so MinHeight + top-anchored content put the
+             text at the top of tall buttons with dead space below. -->
+        <Style Selector="Button">
+            <Setter Property="MinHeight" Value="36"/>
+            <Setter Property="MinWidth" Value="80"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+
+        <!-- Compact icon buttons (▶, ⬇) inside list rows: 32px square-ish -->
+        <Style Selector="Button.Compact">
+            <Setter Property="MinWidth" Value="44"/>
+            <Setter Property="MinHeight" Value="32"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+        <!-- Primary button — orange with off-white text -->
+        <Style Selector="Button.Primary">
+            <Setter Property="Background" Value="{StaticResource VGPrimaryBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource VGPrimaryForegroundBrush}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        <Style Selector="Button.Primary:pointerover">
+            <Setter Property="Background" Value="{StaticResource VGPrimaryHoverBrush}"/>
+        </Style>
+        <Style Selector="Button.Primary:disabled">
+            <Setter Property="Opacity" Value="0.5"/>
+        </Style>
+
+        <!-- Secondary button — outlined, high contrast. Active secondary
+             actions (Preview/Download/Verify/Select…) must never look
+             disabled, so flat low-contrast grey is reserved for :disabled. -->
+        <Style Selector="Button.Secondary">
+            <Setter Property="Background" Value="{StaticResource VGCardBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource VGForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource VGForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        <Style Selector="Button.Secondary:pointerover">
+            <Setter Property="Background" Value="{StaticResource VGAccentBrush}"/>
+        </Style>
+        <Style Selector="Button.Secondary:pressed">
+            <Setter Property="Background" Value="{StaticResource VGBorderBrush}"/>
+        </Style>
+        <Style Selector="Button.Secondary:disabled">
+            <Setter Property="Background" Value="{StaticResource VGAccentBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource VGMutedBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource VGBorderBrush}"/>
+            <Setter Property="Opacity" Value="0.55"/>
+        </Style>
+
+        <!-- Disabled = flat low-contrast grey, never an active style -->
+        <Style Selector="Button:disabled">
+            <Setter Property="Opacity" Value="0.5"/>
+        </Style>
+
+        <!-- Visible keyboard focus everywhere -->
+        <Style Selector="Button:focus-visible, ToggleButton:focus-visible, TabItem:focus-visible, CheckBox:focus-visible, RadioButton:focus-visible, ComboBox:focus-visible, TextBox:focus-visible, ListBoxItem:focus-visible">
+            <Setter Property="BorderBrush" Value="{StaticResource VGPrimaryBrush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+        <Style Selector="Button:pointerover">
+            <Setter Property="BorderBrush" Value="{StaticResource VGPrimaryHoverBrush}"/>
+        </Style>
+
+        <!-- Chunky list rows -->
+        <Style Selector="ListBoxItem">
+            <Setter Property="MinHeight" Value="52"/>
+            <Setter Property="Padding" Value="12,8"/>
+        </Style>
+        <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource VGAccentBrush}"/>
+        </Style>
+
+        <!-- Chunky tabs. Bottom padding is reduced to make room for the
+             header StackPanel's own bottom margin (MainWindow), which keeps
+             the sub-text clear of the 4px selected-pipe zone at the tab
+             bottom at any font scale. -->
+        <Style Selector="TabItem">
+            <Setter Property="MinHeight" Value="48"/>
+            <Setter Property="MinWidth" Value="140"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Padding" Value="20,8"/>
+            <Setter Property="CornerRadius" Value="10,10,0,0"/>
+        </Style>
+
+        <!-- Inputs: 14pt, tall enough to touch -->
+        <Style Selector="TextBox, ComboBox">
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="10,8"/>
+        </Style>
+        <Style Selector="CheckBox, RadioButton">
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="8,8"/>
+        </Style>
+
+        <!-- Cards -->
+        <Style Selector="Border.Card">
+            <Setter Property="Background" Value="{StaticResource VGCardBrush}"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="18"/>
+            <Setter Property="BorderBrush" Value="{StaticResource VGBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BoxShadow" Value="0 1 3 0 #10000000"/>
+            <Setter Property="Margin" Value="0,0,0,14"/>
+        </Style>
+
+        <!-- Card headers — dark navy, semibold -->
+        <Style Selector="TextBlock.CardHeader">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Foreground" Value="{StaticResource VGForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+
+        <!-- Page titles -->
+        <Style Selector="TextBlock.PageTitle">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource VGForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+
+        <!-- Section labels -->
+        <Style Selector="TextBlock.SectionLabel">
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{StaticResource VGMutedBrush}"/>
+        </Style>
+
+        <!-- Hint text -->
+        <Style Selector="TextBlock.Hint">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{StaticResource VGMutedBrush}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <!-- Badges -->
+        <Style Selector="Border.Badge">
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="7,3"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Border.Badge > TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Border.BadgeOffline">
+            <Setter Property="Background" Value="#22C55E"/>
+        </Style>
+        <Style Selector="Border.BadgeCloud">
+            <Setter Property="Background" Value="#3B82F6"/>
+        </Style>
+        <Style Selector="Border.BadgeCreds">
+            <Setter Property="Background" Value="#D97706"/>
+        </Style>
+        <Style Selector="Border.BadgeNoCreds">
+            <Setter Property="Background" Value="#64748B"/>
+        </Style>
+        <Style Selector="Border.BadgeQuality">
+            <Setter Property="Background" Value="#3F7EDB"/>
+        </Style>
+        <Style Selector="Border.BadgeGender">
+            <Setter Property="Background" Value="#6B8E23"/>
+        </Style>
+        <Style Selector="Border.BadgeInstalled">
+            <Setter Property="Background" Value="#16A34A"/>
+        </Style>
+
+        <!-- Filter rows: wrap instead of clipping/overlapping -->
+        <Style Selector="WrapPanel.FilterRow">
+            <Setter Property="ItemSpacing" Value="12"/>
+            <Setter Property="LineSpacing" Value="10"/>
+        </Style>
+
+        <!-- Error / warning banners: icon + text, never colour alone (WCAG 1.4.1) -->
+        <Style Selector="Border.Banner">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="14,10"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style Selector="Border.BannerError">
+            <Setter Property="Background" Value="#FEF2F2"/>
+            <Setter Property="BorderBrush" Value="#DC2626"/>
+        </Style>
+        <Style Selector="Border.BannerError > TextBlock">
+            <Setter Property="Foreground" Value="#7F1D1D"/>
+        </Style>
+        <Style Selector="Border.BannerWarning">
+            <Setter Property="Background" Value="#FFFBEB"/>
+            <Setter Property="BorderBrush" Value="#D97706"/>
+        </Style>
+        <Style Selector="Border.BannerWarning > TextBlock">
+            <Setter Property="Foreground" Value="#78350F"/>
+        </Style>
+    </Application.Styles>
 </Application>

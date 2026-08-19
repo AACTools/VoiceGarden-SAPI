@@ -56,9 +56,6 @@
   <data name="AdapterInstallation" xml:space="preserve">
     <value>התקנת מתאם</value>
   </data>
-  <data name="AddEnUsAlias" xml:space="preserve">
-    <value>הוסף כינוי en-US</value>
-  </data>
   <data name="Advanced" xml:space="preserve">
     <value>מִתקַדֵם</value>
   </data>
@@ -67,9 +64,6 @@
   </data>
   <data name="AnalyticsHint" xml:space="preserve">
     <value>עוזר לנו להבין באילו מנועים משתמשים. לא נשלחו טקסט, מפתחות או PII.</value>
-  </data>
-  <data name="APIKey" xml:space="preserve">
-    <value>מפתח API</value>
   </data>
   <data name="AppName" xml:space="preserve">
     <value>VoiceGarden</value>
@@ -92,50 +86,11 @@
   <data name="Checking" xml:space="preserve">
     <value>בודק...</value>
   </data>
-  <data name="Close" xml:space="preserve">
-    <value>לִסְגוֹר</value>
-  </data>
-  <data name="CloudVoices" xml:space="preserve">
-    <value>קולות ענן</value>
-  </data>
-  <data name="ConfigureCredentials" xml:space="preserve">
-    <value>הגדר אישורים...</value>
-  </data>
-  <data name="ConfigureCredentialsTitle" xml:space="preserve">
-    <value>הגדר אישורים</value>
-  </data>
-  <data name="ConfigureVoices" xml:space="preserve">
-    <value>הגדר קולות...</value>
-  </data>
-  <data name="ConfigureVoicesTitle" xml:space="preserve">
-    <value>הגדר את הקולות</value>
-  </data>
-  <data name="CountDownloaded" xml:space="preserve">
-    <value>הורד {0}</value>
-  </data>
-  <data name="CountInstalled" xml:space="preserve">
-    <value>{0} הותקן</value>
-  </data>
-  <data name="CountSelected" xml:space="preserve">
-    <value>נבחרו {0}</value>
-  </data>
-  <data name="CountTotal" xml:space="preserve">
-    <value>{0} סה"כ</value>
-  </data>
   <data name="Downloaded" xml:space="preserve">
     <value>הורד</value>
   </data>
-  <data name="DownloadedCount" xml:space="preserve">
-    <value>הורדת {0} דגמים</value>
-  </data>
-  <data name="DownloadedFailedCount" xml:space="preserve">
-    <value>הורדת {0}, נכשלה {1}</value>
-  </data>
   <data name="DownloadedStatus" xml:space="preserve">
     <value>הורד</value>
-  </data>
-  <data name="DownloadFailed" xml:space="preserve">
-    <value>ההורדה נכשלה: {0} דגמים</value>
   </data>
   <data name="DownloadingModel" xml:space="preserve">
     <value>מוריד את {0} ({1})...</value>
@@ -143,14 +98,8 @@
   <data name="DownloadModelFirst" xml:space="preserve">
     <value>הורד קודם את הדגם</value>
   </data>
-  <data name="DownloadSelected" xml:space="preserve">
-    <value>הורד נבחר</value>
-  </data>
   <data name="EnableAnalytics" xml:space="preserve">
     <value>שלח ניתוח שימוש אנונימי (הצטרפות)</value>
-  </data>
-  <data name="EnableEdgeVoices" xml:space="preserve">
-    <value>הפעל קולות של דפדפן Edge</value>
   </data>
   <data name="Engine" xml:space="preserve">
     <value>מָנוֹעַ:</value>
@@ -176,12 +125,6 @@
   <data name="FetchingVoices" xml:space="preserve">
     <value>מביא {0} קולות...</value>
   </data>
-  <data name="FetchVoices" xml:space="preserve">
-    <value>אחזר קולות</value>
-  </data>
-  <data name="Filter" xml:space="preserve">
-    <value>לְסַנֵן:</value>
-  </data>
   <data name="FoundVoices" xml:space="preserve">
     <value>נמצאו {0} קולות</value>
   </data>
@@ -190,9 +133,6 @@
   </data>
   <data name="HelpImprove" xml:space="preserve">
     <value>עזור לשפר את VoiceGarden</value>
-  </data>
-  <data name="HideAdvanced" xml:space="preserve">
-    <value>▼ הסתר מתקדם</value>
   </data>
   <data name="Install" xml:space="preserve">
     <value>לְהַתְקִין</value>
@@ -206,32 +146,14 @@
   <data name="InstalledModelsFailed" xml:space="preserve">
     <value>הותקן {0}, נכשל {1}</value>
   </data>
-  <data name="InstalledModelsSAPI" xml:space="preserve">
-    <value>התקינו {0} דגמים ב-SAPI</value>
-  </data>
-  <data name="InstalledOnly" xml:space="preserve">
-    <value>מותקן בלבד</value>
-  </data>
   <data name="InstalledVoicesHKLM" xml:space="preserve">
     <value>התקינו {0} קול(ים) ב-HKLM</value>
   </data>
   <data name="InstallFailed" xml:space="preserve">
     <value>ההתקנה נכשלה: {0}</value>
   </data>
-  <data name="InstallingSAPI" xml:space="preserve">
-    <value>מתקין דגמים ל-SAPI (HKLM)...</value>
-  </data>
   <data name="InstallSelected" xml:space="preserve">
     <value>התקן נבחר</value>
-  </data>
-  <data name="InstallToSAPI" xml:space="preserve">
-    <value>התקן ב-SAPI</value>
-  </data>
-  <data name="InvalidResult" xml:space="preserve">
-    <value>לא חוקי: {0}</value>
-  </data>
-  <data name="Key" xml:space="preserve">
-    <value>מַפְתֵחַ:</value>
   </data>
   <data name="LangCompatDesc" xml:space="preserve">
     <value>אם תוכנת ה-AAC שלך תומכת רק בשפות מסוימות (למשל אנגלית), הפעל את "הוסף כינוי en-US" בעת קידום דגמי SherpaOnnx. זה גורם לקולות בכל שפה להופיע כקולות באנגלית, כך שהם מופיעים באפליקציות המסננות לפי שפה.</value>
@@ -248,9 +170,6 @@
   <data name="LogLevel" xml:space="preserve">
     <value>רמת יומן:</value>
   </data>
-  <data name="ManageModels" xml:space="preserve">
-    <value>נהל דגמים...</value>
-  </data>
   <data name="ModelFilesNotFound" xml:space="preserve">
     <value>לא נמצאו קבצי דגם</value>
   </data>
@@ -266,15 +185,6 @@
   <data name="NoAudio" xml:space="preserve">
     <value>לא נוצר אודיו</value>
   </data>
-  <data name="NoDownloadedModels" xml:space="preserve">
-    <value>לא נמצאו דגמים שהורדו. הורד תחילה דגם ולאחר מכן לחץ על סרוק מחדש במידת הצורך.</value>
-  </data>
-  <data name="NoDownloadUrl" xml:space="preserve">
-    <value>אין כתובת אתר להורדה</value>
-  </data>
-  <data name="NoModelId" xml:space="preserve">
-    <value>לא ניתן לקבוע מזהה דגם לתצוגה מקדימה</value>
-  </data>
   <data name="NoModelsInstalled" xml:space="preserve">
     <value>לא מותקנים דגמים</value>
   </data>
@@ -283,9 +193,6 @@
   </data>
   <data name="NoThanks" xml:space="preserve">
     <value>לא תודה</value>
-  </data>
-  <data name="OfflineVoices" xml:space="preserve">
-    <value>קולות לא מקוונים</value>
   </data>
   <data name="OnboardingDesc1" xml:space="preserve">
     <value>VoiceGarden הוא גשר קולי חינמי בקוד פתוח המחבר יותר מ-20 מנועי טקסט לדיבור מודרניים לכל יישום Windows התומך ב-SAPI 5 - כולל Grid 3, Mind Express, Balabolka, Tobii Communicator, וכל אפליקציה הבנויה על System.Speech.</value>
@@ -296,9 +203,6 @@
   <data name="OnboardingTitle" xml:space="preserve">
     <value>ברוכים הבאים ל-VoiceGarden</value>
   </data>
-  <data name="OnlyEnabledEngines" xml:space="preserve">
-    <value>רק מנועים מופעלים מוצגים. החלף מנועים בעמוד הראשי.</value>
-  </data>
   <data name="OpenLogs" xml:space="preserve">
     <value>פתח יומנים</value>
   </data>
@@ -307,9 +211,6 @@
   </data>
   <data name="PreviewFailed" xml:space="preserve">
     <value>התצוגה המקדימה נכשלה: {0}</value>
-  </data>
-  <data name="Previewing" xml:space="preserve">
-    <value>בתצוגה מקדימה...</value>
   </data>
   <data name="PreviewingVoice" xml:space="preserve">
     <value>מציג תצוגה מקדימה של {0}...</value>
@@ -323,50 +224,17 @@
   <data name="PrivacyIntro" xml:space="preserve">
     <value>VoiceGarden הוא פרויקט חינמי בקוד פתוח שנבנה על ידי מתנדבים. כדי לעזור לנו להבין באילו מנועי TTS משתמשים הכי הרבה, לזהות באגים ולתעדף פיתוח, ברצוננו לאסוף ניתוח שימוש אנונימי.</value>
   </data>
-  <data name="Ready" xml:space="preserve">
-    <value>מוּכָן</value>
-  </data>
-  <data name="Region" xml:space="preserve">
-    <value>אֵזוֹר</value>
-  </data>
-  <data name="Register" xml:space="preserve">
-    <value>לִרְשׁוֹם</value>
-  </data>
   <data name="RemovedVoices" xml:space="preserve">
     <value>הוסרו {0} קולות</value>
-  </data>
-  <data name="RequestingAdmin" xml:space="preserve">
-    <value>מבקש הרשאות מנהל...</value>
   </data>
   <data name="Reregister" xml:space="preserve">
     <value>הרשמה מחדש</value>
   </data>
-  <data name="Rescan" xml:space="preserve">
-    <value>סרוק מחדש</value>
-  </data>
-  <data name="RescannedModels" xml:space="preserve">
-    <value>נסרק מחדש: {0} דגמים מוכנים</value>
-  </data>
-  <data name="Search" xml:space="preserve">
-    <value>לְחַפֵּשׂ...</value>
-  </data>
   <data name="SearchVoices" xml:space="preserve">
     <value>חפש קולות...</value>
   </data>
-  <data name="SelectModelsFirst" xml:space="preserve">
-    <value>בחר דגמים להורדה תחילה</value>
-  </data>
   <data name="SelectVoicesFirst" xml:space="preserve">
     <value>תחילה בחר קולות להתקנה</value>
-  </data>
-  <data name="SherpaOnnxModels" xml:space="preserve">
-    <value>דגמי שרפה אונקס</value>
-  </data>
-  <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
-    <value>Sherpa Onnx Neural TTS</value>
-  </data>
-  <data name="ShowAdvanced" xml:space="preserve">
-    <value>▶ הצג מתקדם</value>
   </data>
   <data name="Step1Desc" xml:space="preserve">
     <value>במסך הראשי, לחץ על התקן עבור 64 סיביות (ו-32 סיביות במידת הצורך). זה רושם את VoiceGarden כקול SAPI 5 שכל אפליקציה תואמת יכולה להשתמש בו.</value>
@@ -389,17 +257,11 @@
   <data name="Uninstall" xml:space="preserve">
     <value>הסר את ההתקנה</value>
   </data>
-  <data name="Validate" xml:space="preserve">
-    <value>לְאַמֵת</value>
-  </data>
   <data name="Validating" xml:space="preserve">
     <value>מאמת...</value>
   </data>
   <data name="ValidResult" xml:space="preserve">
     <value>חוקי ({0} קולות)</value>
-  </data>
-  <data name="VoiceEngines" xml:space="preserve">
-    <value>מנועי קול</value>
   </data>
   <data name="WhatIsVoiceGarden" xml:space="preserve">
     <value>מה זה VoiceGarden?</value>
@@ -422,5 +284,317 @@
   </data>
   <data name="YesHelpImprove" xml:space="preserve">
     <value>כן, עזור לשפר את VoiceGarden</value>
+  </data>
+  <data name="AdvancedIntro" xml:space="preserve">
+    <value>הרשמת מתאם, הגדרות אפליקציה, ניהול מודל לא מקוון ואודות — הכל שאינו חלק מהזרימה המנוהלת.</value>
+  </data>
+  <data name="AdvancedModelsHint" xml:space="preserve">
+    <value>גלול, הורד והתקן קולות לא מקוונים מהכרטיסייה קולות — בחר שם את מנוע SherpaOnnx.</value>
+  </data>
+  <data name="AdvancedModelsTitle" xml:space="preserve">
+    <value>מודלים לא מקוונים</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>הגדרות</value>
+  </data>
+  <data name="AdvancedTabState" xml:space="preserve">
+    <value>כלים והגדרות</value>
+  </data>
+  <data name="AliasApplyNote" xml:space="preserve">
+    <value>מופעל בכל פעם שקול מותקן או מותקן מחדש מהכרטיסייה קול. קולות קיימים יקלטו את השינוי בפעם הבאה שתתקין אותם.</value>
+  </data>
+  <data name="AliasArabicHint" xml:space="preserve">
+    <value>קול בשפה מימין לשמאל (ערבית, אורדו, פרסית, עברית, פשטו…) מופיע גם תחת ערבית (ar-SA), כך שאפליקציות המוגדרות לקולות ערבית יכולות למצוא אותו.</value>
+  </data>
+  <data name="AliasArabicLabel" xml:space="preserve">
+    <value>גם כינויות קול מימין לשמאל תחת ערבית</value>
+  </data>
+  <data name="AliasEnUsHint" xml:space="preserve">
+    <value>קול בכל שפה אחרת מופיע גם כן כאנגלית (en-US), כך שיישומים שמציגים רק קולות באנגלית — כמו כמה כותרים של AAC — יכולים להשתמש בו.</value>
+  </data>
+  <data name="AliasEnUsLabel" xml:space="preserve">
+    <value>הוסף שם עט en-US לקולות שאינם באנגלית</value>
+  </data>
+  <data name="AliasSettingsIntro" xml:space="preserve">
+    <value>קולות מותקנים עם השפה האמיתית שלהם. כינויים מוסיפים עותקים נוספים תחת שפה שנייה כך שיישומים שמסננים לפי שפה יוכלו עדיין למצוא אותם.</value>
+  </data>
+  <data name="AliasSettingsTitle" xml:space="preserve">
+    <value>כינויים של קול SAPI</value>
+  </data>
+  <data name="BackToEngines" xml:space="preserve">
+    <value>חזרה למנועים</value>
+  </data>
+  <data name="BadgeCloud" xml:space="preserve">
+    <value>ענן</value>
+  </data>
+  <data name="BadgeCredsNeeded" xml:space="preserve">
+    <value>מפתח דרוש</value>
+  </data>
+  <data name="BadgeKeyStored" xml:space="preserve">
+    <value>מפתח נשמר</value>
+  </data>
+  <data name="BadgeNoCreds" xml:space="preserve">
+    <value>אין מפתח</value>
+  </data>
+  <data name="BadgeOffline" xml:space="preserve">
+    <value>לא מקוון</value>
+  </data>
+  <data name="ClearVisible" xml:space="preserve">
+    <value>מוצג בבירור</value>
+  </data>
+  <data name="CredentialsFooterHint" xml:space="preserve">
+    <value>אמת מפתח כדי לבדוק שהוא עובד לפני טעינת קולות. אתה יכול לחזור בכל עת.</value>
+  </data>
+  <data name="CredentialsIntro" xml:space="preserve">
+    <value>הזן את האישורים עבור כל מנוע שנבחר. הערכים נשמרים רק במחשב זה.</value>
+  </data>
+  <data name="CredentialsNoneNeeded" xml:space="preserve">
+    <value>אין מנועים נבחרים הזקוקים לאישורי גישה.</value>
+  </data>
+  <data name="DeselectAllVoices" xml:space="preserve">
+    <value>בטל סימון של כל הקולות</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>הורד</value>
+  </data>
+  <data name="DownloadFailedSingle" xml:space="preserve">
+    <value>ההורדה נכשלה עבור {0}</value>
+  </data>
+  <data name="DownloadFailedTitle" xml:space="preserve">
+    <value>ההורדה נכשלה עבור {0}. בדוק את חיבור האינטרנט שלך ונסה שוב — אם זה ממשיך להיכשל, סגור אפליקציות קול אחרות והפעל מחדש את VoiceGarden.</value>
+  </data>
+  <data name="EdgeEngineDesc" xml:space="preserve">
+    <value>קולות ענן חינמיים של מיקרוסופט בהרבה שפות. האפשרות החינמית הטובה ביותר אונליין — איכות טבעית, ללא מפתח API, דורש אינטרנט.</value>
+  </data>
+  <data name="EdgeEngineName" xml:space="preserve">
+    <value>קולות אדג'</value>
+  </data>
+  <data name="EngineDescKeyOnly" xml:space="preserve">
+    <value>{0} קולות ענן. צריך מפתח API.</value>
+  </data>
+  <data name="EngineDescKeyRegion" xml:space="preserve">
+    <value>{0} קולות ענן. דורש מפתח API ואזור.</value>
+  </data>
+  <data name="EngineDescKeySecretRegion" xml:space="preserve">
+    <value>קולות ענן של {0}. דרוש מפתח גישה, מפתח סודי ואזור.</value>
+  </data>
+  <data name="EngineDescKeyUserId" xml:space="preserve">
+    <value>קולות ענן {0}. דורש מפתח API ומזהה משתמש.</value>
+  </data>
+  <data name="EnginesSelectedSummary" xml:space="preserve">
+    <value>{0} מתוך {1} מנועים נבחרו</value>
+  </data>
+  <data name="FieldAPIKey" xml:space="preserve">
+    <value>מפתח API</value>
+  </data>
+  <data name="FieldAccessKeyId" xml:space="preserve">
+    <value>מזהה מפתח גישה</value>
+  </data>
+  <data name="FieldInstanceId" xml:space="preserve">
+    <value>מזהה מקרה</value>
+  </data>
+  <data name="FieldRegion" xml:space="preserve">
+    <value>אזור</value>
+  </data>
+  <data name="FieldSecretAccessKey" xml:space="preserve">
+    <value>מפתח גישה סודי</value>
+  </data>
+  <data name="FieldSubscriptionKey" xml:space="preserve">
+    <value>מפתח מנוי</value>
+  </data>
+  <data name="FieldToken" xml:space="preserve">
+    <value>אסימון</value>
+  </data>
+  <data name="FieldUserId" xml:space="preserve">
+    <value>מזהה משתמש</value>
+  </data>
+  <data name="FilterAllEngines" xml:space="preserve">
+    <value>כל המנועים</value>
+  </data>
+  <data name="FilterAllLanguages" xml:space="preserve">
+    <value>כל השפות</value>
+  </data>
+  <data name="FilterAllTypes" xml:space="preserve">
+    <value>כל הסוגים</value>
+  </data>
+  <data name="FilterAnyEngine" xml:space="preserve">
+    <value>כל המנועים</value>
+  </data>
+  <data name="FilterAnyGender" xml:space="preserve">
+    <value>כל מגדר</value>
+  </data>
+  <data name="FilterAnyLanguage" xml:space="preserve">
+    <value>כל שפה</value>
+  </data>
+  <data name="FilterAnyQuality" xml:space="preserve">
+    <value>כל איכות</value>
+  </data>
+  <data name="FilterCredentials" xml:space="preserve">
+    <value>אסמכתאות</value>
+  </data>
+  <data name="FilterCredsNeeded" xml:space="preserve">
+    <value>מפתח דרוש</value>
+  </data>
+  <data name="FilterEngine" xml:space="preserve">
+    <value>סנן לפי מנוע</value>
+  </data>
+  <data name="FilterGender" xml:space="preserve">
+    <value>סנן לפי מגדר</value>
+  </data>
+  <data name="FilterLanguage" xml:space="preserve">
+    <value>שפה</value>
+  </data>
+  <data name="FilterNoCreds" xml:space="preserve">
+    <value>לא נדרש מפתח</value>
+  </data>
+  <data name="FilterOfflineOnly" xml:space="preserve">
+    <value>רק לא מקוון</value>
+  </data>
+  <data name="FilterOnlineOnly" xml:space="preserve">
+    <value>רק אונליין</value>
+  </data>
+  <data name="FilterQuality" xml:space="preserve">
+    <value>סנן לפי איכות</value>
+  </data>
+  <data name="FilterType" xml:space="preserve">
+    <value>סוג</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>מִין</value>
+  </data>
+  <data name="LanguageFilterHiddenNote" xml:space="preserve">
+    <value>{0} מנועים מוסתרים — השפות שלהם אינן ידועות עד שהקולות שלהם נטענים בכרטיסיית הקולות.</value>
+  </data>
+  <data name="LoadVoices" xml:space="preserve">
+    <value>טען קולות</value>
+  </data>
+  <data name="NextCredentials" xml:space="preserve">
+    <value>הבא: אישורים</value>
+  </data>
+  <data name="NextVoices" xml:space="preserve">
+    <value>הבא: קולות</value>
+  </data>
+  <data name="PreviewFailedTitle" xml:space="preserve">
+    <value>הצגת התצוגה המקדימה נכשלה עבור {0}.</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>איכות</value>
+  </data>
+  <data name="RefreshInstalled" xml:space="preserve">
+    <value>רענון הותקן</value>
+  </data>
+  <data name="RemoveSelected" xml:space="preserve">
+    <value>הסר נבחר מ-SAPI</value>
+  </data>
+  <data name="RescannedVoices" xml:space="preserve">
+    <value>רובם רעננו — הותקנו {0} קולות</value>
+  </data>
+  <data name="SearchEngines" xml:space="preserve">
+    <value>מנועי חיפוש, שפות…</value>
+  </data>
+  <data name="SelectAllVoices" xml:space="preserve">
+    <value>בחר את כל הקולות המוצגים</value>
+  </data>
+  <data name="SelectVisible" xml:space="preserve">
+    <value>בחר מוצג</value>
+  </data>
+  <data name="SherpaOnnxEngineDesc" xml:space="preserve">
+    <value>קולות עצביים לא מקוונים בשפות רבות. הטוב ביותר לאמינות ופרטיות — פועל ללא חשבון או אינטרנט לאחר ההורדה.</value>
+  </data>
+  <data name="SherpaOnnxEngineName" xml:space="preserve">
+    <value>שרפאון אוקס</value>
+  </data>
+  <data name="Step4Desc" xml:space="preserve">
+    <value>פתח את לשונית הקולות ולחץ על טען קולות. סנן לפי שפה, מגדר או איכות, הקשק את אלו שאתה אוהב, ואז השתמש בהורדה (מודלים לא מקוונים) והתקן ל-SAPI. קולות שהותקנו מופיעים מיד באפליקציות שלך.</value>
+  </data>
+  <data name="Step4Title" xml:space="preserve">
+    <value>קבלו את הקולות שלכם</value>
+  </data>
+  <data name="TabCredentials" xml:space="preserve">
+    <value>אסמכתאות</value>
+  </data>
+  <data name="TabCredentialsCount" xml:space="preserve">
+    <value>{0} מנועים צריכים מפתחות</value>
+  </data>
+  <data name="TabCredentialsNotNeeded" xml:space="preserve">
+    <value>לא נדרש</value>
+  </data>
+  <data name="TabCredentialsTitle" xml:space="preserve">
+    <value>אסמכתאות</value>
+  </data>
+  <data name="TabEngines" xml:space="preserve">
+    <value>מנועי קול</value>
+  </data>
+  <data name="TabEnginesCount" xml:space="preserve">
+    <value>{0} נבחר</value>
+  </data>
+  <data name="TabEnginesIntro" xml:space="preserve">
+    <value>בחר את מנועי הקול שבהם אתה רוצה להשתמש. בחר קולות אופליין שעובדים ללא חשבון, קולות ענן חינמיים, או מנועי ענן שדורשים מפתח API.</value>
+  </data>
+  <data name="TabEnginesTitle" xml:space="preserve">
+    <value>מנועי קול</value>
+  </data>
+  <data name="TabVoices" xml:space="preserve">
+    <value>קולות</value>
+  </data>
+  <data name="TabVoicesCount" xml:space="preserve">
+    <value>{0} קולות</value>
+  </data>
+  <data name="TabVoicesIntro" xml:space="preserve">
+    <value>כל קול מהמנועים שבחרת. סנן, תצוגה מקדימה, ואז התקן את אלו שאתה רוצה ב-Windows SAPI.</value>
+  </data>
+  <data name="TabVoicesTitle" xml:space="preserve">
+    <value>קולות</value>
+  </data>
+  <data name="UnknownEngine" xml:space="preserve">
+    <value>מנוע לא ידוע</value>
+  </data>
+  <data name="UnknownLanguage" xml:space="preserve">
+    <value>לא נודע</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>אמת</value>
+  </data>
+  <data name="VerifyNoVoices" xml:space="preserve">
+    <value>המפתח התקבל אך לא הוחזרו קולות — בדוק שלמפתח יש גישה ל-TTS.</value>
+  </data>
+  <data name="VoicesCountSummary" xml:space="preserve">
+    <value>{0} קולות · {1} נבחרו · {2} הותקנו</value>
+  </data>
+  <data name="VoicesEmptyHint" xml:space="preserve">
+    <value>בחר את מנועי הקול שלך בכרטיסיית מנועי הקול תחילה (הוסף שם גם פרטי התחברות אם המנוע דורש מפתח), ואז טען כאן קולות.</value>
+  </data>
+  <data name="VoicesEmptyNoEngines" xml:space="preserve">
+    <value>לא נבחרו מנועים — פתח את לשונית מנועי הקול וסמן לפחות מנוע אחד.</value>
+  </data>
+  <data name="VoicesEmptyTitle" xml:space="preserve">
+    <value>עדיין אין קולות</value>
+  </data>
+  <data name="VoicesFetchFailed" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="VoicesLoaded" xml:space="preserve">
+    <value>טענו {0} קולות</value>
+  </data>
+  <data name="VoicesMissingKey" xml:space="preserve">
+    <value>{0}: אין מפתח API — הוסף אחד בלשונית האישורים</value>
+  </data>
+  <data name="VoicesNoEnginesSelected" xml:space="preserve">
+    <value>בחר לפחות מנוע אחד בכרטיסיית מנועי הקול תחילה.</value>
+  </data>
+  <data name="VoicesPromoteFailed" xml:space="preserve">
+    <value>לא ניתן להתקין את {0} (ייתכן שנדרשת אישור מנהל)</value>
+  </data>
+  <data name="VoicesPromotedSingle" xml:space="preserve">
+    <value>{0} הותקן ל-SAPI</value>
+  </data>
+  <data name="VoicesSkippedNoKey" xml:space="preserve">
+    <value>{0} מנועים דולגים — לא הוגדר מפתח API</value>
+  </data>
+  <data name="VoicesUnpromoteFailed" xml:space="preserve">
+    <value>הוסר {0}; נכשל {1}</value>
+  </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>הצג רק קולות מותקנים</value>
   </data>
 </root>

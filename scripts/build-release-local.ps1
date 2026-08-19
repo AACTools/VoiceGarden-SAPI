@@ -21,6 +21,8 @@ param(
     [ValidateSet("x64", "x86", "ARM64", "all")]
     [string[]]$Platforms = @("x64"),
 
+    [string]$InstallerVersion = "",
+
     [switch]$SkipSherpaDeps,
     [switch]$ForceSherpaDeps,
     [switch]$SkipSubmodules,
@@ -233,11 +235,11 @@ if ($LASTEXITCODE -ne 0) {
     throw "dotnet publish failed with exit code $LASTEXITCODE"
 }
 
-# Single-file publish drops content files; copy merged_models.json manually.
-$catalogSrc = Join-Path $RepoRoot "SherpaOnnxConfig\merged_models.json"
+# Single-file publish drops content files; copy models.json manually.
+$catalogSrc = Join-Path $RepoRoot "SherpaOnnxConfig\models.json"
 if (Test-Path $catalogSrc) {
     Copy-Item -Path $catalogSrc -Destination $sherpaConfigOutput -Force
-    Write-Host "  merged_models.json copied to publish output" -ForegroundColor DarkGray
+    Write-Host "  models.json copied to publish output" -ForegroundColor DarkGray
 }
 
 Write-Host "  SherpaOnnxConfig built successfully" -ForegroundColor Green
@@ -259,8 +261,8 @@ if ($LASTEXITCODE -ne 0) {
     throw "dotnet publish failed for VoiceGarden.UI with exit code $LASTEXITCODE"
 }
 
-# Copy merged_models.json
-$catalogSrc = Join-Path $RepoRoot "SherpaOnnxConfig\merged_models.json"
+# Copy models.json
+$catalogSrc = Join-Path $RepoRoot "SherpaOnnxConfig\models.json"
 if (Test-Path $catalogSrc) {
     Copy-Item -Path $catalogSrc -Destination $voiceGardenUiOutput -Force
 }
@@ -279,22 +281,23 @@ Ensure-Dir $StageRoot
 foreach ($Platform in $Platforms) {
     $utilOut = Join-Path $StageRoot "utilities-$Platform"
     Ensure-Dir $utilOut
+    # MSBuild OutDir must use forward slashes: a trailing backslash before the
+    # closing quote escapes it and breaks argument parsing on paths with spaces.
+    $utilOutArg = ($utilOut.Replace('\', '/')) + '/'
 
-    if ($Platform -ne "ARM64") {
-        Write-Host "  AzureSpeechSDKShim ($Platform)..." -ForegroundColor Cyan
-        Invoke-Restore -InputPath (Join-Path $RepoRoot "AzureSpeechSDKShim")
-        & $msbuild /m /p:Configuration=$Configuration /p:Platform=$Platform /p:OutDir="$utilOut\" (Join-Path $RepoRoot "AzureSpeechSDKShim")
-        if ($LASTEXITCODE -ne 0) { throw "AzureSpeechSDKShim build failed ($Platform)" }
-    }
+    # AzureSpeechSDKShim/Patcher are no longer built or shipped: the local
+    # Narrator voice feature they supported was dropped (TOS concerns) and
+    # EnumLocalVoices has no callers, so the Azure Speech SDK runtime chain
+    # is never loaded.
 
     $ttsAppDir = Join-Path $RepoRoot "TtsApplication"
     if (Test-Path $ttsAppDir) {
         Write-Host "  TtsApplication ($Platform)..." -ForegroundColor Cyan
         Invoke-Restore -InputPath $ttsAppDir
         if ($Platform -eq "x86") {
-            & $msbuild /m /p:Configuration=$Configuration /p:Platform=Win32 /p:OutDir="$utilOut\" (Join-Path $ttsAppDir "TtsApplication.sln")
+            & $msbuild /m /p:Configuration=$Configuration /p:Platform=Win32 /p:OutDir="$utilOutArg" (Join-Path $ttsAppDir "TtsApplication.sln")
         } else {
-            & $msbuild /m /p:Configuration=$Configuration /p:Platform=$Platform /p:OutDir="$utilOut\" (Join-Path $ttsAppDir "TtsApplication.sln")
+            & $msbuild /m /p:Configuration=$Configuration /p:Platform=$Platform /p:OutDir="$utilOutArg" (Join-Path $ttsAppDir "TtsApplication.sln")
         }
         if ($LASTEXITCODE -ne 0) { throw "TtsApplication build failed ($Platform)" }
     } else {
@@ -304,10 +307,10 @@ foreach ($Platform in $Platforms) {
     if ($Platform -eq "ARM64") {
         Write-Host "  Arm64XForwarder (ARM64EC)..." -ForegroundColor Cyan
         Invoke-Restore -InputPath (Join-Path $RepoRoot "Arm64XForwarder") -SolutionDirectory $RepoRoot
-        & $msbuild /m /p:Configuration=$Configuration /p:Platform=ARM64EC /p:OutDir="$utilOut\" (Join-Path $RepoRoot "Arm64XForwarder")
+        & $msbuild /m /p:Configuration=$Configuration /p:Platform=ARM64EC /p:OutDir="$utilOutArg" (Join-Path $RepoRoot "Arm64XForwarder")
         if ($LASTEXITCODE -ne 0) {
             Write-Host "  Warning: ARM64EC build failed; falling back to ARM64 for Arm64XForwarder." -ForegroundColor Yellow
-            & $msbuild /m /p:Configuration=$Configuration /p:Platform=ARM64 /p:OutDir="$utilOut\" (Join-Path $RepoRoot "Arm64XForwarder")
+            & $msbuild /m /p:Configuration=$Configuration /p:Platform=ARM64 /p:OutDir="$utilOutArg" (Join-Path $RepoRoot "Arm64XForwarder")
             if ($LASTEXITCODE -ne 0) { throw "Arm64XForwarder build failed (ARM64EC and ARM64 fallback)" }
         }
     }
@@ -316,10 +319,11 @@ foreach ($Platform in $Platforms) {
         # Installer.exe removed — VoiceGarden.UI.exe is the main app
     }
 
-        # Stage SherpaOnnxConfig for x86/x64 utilities (matches CI behavior)
+        # Stage the model catalog for x86/x64 utilities (matches CI).
+        # SherpaOnnxConfig.exe itself is NOT shipped — VoiceGarden.UI.exe
+        # replaced all of its functionality and nothing launches it.
         if ($Platform -eq "x86" -or $Platform -eq "x64") {
-            Copy-Item -Path (Join-Path $sherpaConfigOutput "SherpaOnnxConfig.exe") -Destination $utilOut -Force
-            $models = Join-Path $sherpaConfigOutput "merged_models.json"
+            $models = Join-Path $sherpaConfigOutput "models.json"
             if (Test-Path $models) {
                 Copy-Item -Path $models -Destination $utilOut -Force
             }
@@ -333,6 +337,7 @@ Write-Host "[Step 5/8] Building VoiceGardenSAPIAdapter per platform..." -Foregro
 foreach ($Platform in $Platforms) {
     $mainOut = Join-Path $StageRoot "main-$Platform"
     Ensure-Dir $mainOut
+    $mainOutArg = ($mainOut.Replace('\', '/')) + '/'
 
     Write-Host "  Building main adapter ($Platform)..." -ForegroundColor Cyan
     & $msbuild (Join-Path $RepoRoot "VoiceGardenSAPIAdapter.sln") `
@@ -349,7 +354,7 @@ foreach ($Platform in $Platforms) {
         /m /maxcpucount `
         /p:Configuration=$Configuration `
         /p:Platform=$Platform `
-        /p:OutDir="$mainOut\" `
+        /p:OutDir="$mainOutArg" `
         /p:RegisterOutput=false `
         /nologo /v:minimal `
         /t:VoiceGardenSAPIAdapter
@@ -378,8 +383,13 @@ if (!$SkipVerify) {
     Write-Host "[Step 6/8] Running Sherpa integration verification..." -ForegroundColor Cyan
     & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\verify-sherpa-integration.ps1") -SkipBuild
     if ($LASTEXITCODE -ne 0) { throw "Sherpa integration verification failed" }
-    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\run-sherpa-smoke-test.ps1") -CompileOnly
-    if ($LASTEXITCODE -ne 0) { throw "Sherpa smoke test compile failed" }
+    $smokeTest = Join-Path $RepoRoot "scripts\run-sherpa-smoke-test.ps1"
+    if (Test-Path $smokeTest) {
+        & powershell -NoProfile -ExecutionPolicy Bypass -File $smokeTest -CompileOnly
+        if ($LASTEXITCODE -ne 0) { throw "Sherpa smoke test compile failed" }
+    } else {
+        Write-Host "  run-sherpa-smoke-test.ps1 not present; skipping (CI does not run it)" -ForegroundColor DarkGray
+    }
     Write-Host "  Verification passed" -ForegroundColor Green
     Write-Host ""
 } else {
@@ -403,6 +413,34 @@ foreach ($Platform in $Platforms) {
     $platformPayload = Join-Path $PayloadDir $Platform
     Copy-Item $utilOut\* $platformPayload\ -Recurse -Force
     Copy-Item $mainOut\* $platformPayload\ -Recurse -Force
+}
+
+# Rust TTS wrapper native DLL (from NuGet package cache) — CI copies this in
+# the setup-composition job (msbuild.yml); the local build had no equivalent,
+# producing payloads without rust_tts_wrapper.dll.
+$rustDllDir = Join-Path $env:USERPROFILE ".nuget\packages\rustttswrapper.bindings"
+if (Test-Path $rustDllDir) {
+    foreach ($rid in @("win-x64", "win-x86")) {
+        $arch = $rid -replace 'win-', ''
+        $targetDir = Join-Path $PayloadDir $arch
+        if (-not (Test-Path $targetDir)) { continue }
+        $dll = Get-ChildItem -Path $rustDllDir -Recurse -Filter "rust_tts_wrapper.dll" |
+            Where-Object { $_.FullName -like "*\runtimes\$rid\native\*" } |
+            Sort-Object {
+                $ver = $_.FullName.Substring($rustDllDir.Length + 1).Split('\')[0]
+                try { [version]$ver } catch { [version]($ver -replace '-.*$', '') }
+            } -Descending |
+            Select-Object -First 1
+        if ($dll) {
+            Copy-Item $dll.FullName $targetDir -Force
+            $dllVersion = $dll.FullName.Substring($rustDllDir.Length + 1).Split('\')[0]
+            Write-Host "  rust_tts_wrapper.dll $dllVersion ($rid) -> payload\$arch\" -ForegroundColor DarkGray
+        } else {
+            Write-Host "  WARNING: rust_tts_wrapper.dll not found for $rid in NuGet cache" -ForegroundColor Yellow
+        }
+    }
+} else {
+    Write-Host "  WARNING: RustTtsWrapper.Bindings not in NuGet cache; payload lacks rust_tts_wrapper.dll (run dotnet restore first)" -ForegroundColor Yellow
 }
 
 # Stage VoiceGarden.UI.exe at payload root (main entry point)
@@ -429,9 +467,25 @@ Write-Host ""
 # Step 8: Build MSI + setup.exe (optional)
 if ($BuildSetup) {
     Write-Host "[Step 8/8] Building MSI and setup.exe..." -ForegroundColor Cyan
-    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\build-setup.ps1") -PayloadDir $PayloadDir -OutputDir $InstallerOutputDir -BrandingFile $brandingSource
+    # Version the MSI so Windows Installer actually replaces files on
+    # upgrade — a repeated version is treated as a no-op. Default is
+    # date-based (0.<yy>.<mmdd>); pass -InstallerVersion to override
+    # (e.g. for same-day rebuilds).
+    if ([string]::IsNullOrWhiteSpace($InstallerVersion)) {
+        $now = Get-Date
+        $InstallerVersion = "0.{0}.{1}" -f $now.ToString("yy"), ([int]$now.ToString("MMdd"))
+    }
+    Write-Host "  Installer version: $InstallerVersion" -ForegroundColor DarkGray
+    # CI calls build-setup.ps1 without -BrandingFile; only pass it when a
+    # branding.json is actually present (empty string fails the mandatory
+    # parameter validation).
+    $setupArgs = @("-PayloadDir", $PayloadDir, "-OutputDir", $InstallerOutputDir, "-Version", $InstallerVersion)
+    if ($brandingSource) { $setupArgs += @("-BrandingFile", $brandingSource) }
+    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\build-setup.ps1") @setupArgs
     if ($LASTEXITCODE -ne 0) { throw "MSI build failed" }
-    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\build-bootstrapper.ps1") -MsiPath (Join-Path $InstallerOutputDir "VoiceGardenSAPIAdapter.msi") -OutputDir $InstallerOutputDir -BrandingFile $brandingSource
+    $bootArgs = @("-MsiPath", (Join-Path $InstallerOutputDir "VoiceGardenSAPIAdapter.msi"), "-OutputDir", $InstallerOutputDir)
+    if ($brandingSource) { $bootArgs += @("-BrandingFile", $brandingSource) }
+    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\build-bootstrapper.ps1") @bootArgs
     if ($LASTEXITCODE -ne 0) { throw "Bootstrapper build failed" }
     Write-Host "  MSI + setup.exe built in $InstallerOutputDir" -ForegroundColor Green
 } else {

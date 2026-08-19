@@ -1,314 +1,79 @@
-<Window xmlns="https://github.com/avaloniaui"
+﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:VoiceGarden.UI.ViewModels"
-        xmlns:models="using:VoiceGarden.UI.Models"
         xmlns:views="using:VoiceGarden.UI.Views"
         xmlns:lang="using:VoiceGarden.UI.Markup"
         x:Class="VoiceGarden.UI.MainWindow"
         x:DataType="vm:MainViewModel"
         Title="{lang:Localize AppName}"
-        Width="680" Height="720"
-        MinWidth="560" MinHeight="560"
+        Width="960" Height="680"
+        MinWidth="640" MinHeight="520"
+        FontSize="14"
         WindowStartupLocation="CenterScreen"
-        Background="White">
+        Background="#F8FAFC">
 
     <Design.DataContext>
         <vm:MainViewModel/>
     </Design.DataContext>
 
-    <Grid RowDefinitions="*">
+    <!-- No in-app header: the window title bar carries the app name and
+         standard close/minimise/maximise chrome; content starts at the top. -->
+    <Grid Margin="20,16,20,16">
 
-        <!-- Screen reader announcement region (invisible, announces view changes) -->
+        <!-- Screen reader announcement region (invisible, announces tab changes) -->
         <TextBlock Text="{Binding ScreenReaderAnnouncement}" IsVisible="False"
                    AutomationProperties.LiveSetting="Assertive"
                    AutomationProperties.Name="{Binding ScreenReaderAnnouncement}"/>
 
-        <!-- ========== MAIN VIEW ========== -->
-        <ScrollViewer Grid.Row="0" IsVisible="{Binding IsMainViewVisible}" Padding="0">
-            <StackPanel Margin="24" Spacing="16">
+        <!-- 3-tab accessible flow + Advanced -->
+        <TabControl SelectedIndex="{Binding SelectedTabIndex}" Background="Transparent">
 
-                <!-- Header with logo -->
-                <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,8">
-                    <TextBlock Text="{Binding AppName}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource VGForegroundBrush}" VerticalAlignment="Center"
-                               />
-                </StackPanel>
-
-                <!-- Adapter Installation -->
-                <Border Classes="Card">
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="{lang:Localize AdapterInstallation}" Classes="CardHeader"
-                                   />
-                        <Grid ColumnDefinitions="*, Auto, Auto" RowDefinitions="Auto, Auto">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Status64Bit}" VerticalAlignment="Center"
-                                       AutomationProperties.LiveSetting="Polite"/>
-                            <Button Grid.Row="0" Grid.Column="1" Content="{Binding Install64Text}"
-                                    Command="{Binding Install64Command}" Margin="8,0,0,0" Padding="20,4" MinWidth="90"
-                                    AutomationProperties.Name="Install 64-bit adapter"/>
-                            <Button Grid.Row="0" Grid.Column="2" Content="{lang:Localize Uninstall}"
-                                    Command="{Binding Uninstall64Command}" Margin="8,0,0,0" Padding="20,4" MinWidth="90"
-                                    IsEnabled="{Binding Is64Installed}"
-                                    AutomationProperties.Name="Uninstall 64-bit adapter"/>
-
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Status32Bit}" VerticalAlignment="Center" Margin="0,8,0,0"
-                                       AutomationProperties.LiveSetting="Polite"/>
-                            <Button Grid.Row="1" Grid.Column="1" Content="{Binding Install32Text}"
-                                    Command="{Binding Install32Command}" Margin="8,8,0,0" Padding="20,4" MinWidth="90"
-                                    AutomationProperties.Name="Install 32-bit adapter"/>
-                            <Button Grid.Row="1" Grid.Column="2" Content="{lang:Localize Uninstall}"
-                                    Command="{Binding Uninstall32Command}" Margin="8,8,0,0" Padding="20,4" MinWidth="90"
-                                    IsEnabled="{Binding Is32Installed}"
-                                    AutomationProperties.Name="Uninstall 32-bit adapter"/>
-                        </Grid>
+            <!-- Tab 1 â€” Voice Engines -->
+            <TabItem AutomationProperties.Name="{Binding EnginesTabHeader}">
+                <TabItem.Header>
+                    <StackPanel Spacing="1" Margin="0,0,0,8">
+                        <TextBlock Text="{Binding EnginesTabHeader}" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding EnginesTabState}" FontSize="11" Opacity="0.7"/>
                     </StackPanel>
-                </Border>
+                </TabItem.Header>
+                <views:EnginesView DataContext="{Binding Engines}" Margin="0,16,0,0"/>
+            </TabItem>
 
-                <!-- Voice Engines -->
-                <Border Classes="Card">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="{lang:Localize VoiceEngines}" Classes="CardHeader"
-                                   />
-
-                        <!-- Offline -->
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="{lang:Localize OfflineVoices}" Classes="SectionLabel"/>
-                            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,2,0,0">
-                                <CheckBox IsChecked="{Binding SherpaEnabled}" Content="{lang:Localize SherpaOnnxNeuralTTS}" MinWidth="200" VerticalAlignment="Center"
-                                          AutomationProperties.HelpText="Enable or disable SherpaOnnx offline neural voices"/>
-                                <TextBlock Text="{Binding SherpaModelSummary}" Classes="Hint" VerticalAlignment="Center"
-                                           AutomationProperties.LiveSetting="Polite"/>
-                                <Button Content="{lang:Localize ManageModels}" Command="{Binding OpenSherpaManagerCommand}"
-                                        Padding="12,2" FontSize="12"
-                                        AutomationProperties.Name="Manage SherpaOnnx models"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <Separator Margin="0,4"/>
-
-                        <!-- Cloud Engines -->
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="{lang:Localize CloudVoices}" Classes="SectionLabel"/>
-
-                            <!-- Scrollable engine checkbox grid -->
-                            <Border BorderBrush="{DynamicResource SystemControlDefaultChromeMediumLowBrush}"
-                                    BorderThickness="1" CornerRadius="4" Padding="8" MaxHeight="200">
-                                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                    <ItemsControl ItemsSource="{Binding CloudEngines}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <WrapPanel Orientation="Horizontal"/>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate x:DataType="models:CloudEngineSetting">
-                                                <CheckBox IsChecked="{Binding Enabled}" Content="{Binding DisplayName}"
-                                                          Margin="0,3" MinWidth="120"
-                                                          AutomationProperties.HelpText="{Binding DisplayName, StringFormat='Enable {0} cloud voices'}"/>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </ScrollViewer>
-                            </Border>
-
-                            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
-                                <Button Content="{lang:Localize ConfigureCredentials}" Command="{Binding OpenEngineConfigCommand}"
-                                        Padding="16,4" MinWidth="160"
-                                        AutomationProperties.Name="Configure cloud engine credentials"/>
-                                <Button Content="{lang:Localize ConfigureVoices}" Command="{Binding OpenVoiceConfigCommand}"
-                                        Padding="16,4" MinWidth="140"
-                                        AutomationProperties.Name="Configure cloud voices"/>
-                            </StackPanel>
-                        </StackPanel>
+            <!-- Tab 2 â€” Credentials (disabled unless a selected engine needs them) -->
+            <TabItem IsEnabled="{Binding CredentialsTabEnabled}"
+                     AutomationProperties.Name="{Binding CredentialsTabState, StringFormat='Credentials tab: {0}'}">
+                <TabItem.Header>
+                    <StackPanel Spacing="1" Margin="0,0,0,8">
+                        <TextBlock Text="{Binding CredentialsTabHeader}" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding CredentialsTabState}" FontSize="11" Opacity="0.7"/>
                     </StackPanel>
-                </Border>
+                </TabItem.Header>
+                <views:CredentialsView DataContext="{Binding Credentials}" Margin="0,16,0,0"/>
+            </TabItem>
 
-                <!-- Advanced (Collapsible, hidden by default) -->
-                <Border Classes="Card" IsVisible="{Binding ShowAdvanced}">
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="{lang:Localize Advanced}" Classes="CardHeader"
-                                   />
-                        <CheckBox Content="{lang:Localize EnableEdgeVoices}" IsChecked="{Binding EdgeEnabled}" Margin="0"
-                                  AutomationProperties.HelpText="Enable Microsoft Edge browser voices (free, no API key needed)"/>
-                        <CheckBox Content="{lang:Localize EnableAnalytics}" IsChecked="{Binding AnalyticsEnabled}" Margin="0"
-                                  AutomationProperties.HelpText="Enable anonymous usage analytics to help improve VoiceGarden"/>
-                        <TextBlock Text="{lang:Localize AnalyticsHint}"
-                                   Classes="Hint" Opacity="0.5" Margin="16,0,0,0" TextWrapping="Wrap"/>
-                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
-                            <TextBlock Text="{lang:Localize LogLevel}" VerticalAlignment="Center"/>
-                            <ComboBox SelectedIndex="{Binding LogLevelIndex}" MinWidth="100"
-                                      AutomationProperties.Name="Log level selector"
-                                      AutomationProperties.HelpText="Set the verbosity of diagnostic logs"/>
-                            <Button Content="{lang:Localize OpenLogs}" Command="{Binding OpenLogsCommand}" Padding="12,2"
-                                    AutomationProperties.Name="Open log files folder"/>
-                        </StackPanel>
+            <!-- Tab 3 â€” Voices -->
+            <TabItem AutomationProperties.Name="{Binding VoicesTabState, StringFormat='Voices tab: {0}'}">
+                <TabItem.Header>
+                    <StackPanel Spacing="1" Margin="0,0,0,8">
+                        <TextBlock Text="{Binding VoicesTabHeader}" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding VoicesTabState}" FontSize="11" Opacity="0.7"/>
                     </StackPanel>
-                </Border>
+                </TabItem.Header>
+                <views:VoicesView DataContext="{Binding Voices}" Margin="0,16,0,0"/>
+            </TabItem>
 
-                <ToggleButton Content="{Binding AdvancedToggleText}" IsChecked="{Binding ShowAdvanced}"
-                              Padding="12,4" HorizontalAlignment="Left" FontSize="12"
-                              AutomationProperties.HelpText="Show or hide advanced settings"/>
+            <!-- Advanced â€” everything else -->
+            <TabItem AutomationProperties.Name="{lang:Localize Advanced}">
+                <TabItem.Header>
+                    <StackPanel Spacing="1" Margin="0,0,0,8">
+                        <TextBlock Text="{lang:Localize Advanced}" FontWeight="SemiBold"/>
+                        <TextBlock Text="{lang:Localize AdvancedTabState}" FontSize="11" Opacity="0.7"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <views:AdvancedView Margin="0,16,0,0"/>
+            </TabItem>
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,8,0,0">
-                    <Button Content="{lang:Localize About}" Command="{Binding ShowAboutCommand}" Padding="20,6"
-                            AutomationProperties.Name="About VoiceGarden"/>
-                    <Button Content="{lang:Localize Close}" Click="Close_Click" Classes="Primary" Padding="20,6"
-                            AutomationProperties.Name="Close VoiceGarden"/>
-                </StackPanel>
-
-            </StackPanel>
-        </ScrollViewer>
-
-        <!-- ========== VOICE CONFIG VIEW ========== -->
-        <Grid Grid.Row="0" IsVisible="{Binding IsVoiceConfigVisible}">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="24,16,24,8">
-                <Button Content="{lang:Localize Back}" Command="{Binding BackToMainCommand}" Padding="12,4"/>
-                <TextBlock Text="{lang:Localize ConfigureVoicesTitle}" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
-            </StackPanel>
-            <views:VoiceConfigView Grid.Row="1" DataContext="{Binding VoiceConfig}" Margin="24,0,24,16"/>
-        </Grid>
-
-        <!-- ========== ENGINE CONFIG VIEW ========== -->
-        <Grid Grid.Row="0" IsVisible="{Binding IsEngineConfigVisible}">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="24,16,24,8">
-                <Button Content="{lang:Localize Back}" Command="{Binding BackToMainCommand}" Padding="12,4"/>
-                <TextBlock Text="{lang:Localize ConfigureCredentialsTitle}" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
-            </StackPanel>
-            <ScrollViewer Grid.Row="1" Margin="24,0,24,16">
-                <StackPanel Spacing="8">
-                    <ItemsControl ItemsSource="{Binding CloudEngines}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="models:CloudEngineSetting">
-                                <Border Classes="EngineRow" IsVisible="{Binding Enabled}" Margin="0,2">
-                                    <StackPanel Spacing="2">
-                                        <Grid ColumnDefinitions="120, *, 100, Auto">
-                                            <TextBlock Grid.Column="0" Text="{Binding DisplayName}"
-                                                       FontWeight="Medium" VerticalAlignment="Center"/>
-                                            <TextBox Grid.Column="1" Text="{Binding ApiKey}"
-                                                     Watermark="{lang:Localize APIKey}" PasswordChar="*"
-                                                     Margin="8,0" VerticalAlignment="Center"
-                                                     AutomationProperties.Name="{Binding DisplayName}"
-                                                     AutomationProperties.HelpText="{Binding DisplayName, StringFormat='Enter your {0} API key'}"/>
-                                            <TextBox Grid.Column="2" Text="{Binding Region}"
-                                                     Watermark="{lang:Localize Region}" IsVisible="{Binding NeedsRegion}"
-                                                     VerticalAlignment="Center"
-                                                     AutomationProperties.Name="Region"
-                                                     AutomationProperties.HelpText="Enter the region for this cloud provider"/>
-                                            <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                                                <Button Content="Verify" Click="VerifyCredentials_Click"
-                                                        Tag="{Binding Id}" Padding="12,2" Margin="8,0"
-                                                        IsEnabled="{Binding HasKey}"
-                                                        AutomationProperties.Name="{Binding DisplayName, StringFormat='Verify {0} credentials'}"/>
-                                                <TextBlock VerticalAlignment="Center" FontSize="16" FontWeight="Bold"
-                                                           Text="{Binding VerificationIcon}"
-                                                           Foreground="{Binding VerificationStatus, Converter={x:Static vm:VerificationColorConverter.Instance}}"
-                                                           IsVisible="{Binding !!VerificationIcon.Length}"/>
-                                            </StackPanel>
-                                        </Grid>
-                                        <TextBlock Text="{Binding VerificationDetail}" FontSize="11"
-                                                   Opacity="0.7" Margin="0,0,0,2" TextWrapping="Wrap"
-                                                   IsVisible="{Binding !!VerificationDetail.Length}"
-                                                   AutomationProperties.LiveSetting="Polite"/>
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    <TextBlock Text="{lang:Localize OnlyEnabledEngines}"
-                               Classes="Hint" Margin="0,8,0,0"/>
-                </StackPanel>
-            </ScrollViewer>
-        </Grid>
-
-        <!-- ========== ABOUT VIEW ========== -->
-        <Grid Grid.Row="0" IsVisible="{Binding IsAboutVisible}" Margin="24">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,16">
-                <Button Content="{lang:Localize Back}" Command="{Binding BackToMainCommand}" Padding="12,4"/>
-            </StackPanel>
-            <ScrollViewer Grid.Row="1">
-                <StackPanel Spacing="12" MaxWidth="500">
-                    <TextBlock Text="{Binding AboutText}" FontSize="14" TextWrapping="Wrap"/>
-                </StackPanel>
-            </ScrollViewer>
-        </Grid>
-
-        <!-- ========== SHERPA MODELS VIEW ========== -->
-        <Grid Grid.Row="0" IsVisible="{Binding IsSherpaManagerVisible}">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="24,16,24,8">
-                <Button Content="{lang:Localize Back}" Command="{Binding BackToMainCommand}" Padding="12,4"/>
-                <TextBlock Text="{lang:Localize SherpaOnnxModels}" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
-            </StackPanel>
-            <views:SherpaModelsView Grid.Row="1" DataContext="{Binding SherpaModels}" Margin="24,0,24,16"/>
-        </Grid>
-
+        </TabControl>
     </Grid>
 
-    <Window.Styles>
-        <!-- Card style — clean white, subtle border, 8px radius (website design) -->
-        <Style Selector="Border.Card">
-            <Setter Property="Background" Value="{StaticResource VGCardBrush}"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Padding" Value="16"/>
-            <Setter Property="BorderBrush" Value="{StaticResource VGBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BoxShadow" Value="0 1 3 0 #10000000"/>
-        </Style>
-        <Style Selector="Border.EngineRow">
-            <Setter Property="Background" Value="{StaticResource VGAccentBrush}"/>
-            <Setter Property="CornerRadius" Value="6"/>
-            <Setter Property="Padding" Value="12,6"/>
-        </Style>
-        <!-- Card headers — dark navy, semibold -->
-        <Style Selector="TextBlock.CardHeader">
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Foreground" Value="{StaticResource VGForegroundBrush}"/>
-            <Setter Property="Margin" Value="0,0,0,4"/>
-        </Style>
-        <Style Selector="TextBlock.SectionLabel">
-            <Setter Property="FontWeight" Value="Medium"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Foreground" Value="{StaticResource VGMutedBrush}"/>
-        </Style>
-        <Style Selector="TextBlock.Hint">
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="Foreground" Value="{StaticResource VGMutedBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-        <!-- Primary button — orange with off-white text -->
-        <Style Selector="Button.Primary">
-            <Setter Property="Background" Value="{StaticResource VGPrimaryBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource VGPrimaryForegroundBrush}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="CornerRadius" Value="6"/>
-        </Style>
-        <Style Selector="Button.Primary:pointerover">
-            <Setter Property="Background" Value="{StaticResource VGPrimaryHoverBrush}"/>
-        </Style>
-        <!-- Standard buttons — clean outline style -->
-        <Style Selector="Button">
-            <Setter Property="CornerRadius" Value="6"/>
-        </Style>
-    </Window.Styles>
-
 </Window>
-
-
-
-
-

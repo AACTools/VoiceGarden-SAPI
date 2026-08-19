@@ -268,21 +268,12 @@ public static class CliDispatcher
         return 1;
     }
 
+    /// <summary>
+    /// Build wrapper credentials via the shared TtsCredentialBuilder so the
+    /// CLI and the UI cannot drift apart on engine credential shapes.
+    /// </summary>
     private static Dictionary<string, string>? BuildRustCredentials(string engine, string key, string region)
-    {
-        return engine.ToLowerInvariant() switch
-        {
-            "azure" => new() { { "subscriptionKey", key }, { "region", region } },
-            "openai" or "elevenlabs" or "google" or "cartesia" or "deepgram" or
-            "fishaudio" or "hume" or "mistral" or "murf" or "resemble" or
-            "unrealspeech" or "upliftai" or "xai" or "modelslab" =>
-                new() { { "apiKey", key } },
-            "watson" => new() { { "apiKey", key }, { "region", region } },
-            "playht" => new() { { "apiKey", key }, { "userId", region } },
-            "witai" => new() { { "token", key } },
-            _ => null,
-        };
-    }
+        => Services.TtsCredentialBuilder.Build(engine, key, region);
 
     private static int RunModels(string[] args)
     {

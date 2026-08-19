@@ -12,8 +12,9 @@ public partial class App : Application
     /// <summary>
     /// Bump this when onboarding content changes to force all users to see it again.
     /// Also used to detect fresh installs (stored version = 0).
+    /// v2: walkthrough rewritten for the 3-tab Engines/Credentials/Voices flow.
     /// </summary>
-    private const int CurrentOnboardingVersion = 1;
+    private const int CurrentOnboardingVersion = 2;
 
     public override void Initialize()
     {

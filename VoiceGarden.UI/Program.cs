@@ -40,16 +40,66 @@ internal class Program
         _singleInstanceMutex = new Mutex(true, "VoiceGarden.UI.SingleInstance", out bool createdNew);
         if (!createdNew)
         {
-            // Another instance is running — try to bring it to the foreground
-            BringExistingInstanceToFront();
-            return;
+            // Another instance is running. If it has a window, bring it to
+            // the front. If it has been running for a while with no window
+            // (a zombie holding the mutex), kill it and take over instead of
+            // exiting with nothing shown — otherwise the app can never be
+            // launched again without manual intervention.
+            if (BringExistingInstanceToFront())
+                return;
+            if (!TryTakeOverFromWindowlessInstance())
+                return; // a healthy instance came forward while we waited
         }
 
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
     }
 
-    private static void BringExistingInstanceToFront()
+    /// <summary>
+    /// Kill any VoiceGarden.UI process that owns no visible window, then
+    /// wait for the single-instance mutex to be released. Returns true when
+    /// we can proceed with launching the UI.
+    /// </summary>
+    private static bool TryTakeOverFromWindowlessInstance()
+    {
+        try
+        {
+            var current = System.Diagnostics.Process.GetCurrentProcess();
+            foreach (var proc in System.Diagnostics.Process.GetProcessesByName(current.ProcessName))
+            {
+                if (proc.Id == current.Id) continue;
+                try
+                {
+                    if (proc.MainWindowHandle != IntPtr.Zero) continue; // has UI — leave it
+                    // A just-started instance may not have created its window
+                    // yet — only treat long-running windowless processes as
+                    // zombies.
+                    if ((DateTime.Now - proc.StartTime).TotalSeconds < 30) continue;
+                    proc.Kill();
+                }
+                catch { }
+            }
+
+            // Wait for the killed processes to release the mutex
+            _singleInstanceMutex.Dispose();
+            for (var i = 0; i < 50; i++)
+            {
+                System.Threading.Thread.Sleep(200);
+                _singleInstanceMutex = new Mutex(true, "VoiceGarden.UI.SingleInstance", out bool created);
+                if (created)
+                    return true;
+            }
+            // Someone else (a healthy instance) owns it now — defer to it.
+            BringExistingInstanceToFront();
+            return false;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static bool BringExistingInstanceToFront()
     {
         try
         {
@@ -80,9 +130,11 @@ internal class Program
             {
                 ShowWindow(found, SW_RESTORE);
                 SetForegroundWindow(found);
+                return true;
             }
         }
         catch { }
+        return false;
     }
 
     private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);

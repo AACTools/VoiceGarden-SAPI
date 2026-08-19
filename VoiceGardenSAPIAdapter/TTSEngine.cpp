@@ -505,7 +505,327 @@ inline static bool CheckHrNotFound(HRESULT hr)
     return false;
 }
 
-LSTATUS TryLoadAzureSpeechSDK();
+
+// Legacy -> canonical model IDs from the sherpa-onnx registry
+// canonicalisations (2026-08-10 and 2026-08-18 syncs; rust-tts-wrapper
+// 0.3.17+ resolves model files at <modelPath>/<modelId> and hard-fails when
+// the ID is missing from its embedded registry, so installed directories
+// still using a legacy name are renamed in place to keep existing voices
+// working. Entries chain across syncs: pre-2026-08-10 names map straight to
+// their 2026-08-18 canonical ID.)
+static const struct { const wchar_t* legacy; const wchar_t* canonical; }
+kLegacySherpaModelIds[] = {
+    { L"cantonese-fs-xiaomaiiwn", L"cantonese-yue-xiaomaiiwn" },
+    { L"icefall-fs-aishell3", L"icefall-zh-aishell3" },
+    { L"icefall-fs-baker", L"icefall-zh-baker" },
+    { L"icefall-fs-en", L"icefall-zh_en-zh-en" },
+    { L"icefall-fs-ljspeech", L"icefall-en-ljspeech" },
+    { L"icefall-fs-ljspeech-low", L"icefall-en-ljspeech-low" },
+    { L"icefall-fs-ljspeech-medium", L"icefall-en-ljspeech-medium" },
+    { L"inflect-fs-micro-v2", L"inflect-en-micro-v2" },
+    { L"inflect-fs-nano-v2", L"inflect-en-nano-v2" },
+    { L"kokoro-en-en-19", L"kokoro-en-v0_19" },
+    { L"kokoro-zh_en-int8-multi", L"kokoro-zh_en-int8" },
+    { L"ljs-fs-unknown", L"ljs-en-ljspeech" },
+    { L"matcha-fs-khadijah", L"matcha-fa_en-khadijah" },
+    { L"matcha-fs-musa", L"matcha-fa_en-musa" },
+    { L"melo-fs-en", L"melo-en-melo-tts" },
+    { L"melo-fs-zh_en", L"melo-zh_en-melo-tts" },
+    { L"micro-fs-v0_8", L"micro-en-v0_8" },
+    { L"mimic3-af-google-low", L"mimic3-af_ZA-google-low" },
+    { L"mimic3-af-google-nwu_low", L"mimic3-af_ZA-google-low" },
+    { L"mimic3-bn-multi", L"mimic3-bn-multi_low" },
+    { L"mimic3-el-rapunzelina", L"mimic3-el_GR-rapunzelina_low" },
+    { L"mimic3-el-rapunzelina_low", L"mimic3-el_GR-rapunzelina_low" },
+    { L"mimic3-es-m-ailabs_low", L"mimic3-es_ES-m-low" },
+    { L"mimic3-es-m-low", L"mimic3-es_ES-m-low" },
+    { L"mimic3-fa-haaniye", L"mimic3-fa-haaniye_low" },
+    { L"mimic3-fi-harri-tapani", L"mimic3-fi_FI-harri-tapani" },
+    { L"mimic3-gu-cmu-low", L"mimic3-gu_IN-cmu-low" },
+    { L"mimic3-hu-diana-low", L"mimic3-hu_HU-diana-low" },
+    { L"mimic3-ko-kss", L"mimic3-ko_KO-kss_low" },
+    { L"mimic3-ko-kss_low", L"mimic3-ko_KO-kss_low" },
+    { L"mimic3-ne-ne-low", L"mimic3-ne_NP-ne-low" },
+    { L"mimic3-pl-m-ailabs_low", L"mimic3-pl_PL-m-low" },
+    { L"mimic3-pl-m-low", L"mimic3-pl_PL-m-low" },
+    { L"mimic3-tn-google-low", L"mimic3-tn_ZA-google-low" },
+    { L"mimic3-tn-google-nwu_low", L"mimic3-tn_ZA-google-low" },
+    { L"mimic3-vi-vais1000", L"mimic3-vi_VN-vais1000_low" },
+    { L"mimic3-vi-vais1000_low", L"mimic3-vi_VN-vais1000_low" },
+    { L"mini-fs-v0_1-fp16", L"mini-en-v0_1-fp16" },
+    { L"mini-fs-v0_8", L"mini-en-v0_8" },
+    { L"nano-fs-v0_1-fp16", L"nano-en-v0_1-fp16" },
+    { L"nano-fs-v0_2-fp16", L"nano-en-v0_2-fp16" },
+    { L"nano-fs-v0_8-fp32", L"nano-en-v0_8" },
+    { L"nano-fs-v0_8-int8", L"nano-en-v0_8-int8" },
+    { L"piper-ar-SA_dii-high", L"piper-ar_JO-SA_dii-high" },
+    { L"piper-ar-SA_miro-high", L"piper-ar_JO-SA_miro-high" },
+    { L"piper-ar-SA_miro_V2-high", L"piper-ar_JO-SA_miro_V2-high" },
+    { L"piper-ar-kareem-low", L"piper-ar_JO-kareem-low" },
+    { L"piper-ar-kareem-medium", L"piper-ar_JO-kareem-medium" },
+    { L"piper-ca-upc_ona-low", L"piper-ca_ES-upc_ona-low" },
+    { L"piper-ca-upc_ona-medium", L"piper-ca_ES-upc_ona-medium" },
+    { L"piper-ca-upc_pau-low", L"piper-ca_ES-upc_pau-low" },
+    { L"piper-cs-jirka-low", L"piper-cs_CZ-jirka-low" },
+    { L"piper-cs-jirka-medium", L"piper-cs_CZ-jirka-medium" },
+    { L"piper-cy-bu_tts-medium", L"piper-cy_GB-bu_tts-medium" },
+    { L"piper-cy-gwryw_gogleddol-medium", L"piper-cy_GB-gwryw_gogleddol-medium" },
+    { L"piper-da-talesyntese-medium", L"piper-da_DK-talesyntese-medium" },
+    { L"piper-de-dii-high", L"piper-de_DE-dii-high" },
+    { L"piper-de-eva_k-low", L"piper-de_DE-eva_k-low" },
+    { L"piper-de-glados-high", L"piper-de_DE-glados-high" },
+    { L"piper-de-glados-low", L"piper-de_DE-glados-low" },
+    { L"piper-de-glados-medium", L"piper-de_DE-glados-medium" },
+    { L"piper-de-glados_turret-high", L"piper-de_DE-glados_turret-high" },
+    { L"piper-de-glados_turret-low", L"piper-de_DE-glados_turret-low" },
+    { L"piper-de-glados_turret-medium", L"piper-de_DE-glados_turret-medium" },
+    { L"piper-de-karlsson-low", L"piper-de_DE-karlsson-low" },
+    { L"piper-de-kerstin-low", L"piper-de_DE-kerstin-low" },
+    { L"piper-de-miro-high", L"piper-de_DE-miro-high" },
+    { L"piper-de-pavoque-low", L"piper-de_DE-pavoque-low" },
+    { L"piper-de-ramona-low", L"piper-de_DE-ramona-low" },
+    { L"piper-de-thorsten-high", L"piper-de_DE-thorsten-high" },
+    { L"piper-de-thorsten-low", L"piper-de_DE-thorsten-low" },
+    { L"piper-de-thorsten-medium", L"piper-de_DE-thorsten-medium" },
+    { L"piper-de-thorsten_emotional-medium", L"piper-de_DE-thorsten_emotional-medium" },
+    { L"piper-el-rapunzelina-low", L"piper-el_GR-rapunzelina-low" },
+    { L"piper-en-alan-low", L"piper-en_GB-alan-low" },
+    { L"piper-en-alan-medium", L"piper-en_GB-alan-medium" },
+    { L"piper-en-alba-medium", L"piper-en_GB-alba-medium" },
+    { L"piper-en-amy-low", L"piper-en_US-amy-low" },
+    { L"piper-en-amy-medium", L"piper-en_US-amy-medium" },
+    { L"piper-en-arctic-medium", L"piper-en_US-arctic-medium" },
+    { L"piper-en-aru-medium", L"piper-en_GB-aru-medium" },
+    { L"piper-en-bryce-medium", L"piper-en_US-bryce-medium" },
+    { L"piper-en-cori-high", L"piper-en_GB-cori-high" },
+    { L"piper-en-cori-medium", L"piper-en_GB-cori-medium" },
+    { L"piper-en-danny-low", L"piper-en_US-danny-low" },
+    { L"piper-en-dii-high", L"piper-en_GB-dii-high" },
+    { L"piper-en-glados", L"piper-en_US-glados" },
+    { L"piper-en-glados-high", L"piper-en_US-glados-high" },
+    { L"piper-en-hfc_female-medium", L"piper-en_US-hfc_female-medium" },
+    { L"piper-en-hfc_male-medium", L"piper-en_US-hfc_male-medium" },
+    { L"piper-en-jenny_dioco-medium", L"piper-en_GB-jenny_dioco-medium" },
+    { L"piper-en-joe-medium", L"piper-en_US-joe-medium" },
+    { L"piper-en-john-medium", L"piper-en_US-john-medium" },
+    { L"piper-en-kathleen-low", L"piper-en_US-kathleen-low" },
+    { L"piper-en-kristin-medium", L"piper-en_US-kristin-medium" },
+    { L"piper-en-kusal-medium", L"piper-en_US-kusal-medium" },
+    { L"piper-en-l2arctic-medium", L"piper-en_US-l2arctic-medium" },
+    { L"piper-en-lessac-high", L"piper-en_US-lessac-high" },
+    { L"piper-en-lessac-low", L"piper-en_US-lessac-low" },
+    { L"piper-en-lessac-medium", L"piper-en_US-lessac-medium" },
+    { L"piper-en-libritts-high", L"piper-en_US-libritts-high" },
+    { L"piper-en-libritts_r-medium", L"piper-en_US-libritts_r-medium" },
+    { L"piper-en-ljspeech-high", L"piper-en_US-ljspeech-high" },
+    { L"piper-en-ljspeech-medium", L"piper-en_US-ljspeech-medium" },
+    { L"piper-en-miro-high", L"piper-en_GB-miro-high" },
+    { L"piper-en-norman-medium", L"piper-en_US-norman-medium" },
+    { L"piper-en-northern_english_male-medium", L"piper-en_GB-northern_english_male-medium" },
+    { L"piper-en-reza_ibrahim-medium", L"piper-en_US-reza_ibrahim-medium" },
+    { L"piper-en-ryan-high", L"piper-en_US-ryan-high" },
+    { L"piper-en-ryan-low", L"piper-en_US-ryan-low" },
+    { L"piper-en-ryan-medium", L"piper-en_US-ryan-medium" },
+    { L"piper-en-sam-medium", L"piper-en_US-sam-medium" },
+    { L"piper-en-semaine-medium", L"piper-en_GB-semaine-medium" },
+    { L"piper-en-southern_english_female-low", L"piper-en_GB-southern_english_female-low" },
+    { L"piper-en-southern_english_female-medium", L"piper-en_GB-southern_english_female-medium" },
+    { L"piper-en-southern_english_female_medium", L"piper-en_GB-southern_english_female_medium" },
+    { L"piper-en-southern_english_male-medium", L"piper-en_GB-southern_english_male-medium" },
+    { L"piper-en-sweetbbak-amy", L"piper-en_GB-sweetbbak-amy" },
+    { L"piper-en-vctk-medium", L"piper-en_GB-vctk-medium" },
+    { L"piper-es-ald-medium", L"piper-es_MX-ald-medium" },
+    { L"piper-es-carlfm-low", L"piper-es_ES-carlfm-low" },
+    { L"piper-es-claude-high", L"piper-es_MX-claude-high" },
+    { L"piper-es-daniela-high", L"piper-es_AR-daniela-high" },
+    { L"piper-es-davefx-medium", L"piper-es_ES-davefx-medium" },
+    { L"piper-es-miro-high", L"piper-es_ES-miro-high" },
+    { L"piper-es-sharvard-medium", L"piper-es_ES-sharvard-medium" },
+    { L"piper-eu-antton-medium", L"piper-eu_ES-antton-medium" },
+    { L"piper-eu-maider-medium", L"piper-eu_ES-maider-medium" },
+    { L"piper-fa-amir-medium", L"piper-fa_IR-amir-medium" },
+    { L"piper-fa-ganji-medium", L"piper-fa_IR-ganji-medium" },
+    { L"piper-fa-ganji_adabi-medium", L"piper-fa_IR-ganji_adabi-medium" },
+    { L"piper-fa-gyro-medium", L"piper-fa_IR-gyro-medium" },
+    { L"piper-fa-reza_ibrahim-medium", L"piper-fa_IR-reza_ibrahim-medium" },
+    { L"piper-fa-rezahedayatfar-ibrahimwalk", L"piper-fa_en-rezahedayatfar-ibrahimwalk" },
+    { L"piper-fi-harri-low", L"piper-fi_FI-harri-low" },
+    { L"piper-fi-harri-medium", L"piper-fi_FI-harri-medium" },
+    { L"piper-fr-gilles-low", L"piper-fr_FR-gilles-low" },
+    { L"piper-fr-miro-high", L"piper-fr_FR-miro-high" },
+    { L"piper-fr-siwis-low", L"piper-fr_FR-siwis-low" },
+    { L"piper-fr-siwis-medium", L"piper-fr_FR-siwis-medium" },
+    { L"piper-fr-tjiho-model1", L"piper-fr_FR-tjiho-model1" },
+    { L"piper-fr-tjiho-model2", L"piper-fr_FR-tjiho-model2" },
+    { L"piper-fr-tjiho-model3", L"piper-fr_FR-tjiho-model3" },
+    { L"piper-fr-tom-medium", L"piper-fr_FR-tom-medium" },
+    { L"piper-fr-upmc-medium", L"piper-fr_FR-upmc-medium" },
+    { L"piper-fs-glados-medium", L"piper-es-glados-medium" },
+    { L"piper-fs-haaniye_low", L"piper-fa-haaniye_low" },
+    { L"piper-hi-pratham-medium", L"piper-hi_IN-pratham-medium" },
+    { L"piper-hi-priyamvada-medium", L"piper-hi_IN-priyamvada-medium" },
+    { L"piper-hi-rohan-medium", L"piper-hi_IN-rohan-medium" },
+    { L"piper-hu-anna-medium", L"piper-hu_HU-anna-medium" },
+    { L"piper-hu-berta-medium", L"piper-hu_HU-berta-medium" },
+    { L"piper-hu-imre-medium", L"piper-hu_HU-imre-medium" },
+    { L"piper-id-news_tts-medium", L"piper-id_ID-news_tts-medium" },
+    { L"piper-is-bui-medium", L"piper-is_IS-bui-medium" },
+    { L"piper-is-salka-medium", L"piper-is_IS-salka-medium" },
+    { L"piper-is-steinn-medium", L"piper-is_IS-steinn-medium" },
+    { L"piper-is-ugla-medium", L"piper-is_IS-ugla-medium" },
+    { L"piper-it-dii-high", L"piper-it_IT-dii-high" },
+    { L"piper-it-miro-high", L"piper-it_IT-miro-high" },
+    { L"piper-it-paola-medium", L"piper-it_IT-paola-medium" },
+    { L"piper-it-riccardo-low", L"piper-it_IT-riccardo-low" },
+    { L"piper-ka-natia-medium", L"piper-ka_GE-natia-medium" },
+    { L"piper-kk-iseke-low", L"piper-kk_KZ-iseke-low" },
+    { L"piper-kk-issai-high", L"piper-kk_KZ-issai-high" },
+    { L"piper-kk-raya-low", L"piper-kk_KZ-raya-low-int8" },
+    { L"piper-ku-berfin_renas-medium", L"piper-ku_TR-berfin_renas-medium" },
+    { L"piper-lb-marylux-medium", L"piper-lb_LU-marylux-medium" },
+    { L"piper-lv-aivars-medium", L"piper-lv_LV-aivars-medium" },
+    { L"piper-ml-arjun-medium", L"piper-ml_IN-arjun-medium" },
+    { L"piper-ml-meera-medium", L"piper-ml_IN-meera-medium" },
+    { L"piper-ne-chitwan-medium", L"piper-ne_NP-chitwan-medium" },
+    { L"piper-ne-google-low", L"piper-ne_NP-google-low" },
+    { L"piper-ne-google-medium", L"piper-ne_NP-google-medium" },
+    { L"piper-nl-alex-medium", L"piper-nl_NL-alex-medium" },
+    { L"piper-nl-dii-high", L"piper-nl_NL-dii-high" },
+    { L"piper-nl-miro-high", L"piper-nl_NL-miro-high" },
+    { L"piper-nl-nathalie-low", L"piper-nl_BE-nathalie-low" },
+    { L"piper-nl-nathalie-medium", L"piper-nl_BE-nathalie-medium" },
+    { L"piper-nl-pim-medium", L"piper-nl_NL-pim-medium" },
+    { L"piper-nl-rdh-low", L"piper-nl_BE-rdh-low" },
+    { L"piper-nl-rdh-medium", L"piper-nl_BE-rdh-medium" },
+    { L"piper-nl-ronnie-medium", L"piper-nl_NL-ronnie-medium" },
+    { L"piper-no-talesyntese-medium", L"piper-no_NO-talesyntese-medium" },
+    { L"piper-pl-bass-high", L"piper-pl_PL-bass-high" },
+    { L"piper-pl-darkman-medium", L"piper-pl_PL-darkman-medium" },
+    { L"piper-pl-gosia-medium", L"piper-pl_PL-gosia-medium" },
+    { L"piper-pl-jarvis_wg_glos-medium", L"piper-pl_PL-jarvis_wg_glos-medium" },
+    { L"piper-pl-justyna_wg_glos-medium", L"piper-pl_PL-justyna_wg_glos-medium" },
+    { L"piper-pl-mc_speech-medium", L"piper-pl_PL-mc_speech-medium" },
+    { L"piper-pl-meski_wg_glos-medium", L"piper-pl_PL-meski_wg_glos-medium" },
+    { L"piper-pl-zenski_wg_glos-medium", L"piper-pl_PL-zenski_wg_glos-medium" },
+    { L"piper-pt-cadu-medium", L"piper-pt_BR-cadu-medium" },
+    { L"piper-pt-dii-high", L"piper-pt_PT-dii-high" },
+    { L"piper-pt-edresson-low", L"piper-pt_BR-edresson-low" },
+    { L"piper-pt-faber-medium", L"piper-pt_BR-faber-medium" },
+    { L"piper-pt-jeff-medium", L"piper-pt_BR-jeff-medium" },
+    { L"piper-pt-miro-high", L"piper-pt_PT-miro-high" },
+    { L"piper-pt-tugao-medium", L"piper-pt_PT-tugao-medium" },
+    { L"piper-ro-mihai-medium", L"piper-ro_RO-mihai-medium-int8" },
+    { L"piper-ru-denis-medium", L"piper-ru_RU-denis-medium" },
+    { L"piper-ru-dmitri-medium", L"piper-ru_RU-dmitri-medium" },
+    { L"piper-ru-irina-medium", L"piper-ru_RU-irina-medium" },
+    { L"piper-ru-ruslan-medium", L"piper-ru_RU-ruslan-medium" },
+    { L"piper-sk-lili-medium", L"piper-sk_SK-lili-medium" },
+    { L"piper-sl-artur-medium", L"piper-sl_SI-artur-medium" },
+    { L"piper-sq-edon-medium", L"piper-sq_AL-edon-medium" },
+    { L"piper-sr-serbski_institut-medium", L"piper-sr_RS-serbski_institut-medium-int8" },
+    { L"piper-sv-alma-medium", L"piper-sv_SE-alma-medium" },
+    { L"piper-sv-lisa-medium", L"piper-sv_SE-lisa-medium" },
+    { L"piper-sv-nst-medium", L"piper-sv_SE-nst-medium" },
+    { L"piper-sw-lanfrica-medium", L"piper-sw_CD-lanfrica-medium" },
+    { L"piper-tr-dfki-medium", L"piper-tr_TR-dfki-medium" },
+    { L"piper-tr-fahrettin-medium", L"piper-tr_TR-fahrettin-medium" },
+    { L"piper-tr-fettah-medium", L"piper-tr_TR-fettah-medium" },
+    { L"piper-uk-lada-low", L"piper-uk_UA-lada-low" },
+    { L"piper-uk-ukrainian_tts-medium", L"piper-uk_UA-ukrainian_tts-medium" },
+    { L"piper-ur-fasih-medium", L"piper-ur_PK-fasih-medium" },
+    { L"piper-vi-25hours_single-low", L"piper-vi_VN-25hours_single-low" },
+    { L"piper-vi-vais1000-medium", L"piper-vi_VN-vais1000-medium" },
+    { L"piper-vi-vivos-low", L"piper-vi_VN-vivos-low" },
+    { L"piper-zh-chaowen-medium", L"piper-zh_CN-chaowen-medium" },
+    { L"piper-zh-huayan-medium", L"piper-zh_CN-huayan-medium" },
+    { L"piper-zh-xiao_ya-medium", L"piper-zh_CN-xiao_ya-medium" },
+    { L"tts-fs-khadijah", L"matcha-fa_en-khadijah" },
+    { L"tts-fs-musa", L"matcha-fa_en-musa" },
+    { L"vctk-fs-unknown", L"vctk-en-vctk" },
+    { L"vits-coqui-en-vctk", L"coqui-en-vctk" },
+    { L"zh-fs-abyssinvoker", L"zh-zh-abyssinvoker" },
+    { L"zh-fs-bronya", L"zh-zh-bronya" },
+    { L"zh-fs-doom", L"zh-zh-doom" },
+    { L"zh-fs-echo", L"zh-zh-echo" },
+    { L"zh-fs-eula", L"zh-zh-eula" },
+    { L"zh-fs-fanchen-C", L"zh-zh-fanchen-C" },
+    { L"zh-fs-fanchen-ZhiHuiLaoZhe", L"zh-zh-fanchen-ZhiHuiLaoZhe" },
+    { L"zh-fs-fanchen-new", L"zh-zh-fanchen-new" },
+    { L"zh-fs-fanchen-unity", L"zh-zh-fanchen-unity" },
+    { L"zh-fs-fanchen-wnj", L"zh-zh-fanchen-wnj" },
+    { L"zh-fs-keqing", L"zh-zh-keqing" },
+    { L"zh-fs-theresa", L"zh-zh-theresa" },
+    { L"zh-fs-unknown", L"zh-zh-aishell3" },
+    { L"zh-fs-zenyatta", L"zh-zh-zenyatta" },
+};
+
+// If modelId names a legacy registry ID, rename the installed directory
+// <modelsDir>\<legacy> to <modelsDir>\<canonical> (unless the canonical
+// directory already exists) and update modelId. Paths stored in the voice
+// token are rewritten best-effort — HKLM writes need elevation, and on
+// failure the stale path still resolves next time because this migration
+// runs on every voice initialisation.
+static void MigrateLegacySherpaModelDir(const std::filesystem::path& modelsDir,
+                                        std::string& modelId, ISpObjectToken* pToken)
+{
+    const std::wstring legacyId = StringToWString(modelId);
+    for (const auto& mapping : kLegacySherpaModelIds)
+    {
+        if (legacyId != mapping.legacy)
+            continue;
+
+        const auto legacyDir = modelsDir / mapping.legacy;
+        const auto canonicalDir = modelsDir / mapping.canonical;
+
+        if (!std::filesystem::exists(canonicalDir))
+        {
+            if (!std::filesystem::exists(legacyDir))
+                return; // nothing installed under either name — let the wrapper report it
+
+            std::error_code ec;
+            std::filesystem::rename(legacyDir, canonicalDir, ec);
+            if (ec)
+            {
+                LogWarn("RustTts: failed to migrate model directory '{}' -> '{}': {}; "
+                        "the voice may fail to load until it is renamed manually",
+                        legacyDir.string(), canonicalDir.string(), ec.message());
+                return;
+            }
+        }
+
+        LogInfo("RustTts: migrated SherpaOnnx model ID '{}' -> '{}'",
+                WStringToUTF8(legacyId), WStringToUTF8(mapping.canonical));
+        modelId = WStringToUTF8(mapping.canonical);
+
+        // Best-effort rewrite of the token's stored paths onto the renamed
+        // directory so later loads start from the canonical name.
+        if (pToken)
+        {
+            CComPtr<ISpDataKey> pConfigKey;
+            if (SUCCEEDED(pToken->OpenKey(L"VoiceGardenConfig", &pConfigKey)) && pConfigKey)
+            {
+                const wchar_t* pathValues[] = {
+                    L"SherpaOnnxModelPath", L"SherpaOnnxTokens", L"SherpaOnnxDataDir",
+                    L"SherpaOnnxVoices", L"SherpaOnnxLexicon",
+                };
+                for (const wchar_t* valueName : pathValues)
+                {
+                    CSpDynamicString pszValue;
+                    if (FAILED(pConfigKey->GetStringValue(valueName, &pszValue)) || !pszValue.m_psz)
+                        continue;
+                    std::wstring value(pszValue.m_psz);
+                    const std::wstring legacyPrefix = legacyDir.wstring() + L"\\";
+                    if (value.starts_with(legacyPrefix))
+                    {
+                        std::wstring fixed = canonicalDir.wstring() + L"\\" + value.substr(legacyPrefix.size());
+                        pConfigKey->SetStringValue(valueName, fixed.c_str());
+                    }
+                }
+            }
+        }
+        return;
+    }
+}
 
 bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
 {
@@ -607,7 +927,7 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
         //
         // Path structures:
         //   MMS:    models/mms_eng/model.onnx          (flat — modelId = mms_eng)
-        //   Kokoro: models/kokoro-en-en-19/sub/model.onnx  (nested — modelId = kokoro-en-en-19)
+        //   Kokoro: models/kokoro-en-v0_19/sub/model.onnx  (nested — modelId = kokoro-en-v0_19)
         //   Piper:  models/piper-en-amy-low/sub/file.onnx  (nested — modelId = piper-en-amy-low)
         //
         // Solution: walk up from the .onnx file to find the "models" directory,
@@ -624,6 +944,9 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
                 auto rel = std::filesystem::relative(onnxPath.parent_path(), p);
                 std::string modelId = rel.begin()->string();
                 std::string basePath = p.string();
+                // Registry 2026-08-10 renamed several IDs; migrate legacy
+                // directory names so the wrapper's registry lookup succeeds.
+                MigrateLegacySherpaModelDir(p, modelId, m_cpToken);
                 std::replace(basePath.begin(), basePath.end(), '\\', '/');
                 credsJson = "{\"modelId\":\"" + modelId + "\",\"modelPath\":\"" + basePath + "\"}";
                 LogInfo("RustTts: SherpaOnnx credentials: {}", credsJson);
@@ -790,6 +1113,17 @@ int CTTSEngine::OnAudioData(uint8_t* data, uint32_t len)
                 m_lastSilentBytes += silentBytes;
                 return len;
             }
+            // Over a second of contiguous silence held already. Flush what is
+            // held and deliver this chunk in full instead of holding it (and
+            // instead of the len - m_lastSilentBytes ULONG underflow below,
+            // which progressive/streamed chunks can now reach because the
+            // wrapper delivers audio incrementally rather than in one buffer).
+            if (m_lastSilentBytes != 0)
+            {
+                auto mem = std::make_unique<BYTE[]>(m_lastSilentBytes);  // zeroed mem
+                m_pOutputSite->Write(mem.get(), m_lastSilentBytes, &written);
+            }
+            m_lastSilentBytes = 0;
         }
         else
         {

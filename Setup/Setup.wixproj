@@ -10,4 +10,10 @@
     <ProjectUrl Condition="'$(ProjectUrl)'==''">https://github.com/gexgd0419/VoiceGardenSAPIAdapter</ProjectUrl>
     <DefineConstants>ProductVersion=$(ProductVersion);PayloadDir=$(PayloadDir);ProductName=$(ProductName);Manufacturer=$(Manufacturer);InstallFolderName=$(InstallFolderName);InstallerShortcutName=$(InstallerShortcutName);ProjectUrl=$(ProjectUrl)</DefineConstants>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Close-application prompting is handled by the SetupLauncher
+         bootstrapper (the PanelSw WiX build rejects official wixext
+         packages, so util:CloseApplication is not usable here). -->
+  </ItemGroup>
 </Project>

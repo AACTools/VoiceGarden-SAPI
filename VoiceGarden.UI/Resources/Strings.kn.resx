@@ -56,9 +56,6 @@
   <data name="AdapterInstallation" xml:space="preserve">
     <value>ಅಡಾಪ್ಟರ್ ಸ್ಥಾಪನೆ</value>
   </data>
-  <data name="AddEnUsAlias" xml:space="preserve">
-    <value>ಎನ್-ಯುಎಸ್ ಅಲಿಯಾಸ್ ಸೇರಿಸಿ</value>
-  </data>
   <data name="Advanced" xml:space="preserve">
     <value>ಸುಧಾರಿತ</value>
   </data>
@@ -67,9 +64,6 @@
   </data>
   <data name="AnalyticsHint" xml:space="preserve">
     <value>ಯಾವ ಎಂಜಿನ್‌ಗಳನ್ನು ಬಳಸಲಾಗಿದೆ ಎಂಬುದನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ನಮಗೆ ಸಹಾಯ ಮಾಡುತ್ತದೆ. ಯಾವುದೇ ಪಠ್ಯ, ಕೀಗಳು ಅಥವಾ PII ಅನ್ನು ಕಳುಹಿಸಲಾಗಿಲ್ಲ.</value>
-  </data>
-  <data name="APIKey" xml:space="preserve">
-    <value>API ಕೀ</value>
   </data>
   <data name="AppName" xml:space="preserve">
     <value>ವಾಯ್ಸ್ ಗಾರ್ಡನ್</value>
@@ -92,50 +86,11 @@
   <data name="Checking" xml:space="preserve">
     <value>ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ...</value>
   </data>
-  <data name="Close" xml:space="preserve">
-    <value>ಮುಚ್ಚಿ</value>
-  </data>
-  <data name="CloudVoices" xml:space="preserve">
-    <value>ಮೇಘ ಧ್ವನಿಗಳು</value>
-  </data>
-  <data name="ConfigureCredentials" xml:space="preserve">
-    <value>ರುಜುವಾತುಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಿ...</value>
-  </data>
-  <data name="ConfigureCredentialsTitle" xml:space="preserve">
-    <value>ರುಜುವಾತುಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಿ</value>
-  </data>
-  <data name="ConfigureVoices" xml:space="preserve">
-    <value>ಧ್ವನಿಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಿ...</value>
-  </data>
-  <data name="ConfigureVoicesTitle" xml:space="preserve">
-    <value>ಧ್ವನಿಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಿ</value>
-  </data>
-  <data name="CountDownloaded" xml:space="preserve">
-    <value>{0} ಡೌನ್‌ಲೋಡ್ ಮಾಡಲಾಗಿದೆ</value>
-  </data>
-  <data name="CountInstalled" xml:space="preserve">
-    <value>{0} ಸ್ಥಾಪಿಸಲಾಗಿದೆ</value>
-  </data>
-  <data name="CountSelected" xml:space="preserve">
-    <value>{0} ಆಯ್ಕೆಮಾಡಲಾಗಿದೆ</value>
-  </data>
-  <data name="CountTotal" xml:space="preserve">
-    <value>{0} ಒಟ್ಟು</value>
-  </data>
   <data name="Downloaded" xml:space="preserve">
     <value>ಡೌನ್‌ಲೋಡ್ ಮಾಡಲಾಗಿದೆ</value>
   </data>
-  <data name="DownloadedCount" xml:space="preserve">
-    <value>{0} ಮಾದರಿ(ಗಳು) ಡೌನ್‌ಲೋಡ್ ಮಾಡಲಾಗಿದೆ</value>
-  </data>
-  <data name="DownloadedFailedCount" xml:space="preserve">
-    <value>ಡೌನ್‌ಲೋಡ್ ಮಾಡಲಾಗಿದೆ {0}, ವಿಫಲವಾಗಿದೆ {1}</value>
-  </data>
   <data name="DownloadedStatus" xml:space="preserve">
     <value>ಡೌನ್‌ಲೋಡ್ ಮಾಡಲಾಗಿದೆ</value>
-  </data>
-  <data name="DownloadFailed" xml:space="preserve">
-    <value>ಡೌನ್‌ಲೋಡ್ ವಿಫಲವಾಗಿದೆ: {0} ಮಾದರಿ(ಗಳು)</value>
   </data>
   <data name="DownloadingModel" xml:space="preserve">
     <value>ಡೌನ್‌ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ {0} ({1})...</value>
@@ -143,14 +98,8 @@
   <data name="DownloadModelFirst" xml:space="preserve">
     <value>ಮೊದಲು ಮಾದರಿಯನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ</value>
   </data>
-  <data name="DownloadSelected" xml:space="preserve">
-    <value>ಡೌನ್‌ಲೋಡ್ ಆಯ್ಕೆ ಮಾಡಲಾಗಿದೆ</value>
-  </data>
   <data name="EnableAnalytics" xml:space="preserve">
     <value>ಅನಾಮಧೇಯ ಬಳಕೆಯ ವಿಶ್ಲೇಷಣೆಯನ್ನು ಕಳುಹಿಸಿ (ಆಯ್ಕೆ)</value>
-  </data>
-  <data name="EnableEdgeVoices" xml:space="preserve">
-    <value>ಎಡ್ಜ್ ಬ್ರೌಸರ್ ಧ್ವನಿಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ</value>
   </data>
   <data name="Engine" xml:space="preserve">
     <value>ಎಂಜಿನ್:</value>
@@ -176,12 +125,6 @@
   <data name="FetchingVoices" xml:space="preserve">
     <value>{0} ಧ್ವನಿಗಳನ್ನು ಪಡೆಯಲಾಗುತ್ತಿದೆ...</value>
   </data>
-  <data name="FetchVoices" xml:space="preserve">
-    <value>ಧ್ವನಿಗಳನ್ನು ಪಡೆದುಕೊಳ್ಳಿ</value>
-  </data>
-  <data name="Filter" xml:space="preserve">
-    <value>ಫಿಲ್ಟರ್:</value>
-  </data>
   <data name="FoundVoices" xml:space="preserve">
     <value>{0} ಧ್ವನಿಗಳು ಕಂಡುಬಂದಿವೆ</value>
   </data>
@@ -190,9 +133,6 @@
   </data>
   <data name="HelpImprove" xml:space="preserve">
     <value>ವಾಯ್ಸ್ ಗಾರ್ಡನ್ ಅನ್ನು ಸುಧಾರಿಸಲು ಸಹಾಯ ಮಾಡಿ</value>
-  </data>
-  <data name="HideAdvanced" xml:space="preserve">
-    <value>▼ ಸುಧಾರಿತ ಮರೆಮಾಡಿ</value>
   </data>
   <data name="Install" xml:space="preserve">
     <value>ಸ್ಥಾಪಿಸಿ</value>
@@ -206,32 +146,14 @@
   <data name="InstalledModelsFailed" xml:space="preserve">
     <value>ಸ್ಥಾಪಿಸಲಾಗಿದೆ {0}, ವಿಫಲವಾಗಿದೆ {1}</value>
   </data>
-  <data name="InstalledModelsSAPI" xml:space="preserve">
-    <value>SAPI ಗೆ {0} ಮಾದರಿ(ಗಳನ್ನು) ಸ್ಥಾಪಿಸಲಾಗಿದೆ</value>
-  </data>
-  <data name="InstalledOnly" xml:space="preserve">
-    <value>ಮಾತ್ರ ಸ್ಥಾಪಿಸಲಾಗಿದೆ</value>
-  </data>
   <data name="InstalledVoicesHKLM" xml:space="preserve">
     <value>HKLM ಗೆ {0} ಧ್ವನಿ(ಗಳನ್ನು) ಸ್ಥಾಪಿಸಲಾಗಿದೆ</value>
   </data>
   <data name="InstallFailed" xml:space="preserve">
     <value>ಸ್ಥಾಪನೆ ವಿಫಲವಾಗಿದೆ: {0}</value>
   </data>
-  <data name="InstallingSAPI" xml:space="preserve">
-    <value>SAPI (HKLM) ಗೆ ಮಾದರಿಗಳನ್ನು ಸ್ಥಾಪಿಸಲಾಗುತ್ತಿದೆ...</value>
-  </data>
   <data name="InstallSelected" xml:space="preserve">
     <value>ಸ್ಥಾಪಿಸಿ ಆಯ್ಕೆ ಮಾಡಲಾಗಿದೆ</value>
-  </data>
-  <data name="InstallToSAPI" xml:space="preserve">
-    <value>SAPI ಗೆ ಸ್ಥಾಪಿಸಿ</value>
-  </data>
-  <data name="InvalidResult" xml:space="preserve">
-    <value>ಅಮಾನ್ಯವಾಗಿದೆ: {0}</value>
-  </data>
-  <data name="Key" xml:space="preserve">
-    <value>ಕೀ:</value>
   </data>
   <data name="LangCompatDesc" xml:space="preserve">
     <value>ನಿಮ್ಮ AAC ಸಾಫ್ಟ್‌ವೇರ್ ಕೆಲವು ಭಾಷೆಗಳನ್ನು ಮಾತ್ರ ಬೆಂಬಲಿಸಿದರೆ (ಉದಾ. ಇಂಗ್ಲಿಷ್), SherpaOnnx ಮಾದರಿಗಳನ್ನು ಪ್ರಚಾರ ಮಾಡುವಾಗ "ಎನ್-ಯುಎಸ್ ಅಲಿಯಾಸ್ ಸೇರಿಸಿ" ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ. ಇದು ಯಾವುದೇ ಭಾಷೆಯಲ್ಲಿನ ಧ್ವನಿಗಳನ್ನು ಇಂಗ್ಲಿಷ್ ಧ್ವನಿಗಳಾಗಿ ಗೋಚರಿಸುವಂತೆ ಮಾಡುತ್ತದೆ, ಆದ್ದರಿಂದ ಅವು ಭಾಷೆಯ ಮೂಲಕ ಫಿಲ್ಟರ್ ಮಾಡುವ ಅಪ್ಲಿಕೇಶನ್‌ಗಳಲ್ಲಿ ತೋರಿಸುತ್ತವೆ.</value>
@@ -248,9 +170,6 @@
   <data name="LogLevel" xml:space="preserve">
     <value>ಲಾಗ್ ಮಟ್ಟ:</value>
   </data>
-  <data name="ManageModels" xml:space="preserve">
-    <value>ಮಾದರಿಗಳನ್ನು ನಿರ್ವಹಿಸಿ...</value>
-  </data>
   <data name="ModelFilesNotFound" xml:space="preserve">
     <value>ಮಾದರಿ ಫೈಲ್‌ಗಳು ಕಂಡುಬಂದಿಲ್ಲ</value>
   </data>
@@ -266,15 +185,6 @@
   <data name="NoAudio" xml:space="preserve">
     <value>ಯಾವುದೇ ಆಡಿಯೋ ರಚಿಸಲಾಗಿಲ್ಲ</value>
   </data>
-  <data name="NoDownloadedModels" xml:space="preserve">
-    <value>ಯಾವುದೇ ಡೌನ್‌ಲೋಡ್ ಮಾಡಲಾದ ಮಾದರಿಗಳು ಕಂಡುಬಂದಿಲ್ಲ. ಮೊದಲು ಮಾದರಿಯನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ, ನಂತರ ಅಗತ್ಯವಿದ್ದರೆ ಮರುಸ್ಕ್ಯಾನ್ ಕ್ಲಿಕ್ ಮಾಡಿ.</value>
-  </data>
-  <data name="NoDownloadUrl" xml:space="preserve">
-    <value>ಡೌನ್‌ಲೋಡ್ URL ಇಲ್ಲ</value>
-  </data>
-  <data name="NoModelId" xml:space="preserve">
-    <value>ಪೂರ್ವವೀಕ್ಷಣೆಗಾಗಿ ಮಾದರಿ ಐಡಿಯನ್ನು ನಿರ್ಧರಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ</value>
-  </data>
   <data name="NoModelsInstalled" xml:space="preserve">
     <value>ಯಾವುದೇ ಮಾದರಿಗಳನ್ನು ಸ್ಥಾಪಿಸಲಾಗಿಲ್ಲ</value>
   </data>
@@ -283,9 +193,6 @@
   </data>
   <data name="NoThanks" xml:space="preserve">
     <value>ಇಲ್ಲ ಧನ್ಯವಾದಗಳು</value>
-  </data>
-  <data name="OfflineVoices" xml:space="preserve">
-    <value>ಆಫ್‌ಲೈನ್ ಧ್ವನಿಗಳು</value>
   </data>
   <data name="OnboardingDesc1" xml:space="preserve">
     <value>VoiceGarden ಉಚಿತ, ಮುಕ್ತ-ಮೂಲ ಧ್ವನಿ ಸೇತುವೆಯಾಗಿದ್ದು ಅದು 20+ ಆಧುನಿಕ ಪಠ್ಯದಿಂದ ಭಾಷಣದ ಎಂಜಿನ್‌ಗಳನ್ನು SAPI 5 ಅನ್ನು ಬೆಂಬಲಿಸುವ ಯಾವುದೇ Windows ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ಸಂಪರ್ಕಿಸುತ್ತದೆ - Grid 3, Mind Express, Balabolka, Tobii ಕಮ್ಯುನಿಕೇಟರ್ ಮತ್ತು System.Speech ನಲ್ಲಿ ನಿರ್ಮಿಸಲಾದ ಯಾವುದೇ ಅಪ್ಲಿಕೇಶನ್ ಸೇರಿದಂತೆ.</value>
@@ -296,9 +203,6 @@
   <data name="OnboardingTitle" xml:space="preserve">
     <value>ವಾಯ್ಸ್‌ಗಾರ್ಡನ್‌ಗೆ ಸುಸ್ವಾಗತ</value>
   </data>
-  <data name="OnlyEnabledEngines" xml:space="preserve">
-    <value>ಸಕ್ರಿಯಗೊಳಿಸಲಾದ ಎಂಜಿನ್‌ಗಳನ್ನು ಮಾತ್ರ ತೋರಿಸಲಾಗುತ್ತದೆ. ಮುಖ್ಯ ಪುಟದಲ್ಲಿ ಎಂಜಿನ್‌ಗಳನ್ನು ಟಾಗಲ್ ಮಾಡಿ.</value>
-  </data>
   <data name="OpenLogs" xml:space="preserve">
     <value>ದಾಖಲೆಗಳನ್ನು ತೆರೆಯಿರಿ</value>
   </data>
@@ -307,9 +211,6 @@
   </data>
   <data name="PreviewFailed" xml:space="preserve">
     <value>ಪೂರ್ವವೀಕ್ಷಣೆ ವಿಫಲವಾಗಿದೆ: {0}</value>
-  </data>
-  <data name="Previewing" xml:space="preserve">
-    <value>ಪೂರ್ವವೀಕ್ಷಣೆ ಮಾಡಲಾಗುತ್ತಿದೆ...</value>
   </data>
   <data name="PreviewingVoice" xml:space="preserve">
     <value>ಪೂರ್ವವೀಕ್ಷಣೆ {0}...</value>
@@ -323,50 +224,17 @@
   <data name="PrivacyIntro" xml:space="preserve">
     <value>VoiceGarden ಸ್ವಯಂಸೇವಕರು ನಿರ್ಮಿಸಿದ ಉಚಿತ, ಮುಕ್ತ-ಮೂಲ ಯೋಜನೆಯಾಗಿದೆ. ಯಾವ TTS ಎಂಜಿನ್‌ಗಳನ್ನು ಹೆಚ್ಚು ಬಳಸಲಾಗಿದೆ ಎಂಬುದನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ನಮಗೆ ಸಹಾಯ ಮಾಡಲು, ದೋಷಗಳನ್ನು ಗುರುತಿಸಲು ಮತ್ತು ಅಭಿವೃದ್ಧಿಗೆ ಆದ್ಯತೆ ನೀಡಲು, ನಾವು ಅನಾಮಧೇಯ ಬಳಕೆಯ ವಿಶ್ಲೇಷಣೆಗಳನ್ನು ಸಂಗ್ರಹಿಸಲು ಬಯಸುತ್ತೇವೆ.</value>
   </data>
-  <data name="Ready" xml:space="preserve">
-    <value>ಸಿದ್ಧವಾಗಿದೆ</value>
-  </data>
-  <data name="Region" xml:space="preserve">
-    <value>ಪ್ರದೇಶ</value>
-  </data>
-  <data name="Register" xml:space="preserve">
-    <value>ನೋಂದಾಯಿಸಿ</value>
-  </data>
   <data name="RemovedVoices" xml:space="preserve">
     <value>ತೆಗೆದುಹಾಕಲಾಗಿದೆ {0} ಧ್ವನಿ(ಗಳು)</value>
-  </data>
-  <data name="RequestingAdmin" xml:space="preserve">
-    <value>ನಿರ್ವಾಹಕ ಸವಲತ್ತುಗಳನ್ನು ವಿನಂತಿಸಲಾಗುತ್ತಿದೆ...</value>
   </data>
   <data name="Reregister" xml:space="preserve">
     <value>ಮರು-ನೋಂದಣಿ</value>
   </data>
-  <data name="Rescan" xml:space="preserve">
-    <value>ಮರು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ</value>
-  </data>
-  <data name="RescannedModels" xml:space="preserve">
-    <value>ಮರುಸ್ಕ್ಯಾನ್ ಮಾಡಲಾಗಿದೆ: {0} ಮಾದರಿ(ಗಳು) ಸಿದ್ಧವಾಗಿದೆ</value>
-  </data>
-  <data name="Search" xml:space="preserve">
-    <value>ಹುಡುಕು...</value>
-  </data>
   <data name="SearchVoices" xml:space="preserve">
     <value>ಧ್ವನಿಗಳನ್ನು ಹುಡುಕಿ...</value>
   </data>
-  <data name="SelectModelsFirst" xml:space="preserve">
-    <value>ಮೊದಲು ಡೌನ್‌ಲೋಡ್ ಮಾಡಲು ಮಾದರಿಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ</value>
-  </data>
   <data name="SelectVoicesFirst" xml:space="preserve">
     <value>ಮೊದಲು ಸ್ಥಾಪಿಸಲು ಧ್ವನಿಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ</value>
-  </data>
-  <data name="SherpaOnnxModels" xml:space="preserve">
-    <value>ಶೆರ್ಪಾ ಓನ್‌ಎಕ್ಸ್ ಮಾದರಿಗಳು</value>
-  </data>
-  <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
-    <value>ಶೆರ್ಪಾ ಓನ್‌ಎಕ್ಸ್ ನ್ಯೂರಲ್ ಟಿಟಿಎಸ್</value>
-  </data>
-  <data name="ShowAdvanced" xml:space="preserve">
-    <value>▶ ಸುಧಾರಿತ ತೋರಿಸು</value>
   </data>
   <data name="Step1Desc" xml:space="preserve">
     <value>ಮುಖ್ಯ ಪರದೆಯಲ್ಲಿ, 64-ಬಿಟ್‌ಗಾಗಿ ಸ್ಥಾಪಿಸು ಕ್ಲಿಕ್ ಮಾಡಿ (ಮತ್ತು ಅಗತ್ಯವಿದ್ದರೆ 32-ಬಿಟ್). ಇದು VoiceGarden ಅನ್ನು ಯಾವುದೇ ಹೊಂದಾಣಿಕೆಯ ಅಪ್ಲಿಕೇಶನ್ ಬಳಸಬಹುದಾದ SAPI 5 ಧ್ವನಿಯಾಗಿ ನೋಂದಾಯಿಸುತ್ತದೆ.</value>
@@ -389,17 +257,11 @@
   <data name="Uninstall" xml:space="preserve">
     <value>ಅನ್‌ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಿ</value>
   </data>
-  <data name="Validate" xml:space="preserve">
-    <value>ಮೌಲ್ಯೀಕರಿಸಿ</value>
-  </data>
   <data name="Validating" xml:space="preserve">
     <value>ಮೌಲ್ಯೀಕರಿಸಲಾಗುತ್ತಿದೆ...</value>
   </data>
   <data name="ValidResult" xml:space="preserve">
     <value>ಮಾನ್ಯ ({0} ಧ್ವನಿಗಳು)</value>
-  </data>
-  <data name="VoiceEngines" xml:space="preserve">
-    <value>ಧ್ವನಿ ಇಂಜಿನ್ಗಳು</value>
   </data>
   <data name="WhatIsVoiceGarden" xml:space="preserve">
     <value>ವಾಯ್ಸ್ ಗಾರ್ಡನ್ ಎಂದರೇನು?</value>
@@ -422,5 +284,317 @@
   </data>
   <data name="YesHelpImprove" xml:space="preserve">
     <value>ಹೌದು, VoiceGarden ಅನ್ನು ಸುಧಾರಿಸಲು ಸಹಾಯ ಮಾಡಿ</value>
+  </data>
+  <data name="AdvancedIntro" xml:space="preserve">
+    <value>ಅಡಾಪ್ಟರ್ ನೋಂದಣಿ, ಅಪ್ಲಿಕೇಷನ್ ಸೆಟ್ಟಿಂಗ್ಸ್, ಆಫ್‌ಲೈನ್ ಮಾದರಿ ನಿರ್ವಹಣೆ ಮತ್ತು ಕುರಿತು — ಮಾರ್ಗದರ್ಶನದ ಪ್ರಕ್ರಿಯೆಯ ಭಾಗವಲ್ಲದ ಎಲ್ಲವೂ.</value>
+  </data>
+  <data name="AdvancedModelsHint" xml:space="preserve">
+    <value>ಧ್ವನಿಗಳ ಟ್ಯಾಬ್‌ನಿಂದ ಆಫ್‌ಲೈನ್ ಧ್ವನಿಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ, ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ ಮತ್ತು ಸ್ಥಾಪಿಸಿ — ಅಲ್ಲಿ ಶೆರ್ಪಾOnnx ಎಂಜಿನ್ ಅನ್ನು ಆಯ್ಕೆಮಾಡಿ.</value>
+  </data>
+  <data name="AdvancedModelsTitle" xml:space="preserve">
+    <value>ಆಫ್‌ಲೈನ್ ಮಾದರಿಗಳು</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>ಸೆಟ್ಟಿಂಗ್ಗಳು</value>
+  </data>
+  <data name="AdvancedTabState" xml:space="preserve">
+    <value>ಉಪಕರಣಗಳು ಮತ್ತು ಸೆಟ್ಟಿಂಗ್‌ಗಳು</value>
+  </data>
+  <data name="AliasApplyNote" xml:space="preserve">
+    <value>ಧ್ವನಿಗಳನ್ನು ಧ್ವನಿಗಳ ಟ್ಯಾಬ್‌ನಿಂದ ಸ್ಥಾಪನೆ ಮಾಡಿದಾಗ ಅಥವಾ ಮರುಸ್ಥಾಪನೆ ಮಾಡಿದಾಗ ಅನ್ವಯಿಸುತ್ತದೆ. ಈಗಾಗಲೇ ಇರುವ ಧ್ವನಿಗಳು ಮುಂದಿನ ಬಾರಿ ನೀವು ಅವುಗಳನ್ನು ಸ್ಥಾಪಿಸಿದಾಗ ಬದಲಾವಣೆಯನ್ನು ಸ್ವೀಕರಿಸುತ್ತವೆ.</value>
+  </data>
+  <data name="AliasArabicHint" xml:space="preserve">
+    <value>ಬಲದಿಂದ ಎಡಕ್ಕೆ ಓದಲು ಇರುವ ಭಾಷೆಯ ಧ್ವನಿ (ಅರೇಬಿಕ್, ಉರ್ಧು, ಫೆರ್ಸಿಯನ್, ಹಿಹೇಬ್ರೂ, ಪಾಶ್ತೋ…) ಸಹ ಅರೇಬಿಕ್ (ar-SA) ಅಡಿಯಲ್ಲಿ ಕಾಣಿಸುತ್ತದೆ, ಆದ್ದರಿಂದ ಅರೇಬಿಕ್ ಧ್ವನಿಗಳಿಗಾಗಿ ಸೆಟ್ ಮಾಡಿದ ಆಪ್‌ಗಳು ಅದನ್ನು ಕಂಡುಹಿಡಿಯಬಹುದು.</value>
+  </data>
+  <data name="AliasArabicLabel" xml:space="preserve">
+    <value>ಅರಬ್ಬಿಯಲ್ಲಿ ಮೇಲೇ ಹಕ್ಕು-ನಡೆಸುವ ಧ್ವನಿಗಳನ್ನು ಸಹ ಅಲಿಯಾಸ್ ಮಾಡಿ</value>
+  </data>
+  <data name="AliasEnUsHint" xml:space="preserve">
+    <value>ಮತ್ತೆ ಯಾವುದೇ ಭಾಷೆಯ ಧ್ವನಿ ಕೂಡ ಇಂಗ್ಲಿಷ್ (en-US) ಆಗಿ ತೋರಿಸುತ್ತದೆ, ಆದ್ದರಿಂದ ಕೆಲವು AAC ಶೀರ್ಷಿಕೆಗಳು ಹತ್ತಿರದಂತೆ ಇಂಗ್ಲಿಷ್ ಧ್ವನಿಗಳನ್ನು ಮಾತ್ರ ಪಟ್ಟಿ ಮಾಡುವ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು ಅದನ್ನು ಬಳಸಬಹುದು.</value>
+  </data>
+  <data name="AliasEnUsLabel" xml:space="preserve">
+    <value>ಅಂಗ್ಲವಲ್ಲದ ಧ್ವನಿಗಳಿಗೆ en-US ಬಿನ್ನಹವನ್ನು ಸೇರಿಸಿ</value>
+  </data>
+  <data name="AliasSettingsIntro" xml:space="preserve">
+    <value>ಸ್ವರಗಳು ಅವರ ನಿಜವಾದ ಭಾಷೆಯೊಂದಿಗೆ ಸ್ಥಾಪಿತಗೊಳ್ಳುತ್ತವೆ. ಪರ್ಯಾಯ ಹೆಸರುಗಳು ಮೂಲಭಾಷೆಯಡಿಯಲ್ಲಿ ಹೆಚ್ಚುವರಿ ಪ್ರತಿಗಳನ್ನು ಸೇರಿಸುತ್ತವೆ, ಆದ್ದರಿಂದ ಭಾಷೆಯ ಮೂಲಕ ಫಿಲ್ಟರ್ ಮಾಡುವ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು ಅವರನ್ನು ಇನ್ನೂ ಕಂಡುಹಿಡಿಯಬಹುದು.</value>
+  </data>
+  <data name="AliasSettingsTitle" xml:space="preserve">
+    <value>SAPI ಧ್ವನಿ ಮಾದರಿಗಳು</value>
+  </data>
+  <data name="BackToEngines" xml:space="preserve">
+    <value>ಎಂಜಿನ್ಗೆ ಹಿಂದಿರುಗಿ</value>
+  </data>
+  <data name="BadgeCloud" xml:space="preserve">
+    <value>ಮೇಘ</value>
+  </data>
+  <data name="BadgeCredsNeeded" xml:space="preserve">
+    <value>ಕೀ ಅಗತ್ಯವಿದೆ</value>
+  </data>
+  <data name="BadgeKeyStored" xml:space="preserve">
+    <value>ಕೀ ಉಳಿಸಲಾಗಿದೆ</value>
+  </data>
+  <data name="BadgeNoCreds" xml:space="preserve">
+    <value>ಯಾವುದೇ ಕೀಲಿಯಿಲ್ಲ</value>
+  </data>
+  <data name="BadgeOffline" xml:space="preserve">
+    <value>ಆಫ್‌ಲೈನ್</value>
+  </data>
+  <data name="ClearVisible" xml:space="preserve">
+    <value>ಸ್ಪಷ್ಟವಾಗಿ ತೋರಿಸಲಾಗಿದೆ</value>
+  </data>
+  <data name="CredentialsFooterHint" xml:space="preserve">
+    <value>ಕೀ ಕೆಲಸ ಮಾಡುತ್ತದೆಯೆಂದು ಪರಿಶೀಲಿಸಲು ಧ್ವನಿಗಳನ್ನು ಲೋಡ್ ಮಾಡುವ ಮುನ್ನ ಕೀಲಿಯನ್ನು ಪರಿಶೀಲಿಸಿ. ನೀವು ಯಾವಾಗ ಬೇಕಾದರೂ ಹಿಂತಿರುಗಿಸಬಹುದು.</value>
+  </data>
+  <data name="CredentialsIntro" xml:space="preserve">
+    <value>ಪ್ರತಿಯೊಂದು ಆಯ್ದ ಎಂಜಿನ್‌ಗಾಗಿ ಪ್ರಮಾಣಪತ್ರಗಳನ್ನು ನಮೂದಿಸಿ. ಮೌಲ್ಯಗಳು ಕೇವಲ ಈ ಕಂಪ್ಯೂಟರ್‌ನಲ್ಲಿ ಮಾತ್ರ ಸಂರಕ್ಷಿಸಲ್ಪಡುತ್ತವೆ.</value>
+  </data>
+  <data name="CredentialsNoneNeeded" xml:space="preserve">
+    <value>ಆಯ್ದ ಎಂಜಿನ್ಗಳಿಗೆ ಯಾವುದೇ ಅಂಶಪತ್ರ ಅಗತ್ಯವಿಲ್ಲ.</value>
+  </data>
+  <data name="DeselectAllVoices" xml:space="preserve">
+    <value>ಎಲ್ಲಾ ಧ್ವನಿಗಳ ಆಯ್ಕೆ ರದ್ದುಮಾಡಿ</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>ಡೌನ್‌ಲೋಡ್</value>
+  </data>
+  <data name="DownloadFailedSingle" xml:space="preserve">
+    <value>{0} ನೆಲೆಗೆ ಡೌನ್‌ಲೋಡ್ ವಿಫಲವಾಗಿದೆ</value>
+  </data>
+  <data name="DownloadFailedTitle" xml:space="preserve">
+    <value>{0} ಅನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡುವುದು ವಿಫಲವಾಗಿದೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ ಇಂಟರ್ನೆಟ್ ಸಂಪರ್ಕವನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಪುನಃ ಪ್ರಯತ್ನಿಸಿ — ಇದು ನಿರಂತರವಾಗಿ ವಿಫಲವಾಗಿದ್ದರೆ, ಇತರ ಧ್ವನಿ ಅಪ್ಲಿಕೇಶನ್‌ಗಳನ್ನು ಮುಚ್ಚಿ ಮತ್ತು VoiceGarden ಅನ್ನು ಮರುಪ್ರಾರಂಭಿಸಿ.</value>
+  </data>
+  <data name="EdgeEngineDesc" xml:space="preserve">
+    <value>ಬಹುಭಾಷೆಗಳಲ್ಲಿ ಉಚಿತ ಮೈಕ್ರೋಸಾಫ್ಟ್ ಕ್ಲೌಡ್ ಧ್ವನಿಗಳು. ಉತ್ತಮ ಉಚಿತ ಆನ್ಲೈನ್ ಆಯ್ಕೆ — ಸಹಜ ಗುಣಮಟ್ಟ, ಯಾವುದೇ API ಕೀ ಅಗತ್ಯವಿಲ್ಲ, ಇಂಟರ್ನೆಟ್ ಅಗತ್ಯವಿದೆ.</value>
+  </data>
+  <data name="EdgeEngineName" xml:space="preserve">
+    <value>ಎಡ್ಜ್ ವಾಯ್ಸಸ್</value>
+  </data>
+  <data name="EngineDescKeyOnly" xml:space="preserve">
+    <value>{0} ಮೆಘ ಧ್ವನಿಗಳು. APIs ಕೀಸ್ ಬೇಕು.</value>
+  </data>
+  <data name="EngineDescKeyRegion" xml:space="preserve">
+    <value>{0} ಕ್ಲೌಡ್ ಧ್ವನಿಗಳು. ಇದಕ್ಕಾಗಿ API ಕೀ ಮತ್ತು ಪ್ರಾಂತ್ಯ ಅವಶ್ಯಕ.</value>
+  </data>
+  <data name="EngineDescKeySecretRegion" xml:space="preserve">
+    <value>{0} ಕ್ಲೌಡ್ ಧ್ವನಿಗಳು. ಪ್ರವೇಶ ಕೀ, ರಹಸ್ಯ ಕೀ ಮತ್ತು ಪ್ರದೇಶ ಅಗತ್ಯವಾಗಿದೆ.</value>
+  </data>
+  <data name="EngineDescKeyUserId" xml:space="preserve">
+    <value>{0} ಮেঘದ ಧ್ವನಿಗಳು. API ಕೀ ಮತ್ತು ಬಳಕೆದಾರ ಐಡಿ ಅಗತ್ಯವಿದೆ.</value>
+  </data>
+  <data name="EnginesSelectedSummary" xml:space="preserve">
+    <value>{1} ಎಂಜಿನ್‌ಗಳಿಂದ {0} ಆಯ್ಕೆಯಾಗಿವೆ</value>
+  </data>
+  <data name="FieldAPIKey" xml:space="preserve">
+    <value>ಎಪಿಐ ಕೀ</value>
+  </data>
+  <data name="FieldAccessKeyId" xml:space="preserve">
+    <value>ಪ್ರವೇಶ ಕೀಲಿಯ ಐಡಿ</value>
+  </data>
+  <data name="FieldInstanceId" xml:space="preserve">
+    <value>ಇನ್ಸ್ಟಾನ್ಸ್ ಐಡಿ</value>
+  </data>
+  <data name="FieldRegion" xml:space="preserve">
+    <value>ಪ್ರದೇಶ</value>
+  </data>
+  <data name="FieldSecretAccessKey" xml:space="preserve">
+    <value>ರಹಸ್ಯ ಪ್ರವೇಶ ಕೀ</value>
+  </data>
+  <data name="FieldSubscriptionKey" xml:space="preserve">
+    <value>ಚಂದಾದಾರಿಕೆ ಕೀ</value>
+  </data>
+  <data name="FieldToken" xml:space="preserve">
+    <value>ಟೋಕನ್</value>
+  </data>
+  <data name="FieldUserId" xml:space="preserve">
+    <value>ಬಳಕೆದಾರರ ಐಡಿ</value>
+  </data>
+  <data name="FilterAllEngines" xml:space="preserve">
+    <value>ಎಲ್ಲಾ ಎಂಜಿನ್‌ಗಳು</value>
+  </data>
+  <data name="FilterAllLanguages" xml:space="preserve">
+    <value>ಎಲ್ಲಾ ಭಾಷೆಗಳು</value>
+  </data>
+  <data name="FilterAllTypes" xml:space="preserve">
+    <value>ಎಲ್ಲಾ ವಿಧಗಳು</value>
+  </data>
+  <data name="FilterAnyEngine" xml:space="preserve">
+    <value>ಎಲ್ಲಾ ಎಂಜಿನ್‌ಗಳು</value>
+  </data>
+  <data name="FilterAnyGender" xml:space="preserve">
+    <value>ಯಾವುದೇ ಲಿಂಗ</value>
+  </data>
+  <data name="FilterAnyLanguage" xml:space="preserve">
+    <value>ಯಾವುದೇ ಭಾಷೆ</value>
+  </data>
+  <data name="FilterAnyQuality" xml:space="preserve">
+    <value>ಯಾವುದೇ ಗುಣಮಟ್ಟ</value>
+  </data>
+  <data name="FilterCredentials" xml:space="preserve">
+    <value>ಸರ್ಟಿಫಿಕೇಟುಗಳು</value>
+  </data>
+  <data name="FilterCredsNeeded" xml:space="preserve">
+    <value>ಕೀ ಅಗತ್ಯವಿದೆ</value>
+  </data>
+  <data name="FilterEngine" xml:space="preserve">
+    <value>ಎಂಜಿನ್‌ನ ಪ್ರಕಾರ ಫಿಲ್ಟರ್ ಮಾಡಿ</value>
+  </data>
+  <data name="FilterGender" xml:space="preserve">
+    <value>ಲಿಂಗದ ಮೂಲಕ ವಿಂಗಡಿಸಿ</value>
+  </data>
+  <data name="FilterLanguage" xml:space="preserve">
+    <value>ಭಾಷೆ</value>
+  </data>
+  <data name="FilterNoCreds" xml:space="preserve">
+    <value>ಯಾವುದೇ ಕೀ ಬೇಕಾಗಿಲ್ಲ</value>
+  </data>
+  <data name="FilterOfflineOnly" xml:space="preserve">
+    <value>ಆಫ್‌ಲೈನ್ ಮಾತ್ರ</value>
+  </data>
+  <data name="FilterOnlineOnly" xml:space="preserve">
+    <value>ಆನ್‌ಲೈನ್ ಮಾತ್ರ</value>
+  </data>
+  <data name="FilterQuality" xml:space="preserve">
+    <value>ಗುಣಮಟ್ಟದ ಪ್ರಕಾರ ಫಿಲ್ಟರ್ ಮಾಡಿ</value>
+  </data>
+  <data name="FilterType" xml:space="preserve">
+    <value>ಟೈಪ್</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>ಲಿಂಗ</value>
+  </data>
+  <data name="LanguageFilterHiddenNote" xml:space="preserve">
+    <value>{0} ಎಂಜಿನ್‌ಗಳು ಹಿಟ್ಟು ಮಾಡಿಕೊಂಡಿರುವುದು — ಅವರ ಭಾಷೆಗಳು ಅಲ್ಲಿನ ಧ್ವನಿಗಳನ್ನು Voices ಟ್ಯಾಬ್‌ನಲ್ಲಿ ಲೋಡ್ ಮಾಡುವವರೆಗೆ ಗೊತ್ತಾಗುವುದಿಲ್ಲ.</value>
+  </data>
+  <data name="LoadVoices" xml:space="preserve">
+    <value>ಸ್ವರಗಳನ್ನು ಲೋಡ್ ಮಾಡಿ</value>
+  </data>
+  <data name="NextCredentials" xml:space="preserve">
+    <value>ಮುಂದೆ: ಪ್ರಮಾಣಪತ್ರಗಳು</value>
+  </data>
+  <data name="NextVoices" xml:space="preserve">
+    <value>ಮುಂದೆ: ಧ್ವನಿಗಳು</value>
+  </data>
+  <data name="PreviewFailedTitle" xml:space="preserve">
+    <value>{0} ನಿದರ್ಶನ ವೈಫಲ್ಯವಾಯಿತು.</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>ಗುಣಮಟ್ಟ</value>
+  </data>
+  <data name="RefreshInstalled" xml:space="preserve">
+    <value>ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಿರುವುದನ್ನು ರಿಫ್ರೆಶ್ ಮಾಡಿ</value>
+  </data>
+  <data name="RemoveSelected" xml:space="preserve">
+    <value>SAPI ನಿಂದ ಆಯ್ಕೆ ಮಾಡಲಾದವನ್ನು ತೆಗೆದುಹಾಕಿ</value>
+  </data>
+  <data name="RescannedVoices" xml:space="preserve">
+    <value>ನವೀಕರಿಸಲಾಗಿದೆ — {0} ಧ್ವನಿಗಳು ಸ್ಥಾಪಿಸಲಾಯಿತು</value>
+  </data>
+  <data name="SearchEngines" xml:space="preserve">
+    <value>ಸರ್ಚ್ ಎಂಜಿನ್‌ಗಳು, ಭಾಷೆಗಳು…</value>
+  </data>
+  <data name="SelectAllVoices" xml:space="preserve">
+    <value>ಎಲ್ಲಾ ತೋರಿಸಿದ ಧ್ವನಿಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ</value>
+  </data>
+  <data name="SelectVisible" xml:space="preserve">
+    <value>ತೋರಿಸಿದದನ್ನು ಆರಿಸಿ</value>
+  </data>
+  <data name="SherpaOnnxEngineDesc" xml:space="preserve">
+    <value>ಬಹುಭಾಷೆಗಳಲ್ಲಿ ಆಫ್‌ಲೈನ್ ನ್ಯೂರಲ್ ಧ್ವನಿಗಳು. ಭರವಸೆ ಮತ್ತು ಖಾಸಗಿತನಕ್ಕೆ ಉತ್ತಮ — ಡೌನ್‌ಲೋಡ್ ಮಾಡಿದ ಬಳಿಕ ಖಾತೆ ಅಥವಾ ಇಂಟರ್‌ನೆಟ್ ಇಲ್ಲದೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ.</value>
+  </data>
+  <data name="SherpaOnnxEngineName" xml:space="preserve">
+    <value>ಶೆರ್ಪಾಒನ್ಎಕ್ಸ್ಎ</value>
+  </data>
+  <data name="Step4Desc" xml:space="preserve">
+    <value>ವಾಯಿಸ್ಗಳು ಟ್ಯಾಬ್ ತೆರೆಯಿರಿ ಮತ್ತು ವಾಯಿಸ್ಗಳನ್ನು ಲೋಡ್ ಮಾಡಿ ಕ್ಲಿಕ್ ಮಾಡಿ. ಭಾಷೆ, ಲಿಂಗ ಅಥವಾ ಗುಣಮಟ್ಟದ ಮೂಲಕ ಫಿಲ್ಟರ್ ಮಾಡಿ, ನೀವು ಇಚ್ಛಿಸುವವನ್ನೆದುರ್ದೃಶ್ಯ ಮಾಡಿ, ನಂತರ ಡೌನ್‌ಲೋಡ್ (ಆಫ್‌ಲೈನ್ ಮಾದರಿಗಳು) ಮತ್ತು SAPI ಗೆ ಇನ್‌ಸ್ಟಾಲ್ ಅನ್ನು ಬಳಸಿ. ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಲಾದ ವಾಯಿಸ್ಗಳು ತಕ್ಷಣವೇ ನಿಮ್ಮ ಅಪ್ಲಿಕೇಶನ್‌ಗಳಲ್ಲಿ ಕಾಣಿಸುತ್ತವೆ.</value>
+  </data>
+  <data name="Step4Title" xml:space="preserve">
+    <value>ನಿಮ್ಮ ಧ್ವನಿಗಳನ್ನು ಪಡೆಯಿರಿ</value>
+  </data>
+  <data name="TabCredentials" xml:space="preserve">
+    <value>ಸರ್ಟಿಫಿಕೇಟುಗಳು</value>
+  </data>
+  <data name="TabCredentialsCount" xml:space="preserve">
+    <value>{0} ಇಂಜಿನ್‌ಗಳಿಗೆ ಕೀಗಳು ಬೇಕು</value>
+  </data>
+  <data name="TabCredentialsNotNeeded" xml:space="preserve">
+    <value>ಅವಶ್ಯಕವಿಲ್ಲ</value>
+  </data>
+  <data name="TabCredentialsTitle" xml:space="preserve">
+    <value>ಸರ್ಟಿಫಿಕೇಟುಗಳು</value>
+  </data>
+  <data name="TabEngines" xml:space="preserve">
+    <value>ಧ್ವನಿ ಎಂಜಿನ್‌ಗಳು</value>
+  </data>
+  <data name="TabEnginesCount" xml:space="preserve">
+    <value>{0} ಆಯ್ಕೆ ಮಾಡಲಾಗಿದೆ</value>
+  </data>
+  <data name="TabEnginesIntro" xml:space="preserve">
+    <value>ನೀವು ಬಳಸಲು ಬಯಸುವ ಧ್ವನಿ ಇಂಜಿನ್‌ಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ. ಖಾತೆ ಇಲ್ಲದೆ ಕಾರ್ಯನಿರ್ವಹಿಸುವ ಆಫ್ಲೈನ್ ಧ್ವನಿಗಳನ್ನು, ಉಚಿತ ಕ್ಲೌಡ್ ಧ್ವನಿಗಳನ್ನು, ಅಥವಾ API ಕೀ ಅಗತ್ಯವಿರುವ ಕ್ಲೌಡ್ ಎಂಜಿನ್‌ಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ.</value>
+  </data>
+  <data name="TabEnginesTitle" xml:space="preserve">
+    <value>ಧ್ವನಿ ಎಂಜಿನ್‌ಗಳು</value>
+  </data>
+  <data name="TabVoices" xml:space="preserve">
+    <value>ಸ್ವರಗಳು</value>
+  </data>
+  <data name="TabVoicesCount" xml:space="preserve">
+    <value>{0} ಧ್ವನಿಗಳು</value>
+  </data>
+  <data name="TabVoicesIntro" xml:space="preserve">
+    <value>ನೀವು ಆಯ್ಕೆ ಮಾಡಿಕೊಂಡ ಎಂಜಿನಿನಿಂದ ಪ್ರತಿಯೊಂದು ಧ್ವನಿ. ಫಿಲ್ಟರ್ ಮಾಡಿ, ಪೂರ್ವದೃಶ್ಯ ಮಾಡಿರಿ, ನಂತರ ನೀವು ಬಯಸುವಗಳನ್ನು Windows SAPI ಗೆ установить ಮಾಡಿ.</value>
+  </data>
+  <data name="TabVoicesTitle" xml:space="preserve">
+    <value>ಸ್ವರಗಳು</value>
+  </data>
+  <data name="UnknownEngine" xml:space="preserve">
+    <value>ಅಪರಿಚಿತ ಇಂಜಿನ್</value>
+  </data>
+  <data name="UnknownLanguage" xml:space="preserve">
+    <value>ಅನಾಮಿಕ</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>ಸರಿಪಡಿಸಿ</value>
+  </data>
+  <data name="VerifyNoVoices" xml:space="preserve">
+    <value>ಕೀ ಅಂಗೀಕರಿಸಲಾಗಿದೆ ಆದರೆ ಯಾವುದೇ ಧ್ವನಿಗಳು ಹಿಂದಿರುಗಿಸಲ್ಪಡುವುದಿಲ್ಲ — ಕೀಲಿಗೆ TTS ಪ್ರವೇಶವಿದೆ ಎಂದು ಪರಿಶೀಲಿಸಿ.</value>
+  </data>
+  <data name="VoicesCountSummary" xml:space="preserve">
+    <value>{0} ಧ್ವನಿಗಳು · {1} ಆಯ್ಕೆಯಾಗಿವೆ · {2} ಸ್ಥಾಪಿಸಲಾಗಿದೆ</value>
+  </data>
+  <data name="VoicesEmptyHint" xml:space="preserve">
+    <value>ಮೊದಲು ವಾಯ್ಸ್ ಎಂಜಿನ್‌ಗಳು ಟ್ಯಾಬ್‌ನಲ್ಲಿ ನಿಮ್ಮ ವಾಯ್ಸ್ ಎಂಜಿನ್‌ಗಳನ್ನು ಆಯ್ಕೆ ಮಾಡಿಕೊಳ್ಳಿ (ಎಂಜಿನ್ ಗೆ ಕೀ ಅಗತ್ಯವಿದ್ದರೆ ಅಲ್ಲಿ ಪ್ರಮಾಣಿ೦ಪತ್ರಗಳನ್ನು ಕೂಡ ಸೇರಿಸಿ), ನಂತರ ಇಲ್ಲಿ ವಾಯ್‌ಗಳನ್ನು ಲೋಡ್ ಮಾಡಿ.</value>
+  </data>
+  <data name="VoicesEmptyNoEngines" xml:space="preserve">
+    <value>ಯಾವುದೇ ಎಂಜಿನ್ನು ಆಯ್ಕೆಮಾಡಲಾಗಿಲ್ಲ — ವಾಯ್ಸ್ ಎಂಜಿನ್ಗಳು ಟ್ಯಾಬ್ ತೆರೆಯಿರಿ ಮತ್ತು ಕನಿಷ್ಠ ಒಂದು ಎಂಜಿನ್ ಟಿಕ್ಮಾರ್ಕ್ ಮಾಡಿ.</value>
+  </data>
+  <data name="VoicesEmptyTitle" xml:space="preserve">
+    <value>ಇನ್ನು ಯಾವ ಧ್ವನಿಗಳು ಇಲ್ಲ</value>
+  </data>
+  <data name="VoicesFetchFailed" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="VoicesLoaded" xml:space="preserve">
+    <value>{0} ಧ್ವನಿಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗಿದೆ</value>
+  </data>
+  <data name="VoicesMissingKey" xml:space="preserve">
+    <value>{0}: API ಕೀ ಇಲ್ಲ — Credentials ಟ್ಯಾಬ್‌ನಲ್ಲಿ ಒಂದು ಸೇರಿಸಿ</value>
+  </data>
+  <data name="VoicesNoEnginesSelected" xml:space="preserve">
+    <value>ಮೊದಲು ವಾಯ್ಸ್ ಎಂಜಿನ್ಸ್ ಟ್ಯಾಬ್‌ನಲ್ಲಿ ಕನಿಷ್ಠ ಒಂದು ಎಂಜಿನ್ ಅನ್ನು ಆರಿಸಿ.</value>
+  </data>
+  <data name="VoicesPromoteFailed" xml:space="preserve">
+    <value>{0} ಅನ್ನು ಸ್ಥಾಪಿಸಲಾಗಲಿಲ್ಲ (ನಿರ್ವಹಣಾಧಿಕಾರಿಯ ಅನುಮತಿ ಅಗತ್ಯವಿರಬಹುದು)</value>
+  </data>
+  <data name="VoicesPromotedSingle" xml:space="preserve">
+    <value>{0} ಅನ್ನು SAPI ಗೆ ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಲಾಗಿದೆ</value>
+  </data>
+  <data name="VoicesSkippedNoKey" xml:space="preserve">
+    <value>{0} ಎಂಜಿನ್ಗಳು ಹ್ತು — ಯಾವುದೇ API ಕೀ ಸಜ್ಜಾಗಿಲ್ಲ</value>
+  </data>
+  <data name="VoicesUnpromoteFailed" xml:space="preserve">
+    <value>{0} ತೆರವುಗೊಳಿಸಲಾಯಿತು; {1} ವಿಫಲವಾಗಿತು</value>
+  </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>ಸ್ಥಾಪಿತ ಧ್ವನಿಗಳನ್ನೇ ಮಾತ್ರ ತೋರಿಸಿ</value>
   </data>
 </root>
