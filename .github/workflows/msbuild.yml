@@ -239,11 +239,13 @@ jobs:
       run: |
         # Tag builds (v0.6.0) derive the MSI ProductVersion from the tag so
         # the installer version tracks releases; the 0.6.0.0 default in
-        # build-setup.ps1 only covers non-tag builds. ($setupArgs, not
-        # $args — that's an automatic variable in PowerShell.)
-        $ver = if ("${{ github.ref_type }}" -eq "tag") { "${{ github.ref_name }}" -replace '^v','' } else { "" }
-        $setupArgs = @("-PayloadDir", ".\payload", "-OutputDir", ".\installer-output")
-        if ($ver) { $setupArgs += @("-Version", "$ver.0") }
+        # build-setup.ps1 only covers non-tag builds. Hashtable splat —
+        # array splats bind positionally and "-PayloadDir" would be passed
+        # as a literal value.
+        $setupArgs = @{ PayloadDir = ".\payload"; OutputDir = ".\installer-output" }
+        if ("${{ github.ref_type }}" -eq "tag") {
+            $setupArgs.Version = ("${{ github.ref_name }}" -replace '^v','') + ".0"
+        }
         .\scripts\build-setup.ps1 @setupArgs
 
     - name: Build setup.exe bootstrapper
