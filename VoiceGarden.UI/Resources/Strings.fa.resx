@@ -56,9 +56,6 @@
   <data name="AdapterInstallation" xml:space="preserve">
     <value>نصب آداپتور</value>
   </data>
-  <data name="AddEnUsAlias" xml:space="preserve">
-    <value>نام مستعار en-US را اضافه کنید</value>
-  </data>
   <data name="Advanced" xml:space="preserve">
     <value>پیشرفته</value>
   </data>
@@ -67,9 +64,6 @@
   </data>
   <data name="AnalyticsHint" xml:space="preserve">
     <value>به ما کمک می کند بفهمیم کدام موتورها استفاده می شوند. هیچ متن، کلید یا PII ارسال نشد.</value>
-  </data>
-  <data name="APIKey" xml:space="preserve">
-    <value>کلید API</value>
   </data>
   <data name="AppName" xml:space="preserve">
     <value>VoiceGarden</value>
@@ -92,50 +86,11 @@
   <data name="Checking" xml:space="preserve">
     <value>در حال بررسی...</value>
   </data>
-  <data name="Close" xml:space="preserve">
-    <value>بستن</value>
-  </data>
-  <data name="CloudVoices" xml:space="preserve">
-    <value>صداهای ابری</value>
-  </data>
-  <data name="ConfigureCredentials" xml:space="preserve">
-    <value>پیکربندی اعتبار...</value>
-  </data>
-  <data name="ConfigureCredentialsTitle" xml:space="preserve">
-    <value>اعتبارنامه ها را پیکربندی کنید</value>
-  </data>
-  <data name="ConfigureVoices" xml:space="preserve">
-    <value>پیکربندی صداها...</value>
-  </data>
-  <data name="ConfigureVoicesTitle" xml:space="preserve">
-    <value>صداها را پیکربندی کنید</value>
-  </data>
-  <data name="CountDownloaded" xml:space="preserve">
-    <value>{0} دانلود شد</value>
-  </data>
-  <data name="CountInstalled" xml:space="preserve">
-    <value>{0} نصب شد</value>
-  </data>
-  <data name="CountSelected" xml:space="preserve">
-    <value>{0} انتخاب شد</value>
-  </data>
-  <data name="CountTotal" xml:space="preserve">
-    <value>مجموع {0}</value>
-  </data>
   <data name="Downloaded" xml:space="preserve">
     <value>دانلود شد</value>
   </data>
-  <data name="DownloadedCount" xml:space="preserve">
-    <value>{0} مدل(های) بارگیری شده</value>
-  </data>
-  <data name="DownloadedFailedCount" xml:space="preserve">
-    <value>دانلود {0}، ناموفق {1}</value>
-  </data>
   <data name="DownloadedStatus" xml:space="preserve">
     <value>دانلود شد</value>
-  </data>
-  <data name="DownloadFailed" xml:space="preserve">
-    <value>دانلود انجام نشد: {0} مدل(های)</value>
   </data>
   <data name="DownloadingModel" xml:space="preserve">
     <value>در حال دانلود {0} ({1})...</value>
@@ -143,14 +98,8 @@
   <data name="DownloadModelFirst" xml:space="preserve">
     <value>ابتدا مدل را دانلود کنید</value>
   </data>
-  <data name="DownloadSelected" xml:space="preserve">
-    <value>دانلود انتخاب شد</value>
-  </data>
   <data name="EnableAnalytics" xml:space="preserve">
     <value>ارسال تجزیه و تحلیل استفاده ناشناس (انتخاب کردن)</value>
-  </data>
-  <data name="EnableEdgeVoices" xml:space="preserve">
-    <value>صداهای مرورگر Edge را فعال کنید</value>
   </data>
   <data name="Engine" xml:space="preserve">
     <value>موتور:</value>
@@ -176,12 +125,6 @@
   <data name="FetchingVoices" xml:space="preserve">
     <value>در حال واکشی {0} صدا...</value>
   </data>
-  <data name="FetchVoices" xml:space="preserve">
-    <value>واکشی صداها</value>
-  </data>
-  <data name="Filter" xml:space="preserve">
-    <value>فیلتر:</value>
-  </data>
   <data name="FoundVoices" xml:space="preserve">
     <value>{0} صدا پیدا شد</value>
   </data>
@@ -190,9 +133,6 @@
   </data>
   <data name="HelpImprove" xml:space="preserve">
     <value>به بهبود VoiceGarden کمک کنید</value>
-  </data>
-  <data name="HideAdvanced" xml:space="preserve">
-    <value>▼ پنهان کردن پیشرفته</value>
   </data>
   <data name="Install" xml:space="preserve">
     <value>نصب کنید</value>
@@ -206,32 +146,14 @@
   <data name="InstalledModelsFailed" xml:space="preserve">
     <value>نصب {0}، ناموفق {1}</value>
   </data>
-  <data name="InstalledModelsSAPI" xml:space="preserve">
-    <value>{0} مدل(های) در SAPI نصب شد</value>
-  </data>
-  <data name="InstalledOnly" xml:space="preserve">
-    <value>فقط نصب شده</value>
-  </data>
   <data name="InstalledVoicesHKLM" xml:space="preserve">
     <value>{0} صدا در HKLM نصب شد</value>
   </data>
   <data name="InstallFailed" xml:space="preserve">
     <value>نصب انجام نشد: {0}</value>
   </data>
-  <data name="InstallingSAPI" xml:space="preserve">
-    <value>نصب مدل ها در SAPI (HKLM)...</value>
-  </data>
   <data name="InstallSelected" xml:space="preserve">
     <value>Selected را نصب کنید</value>
-  </data>
-  <data name="InstallToSAPI" xml:space="preserve">
-    <value>در SAPI نصب کنید</value>
-  </data>
-  <data name="InvalidResult" xml:space="preserve">
-    <value>نامعتبر: {0}</value>
-  </data>
-  <data name="Key" xml:space="preserve">
-    <value>کلید:</value>
   </data>
   <data name="LangCompatDesc" xml:space="preserve">
     <value>اگر نرم افزار AAC شما فقط از زبان های خاصی (مانند انگلیسی) پشتیبانی می کند، هنگام تبلیغ مدل های SherpaOnnx، «Add en-US alias» را فعال کنید. این باعث می‌شود صداها در هر زبانی به‌عنوان صدای انگلیسی ظاهر شوند، بنابراین در برنامه‌هایی که بر اساس زبان فیلتر می‌کنند نشان داده می‌شوند.</value>
@@ -248,9 +170,6 @@
   <data name="LogLevel" xml:space="preserve">
     <value>سطح گزارش:</value>
   </data>
-  <data name="ManageModels" xml:space="preserve">
-    <value>مدیریت مدل ها...</value>
-  </data>
   <data name="ModelFilesNotFound" xml:space="preserve">
     <value>فایل های مدل یافت نشد</value>
   </data>
@@ -266,15 +185,6 @@
   <data name="NoAudio" xml:space="preserve">
     <value>صدا تولید نشده است</value>
   </data>
-  <data name="NoDownloadedModels" xml:space="preserve">
-    <value>هیچ مدل دانلود شده ای یافت نشد. ابتدا یک مدل را دانلود کنید، سپس در صورت نیاز روی Rescan کلیک کنید.</value>
-  </data>
-  <data name="NoDownloadUrl" xml:space="preserve">
-    <value>آدرس دانلود وجود ندارد</value>
-  </data>
-  <data name="NoModelId" xml:space="preserve">
-    <value>شناسه مدل برای پیش نمایش تعیین نشد</value>
-  </data>
   <data name="NoModelsInstalled" xml:space="preserve">
     <value>هیچ مدلی نصب نشده است</value>
   </data>
@@ -283,9 +193,6 @@
   </data>
   <data name="NoThanks" xml:space="preserve">
     <value>نه ممنون</value>
-  </data>
-  <data name="OfflineVoices" xml:space="preserve">
-    <value>صداهای آفلاین</value>
   </data>
   <data name="OnboardingDesc1" xml:space="preserve">
     <value>VoiceGarden یک پل صوتی رایگان و منبع باز است که بیش از 20 موتور مدرن تبدیل متن به گفتار را به هر برنامه ویندوزی که از SAPI 5 پشتیبانی می کند - از جمله Grid 3، Mind Express، Balabolka، Tobii Communicator، و هر برنامه ای که بر روی System.Speech ساخته شده است، متصل می کند.</value>
@@ -296,9 +203,6 @@
   <data name="OnboardingTitle" xml:space="preserve">
     <value>به VoiceGarden خوش آمدید</value>
   </data>
-  <data name="OnlyEnabledEngines" xml:space="preserve">
-    <value>فقط موتورهای فعال نشان داده می شوند. موتورها را در صفحه اصلی تغییر دهید.</value>
-  </data>
   <data name="OpenLogs" xml:space="preserve">
     <value>Logs را باز کنید</value>
   </data>
@@ -307,9 +211,6 @@
   </data>
   <data name="PreviewFailed" xml:space="preserve">
     <value>پیش‌نمایش ناموفق بود: {0}</value>
-  </data>
-  <data name="Previewing" xml:space="preserve">
-    <value>در حال پیش نمایش...</value>
   </data>
   <data name="PreviewingVoice" xml:space="preserve">
     <value>در حال پیش نمایش {0}...</value>
@@ -323,50 +224,17 @@
   <data name="PrivacyIntro" xml:space="preserve">
     <value>VoiceGarden یک پروژه رایگان و متن باز است که توسط داوطلبان ساخته شده است. برای کمک به ما در درک اینکه کدام موتورهای TTS بیشتر مورد استفاده قرار می گیرند، شناسایی اشکالات و اولویت بندی توسعه، می خواهیم تجزیه و تحلیل استفاده ناشناس را جمع آوری کنیم.</value>
   </data>
-  <data name="Ready" xml:space="preserve">
-    <value>آماده است</value>
-  </data>
-  <data name="Region" xml:space="preserve">
-    <value>منطقه</value>
-  </data>
-  <data name="Register" xml:space="preserve">
-    <value>ثبت نام کنید</value>
-  </data>
   <data name="RemovedVoices" xml:space="preserve">
     <value>{0} صدا حذف شد</value>
-  </data>
-  <data name="RequestingAdmin" xml:space="preserve">
-    <value>در حال درخواست امتیازات مدیریت...</value>
   </data>
   <data name="Reregister" xml:space="preserve">
     <value>دوباره ثبت نام کنید</value>
   </data>
-  <data name="Rescan" xml:space="preserve">
-    <value>اسکن مجدد</value>
-  </data>
-  <data name="RescannedModels" xml:space="preserve">
-    <value>اسکن مجدد: {0} مدل(ها) آماده است</value>
-  </data>
-  <data name="Search" xml:space="preserve">
-    <value>جستجو...</value>
-  </data>
   <data name="SearchVoices" xml:space="preserve">
     <value>جستجوی صداها...</value>
   </data>
-  <data name="SelectModelsFirst" xml:space="preserve">
-    <value>ابتدا مدل هایی را برای دانلود انتخاب کنید</value>
-  </data>
   <data name="SelectVoicesFirst" xml:space="preserve">
     <value>ابتدا صداها را برای نصب انتخاب کنید</value>
-  </data>
-  <data name="SherpaOnnxModels" xml:space="preserve">
-    <value>مدل های Sherpa Onnx</value>
-  </data>
-  <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
-    <value>Sherpa Onnx Neural TTS</value>
-  </data>
-  <data name="ShowAdvanced" xml:space="preserve">
-    <value>▶ نمایش پیشرفته</value>
   </data>
   <data name="Step1Desc" xml:space="preserve">
     <value>در صفحه اصلی، روی Install برای 64 بیتی (و در صورت نیاز 32 بیتی) کلیک کنید. این VoiceGarden را به عنوان صدای SAPI 5 ثبت می کند که هر برنامه سازگار می تواند از آن استفاده کند.</value>
@@ -389,17 +257,11 @@
   <data name="Uninstall" xml:space="preserve">
     <value>حذف نصب کنید</value>
   </data>
-  <data name="Validate" xml:space="preserve">
-    <value>اعتبار سنجی</value>
-  </data>
   <data name="Validating" xml:space="preserve">
     <value>در حال اعتبارسنجی...</value>
   </data>
   <data name="ValidResult" xml:space="preserve">
     <value>معتبر ({0} صدا)</value>
-  </data>
-  <data name="VoiceEngines" xml:space="preserve">
-    <value>موتورهای صوتی</value>
   </data>
   <data name="WhatIsVoiceGarden" xml:space="preserve">
     <value>VoiceGarden چیست؟</value>
@@ -422,5 +284,314 @@
   </data>
   <data name="YesHelpImprove" xml:space="preserve">
     <value>بله، به بهبود VoiceGarden کمک کنید</value>
+  </data>
+  <data name="AdvancedIntro" xml:space="preserve">
+    <value>ثبت آداپتور، تنظیمات برنامه، مدیریت مدل آفلاین و درباره — هر چیزی که بخشی از جریان راهنمایی شده نیست.</value>
+  </data>
+  <data name="AdvancedModelsHint" xml:space="preserve">
+    <value>مرور، دانلود و نصب صداهای آفلاین از زبانه صداها — موتور SherpaOnnx را در آنجا انتخاب کنید.</value>
+  </data>
+  <data name="AdvancedModelsTitle" xml:space="preserve">
+    <value>مدل‌های آفلاین</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>تنظیمات</value>
+  </data>
+  <data name="AdvancedTabState" xml:space="preserve">
+    <value>ابزارها و تنظیمات</value>
+  </data>
+  <data name="AliasApplyNote" xml:space="preserve">
+    <value>زمانی که صداها از تب صداها نصب یا دوباره نصب می‌شوند اعمال می‌شود. صداهای موجود تغییر را دفعه‌ی بعد که آنها را نصب می‌کنید می‌گیرند.</value>
+  </data>
+  <data name="AliasArabicHint" xml:space="preserve">
+    <value>صدا در یک زبان راست به چپ (عربی، اردو، فارسی، عبری، پشتو…) نیز تحت عربی (ar-SA) ظاهر می‌شود، بنابراین برنامه‌هایی که برای صدای عربی تنظیم شده‌اند می‌توانند آن را پیدا کنند.</value>
+  </data>
+  <data name="AliasArabicLabel" xml:space="preserve">
+    <value>همچنین نام مستعار صداهای راست به چپ تحت عربی</value>
+  </data>
+  <data name="AliasEnUsHint" xml:space="preserve">
+    <value>صدای هر زبان دیگری نیز به صورت انگلیسی (en-US) ظاهر می‌شود، بنابراین برنامه‌هایی که تنها صداهای انگلیسی را فهرست می‌کنند — مانند برخی عناوین AAC — می‌توانند از آن استفاده کنند.</value>
+  </data>
+  <data name="AliasEnUsLabel" xml:space="preserve">
+    <value>یک نام مستعار en-US برای صداهای غیرانگلیسی اضافه کنید</value>
+  </data>
+  <data name="AliasSettingsIntro" xml:space="preserve">
+    <value>صداها با زبان واقعی خود نصب می‌شوند. نام‌های مستعار نسخه‌های اضافی را تحت زبان دوم اضافه می‌کنند تا برنامه‌هایی که بر اساس زبان فیلتر می‌کنند، هنوز بتوانند آن‌ها را پیدا کنند.</value>
+  </data>
+  <data name="AliasSettingsTitle" xml:space="preserve">
+    <value>نام‌های مستعار صدای SAPI</value>
+  </data>
+  <data name="BackToEngines" xml:space="preserve">
+    <value>بازگشت به موتور‌ها</value>
+  </data>
+  <data name="BadgeCloud" xml:space="preserve">
+    <value>ابر</value>
+  </data>
+  <data name="BadgeCredsNeeded" xml:space="preserve">
+    <value>کلید مورد نیاز</value>
+  </data>
+  <data name="BadgeKeyStored" xml:space="preserve">
+    <value>کلید ذخیره شد</value>
+  </data>
+  <data name="BadgeNoCreds" xml:space="preserve">
+    <value>بدون کلید</value>
+  </data>
+  <data name="BadgeOffline" xml:space="preserve">
+    <value>آفلاین</value>
+  </data>
+  <data name="ClearVisible" xml:space="preserve">
+    <value>واضح نشان داده شده</value>
+  </data>
+  <data name="CredentialsFooterHint" xml:space="preserve">
+    <value>یک کلید را بررسی کنید تا مطمئن شوید قبل از بارگذاری صداها کار می‌کند. می‌توانید هر زمان برگردید.</value>
+  </data>
+  <data name="CredentialsIntro" xml:space="preserve">
+    <value>مدارک ورود برای هر موتور انتخاب‌شده را وارد کنید. مقادیر تنها روی این کامپیوتر ذخیره می‌شوند.</value>
+  </data>
+  <data name="CredentialsNoneNeeded" xml:space="preserve">
+    <value>هیچ موتور انتخاب‌شده‌ای به مدارک نیاز ندارد.</value>
+  </data>
+  <data name="DeselectAllVoices" xml:space="preserve">
+    <value>لغو انتخاب همه صداها</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>دانلود</value>
+  </data>
+  <data name="DownloadFailedSingle" xml:space="preserve">
+    <value>دانلود {0} ناموفق بود</value>
+  </data>
+  <data name="DownloadFailedTitle" xml:space="preserve">
+    <value>دانلود برای {0} ناموفق بود. اتصال اینترنت خود را بررسی کنید و دوباره تلاش کنید — اگر همچنان ناموفق بود، سایر برنامه‌های صوتی را ببندید و VoiceGarden را مجدداً راه‌اندازی کنید.</value>
+  </data>
+  <data name="EdgeEngineDesc" xml:space="preserve">
+    <value>صداهای رایگان ابری مایکروسافت به زبان‌های متعدد. بهترین گزینه رایگان آنلاین — کیفیت طبیعی، بدون نیاز به کلید API، نیازمند اینترنت.</value>
+  </data>
+  <data name="EdgeEngineName" xml:space="preserve">
+    <value>صداهای لبه</value>
+  </data>
+  <data name="EngineDescKeyOnly" xml:space="preserve">
+    <value>صدای ابری {0}. به یک کلید API نیاز دارد.</value>
+  </data>
+  <data name="EngineDescKeyRegion" xml:space="preserve">
+    <value>صداهای ابری {0}. نیاز به کلید API و منطقه دارد.</value>
+  </data>
+  <data name="EngineDescKeySecretRegion" xml:space="preserve">
+    <value>صداهای ابری {0}. نیاز به یک کلید دسترسی، کلید مخفی و منطقه دارد.</value>
+  </data>
+  <data name="EngineDescKeyUserId" xml:space="preserve">
+    <value>صداهای ابری {0}. نیاز به کلید API و شناسه کاربری دارد.</value>
+  </data>
+  <data name="EnginesSelectedSummary" xml:space="preserve">
+    <value>{0} از {1} موتور انتخاب شد</value>
+  </data>
+  <data name="FieldAPIKey" xml:space="preserve">
+    <value>کلید API</value>
+  </data>
+  <data name="FieldAccessKeyId" xml:space="preserve">
+    <value>شناسه کلید دسترسی</value>
+  </data>
+  <data name="FieldInstanceId" xml:space="preserve">
+    <value>شناسه نمونه</value>
+  </data>
+  <data name="FieldRegion" xml:space="preserve">
+    <value>منطقه</value>
+  </data>
+  <data name="FieldSecretAccessKey" xml:space="preserve">
+    <value>کلید دسترسی مخفی</value>
+  </data>
+  <data name="FieldSubscriptionKey" xml:space="preserve">
+    <value>کلید اشتراک</value>
+  </data>
+  <data name="FieldToken" xml:space="preserve">
+    <value>نماد</value>
+  </data>
+  <data name="FieldUserId" xml:space="preserve">
+    <value>شناسه کاربری</value>
+  </data>
+  <data name="FilterAllEngines" xml:space="preserve">
+    <value>تمام موتور‌ها</value>
+  </data>
+  <data name="FilterAllLanguages" xml:space="preserve">
+    <value>تمام زبان‌ها</value>
+  </data>
+  <data name="FilterAllTypes" xml:space="preserve">
+    <value>همه انواع</value>
+  </data>
+  <data name="FilterAnyEngine" xml:space="preserve">
+    <value>تمام موتور‌ها</value>
+  </data>
+  <data name="FilterAnyGender" xml:space="preserve">
+    <value>هر جنسیتی</value>
+  </data>
+  <data name="FilterAnyLanguage" xml:space="preserve">
+    <value>هر زبانی</value>
+  </data>
+  <data name="FilterAnyQuality" xml:space="preserve">
+    <value>هر کیفیت</value>
+  </data>
+  <data name="FilterCredentials" xml:space="preserve">
+    <value>مدارک شناسایی</value>
+  </data>
+  <data name="FilterCredsNeeded" xml:space="preserve">
+    <value>کلید مورد نیاز</value>
+  </data>
+  <data name="FilterEngine" xml:space="preserve">
+    <value>فیلتر بر اساس موتور</value>
+  </data>
+  <data name="FilterGender" xml:space="preserve">
+    <value>فیلتر بر اساس جنسیت</value>
+  </data>
+  <data name="FilterLanguage" xml:space="preserve">
+    <value>زبان</value>
+  </data>
+  <data name="FilterNoCreds" xml:space="preserve">
+    <value>به کلید نیاز نیست</value>
+  </data>
+  <data name="FilterOfflineOnly" xml:space="preserve">
+    <value>فقط آفلاین</value>
+  </data>
+  <data name="FilterOnlineOnly" xml:space="preserve">
+    <value>فقط آنلاین</value>
+  </data>
+  <data name="FilterQuality" xml:space="preserve">
+    <value>فیلتر بر اساس کیفیت</value>
+  </data>
+  <data name="FilterType" xml:space="preserve">
+    <value>نوع</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>جنسیت</value>
+  </data>
+  <data name="LanguageFilterHiddenNote" xml:space="preserve">
+    <value>{0} موتور مخفی — زبان‌های آن‌ها تا زمانی که صداهای آن‌ها در برگه صداها بارگذاری شوند، ناشناخته است.</value>
+  </data>
+  <data name="LoadVoices" xml:space="preserve">
+    <value>بارگذاری صداها</value>
+  </data>
+  <data name="NextCredentials" xml:space="preserve">
+    <value>بعدی: مدارک</value>
+  </data>
+  <data name="NextVoices" xml:space="preserve">
+    <value>بعدی: صداها</value>
+  </data>
+  <data name="PreviewFailedTitle" xml:space="preserve">
+    <value>پیش‌نمایش برای {0} ناموفق بود.</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>کیفیت</value>
+  </data>
+  <data name="RefreshInstalled" xml:space="preserve">
+    <value>تازه‌سازی انجام شد</value>
+  </data>
+  <data name="RemoveSelected" xml:space="preserve">
+    <value>حذف موارد انتخاب‌شده از SAPI</value>
+  </data>
+  <data name="RescannedVoices" xml:space="preserve">
+    <value>به‌روز شد — {0} صدا نصب شد</value>
+  </data>
+  <data name="SearchEngines" xml:space="preserve">
+    <value>موتورهای جستجو، زبان‌ها…</value>
+  </data>
+  <data name="SelectAllVoices" xml:space="preserve">
+    <value>تمام صداهای نمایش داده شده را انتخاب کنید</value>
+  </data>
+  <data name="SelectVisible" xml:space="preserve">
+    <value>انتخاب شده</value>
+  </data>
+  <data name="SherpaOnnxEngineDesc" xml:space="preserve">
+    <value>صدای عصبی آفلاین به زبان‌های مختلف. بهترین گزینه برای اطمینان و حفظ حریم خصوصی — پس از دانلود بدون حساب کاربری یا اینترنت کار می‌کند.</value>
+  </data>
+  <data name="SherpaOnnxEngineName" xml:space="preserve">
+    <value>شرپا آن‌ان‌ایکس</value>
+  </data>
+  <data name="Step4Desc" xml:space="preserve">
+    <value>تب صداها را باز کنید و روی بارگذاری صداها کلیک کنید. با زبان، جنسیت یا کیفیت فیلتر کنید، صداهایی که دوست دارید پیش‌نمایش کنید، سپس از دانلود (مدل‌های آفلاین) و نصب روی SAPI استفاده کنید. صداهای نصب‌شده فوراً در برنامه‌های شما ظاهر می‌شوند.</value>
+  </data>
+  <data name="Step4Title" xml:space="preserve">
+    <value>صدای خود را درآورید</value>
+  </data>
+  <data name="TabCredentials" xml:space="preserve">
+    <value>مدارک</value>
+  </data>
+  <data name="TabCredentialsCount" xml:space="preserve">
+    <value>موتورهای {0} به کلید نیاز دارند</value>
+  </data>
+  <data name="TabCredentialsNotNeeded" xml:space="preserve">
+    <value>لازم نیست</value>
+  </data>
+  <data name="TabCredentialsTitle" xml:space="preserve">
+    <value>مدارک</value>
+  </data>
+  <data name="TabEngines" xml:space="preserve">
+    <value>موتورهای صدا</value>
+  </data>
+  <data name="TabEnginesCount" xml:space="preserve">
+    <value>{0} انتخاب شده</value>
+  </data>
+  <data name="TabEnginesIntro" xml:space="preserve">
+    <value>موتورهای صدایی که می‌خواهید استفاده کنید را انتخاب کنید. صداهای آفلاینی که بدون حساب کاربری کار می‌کنند، صداهای رایگان ابری یا موتورهای ابری که به کلید API نیاز دارند را انتخاب کنید.</value>
+  </data>
+  <data name="TabEnginesTitle" xml:space="preserve">
+    <value>موتورهای صدا</value>
+  </data>
+  <data name="TabVoices" xml:space="preserve">
+    <value>صداها</value>
+  </data>
+  <data name="TabVoicesCount" xml:space="preserve">
+    <value>{0} صدا</value>
+  </data>
+  <data name="TabVoicesIntro" xml:space="preserve">
+    <value>هر صدایی از موتورهایی که انتخاب کرده‌اید. فیلتر کنید، پیش‌نمایش کنید، سپس آن‌هایی را که می‌خواهید در Windows SAPI نصب کنید.</value>
+  </data>
+  <data name="TabVoicesTitle" xml:space="preserve">
+    <value>صداها</value>
+  </data>
+  <data name="UnknownEngine" xml:space="preserve">
+    <value>موتور ناشناخته</value>
+  </data>
+  <data name="UnknownLanguage" xml:space="preserve">
+    <value>ناشناخته</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>تأیید کردن</value>
+  </data>
+  <data name="VerifyNoVoices" xml:space="preserve">
+    <value>کلید پذیرفته شد اما هیچ صدایی بازگردانده نشد — بررسی کنید که کلید دسترسی به TTS دارد.</value>
+  </data>
+  <data name="VoicesCountSummary" xml:space="preserve">
+    <value>{0} صدا · {1} انتخاب شده · {2} نصب شده</value>
+  </data>
+  <data name="VoicesEmptyHint" xml:space="preserve">
+    <value>ابتدا موتورهای صدای خود را در زبانه موتورهای صدا انتخاب کنید (اگر موتور نیاز به کلید دارد، اعتبارنامه‌ها را نیز آنجا اضافه کنید)، سپس صداها را اینجا بارگذاری کنید.</value>
+  </data>
+  <data name="VoicesEmptyNoEngines" xml:space="preserve">
+    <value>هیچ موتوری انتخاب نشده است — زبانه موتورها را باز کنید و حداقل یک موتور را علامت بزنید.</value>
+  </data>
+  <data name="VoicesEmptyTitle" xml:space="preserve">
+    <value>هنوز صدایی نیست</value>
+  </data>
+  <data name="VoicesFetchFailed" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="VoicesLoaded" xml:space="preserve">
+    <value>بارگذاری {0} صدا</value>
+  </data>
+  <data name="VoicesMissingKey" xml:space="preserve">
+    <value>{0}: کلید API وجود ندارد — یکی را در تب Credentials اضافه کنید</value>
+  </data>
+  <data name="VoicesNoEnginesSelected" xml:space="preserve">
+    <value>ابتدا حداقل یک موتور را در برگه موتورهای صدا انتخاب کنید.</value>
+  </data>
+  <data name="VoicesPromoteFailed" xml:space="preserve">
+    <value>نمی‌توان {0} را نصب کرد (ممکن است نیاز به تأیید مدیر باشد)</value>
+  </data>
+  <data name="VoicesPromotedSingle" xml:space="preserve">
+    <value>{0} بر روی SAPI نصب شد</value>
+  </data>
+  <data name="VoicesSkippedNoKey" xml:space="preserve">
+    <value>{0} موتور نادیده گرفته شد — کلید API تنظیم نشده است</value>
+  </data>
+  <data name="VoicesUnpromoteFailed" xml:space="preserve">
+    <value>حذف شد {0}؛ شکست خورد {1}</value>
   </data>
 </root>

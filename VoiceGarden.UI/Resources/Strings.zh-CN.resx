@@ -56,9 +56,6 @@
   <data name="AdapterInstallation" xml:space="preserve">
     <value>适配器安装</value>
   </data>
-  <data name="AddEnUsAlias" xml:space="preserve">
-    <value>添加 en-US 别名</value>
-  </data>
   <data name="Advanced" xml:space="preserve">
     <value>先进的</value>
   </data>
@@ -67,9 +64,6 @@
   </data>
   <data name="AnalyticsHint" xml:space="preserve">
     <value>帮助我们了解使用了哪些引擎。未发送任何文本、密钥或 PII。</value>
-  </data>
-  <data name="APIKey" xml:space="preserve">
-    <value>API密钥</value>
   </data>
   <data name="AppName" xml:space="preserve">
     <value>声音花园</value>
@@ -92,50 +86,11 @@
   <data name="Checking" xml:space="preserve">
     <value>检查...</value>
   </data>
-  <data name="Close" xml:space="preserve">
-    <value>关闭</value>
-  </data>
-  <data name="CloudVoices" xml:space="preserve">
-    <value>云声音</value>
-  </data>
-  <data name="ConfigureCredentials" xml:space="preserve">
-    <value>配置凭据...</value>
-  </data>
-  <data name="ConfigureCredentialsTitle" xml:space="preserve">
-    <value>配置凭证</value>
-  </data>
-  <data name="ConfigureVoices" xml:space="preserve">
-    <value>配置语音...</value>
-  </data>
-  <data name="ConfigureVoicesTitle" xml:space="preserve">
-    <value>配置语音</value>
-  </data>
-  <data name="CountDownloaded" xml:space="preserve">
-    <value>已下载 {0}</value>
-  </data>
-  <data name="CountInstalled" xml:space="preserve">
-    <value>已安装 {0}</value>
-  </data>
-  <data name="CountSelected" xml:space="preserve">
-    <value>已选择{0}</value>
-  </data>
-  <data name="CountTotal" xml:space="preserve">
-    <value>总计 {0}</value>
-  </data>
   <data name="Downloaded" xml:space="preserve">
     <value>已下载</value>
   </data>
-  <data name="DownloadedCount" xml:space="preserve">
-    <value>已下载 {0} 个模型</value>
-  </data>
-  <data name="DownloadedFailedCount" xml:space="preserve">
-    <value>已下载 {0}，失败 {1}</value>
-  </data>
   <data name="DownloadedStatus" xml:space="preserve">
     <value>已下载</value>
-  </data>
-  <data name="DownloadFailed" xml:space="preserve">
-    <value>下载失败：{0} 个模型</value>
   </data>
   <data name="DownloadingModel" xml:space="preserve">
     <value>正在下载{0} ({1})...</value>
@@ -143,14 +98,8 @@
   <data name="DownloadModelFirst" xml:space="preserve">
     <value>先下载模型</value>
   </data>
-  <data name="DownloadSelected" xml:space="preserve">
-    <value>下载所选内容</value>
-  </data>
   <data name="EnableAnalytics" xml:space="preserve">
     <value>发送匿名使用情况分析（选择加入）</value>
-  </data>
-  <data name="EnableEdgeVoices" xml:space="preserve">
-    <value>启用 Edge 浏览器语音</value>
   </data>
   <data name="Engine" xml:space="preserve">
     <value>引擎：</value>
@@ -176,12 +125,6 @@
   <data name="FetchingVoices" xml:space="preserve">
     <value>正在获取 {0} 个声音...</value>
   </data>
-  <data name="FetchVoices" xml:space="preserve">
-    <value>获取声音</value>
-  </data>
-  <data name="Filter" xml:space="preserve">
-    <value>筛选：</value>
-  </data>
   <data name="FoundVoices" xml:space="preserve">
     <value>找到 {0} 个声音</value>
   </data>
@@ -190,9 +133,6 @@
   </data>
   <data name="HelpImprove" xml:space="preserve">
     <value>帮助改进 VoiceGarden</value>
-  </data>
-  <data name="HideAdvanced" xml:space="preserve">
-    <value>▼ 隐藏高级</value>
   </data>
   <data name="Install" xml:space="preserve">
     <value>安装</value>
@@ -206,32 +146,14 @@
   <data name="InstalledModelsFailed" xml:space="preserve">
     <value>已安装 {0}，失败 {1}</value>
   </data>
-  <data name="InstalledModelsSAPI" xml:space="preserve">
-    <value>已将 {0} 个模型安装到 SAPI</value>
-  </data>
-  <data name="InstalledOnly" xml:space="preserve">
-    <value>仅已安装</value>
-  </data>
   <data name="InstalledVoicesHKLM" xml:space="preserve">
     <value>已将 {0} 个语音安装到 HKLM</value>
   </data>
   <data name="InstallFailed" xml:space="preserve">
     <value>安装失败：{0}</value>
   </data>
-  <data name="InstallingSAPI" xml:space="preserve">
-    <value>正在将模型安装到 SAPI (HKLM)...</value>
-  </data>
   <data name="InstallSelected" xml:space="preserve">
     <value>安装选定的</value>
-  </data>
-  <data name="InstallToSAPI" xml:space="preserve">
-    <value>安装到SAPI</value>
-  </data>
-  <data name="InvalidResult" xml:space="preserve">
-    <value>无效：{0}</value>
-  </data>
-  <data name="Key" xml:space="preserve">
-    <value>钥匙：</value>
   </data>
   <data name="LangCompatDesc" xml:space="preserve">
     <value>如果您的 AAC 软件仅支持某些语言（例如英语），请在推广 SherpaOnnx 模型时启用“添加 en-US 别名”。这使得任何语言的语音都显示为英语语音，因此它们会显示在按语言过滤的应用程序中。</value>
@@ -248,9 +170,6 @@
   <data name="LogLevel" xml:space="preserve">
     <value>日志级别：</value>
   </data>
-  <data name="ManageModels" xml:space="preserve">
-    <value>管理模型...</value>
-  </data>
   <data name="ModelFilesNotFound" xml:space="preserve">
     <value>未找到模型文件</value>
   </data>
@@ -266,15 +185,6 @@
   <data name="NoAudio" xml:space="preserve">
     <value>没有生成音频</value>
   </data>
-  <data name="NoDownloadedModels" xml:space="preserve">
-    <value>未找到下载的模型。首先下载模型，然后根据需要单击“重新扫描”。</value>
-  </data>
-  <data name="NoDownloadUrl" xml:space="preserve">
-    <value>没有下载地址</value>
-  </data>
-  <data name="NoModelId" xml:space="preserve">
-    <value>无法确定预览的模型 ID</value>
-  </data>
   <data name="NoModelsInstalled" xml:space="preserve">
     <value>没有安装型号</value>
   </data>
@@ -283,9 +193,6 @@
   </data>
   <data name="NoThanks" xml:space="preserve">
     <value>不，谢谢</value>
-  </data>
-  <data name="OfflineVoices" xml:space="preserve">
-    <value>离线语音</value>
   </data>
   <data name="OnboardingDesc1" xml:space="preserve">
     <value>VoiceGarden 是一个免费的开源语音桥，可将 20 多个现代文本转语音引擎连接到任何支持 SAPI 5 的 Windows 应用程序，包括 Grid 3、Mind Express、Balabolka、Tobii Communicator 以及任何基于 System.Speech 构建的应用程序。</value>
@@ -296,9 +203,6 @@
   <data name="OnboardingTitle" xml:space="preserve">
     <value>欢迎来到语音花园</value>
   </data>
-  <data name="OnlyEnabledEngines" xml:space="preserve">
-    <value>仅显示已启用的引擎。在主页上切换引擎。</value>
-  </data>
   <data name="OpenLogs" xml:space="preserve">
     <value>打开日志</value>
   </data>
@@ -307,9 +211,6 @@
   </data>
   <data name="PreviewFailed" xml:space="preserve">
     <value>预览失败：{0}</value>
-  </data>
-  <data name="Previewing" xml:space="preserve">
-    <value>正在预览...</value>
   </data>
   <data name="PreviewingVoice" xml:space="preserve">
     <value>正在预览{0}...</value>
@@ -323,50 +224,17 @@
   <data name="PrivacyIntro" xml:space="preserve">
     <value>VoiceGarden 是一个由志愿者构建的免费开源项目。为了帮助我们了解哪些 TTS 引擎最常用、识别错误并确定开发优先级，我们希望收集匿名使用情况分析。</value>
   </data>
-  <data name="Ready" xml:space="preserve">
-    <value>准备好</value>
-  </data>
-  <data name="Region" xml:space="preserve">
-    <value>地区</value>
-  </data>
-  <data name="Register" xml:space="preserve">
-    <value>登记</value>
-  </data>
   <data name="RemovedVoices" xml:space="preserve">
     <value>已删除 {0} 个语音</value>
-  </data>
-  <data name="RequestingAdmin" xml:space="preserve">
-    <value>请求管理员权限...</value>
   </data>
   <data name="Reregister" xml:space="preserve">
     <value>重新注册</value>
   </data>
-  <data name="Rescan" xml:space="preserve">
-    <value>重新扫描</value>
-  </data>
-  <data name="RescannedModels" xml:space="preserve">
-    <value>已重新扫描：{0} 个模型已就绪</value>
-  </data>
-  <data name="Search" xml:space="preserve">
-    <value>搜索...</value>
-  </data>
   <data name="SearchVoices" xml:space="preserve">
     <value>搜索声音...</value>
   </data>
-  <data name="SelectModelsFirst" xml:space="preserve">
-    <value>首先选择要下载的型号</value>
-  </data>
   <data name="SelectVoicesFirst" xml:space="preserve">
     <value>首先选择要安装的声音</value>
-  </data>
-  <data name="SherpaOnnxModels" xml:space="preserve">
-    <value>夏尔巴 Onnx 模型</value>
-  </data>
-  <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
-    <value>Sherpa Onnx 神经 TTS</value>
-  </data>
-  <data name="ShowAdvanced" xml:space="preserve">
-    <value>▶ 显示高级</value>
   </data>
   <data name="Step1Desc" xml:space="preserve">
     <value>在主屏幕上，单击“安装 64 位”（如果需要，还可单击“32 位”）。这会将 VoiceGarden 注册为任何兼容应用程序都可以使用的 SAPI 5 语音。</value>
@@ -389,17 +257,11 @@
   <data name="Uninstall" xml:space="preserve">
     <value>卸载</value>
   </data>
-  <data name="Validate" xml:space="preserve">
-    <value>证实</value>
-  </data>
   <data name="Validating" xml:space="preserve">
     <value>正在验证...</value>
   </data>
   <data name="ValidResult" xml:space="preserve">
     <value>有效（{0} 个声音）</value>
-  </data>
-  <data name="VoiceEngines" xml:space="preserve">
-    <value>语音引擎</value>
   </data>
   <data name="WhatIsVoiceGarden" xml:space="preserve">
     <value>什么是语音花园？</value>
@@ -422,5 +284,314 @@
   </data>
   <data name="YesHelpImprove" xml:space="preserve">
     <value>是的，帮助改进 VoiceGarden</value>
+  </data>
+  <data name="AdvancedIntro" xml:space="preserve">
+    <value>适配器注册、应用设置、离线模型管理和关于 — 所有不属于引导流程的内容。</value>
+  </data>
+  <data name="AdvancedModelsHint" xml:space="preserve">
+    <value>从声音选项卡浏览、下载和安装离线语音 — 在那里选择SherpaOnnx引擎。</value>
+  </data>
+  <data name="AdvancedModelsTitle" xml:space="preserve">
+    <value>离线模型</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="AdvancedTabState" xml:space="preserve">
+    <value>工具和设置</value>
+  </data>
+  <data name="AliasApplyNote" xml:space="preserve">
+    <value>在声音选项卡安装或重新安装语音时应用。现有语音将在下次安装时获取更改。</value>
+  </data>
+  <data name="AliasArabicHint" xml:space="preserve">
+    <value>右到左语言的语音（阿拉伯语、乌尔都语、波斯语、希伯来语、普什图语等）也会在阿拉伯语（ar-SA）下出现，因此为阿拉伯语语音设置的应用可以找到它。</value>
+  </data>
+  <data name="AliasArabicLabel" xml:space="preserve">
+    <value>在阿拉伯语下也别名右到左语音</value>
+  </data>
+  <data name="AliasEnUsHint" xml:space="preserve">
+    <value>任何其他语言的语音也会显示为英语（en-US），因此仅列出英语语音的应用 — 如某些AAC标题 — 可以使用它。</value>
+  </data>
+  <data name="AliasEnUsLabel" xml:space="preserve">
+    <value>为非英语语音添加en-US别名</value>
+  </data>
+  <data name="AliasSettingsIntro" xml:space="preserve">
+    <value>语音以其真实语言安装。别名在第二语言下添加额外副本，以便按语言过滤的应用仍然可以找到它们。</value>
+  </data>
+  <data name="AliasSettingsTitle" xml:space="preserve">
+    <value>SAPI语音别名</value>
+  </data>
+  <data name="BackToEngines" xml:space="preserve">
+    <value>返回引擎</value>
+  </data>
+  <data name="BadgeCloud" xml:space="preserve">
+    <value>云</value>
+  </data>
+  <data name="BadgeCredsNeeded" xml:space="preserve">
+    <value>需要密钥</value>
+  </data>
+  <data name="BadgeKeyStored" xml:space="preserve">
+    <value>密钥已保存</value>
+  </data>
+  <data name="BadgeNoCreds" xml:space="preserve">
+    <value>无密钥</value>
+  </data>
+  <data name="BadgeOffline" xml:space="preserve">
+    <value>离线</value>
+  </data>
+  <data name="ClearVisible" xml:space="preserve">
+    <value>清除显示</value>
+  </data>
+  <data name="CredentialsFooterHint" xml:space="preserve">
+    <value>验证密钥以检查其是否有效，然后加载语音。您可以随时返回。</value>
+  </data>
+  <data name="CredentialsIntro" xml:space="preserve">
+    <value>输入每个选定引擎的凭据。值仅保存在此计算机上。</value>
+  </data>
+  <data name="CredentialsNoneNeeded" xml:space="preserve">
+    <value>没有选定的引擎需要凭据。</value>
+  </data>
+  <data name="DeselectAllVoices" xml:space="preserve">
+    <value>取消选择所有语音</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>下载</value>
+  </data>
+  <data name="DownloadFailedSingle" xml:space="preserve">
+    <value>下载失败：{0}</value>
+  </data>
+  <data name="DownloadFailedTitle" xml:space="preserve">
+    <value>下载失败：{0}。检查您的互联网连接并重试 — 如果仍然失败，请关闭其他语音应用并重启VoiceGarden。</value>
+  </data>
+  <data name="EdgeEngineDesc" xml:space="preserve">
+    <value>免费的Microsoft云语音，支持多种语言。最佳免费在线选项 — 自然质量，无需API密钥，需要互联网。</value>
+  </data>
+  <data name="EdgeEngineName" xml:space="preserve">
+    <value>Edge语音</value>
+  </data>
+  <data name="EngineDescKeyOnly" xml:space="preserve">
+    <value>{0}云语音。需要API密钥。</value>
+  </data>
+  <data name="EngineDescKeyRegion" xml:space="preserve">
+    <value>{0}云语音。需要API密钥和区域。</value>
+  </data>
+  <data name="EngineDescKeySecretRegion" xml:space="preserve">
+    <value>{0}云语音。需要访问密钥、秘密密钥和区域。</value>
+  </data>
+  <data name="EngineDescKeyUserId" xml:space="preserve">
+    <value>{0}云语音。需要API密钥和用户ID。</value>
+  </data>
+  <data name="EnginesSelectedSummary" xml:space="preserve">
+    <value>{0}个{1}个引擎已选择</value>
+  </data>
+  <data name="FieldAPIKey" xml:space="preserve">
+    <value>API密钥</value>
+  </data>
+  <data name="FieldAccessKeyId" xml:space="preserve">
+    <value>访问密钥ID</value>
+  </data>
+  <data name="FieldInstanceId" xml:space="preserve">
+    <value>实例ID</value>
+  </data>
+  <data name="FieldRegion" xml:space="preserve">
+    <value>区域</value>
+  </data>
+  <data name="FieldSecretAccessKey" xml:space="preserve">
+    <value>秘密访问密钥</value>
+  </data>
+  <data name="FieldSubscriptionKey" xml:space="preserve">
+    <value>订阅密钥</value>
+  </data>
+  <data name="FieldToken" xml:space="preserve">
+    <value>令牌</value>
+  </data>
+  <data name="FieldUserId" xml:space="preserve">
+    <value>用户ID</value>
+  </data>
+  <data name="FilterAllEngines" xml:space="preserve">
+    <value>所有引擎</value>
+  </data>
+  <data name="FilterAllLanguages" xml:space="preserve">
+    <value>所有语言</value>
+  </data>
+  <data name="FilterAllTypes" xml:space="preserve">
+    <value>所有类型</value>
+  </data>
+  <data name="FilterAnyEngine" xml:space="preserve">
+    <value>所有引擎</value>
+  </data>
+  <data name="FilterAnyGender" xml:space="preserve">
+    <value>任何性别</value>
+  </data>
+  <data name="FilterAnyLanguage" xml:space="preserve">
+    <value>任何语言</value>
+  </data>
+  <data name="FilterAnyQuality" xml:space="preserve">
+    <value>任何质量</value>
+  </data>
+  <data name="FilterCredentials" xml:space="preserve">
+    <value>凭据</value>
+  </data>
+  <data name="FilterCredsNeeded" xml:space="preserve">
+    <value>需要密钥</value>
+  </data>
+  <data name="FilterEngine" xml:space="preserve">
+    <value>按引擎过滤</value>
+  </data>
+  <data name="FilterGender" xml:space="preserve">
+    <value>按性别过滤</value>
+  </data>
+  <data name="FilterLanguage" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="FilterNoCreds" xml:space="preserve">
+    <value>无需密钥</value>
+  </data>
+  <data name="FilterOfflineOnly" xml:space="preserve">
+    <value>仅离线</value>
+  </data>
+  <data name="FilterOnlineOnly" xml:space="preserve">
+    <value>仅在线</value>
+  </data>
+  <data name="FilterQuality" xml:space="preserve">
+    <value>按质量过滤</value>
+  </data>
+  <data name="FilterType" xml:space="preserve">
+    <value>类型</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>性别</value>
+  </data>
+  <data name="LanguageFilterHiddenNote" xml:space="preserve">
+    <value>{0}个引擎被隐藏 — 其语言在声音选项卡加载语音之前未知。</value>
+  </data>
+  <data name="LoadVoices" xml:space="preserve">
+    <value>加载语音</value>
+  </data>
+  <data name="NextCredentials" xml:space="preserve">
+    <value>下一步：凭据</value>
+  </data>
+  <data name="NextVoices" xml:space="preserve">
+    <value>下一步：语音</value>
+  </data>
+  <data name="PreviewFailedTitle" xml:space="preserve">
+    <value>预览失败：{0}。</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>质量</value>
+  </data>
+  <data name="RefreshInstalled" xml:space="preserve">
+    <value>刷新已安装</value>
+  </data>
+  <data name="RemoveSelected" xml:space="preserve">
+    <value>从SAPI中移除所选</value>
+  </data>
+  <data name="RescannedVoices" xml:space="preserve">
+    <value>已刷新 — 安装了{0}个语音</value>
+  </data>
+  <data name="SearchEngines" xml:space="preserve">
+    <value>搜索引擎、语言…</value>
+  </data>
+  <data name="SelectAllVoices" xml:space="preserve">
+    <value>选择所有显示的语音</value>
+  </data>
+  <data name="SelectVisible" xml:space="preserve">
+    <value>选择显示</value>
+  </data>
+  <data name="SherpaOnnxEngineDesc" xml:space="preserve">
+    <value>多种语言的离线神经语音。最佳可靠性和隐私 — 下载后无需账户或互联网即可使用。</value>
+  </data>
+  <data name="SherpaOnnxEngineName" xml:space="preserve">
+    <value>SherpaOnnx</value>
+  </data>
+  <data name="Step4Desc" xml:space="preserve">
+    <value>打开声音选项卡并点击加载语音。按语言、性别或质量过滤，预览您喜欢的语音，然后使用下载（离线模型）和安装到SAPI。已安装的语音会立即出现在您的应用中。</value>
+  </data>
+  <data name="Step4Title" xml:space="preserve">
+    <value>获取您的语音</value>
+  </data>
+  <data name="TabCredentials" xml:space="preserve">
+    <value>凭据</value>
+  </data>
+  <data name="TabCredentialsCount" xml:space="preserve">
+    <value>{0}个引擎需要密钥</value>
+  </data>
+  <data name="TabCredentialsNotNeeded" xml:space="preserve">
+    <value>不需要</value>
+  </data>
+  <data name="TabCredentialsTitle" xml:space="preserve">
+    <value>凭据</value>
+  </data>
+  <data name="TabEngines" xml:space="preserve">
+    <value>语音引擎</value>
+  </data>
+  <data name="TabEnginesCount" xml:space="preserve">
+    <value>{0}个已选择</value>
+  </data>
+  <data name="TabEnginesIntro" xml:space="preserve">
+    <value>选择您想使用的语音引擎。选择无需账户的离线语音、免费的云语音或需要API密钥的云引擎。</value>
+  </data>
+  <data name="TabEnginesTitle" xml:space="preserve">
+    <value>语音引擎</value>
+  </data>
+  <data name="TabVoices" xml:space="preserve">
+    <value>语音</value>
+  </data>
+  <data name="TabVoicesCount" xml:space="preserve">
+    <value>{0}个语音</value>
+  </data>
+  <data name="TabVoicesIntro" xml:space="preserve">
+    <value>来自您选择的引擎的每个语音。过滤、预览，然后将您想要的语音安装到Windows SAPI中。</value>
+  </data>
+  <data name="TabVoicesTitle" xml:space="preserve">
+    <value>语音</value>
+  </data>
+  <data name="UnknownEngine" xml:space="preserve">
+    <value>未知引擎</value>
+  </data>
+  <data name="UnknownLanguage" xml:space="preserve">
+    <value>未知</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>验证</value>
+  </data>
+  <data name="VerifyNoVoices" xml:space="preserve">
+    <value>密钥已接受但未返回语音 — 检查密钥是否具有TTS访问权限。</value>
+  </data>
+  <data name="VoicesCountSummary" xml:space="preserve">
+    <value>{0}个语音 · {1}个已选择 · {2}个已安装</value>
+  </data>
+  <data name="VoicesEmptyHint" xml:space="preserve">
+    <value>首先在语音引擎选项卡中选择您的语音引擎（如果引擎需要密钥，也请在那里添加凭据），然后在这里加载语音。</value>
+  </data>
+  <data name="VoicesEmptyNoEngines" xml:space="preserve">
+    <value>未选择引擎 — 打开语音引擎选项卡并至少勾选一个引擎。</value>
+  </data>
+  <data name="VoicesEmptyTitle" xml:space="preserve">
+    <value>尚无语音</value>
+  </data>
+  <data name="VoicesFetchFailed" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="VoicesLoaded" xml:space="preserve">
+    <value>已加载{0}个语音</value>
+  </data>
+  <data name="VoicesMissingKey" xml:space="preserve">
+    <value>{0}: 无API密钥 — 请在凭据选项卡中添加一个</value>
+  </data>
+  <data name="VoicesNoEnginesSelected" xml:space="preserve">
+    <value>请先在语音引擎选项卡中选择至少一个引擎。</value>
+  </data>
+  <data name="VoicesPromoteFailed" xml:space="preserve">
+    <value>无法安装{0}（可能需要管理员批准）</value>
+  </data>
+  <data name="VoicesPromotedSingle" xml:space="preserve">
+    <value>{0}已安装到SAPI</value>
+  </data>
+  <data name="VoicesSkippedNoKey" xml:space="preserve">
+    <value>{0}个引擎被跳过 — 未设置API密钥</value>
+  </data>
+  <data name="VoicesUnpromoteFailed" xml:space="preserve">
+    <value>已移除{0}；失败{1}</value>
   </data>
 </root>

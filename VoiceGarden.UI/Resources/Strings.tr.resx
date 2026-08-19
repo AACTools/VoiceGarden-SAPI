@@ -56,9 +56,6 @@
   <data name="AdapterInstallation" xml:space="preserve">
     <value>Adaptör Kurulumu</value>
   </data>
-  <data name="AddEnUsAlias" xml:space="preserve">
-    <value>en-US takma adını ekle</value>
-  </data>
   <data name="Advanced" xml:space="preserve">
     <value>Gelişmiş</value>
   </data>
@@ -67,9 +64,6 @@
   </data>
   <data name="AnalyticsHint" xml:space="preserve">
     <value>Hangi motorların kullanıldığını anlamamıza yardımcı olur. Metin, anahtar veya kişisel bilgiler gönderilmedi.</value>
-  </data>
-  <data name="APIKey" xml:space="preserve">
-    <value>API Anahtarı</value>
   </data>
   <data name="AppName" xml:space="preserve">
     <value>VoiceGarden</value>
@@ -92,50 +86,11 @@
   <data name="Checking" xml:space="preserve">
     <value>Kontrol ediliyor...</value>
   </data>
-  <data name="Close" xml:space="preserve">
-    <value>Kapalı</value>
-  </data>
-  <data name="CloudVoices" xml:space="preserve">
-    <value>Bulut Sesleri</value>
-  </data>
-  <data name="ConfigureCredentials" xml:space="preserve">
-    <value>Kimlik Bilgilerini Yapılandır...</value>
-  </data>
-  <data name="ConfigureCredentialsTitle" xml:space="preserve">
-    <value>Kimlik Bilgilerini Yapılandır</value>
-  </data>
-  <data name="ConfigureVoices" xml:space="preserve">
-    <value>Sesleri Yapılandır...</value>
-  </data>
-  <data name="ConfigureVoicesTitle" xml:space="preserve">
-    <value>Sesleri Yapılandırma</value>
-  </data>
-  <data name="CountDownloaded" xml:space="preserve">
-    <value>{0} indirildi</value>
-  </data>
-  <data name="CountInstalled" xml:space="preserve">
-    <value>{0} yüklü</value>
-  </data>
-  <data name="CountSelected" xml:space="preserve">
-    <value>{0} seçildi</value>
-  </data>
-  <data name="CountTotal" xml:space="preserve">
-    <value>{0} toplam</value>
-  </data>
   <data name="Downloaded" xml:space="preserve">
     <value>İndirildi</value>
   </data>
-  <data name="DownloadedCount" xml:space="preserve">
-    <value>{0} model indirildi</value>
-  </data>
-  <data name="DownloadedFailedCount" xml:space="preserve">
-    <value>{0} indirildi, {1} başarısız oldu</value>
-  </data>
   <data name="DownloadedStatus" xml:space="preserve">
     <value>İndirildi</value>
-  </data>
-  <data name="DownloadFailed" xml:space="preserve">
-    <value>İndirme başarısız oldu: {0} model</value>
   </data>
   <data name="DownloadingModel" xml:space="preserve">
     <value>{0} ({1}) indiriliyor...</value>
@@ -143,14 +98,8 @@
   <data name="DownloadModelFirst" xml:space="preserve">
     <value>İlk önce modeli indirin</value>
   </data>
-  <data name="DownloadSelected" xml:space="preserve">
-    <value>Seçileni İndir</value>
-  </data>
   <data name="EnableAnalytics" xml:space="preserve">
     <value>Anonim kullanım analizleri gönder (katılma)</value>
-  </data>
-  <data name="EnableEdgeVoices" xml:space="preserve">
-    <value>Edge tarayıcı seslerini etkinleştir</value>
   </data>
   <data name="Engine" xml:space="preserve">
     <value>Motor:</value>
@@ -176,12 +125,6 @@
   <data name="FetchingVoices" xml:space="preserve">
     <value>{0} ses getiriliyor...</value>
   </data>
-  <data name="FetchVoices" xml:space="preserve">
-    <value>Sesleri Getir</value>
-  </data>
-  <data name="Filter" xml:space="preserve">
-    <value>Filtre:</value>
-  </data>
   <data name="FoundVoices" xml:space="preserve">
     <value>{0} ses bulundu</value>
   </data>
@@ -190,9 +133,6 @@
   </data>
   <data name="HelpImprove" xml:space="preserve">
     <value>VoiceGarden'ın Geliştirilmesine Yardım Edin</value>
-  </data>
-  <data name="HideAdvanced" xml:space="preserve">
-    <value>▼ Gelişmişi Gizle</value>
   </data>
   <data name="Install" xml:space="preserve">
     <value>Düzenlemek</value>
@@ -206,32 +146,14 @@
   <data name="InstalledModelsFailed" xml:space="preserve">
     <value>{0} yüklendi, {1} başarısız oldu</value>
   </data>
-  <data name="InstalledModelsSAPI" xml:space="preserve">
-    <value>{0} model SAPI'ye yüklendi</value>
-  </data>
-  <data name="InstalledOnly" xml:space="preserve">
-    <value>Yalnızca yüklü</value>
-  </data>
   <data name="InstalledVoicesHKLM" xml:space="preserve">
     <value>{0} ses HKLM'ye yüklendi</value>
   </data>
   <data name="InstallFailed" xml:space="preserve">
     <value>Yükleme başarısız oldu: {0}</value>
   </data>
-  <data name="InstallingSAPI" xml:space="preserve">
-    <value>Modeller SAPI'ye (HKLM) yükleniyor...</value>
-  </data>
   <data name="InstallSelected" xml:space="preserve">
     <value>Seçileni Yükle</value>
-  </data>
-  <data name="InstallToSAPI" xml:space="preserve">
-    <value>SAPI'ye yükleme</value>
-  </data>
-  <data name="InvalidResult" xml:space="preserve">
-    <value>Geçersiz: {0}</value>
-  </data>
-  <data name="Key" xml:space="preserve">
-    <value>Anahtar:</value>
   </data>
   <data name="LangCompatDesc" xml:space="preserve">
     <value>AAC yazılımınız yalnızca belirli dilleri destekliyorsa (örneğin İngilizce), SherpaOnnx modellerini tanıtırken "En-US takma adını ekle" seçeneğini etkinleştirin. Bu, herhangi bir dildeki seslerin İngilizce sesleri olarak görünmesini sağlar, böylece dile göre filtreleyen uygulamalarda görünürler.</value>
@@ -248,9 +170,6 @@
   <data name="LogLevel" xml:space="preserve">
     <value>Günlük düzeyi:</value>
   </data>
-  <data name="ManageModels" xml:space="preserve">
-    <value>Modelleri Yönet...</value>
-  </data>
   <data name="ModelFilesNotFound" xml:space="preserve">
     <value>Model dosyaları bulunamadı</value>
   </data>
@@ -266,15 +185,6 @@
   <data name="NoAudio" xml:space="preserve">
     <value>Ses oluşturulmadı</value>
   </data>
-  <data name="NoDownloadedModels" xml:space="preserve">
-    <value>İndirilen model bulunamadı. Önce bir model indirin, ardından gerekirse Yeniden Tara'ya tıklayın.</value>
-  </data>
-  <data name="NoDownloadUrl" xml:space="preserve">
-    <value>İndirme URL'si yok</value>
-  </data>
-  <data name="NoModelId" xml:space="preserve">
-    <value>Önizleme için model kimliği belirlenemedi</value>
-  </data>
   <data name="NoModelsInstalled" xml:space="preserve">
     <value>Hiçbir model yüklü değil</value>
   </data>
@@ -283,9 +193,6 @@
   </data>
   <data name="NoThanks" xml:space="preserve">
     <value>Hayır, teşekkürler</value>
-  </data>
-  <data name="OfflineVoices" xml:space="preserve">
-    <value>Çevrimdışı Sesler</value>
   </data>
   <data name="OnboardingDesc1" xml:space="preserve">
     <value>VoiceGarden, 20'den fazla modern metin-konuşma motorunu Grid 3, Mind Express, Balabolka, Tobii Communicator ve System.Speech üzerine kurulu tüm uygulamalar dahil olmak üzere SAPI 5'i destekleyen herhangi bir Windows uygulamasına bağlayan ücretsiz, açık kaynaklı bir ses köprüsüdür.</value>
@@ -296,9 +203,6 @@
   <data name="OnboardingTitle" xml:space="preserve">
     <value>VoiceGarden'a hoş geldiniz</value>
   </data>
-  <data name="OnlyEnabledEngines" xml:space="preserve">
-    <value>Yalnızca etkinleştirilmiş motorlar gösterilir. Ana sayfadaki motorları değiştirin.</value>
-  </data>
   <data name="OpenLogs" xml:space="preserve">
     <value>Günlükleri Aç</value>
   </data>
@@ -307,9 +211,6 @@
   </data>
   <data name="PreviewFailed" xml:space="preserve">
     <value>Önizleme başarısız oldu: {0}</value>
-  </data>
-  <data name="Previewing" xml:space="preserve">
-    <value>Önizleniyor...</value>
   </data>
   <data name="PreviewingVoice" xml:space="preserve">
     <value>{0} önizleniyor...</value>
@@ -323,50 +224,17 @@
   <data name="PrivacyIntro" xml:space="preserve">
     <value>VoiceGarden gönüllüler tarafından oluşturulmuş ücretsiz, açık kaynaklı bir projedir. En çok hangi TTS motorlarının kullanıldığını anlamamıza, hataları tanımlamamıza ve geliştirmeye öncelik vermemize yardımcı olmak için anonim kullanım analizleri toplamak istiyoruz.</value>
   </data>
-  <data name="Ready" xml:space="preserve">
-    <value>Hazır</value>
-  </data>
-  <data name="Region" xml:space="preserve">
-    <value>Bölge</value>
-  </data>
-  <data name="Register" xml:space="preserve">
-    <value>Kayıt olmak</value>
-  </data>
   <data name="RemovedVoices" xml:space="preserve">
     <value>{0} ses kaldırıldı</value>
-  </data>
-  <data name="RequestingAdmin" xml:space="preserve">
-    <value>Yönetici ayrıcalıkları isteniyor...</value>
   </data>
   <data name="Reregister" xml:space="preserve">
     <value>Yeniden kaydolun</value>
   </data>
-  <data name="Rescan" xml:space="preserve">
-    <value>Yeniden tara</value>
-  </data>
-  <data name="RescannedModels" xml:space="preserve">
-    <value>Yeniden tarandı: {0} model hazır</value>
-  </data>
-  <data name="Search" xml:space="preserve">
-    <value>Aramak...</value>
-  </data>
   <data name="SearchVoices" xml:space="preserve">
     <value>Sesleri ara...</value>
   </data>
-  <data name="SelectModelsFirst" xml:space="preserve">
-    <value>Önce indirilecek modelleri seçin</value>
-  </data>
   <data name="SelectVoicesFirst" xml:space="preserve">
     <value>Önce yüklenecek sesleri seçin</value>
-  </data>
-  <data name="SherpaOnnxModels" xml:space="preserve">
-    <value>Sherpa Onnx Modelleri</value>
-  </data>
-  <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
-    <value>Sherpa Onnx Nöral TTS</value>
-  </data>
-  <data name="ShowAdvanced" xml:space="preserve">
-    <value>▶ Gelişmiş'i Göster</value>
   </data>
   <data name="Step1Desc" xml:space="preserve">
     <value>Ana ekranda 64 bit (ve gerekirse 32 bit) için Yükle'ye tıklayın. Bu, VoiceGarden'ı herhangi bir uyumlu uygulamanın kullanabileceği bir SAPI 5 sesi olarak kaydeder.</value>
@@ -389,17 +257,11 @@
   <data name="Uninstall" xml:space="preserve">
     <value>Kaldır</value>
   </data>
-  <data name="Validate" xml:space="preserve">
-    <value>Doğrula</value>
-  </data>
   <data name="Validating" xml:space="preserve">
     <value>Doğrulanıyor...</value>
   </data>
   <data name="ValidResult" xml:space="preserve">
     <value>Geçerli ({0} ses)</value>
-  </data>
-  <data name="VoiceEngines" xml:space="preserve">
-    <value>Ses Motorları</value>
   </data>
   <data name="WhatIsVoiceGarden" xml:space="preserve">
     <value>VoiceGarden nedir?</value>
@@ -422,5 +284,314 @@
   </data>
   <data name="YesHelpImprove" xml:space="preserve">
     <value>Evet, VoiceGarden'ın geliştirilmesine yardımcı olun</value>
+  </data>
+  <data name="AdvancedIntro" xml:space="preserve">
+    <value>Adaptör kaydı, uygulama ayarları, çevrimdışı model yönetimi ve hakkında — kılavuzlu akışın bir parçası olmayan her şey.</value>
+  </data>
+  <data name="AdvancedModelsHint" xml:space="preserve">
+    <value>Sesler sekmesinden çevrimdışı sesleri göz atın, indirin ve yükleyin — orada SherpaOnnx motorunu seçin.</value>
+  </data>
+  <data name="AdvancedModelsTitle" xml:space="preserve">
+    <value>Çevrimdışı modeller</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>Ayarlar</value>
+  </data>
+  <data name="AdvancedTabState" xml:space="preserve">
+    <value>araçlar ve ayarlar</value>
+  </data>
+  <data name="AliasApplyNote" xml:space="preserve">
+    <value>Sesler Sekmesi'nden sesler yüklendiğinde veya yeniden yüklendiğinde uygulanır. Mevcut sesler, bir sonraki yüklemede değişikliği alır.</value>
+  </data>
+  <data name="AliasArabicHint" xml:space="preserve">
+    <value>Sağdan sola yazılan bir dildeki ses (Arapça, Urduca, Farsça, İbranice, Peştuca…) aynı zamanda Arapça (ar-SA) altında da görünür, bu nedenle Arapça sesler için ayarlanmış uygulamalar onu bulabilir.</value>
+  </data>
+  <data name="AliasArabicLabel" xml:space="preserve">
+    <value>Ayrıca Arapça altında sağdan sola ses takma adları</value>
+  </data>
+  <data name="AliasEnUsHint" xml:space="preserve">
+    <value>Herhangi bir başka dildeki ses de İngilizce (en-US) olarak görünür, bu yüzden yalnızca İngilizce sesleri listeleyen uygulamalar — bazı AAC başlıkları gibi — bunu kullanabilir.</value>
+  </data>
+  <data name="AliasEnUsLabel" xml:space="preserve">
+    <value>İngilizce dışındaki sesler için en-US takma adı ekleyin</value>
+  </data>
+  <data name="AliasSettingsIntro" xml:space="preserve">
+    <value>Sesler kendi gerçek dilleriyle yüklüdür. Takma adlar, bir ikinci dil altında ekstra kopyalar ekler, böylece dili filtreleyen uygulamalar onları yine de bulabilir.</value>
+  </data>
+  <data name="AliasSettingsTitle" xml:space="preserve">
+    <value>SAPI ses takma adları</value>
+  </data>
+  <data name="BackToEngines" xml:space="preserve">
+    <value>Motorlara Geri Dön</value>
+  </data>
+  <data name="BadgeCloud" xml:space="preserve">
+    <value>Bulut</value>
+  </data>
+  <data name="BadgeCredsNeeded" xml:space="preserve">
+    <value>Anahtar gerekli</value>
+  </data>
+  <data name="BadgeKeyStored" xml:space="preserve">
+    <value>Anahtar kaydedildi</value>
+  </data>
+  <data name="BadgeNoCreds" xml:space="preserve">
+    <value>Anahtar yok</value>
+  </data>
+  <data name="BadgeOffline" xml:space="preserve">
+    <value>Çevrimdışı</value>
+  </data>
+  <data name="ClearVisible" xml:space="preserve">
+    <value>Açıkça gösterildi</value>
+  </data>
+  <data name="CredentialsFooterHint" xml:space="preserve">
+    <value>Sesleri yüklemeden önce bir tuşun çalışıp çalışmadığını kontrol edin. Her zaman geri dönebilirsiniz.</value>
+  </data>
+  <data name="CredentialsIntro" xml:space="preserve">
+    <value>Seçilen her motor için kimlik bilgilerini girin. Değerler yalnızca bu bilgisayarda kaydedilir.</value>
+  </data>
+  <data name="CredentialsNoneNeeded" xml:space="preserve">
+    <value>Seçilen motorların hiçbirine kimlik bilgileri gerekmez.</value>
+  </data>
+  <data name="DeselectAllVoices" xml:space="preserve">
+    <value>Tüm seslerin seçimini kaldır</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>İndir</value>
+  </data>
+  <data name="DownloadFailedSingle" xml:space="preserve">
+    <value>{0} için indirme başarısız oldu</value>
+  </data>
+  <data name="DownloadFailedTitle" xml:space="preserve">
+    <value>{0} için indirme başarısız oldu. İnternet bağlantınızı kontrol edin ve tekrar deneyin — eğer sorun devam ederse, diğer ses uygulamalarını kapatın ve VoiceGarden'i yeniden başlatın.</value>
+  </data>
+  <data name="EdgeEngineDesc" xml:space="preserve">
+    <value>Birçok dilde ücretsiz Microsoft bulut sesleri. En iyi ücretsiz çevrimiçi seçenek — doğal kalite, API anahtarı gerektirmez, internet gerekir.</value>
+  </data>
+  <data name="EdgeEngineName" xml:space="preserve">
+    <value>Edge Sesleri</value>
+  </data>
+  <data name="EngineDescKeyOnly" xml:space="preserve">
+    <value>{0} bulut sesleri. Bir API anahtarına ihtiyaç var.</value>
+  </data>
+  <data name="EngineDescKeyRegion" xml:space="preserve">
+    <value>{0} bulut sesleri. Bir API anahtarı ve bölge gerekiyor.</value>
+  </data>
+  <data name="EngineDescKeySecretRegion" xml:space="preserve">
+    <value>{0} bulut sesleri. Bir erişim anahtarı, gizli anahtar ve bölge gerekiyor.</value>
+  </data>
+  <data name="EngineDescKeyUserId" xml:space="preserve">
+    <value>{0} bulut sesleri. API anahtarı ve kullanıcı kimliği gerekir.</value>
+  </data>
+  <data name="EnginesSelectedSummary" xml:space="preserve">
+    <value>{1} motorun {0}'ı seçildi</value>
+  </data>
+  <data name="FieldAPIKey" xml:space="preserve">
+    <value>API anahtarı</value>
+  </data>
+  <data name="FieldAccessKeyId" xml:space="preserve">
+    <value>Erişim anahtarı kimliği</value>
+  </data>
+  <data name="FieldInstanceId" xml:space="preserve">
+    <value>Örnek Kimliği</value>
+  </data>
+  <data name="FieldRegion" xml:space="preserve">
+    <value>Bölge</value>
+  </data>
+  <data name="FieldSecretAccessKey" xml:space="preserve">
+    <value>Gizli erişim anahtarı</value>
+  </data>
+  <data name="FieldSubscriptionKey" xml:space="preserve">
+    <value>Abonelik anahtarı</value>
+  </data>
+  <data name="FieldToken" xml:space="preserve">
+    <value>Jeton</value>
+  </data>
+  <data name="FieldUserId" xml:space="preserve">
+    <value>Kullanıcı ID</value>
+  </data>
+  <data name="FilterAllEngines" xml:space="preserve">
+    <value>Tüm motorlar</value>
+  </data>
+  <data name="FilterAllLanguages" xml:space="preserve">
+    <value>Tüm diller</value>
+  </data>
+  <data name="FilterAllTypes" xml:space="preserve">
+    <value>Tüm türler</value>
+  </data>
+  <data name="FilterAnyEngine" xml:space="preserve">
+    <value>Tüm motorlar</value>
+  </data>
+  <data name="FilterAnyGender" xml:space="preserve">
+    <value>Herhangi bir cinsiyet</value>
+  </data>
+  <data name="FilterAnyLanguage" xml:space="preserve">
+    <value>Herhangi bir dil</value>
+  </data>
+  <data name="FilterAnyQuality" xml:space="preserve">
+    <value>Herhangi bir kalite</value>
+  </data>
+  <data name="FilterCredentials" xml:space="preserve">
+    <value>Kimlik bilgileri</value>
+  </data>
+  <data name="FilterCredsNeeded" xml:space="preserve">
+    <value>Anahtar gerekli</value>
+  </data>
+  <data name="FilterEngine" xml:space="preserve">
+    <value>Motor türüne göre filtrele</value>
+  </data>
+  <data name="FilterGender" xml:space="preserve">
+    <value>Cinsiyete göre filtrele</value>
+  </data>
+  <data name="FilterLanguage" xml:space="preserve">
+    <value>Dil</value>
+  </data>
+  <data name="FilterNoCreds" xml:space="preserve">
+    <value>Anahtara gerek yok</value>
+  </data>
+  <data name="FilterOfflineOnly" xml:space="preserve">
+    <value>Sadece çevrimdışı</value>
+  </data>
+  <data name="FilterOnlineOnly" xml:space="preserve">
+    <value>Sadece çevrimiçi</value>
+  </data>
+  <data name="FilterQuality" xml:space="preserve">
+    <value>Kaliteye göre filtrele</value>
+  </data>
+  <data name="FilterType" xml:space="preserve">
+    <value>Tür</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>Cinsiyet</value>
+  </data>
+  <data name="LanguageFilterHiddenNote" xml:space="preserve">
+    <value>{0} motor gizli — dilleri, Sesler sekmesine yüklendiklerinde ortaya çıkana kadar bilinmiyor.</value>
+  </data>
+  <data name="LoadVoices" xml:space="preserve">
+    <value>Sesleri yükle</value>
+  </data>
+  <data name="NextCredentials" xml:space="preserve">
+    <value>Sonraki: Kimlik Bilgileri</value>
+  </data>
+  <data name="NextVoices" xml:space="preserve">
+    <value>Sonraki: Sesler</value>
+  </data>
+  <data name="PreviewFailedTitle" xml:space="preserve">
+    <value>{0} için önizleme başarısız oldu.</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>Kalite</value>
+  </data>
+  <data name="RefreshInstalled" xml:space="preserve">
+    <value>Yüklendi, yenile</value>
+  </data>
+  <data name="RemoveSelected" xml:space="preserve">
+    <value>SAPI'den seçileni kaldır</value>
+  </data>
+  <data name="RescannedVoices" xml:space="preserve">
+    <value>Yenilendi — {0} ses yüklendi</value>
+  </data>
+  <data name="SearchEngines" xml:space="preserve">
+    <value>Arama motorları, diller…</value>
+  </data>
+  <data name="SelectAllVoices" xml:space="preserve">
+    <value>Gösterilen tüm sesleri seç</value>
+  </data>
+  <data name="SelectVisible" xml:space="preserve">
+    <value>Gösterilenleri seç</value>
+  </data>
+  <data name="SherpaOnnxEngineDesc" xml:space="preserve">
+    <value>Birçok dilde çevrimdışı sinirsel sesler. Güvenilirlik ve gizlilik için en iyisi — indirildikten sonra hesap veya internet gerektirmeden çalışır.</value>
+  </data>
+  <data name="SherpaOnnxEngineName" xml:space="preserve">
+    <value>Şerpa Onnx</value>
+  </data>
+  <data name="Step4Desc" xml:space="preserve">
+    <value>Sesler sekmesini açın ve Sesleri Yükle'ye tıklayın. Dile, cinsiyete veya kaliteye göre filtreleyin, beğendiklerinizi önizleyin, ardından İndir (çevrimdışı modeller) ve SAPI'ye Yükle'yi kullanın. Yüklenen sesler uygulamalarınızda hemen görünür.</value>
+  </data>
+  <data name="Step4Title" xml:space="preserve">
+    <value>Sesinizi çıkarın</value>
+  </data>
+  <data name="TabCredentials" xml:space="preserve">
+    <value>Kimlik bilgileri</value>
+  </data>
+  <data name="TabCredentialsCount" xml:space="preserve">
+    <value>{0} motorlarının anahtarlara ihtiyacı var</value>
+  </data>
+  <data name="TabCredentialsNotNeeded" xml:space="preserve">
+    <value>gerekmiyor</value>
+  </data>
+  <data name="TabCredentialsTitle" xml:space="preserve">
+    <value>Kimlik bilgileri</value>
+  </data>
+  <data name="TabEngines" xml:space="preserve">
+    <value>Ses Motorları</value>
+  </data>
+  <data name="TabEnginesCount" xml:space="preserve">
+    <value>{0} seçildi</value>
+  </data>
+  <data name="TabEnginesIntro" xml:space="preserve">
+    <value>Kullanmak istediğiniz ses motorlarını seçin. Hesap gerektirmeyen çevrimdışı sesleri, ücretsiz bulut seslerini veya API anahtarı gerektiren bulut motorlarını seçin.</value>
+  </data>
+  <data name="TabEnginesTitle" xml:space="preserve">
+    <value>Ses Motorları</value>
+  </data>
+  <data name="TabVoices" xml:space="preserve">
+    <value>Sesler</value>
+  </data>
+  <data name="TabVoicesCount" xml:space="preserve">
+    <value>{0} sesler</value>
+  </data>
+  <data name="TabVoicesIntro" xml:space="preserve">
+    <value>Seçtiğiniz motorlardaki her ses. Filtreleyin, önizleyin, ardından istediğiniz olanları Windows SAPI'ye yükleyin.</value>
+  </data>
+  <data name="TabVoicesTitle" xml:space="preserve">
+    <value>Sesler</value>
+  </data>
+  <data name="UnknownEngine" xml:space="preserve">
+    <value>Bilinmeyen motor</value>
+  </data>
+  <data name="UnknownLanguage" xml:space="preserve">
+    <value>Bilinmiyor</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>Doğrula</value>
+  </data>
+  <data name="VerifyNoVoices" xml:space="preserve">
+    <value>Anahtar kabul edildi fakat hiçbir ses dönmedi — anahtarın TTS erişimine sahip olduğundan emin olun.</value>
+  </data>
+  <data name="VoicesCountSummary" xml:space="preserve">
+    <value>{0} ses · {1} seçildi · {2} yüklendi</value>
+  </data>
+  <data name="VoicesEmptyHint" xml:space="preserve">
+    <value>Önce Ses Motorları sekmesinde ses motorlarınızı seçin (motor bir anahtar gerektiriyorsa oraya da kimlik bilgilerini ekleyin), sonra sesleri buraya yükleyin.</value>
+  </data>
+  <data name="VoicesEmptyNoEngines" xml:space="preserve">
+    <value>Hiç motor seçilmedi — Ses Motorları sekmesini açın ve en az bir motor işaretleyin.</value>
+  </data>
+  <data name="VoicesEmptyTitle" xml:space="preserve">
+    <value>Henüz ses yok</value>
+  </data>
+  <data name="VoicesFetchFailed" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="VoicesLoaded" xml:space="preserve">
+    <value>{0} ses yüklendi</value>
+  </data>
+  <data name="VoicesMissingKey" xml:space="preserve">
+    <value>{0}: API anahtarı yok — bir tane Kimlik Bilgileri sekmesine ekleyin</value>
+  </data>
+  <data name="VoicesNoEnginesSelected" xml:space="preserve">
+    <value>Önce Ses Motorları sekmesinde en az bir motor seçin.</value>
+  </data>
+  <data name="VoicesPromoteFailed" xml:space="preserve">
+    <value>{0} yüklenemedi (yönetici onayı gerekebilir)</value>
+  </data>
+  <data name="VoicesPromotedSingle" xml:space="preserve">
+    <value>{0} SAPI'ye yüklendi</value>
+  </data>
+  <data name="VoicesSkippedNoKey" xml:space="preserve">
+    <value>{0} motor atlandı — API anahtarı ayarlanmadı</value>
+  </data>
+  <data name="VoicesUnpromoteFailed" xml:space="preserve">
+    <value>{0} kaldırıldı; {1} başarısız oldu</value>
   </data>
 </root>

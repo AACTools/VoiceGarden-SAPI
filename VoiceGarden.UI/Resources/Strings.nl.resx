@@ -56,9 +56,6 @@
   <data name="AdapterInstallation" xml:space="preserve">
     <value>Adapterinstallatie</value>
   </data>
-  <data name="AddEnUsAlias" xml:space="preserve">
-    <value>Voeg een en-US-alias toe</value>
-  </data>
   <data name="Advanced" xml:space="preserve">
     <value>Geavanceerd</value>
   </data>
@@ -67,9 +64,6 @@
   </data>
   <data name="AnalyticsHint" xml:space="preserve">
     <value>Helpt ons te begrijpen welke motoren worden gebruikt. Er zijn geen sms'jes, sleutels of PII verzonden.</value>
-  </data>
-  <data name="APIKey" xml:space="preserve">
-    <value>API-sleutel</value>
   </data>
   <data name="AppName" xml:space="preserve">
     <value>StemTuin</value>
@@ -92,50 +86,11 @@
   <data name="Checking" xml:space="preserve">
     <value>Controleren...</value>
   </data>
-  <data name="Close" xml:space="preserve">
-    <value>Dichtbij</value>
-  </data>
-  <data name="CloudVoices" xml:space="preserve">
-    <value>Wolkenstemmen</value>
-  </data>
-  <data name="ConfigureCredentials" xml:space="preserve">
-    <value>Inloggegevens configureren...</value>
-  </data>
-  <data name="ConfigureCredentialsTitle" xml:space="preserve">
-    <value>Configureer referenties</value>
-  </data>
-  <data name="ConfigureVoices" xml:space="preserve">
-    <value>Stemmen configureren...</value>
-  </data>
-  <data name="ConfigureVoicesTitle" xml:space="preserve">
-    <value>Configureer stemmen</value>
-  </data>
-  <data name="CountDownloaded" xml:space="preserve">
-    <value>{0} gedownload</value>
-  </data>
-  <data name="CountInstalled" xml:space="preserve">
-    <value>{0} geïnstalleerd</value>
-  </data>
-  <data name="CountSelected" xml:space="preserve">
-    <value>{0} geselecteerd</value>
-  </data>
-  <data name="CountTotal" xml:space="preserve">
-    <value>{0} totaal</value>
-  </data>
   <data name="Downloaded" xml:space="preserve">
     <value>Gedownload</value>
   </data>
-  <data name="DownloadedCount" xml:space="preserve">
-    <value>{0} model(len) gedownload</value>
-  </data>
-  <data name="DownloadedFailedCount" xml:space="preserve">
-    <value>Gedownload {0}, mislukt {1}</value>
-  </data>
   <data name="DownloadedStatus" xml:space="preserve">
     <value>Gedownload</value>
-  </data>
-  <data name="DownloadFailed" xml:space="preserve">
-    <value>Downloaden mislukt: {0} model(len)</value>
   </data>
   <data name="DownloadingModel" xml:space="preserve">
     <value>{0} ({1}) downloaden...</value>
@@ -143,14 +98,8 @@
   <data name="DownloadModelFirst" xml:space="preserve">
     <value>Download eerst het model</value>
   </data>
-  <data name="DownloadSelected" xml:space="preserve">
-    <value>Geselecteerd downloaden</value>
-  </data>
   <data name="EnableAnalytics" xml:space="preserve">
     <value>Anonieme gebruiksanalyses verzenden (opt-in)</value>
-  </data>
-  <data name="EnableEdgeVoices" xml:space="preserve">
-    <value>Schakel Edge-browserstemmen in</value>
   </data>
   <data name="Engine" xml:space="preserve">
     <value>Motor:</value>
@@ -176,12 +125,6 @@
   <data name="FetchingVoices" xml:space="preserve">
     <value>{0} stemmen ophalen...</value>
   </data>
-  <data name="FetchVoices" xml:space="preserve">
-    <value>Stemmen ophalen</value>
-  </data>
-  <data name="Filter" xml:space="preserve">
-    <value>Filter:</value>
-  </data>
   <data name="FoundVoices" xml:space="preserve">
     <value>{0} stemmen gevonden</value>
   </data>
@@ -190,9 +133,6 @@
   </data>
   <data name="HelpImprove" xml:space="preserve">
     <value>Help VoiceGarden te verbeteren</value>
-  </data>
-  <data name="HideAdvanced" xml:space="preserve">
-    <value>▼ Verberg Geavanceerd</value>
   </data>
   <data name="Install" xml:space="preserve">
     <value>Installeren</value>
@@ -206,32 +146,14 @@
   <data name="InstalledModelsFailed" xml:space="preserve">
     <value>Geïnstalleerd {0}, mislukt {1}</value>
   </data>
-  <data name="InstalledModelsSAPI" xml:space="preserve">
-    <value>{0} model(len) geïnstalleerd in SAPI</value>
-  </data>
-  <data name="InstalledOnly" xml:space="preserve">
-    <value>Alleen geïnstalleerd</value>
-  </data>
   <data name="InstalledVoicesHKLM" xml:space="preserve">
     <value>{0} stem(men) geïnstalleerd op HKLM</value>
   </data>
   <data name="InstallFailed" xml:space="preserve">
     <value>Installatie mislukt: {0}</value>
   </data>
-  <data name="InstallingSAPI" xml:space="preserve">
-    <value>Modellen installeren naar SAPI (HKLM)...</value>
-  </data>
   <data name="InstallSelected" xml:space="preserve">
     <value>Geselecteerd installeren</value>
-  </data>
-  <data name="InstallToSAPI" xml:space="preserve">
-    <value>Installeer naar SAPI</value>
-  </data>
-  <data name="InvalidResult" xml:space="preserve">
-    <value>Ongeldig: {0}</value>
-  </data>
-  <data name="Key" xml:space="preserve">
-    <value>Sleutel:</value>
   </data>
   <data name="LangCompatDesc" xml:space="preserve">
     <value>Als uw OC-software alleen bepaalde talen ondersteunt (bijvoorbeeld Engels), schakel dan "En-US alias toevoegen" in wanneer u SherpaOnnx-modellen promoot. Hierdoor verschijnen stemmen in elke taal als Engelse stemmen, zodat ze verschijnen in apps die op taal filteren.</value>
@@ -248,9 +170,6 @@
   <data name="LogLevel" xml:space="preserve">
     <value>Logniveau:</value>
   </data>
-  <data name="ManageModels" xml:space="preserve">
-    <value>Modellen beheren...</value>
-  </data>
   <data name="ModelFilesNotFound" xml:space="preserve">
     <value>Modelbestanden niet gevonden</value>
   </data>
@@ -266,15 +185,6 @@
   <data name="NoAudio" xml:space="preserve">
     <value>Er wordt geen audio gegenereerd</value>
   </data>
-  <data name="NoDownloadedModels" xml:space="preserve">
-    <value>Geen gedownloade modellen gevonden. Download eerst een model en klik indien nodig op Opnieuw scannen.</value>
-  </data>
-  <data name="NoDownloadUrl" xml:space="preserve">
-    <value>Geen download-URL</value>
-  </data>
-  <data name="NoModelId" xml:space="preserve">
-    <value>Kan model-ID voor preview niet bepalen</value>
-  </data>
   <data name="NoModelsInstalled" xml:space="preserve">
     <value>Geen modellen geïnstalleerd</value>
   </data>
@@ -283,9 +193,6 @@
   </data>
   <data name="NoThanks" xml:space="preserve">
     <value>Nee bedankt</value>
-  </data>
-  <data name="OfflineVoices" xml:space="preserve">
-    <value>Offline stemmen</value>
   </data>
   <data name="OnboardingDesc1" xml:space="preserve">
     <value>VoiceGarden is een gratis, open-source stembrug die meer dan twintig moderne tekst-naar-spraak-engines verbindt met elke Windows-applicatie die SAPI 5 ondersteunt, inclusief Grid 3, Mind Express, Balabolka, Tobii Communicator en elke app die is gebouwd op System.Speech.</value>
@@ -296,9 +203,6 @@
   <data name="OnboardingTitle" xml:space="preserve">
     <value>Welkom bij VoiceGarden</value>
   </data>
-  <data name="OnlyEnabledEngines" xml:space="preserve">
-    <value>Alleen ingeschakelde motoren worden weergegeven. Schakel motoren op de hoofdpagina in.</value>
-  </data>
   <data name="OpenLogs" xml:space="preserve">
     <value>Logboeken openen</value>
   </data>
@@ -307,9 +211,6 @@
   </data>
   <data name="PreviewFailed" xml:space="preserve">
     <value>Voorbeeld mislukt: {0}</value>
-  </data>
-  <data name="Previewing" xml:space="preserve">
-    <value>Voorbeeld bekijken...</value>
   </data>
   <data name="PreviewingVoice" xml:space="preserve">
     <value>Voorbeeld van {0}...</value>
@@ -323,50 +224,17 @@
   <data name="PrivacyIntro" xml:space="preserve">
     <value>VoiceGarden is een gratis, open-sourceproject gebouwd door vrijwilligers. Om ons te helpen begrijpen welke TTS-engines het meest worden gebruikt, om bugs te identificeren en prioriteit te geven aan de ontwikkeling, willen we graag anonieme gebruiksanalyses verzamelen.</value>
   </data>
-  <data name="Ready" xml:space="preserve">
-    <value>Klaar</value>
-  </data>
-  <data name="Region" xml:space="preserve">
-    <value>Regio</value>
-  </data>
-  <data name="Register" xml:space="preserve">
-    <value>Register</value>
-  </data>
   <data name="RemovedVoices" xml:space="preserve">
     <value>{0} stem(men) verwijderd</value>
-  </data>
-  <data name="RequestingAdmin" xml:space="preserve">
-    <value>Beheerdersrechten aanvragen...</value>
   </data>
   <data name="Reregister" xml:space="preserve">
     <value>Opnieuw registreren</value>
   </data>
-  <data name="Rescan" xml:space="preserve">
-    <value>Opnieuw scannen</value>
-  </data>
-  <data name="RescannedModels" xml:space="preserve">
-    <value>Opnieuw gescand: {0} model(len) gereed</value>
-  </data>
-  <data name="Search" xml:space="preserve">
-    <value>Zoekopdracht...</value>
-  </data>
   <data name="SearchVoices" xml:space="preserve">
     <value>Stemmen zoeken...</value>
   </data>
-  <data name="SelectModelsFirst" xml:space="preserve">
-    <value>Selecteer modellen om eerst te downloaden</value>
-  </data>
   <data name="SelectVoicesFirst" xml:space="preserve">
     <value>Selecteer stemmen om eerst te installeren</value>
-  </data>
-  <data name="SherpaOnnxModels" xml:space="preserve">
-    <value>Sherpa Onnx-modellen</value>
-  </data>
-  <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
-    <value>Sherpa Onnx Neurale TTS</value>
-  </data>
-  <data name="ShowAdvanced" xml:space="preserve">
-    <value>▶ Geavanceerd weergeven</value>
   </data>
   <data name="Step1Desc" xml:space="preserve">
     <value>Klik in het hoofdscherm op Installeren voor 64-bits (en 32-bits indien nodig). Hierdoor wordt VoiceGarden geregistreerd als een SAPI 5-stem die elke compatibele app kan gebruiken.</value>
@@ -389,17 +257,11 @@
   <data name="Uninstall" xml:space="preserve">
     <value>Verwijderen</value>
   </data>
-  <data name="Validate" xml:space="preserve">
-    <value>Valideer</value>
-  </data>
   <data name="Validating" xml:space="preserve">
     <value>Valideren...</value>
   </data>
   <data name="ValidResult" xml:space="preserve">
     <value>Geldig ({0} stemmen)</value>
-  </data>
-  <data name="VoiceEngines" xml:space="preserve">
-    <value>Stemmotoren</value>
   </data>
   <data name="WhatIsVoiceGarden" xml:space="preserve">
     <value>Wat is VoiceGarden?</value>
@@ -422,5 +284,314 @@
   </data>
   <data name="YesHelpImprove" xml:space="preserve">
     <value>Ja, help mee VoiceGarden te verbeteren</value>
+  </data>
+  <data name="AdvancedIntro" xml:space="preserve">
+    <value>Adapter-registratie, app-instellingen, offline modelbeheer en over — alles wat geen deel uitmaakt van de begeleide flow.</value>
+  </data>
+  <data name="AdvancedModelsHint" xml:space="preserve">
+    <value>Blader, download en installeer offline stemmen via het tabblad Stemmen — selecteer daar de SherpaOnnx-engine.</value>
+  </data>
+  <data name="AdvancedModelsTitle" xml:space="preserve">
+    <value>Offline modellen</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>Instellingen</value>
+  </data>
+  <data name="AdvancedTabState" xml:space="preserve">
+    <value>gereedschappen en instellingen</value>
+  </data>
+  <data name="AliasApplyNote" xml:space="preserve">
+    <value>Toegepast telkens wanneer stemmen worden geïnstalleerd of opnieuw geïnstalleerd vanuit het tabblad Stemmen. Bestaande stemmen nemen de wijziging op de volgende keer dat je ze installeert.</value>
+  </data>
+  <data name="AliasArabicHint" xml:space="preserve">
+    <value>Stem in een rechts-naar-links taal (Arabisch, Urdu, Perzisch, Hebreeuws, Pasjtoe…) verschijnt ook onder Arabisch (ar-SA), dus apps die zijn ingesteld voor Arabische stemmen kunnen het vinden.</value>
+  </data>
+  <data name="AliasArabicLabel" xml:space="preserve">
+    <value>Ook alias rechts-naar-links stemmen onder Arabisch</value>
+  </data>
+  <data name="AliasEnUsHint" xml:space="preserve">
+    <value>Stem in een andere taal verschijnt ook als Engels (en-US), dus apps die alleen Engelse stemmen weergeven — zoals sommige AAC-titels — kunnen deze gebruiken.</value>
+  </data>
+  <data name="AliasEnUsLabel" xml:space="preserve">
+    <value>Voeg een en-US-alias toe voor niet-Engelse stemmen</value>
+  </data>
+  <data name="AliasSettingsIntro" xml:space="preserve">
+    <value>Stemmen worden geïnstalleerd met hun echte taal. Aliassen voegen extra exemplaren toe onder een tweede taal, zodat apps die op taal filteren ze nog steeds kunnen vinden.</value>
+  </data>
+  <data name="AliasSettingsTitle" xml:space="preserve">
+    <value>SAPI-stemaliases</value>
+  </data>
+  <data name="BackToEngines" xml:space="preserve">
+    <value>Terug naar motoren</value>
+  </data>
+  <data name="BadgeCloud" xml:space="preserve">
+    <value>Wolk</value>
+  </data>
+  <data name="BadgeCredsNeeded" xml:space="preserve">
+    <value>Sleutel nodig</value>
+  </data>
+  <data name="BadgeKeyStored" xml:space="preserve">
+    <value>Sleutel opgeslagen</value>
+  </data>
+  <data name="BadgeNoCreds" xml:space="preserve">
+    <value>Geen sleutel</value>
+  </data>
+  <data name="BadgeOffline" xml:space="preserve">
+    <value>Offline</value>
+  </data>
+  <data name="ClearVisible" xml:space="preserve">
+    <value>Duidelijk weergegeven</value>
+  </data>
+  <data name="CredentialsFooterHint" xml:space="preserve">
+    <value>Controleer een sleutel om te zien of deze werkt voordat u stemmen laadt. U kunt op elk moment terugkomen.</value>
+  </data>
+  <data name="CredentialsIntro" xml:space="preserve">
+    <value>Voer de referenties in voor elke geselecteerde engine. Waarden worden alleen op deze computer opgeslagen.</value>
+  </data>
+  <data name="CredentialsNoneNeeded" xml:space="preserve">
+    <value>Geen geselecteerde motoren hebben inloggegevens nodig.</value>
+  </data>
+  <data name="DeselectAllVoices" xml:space="preserve">
+    <value>Deselecteer alle stemmen</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>Downloaden</value>
+  </data>
+  <data name="DownloadFailedSingle" xml:space="preserve">
+    <value>Download mislukt voor {0}</value>
+  </data>
+  <data name="DownloadFailedTitle" xml:space="preserve">
+    <value>Download mislukt voor {0}. Controleer je internetverbinding en probeer het opnieuw — als het blijft mislukken, sluit dan andere spraakapps en start VoiceGarden opnieuw op.</value>
+  </data>
+  <data name="EdgeEngineDesc" xml:space="preserve">
+    <value>Gratis Microsoft cloudstemmen in veel talen. Beste gratis online optie — natuurlijke kwaliteit, geen API-sleutel nodig, internetverbinding vereist.</value>
+  </data>
+  <data name="EdgeEngineName" xml:space="preserve">
+    <value>Randstemmen</value>
+  </data>
+  <data name="EngineDescKeyOnly" xml:space="preserve">
+    <value>{0} cloudstemmen. Vereist een API-sleutel.</value>
+  </data>
+  <data name="EngineDescKeyRegion" xml:space="preserve">
+    <value>{0} cloud-stemmen. Vereist een API-sleutel en regio.</value>
+  </data>
+  <data name="EngineDescKeySecretRegion" xml:space="preserve">
+    <value>{0} cloudstemmen. Heeft een toegangssleutel, geheime sleutel en regio nodig.</value>
+  </data>
+  <data name="EngineDescKeyUserId" xml:space="preserve">
+    <value>{0} cloudstemmen. Vereist een API-sleutel en gebruikers-ID.</value>
+  </data>
+  <data name="EnginesSelectedSummary" xml:space="preserve">
+    <value>{0} van {1} motoren geselecteerd</value>
+  </data>
+  <data name="FieldAPIKey" xml:space="preserve">
+    <value>API-sleutel</value>
+  </data>
+  <data name="FieldAccessKeyId" xml:space="preserve">
+    <value>Toegangs-sleutel-ID</value>
+  </data>
+  <data name="FieldInstanceId" xml:space="preserve">
+    <value>Instantie-ID</value>
+  </data>
+  <data name="FieldRegion" xml:space="preserve">
+    <value>Regio</value>
+  </data>
+  <data name="FieldSecretAccessKey" xml:space="preserve">
+    <value>Geheime toegangssleutel</value>
+  </data>
+  <data name="FieldSubscriptionKey" xml:space="preserve">
+    <value>Abonnementsleutel</value>
+  </data>
+  <data name="FieldToken" xml:space="preserve">
+    <value>Teken</value>
+  </data>
+  <data name="FieldUserId" xml:space="preserve">
+    <value>Gebruikers-ID</value>
+  </data>
+  <data name="FilterAllEngines" xml:space="preserve">
+    <value>Alle motoren</value>
+  </data>
+  <data name="FilterAllLanguages" xml:space="preserve">
+    <value>Alle talen</value>
+  </data>
+  <data name="FilterAllTypes" xml:space="preserve">
+    <value>Alle soorten</value>
+  </data>
+  <data name="FilterAnyEngine" xml:space="preserve">
+    <value>Alle motoren</value>
+  </data>
+  <data name="FilterAnyGender" xml:space="preserve">
+    <value>Elk geslacht</value>
+  </data>
+  <data name="FilterAnyLanguage" xml:space="preserve">
+    <value>Elke taal</value>
+  </data>
+  <data name="FilterAnyQuality" xml:space="preserve">
+    <value>Elke kwaliteit</value>
+  </data>
+  <data name="FilterCredentials" xml:space="preserve">
+    <value>Referenties</value>
+  </data>
+  <data name="FilterCredsNeeded" xml:space="preserve">
+    <value>Sleutel nodig</value>
+  </data>
+  <data name="FilterEngine" xml:space="preserve">
+    <value>Filteren op motor</value>
+  </data>
+  <data name="FilterGender" xml:space="preserve">
+    <value>Filteren op geslacht</value>
+  </data>
+  <data name="FilterLanguage" xml:space="preserve">
+    <value>Taal</value>
+  </data>
+  <data name="FilterNoCreds" xml:space="preserve">
+    <value>Geen sleutel nodig</value>
+  </data>
+  <data name="FilterOfflineOnly" xml:space="preserve">
+    <value>Alleen offline</value>
+  </data>
+  <data name="FilterOnlineOnly" xml:space="preserve">
+    <value>Alleen online</value>
+  </data>
+  <data name="FilterQuality" xml:space="preserve">
+    <value>Filteren op kwaliteit</value>
+  </data>
+  <data name="FilterType" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>Geslacht</value>
+  </data>
+  <data name="LanguageFilterHiddenNote" xml:space="preserve">
+    <value>{0} motoren verborgen — hun talen zijn onbekend totdat hun stemmen in het tabblad Stemmen worden geladen.</value>
+  </data>
+  <data name="LoadVoices" xml:space="preserve">
+    <value>Stemmen laden</value>
+  </data>
+  <data name="NextCredentials" xml:space="preserve">
+    <value>Volgende: Referenties</value>
+  </data>
+  <data name="NextVoices" xml:space="preserve">
+    <value>Volgende: Stemmen</value>
+  </data>
+  <data name="PreviewFailedTitle" xml:space="preserve">
+    <value>Voorvertoning mislukt voor {0}.</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>Kwaliteit</value>
+  </data>
+  <data name="RefreshInstalled" xml:space="preserve">
+    <value>Vernieuwd geïnstalleerd</value>
+  </data>
+  <data name="RemoveSelected" xml:space="preserve">
+    <value>Verwijder geselecteerd uit SAPI</value>
+  </data>
+  <data name="RescannedVoices" xml:space="preserve">
+    <value>Vernieuwd — {0} stemmen geïnstalleerd</value>
+  </data>
+  <data name="SearchEngines" xml:space="preserve">
+    <value>Zoekmachines, talen…</value>
+  </data>
+  <data name="SelectAllVoices" xml:space="preserve">
+    <value>Selecteer alle weergegeven stemmen</value>
+  </data>
+  <data name="SelectVisible" xml:space="preserve">
+    <value>Selecteer weergegeven</value>
+  </data>
+  <data name="SherpaOnnxEngineDesc" xml:space="preserve">
+    <value>Offline neurale stemmen in vele talen. Het beste voor betrouwbaarheid en privacy — werkt zonder account of internet zodra het is gedownload.</value>
+  </data>
+  <data name="SherpaOnnxEngineName" xml:space="preserve">
+    <value>Sherpa Onnx</value>
+  </data>
+  <data name="Step4Desc" xml:space="preserve">
+    <value>Open het tabblad Stemmen en klik op Stemmen laden. Filter op taal, geslacht of kwaliteit, bekijk degene die je leuk vindt, en gebruik vervolgens Downloaden (offline modellen) en Installeren naar SAPI. Geïnstalleerde stemmen verschijnen direct in je apps.</value>
+  </data>
+  <data name="Step4Title" xml:space="preserve">
+    <value>Krijg je stemmen</value>
+  </data>
+  <data name="TabCredentials" xml:space="preserve">
+    <value>Referenties</value>
+  </data>
+  <data name="TabCredentialsCount" xml:space="preserve">
+    <value>{0} motoren hebben sleutels nodig</value>
+  </data>
+  <data name="TabCredentialsNotNeeded" xml:space="preserve">
+    <value>niet nodig</value>
+  </data>
+  <data name="TabCredentialsTitle" xml:space="preserve">
+    <value>Referenties</value>
+  </data>
+  <data name="TabEngines" xml:space="preserve">
+    <value>Spraakmotoren</value>
+  </data>
+  <data name="TabEnginesCount" xml:space="preserve">
+    <value>{0} geselecteerd</value>
+  </data>
+  <data name="TabEnginesIntro" xml:space="preserve">
+    <value>Kies de spraakmotoren die u wilt gebruiken. Kies offline stemmen die zonder account werken, gratis cloudstemmen, of cloudmotoren die een API-sleutel nodig hebben.</value>
+  </data>
+  <data name="TabEnginesTitle" xml:space="preserve">
+    <value>Spraakmotoren</value>
+  </data>
+  <data name="TabVoices" xml:space="preserve">
+    <value>Stemmen</value>
+  </data>
+  <data name="TabVoicesCount" xml:space="preserve">
+    <value>{0} stemmen</value>
+  </data>
+  <data name="TabVoicesIntro" xml:space="preserve">
+    <value>Elke stem van de motoren die je hebt geselecteerd. Filter, bekijk een voorbeeld en installeer vervolgens de stemmen die je wilt in Windows SAPI.</value>
+  </data>
+  <data name="TabVoicesTitle" xml:space="preserve">
+    <value>Stemmen</value>
+  </data>
+  <data name="UnknownEngine" xml:space="preserve">
+    <value>Onbekende motor</value>
+  </data>
+  <data name="UnknownLanguage" xml:space="preserve">
+    <value>Onbekend</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>Verifiëren</value>
+  </data>
+  <data name="VerifyNoVoices" xml:space="preserve">
+    <value>Sleutel geaccepteerd maar geen stemmen teruggegeven — controleer of de sleutel toegang heeft tot TTS.</value>
+  </data>
+  <data name="VoicesCountSummary" xml:space="preserve">
+    <value>{0} stemmen · {1} geselecteerd · {2} geïnstalleerd</value>
+  </data>
+  <data name="VoicesEmptyHint" xml:space="preserve">
+    <value>Kies eerst je spraakmotoren in het tabblad Spraakmotoren (voeg daar ook de inloggegevens toe als de motor een sleutel nodig heeft), en laad daarna hier de stemmen.</value>
+  </data>
+  <data name="VoicesEmptyNoEngines" xml:space="preserve">
+    <value>Geen motoren geselecteerd — open het tabblad Spraakmotoren en vink ten minste één motor aan.</value>
+  </data>
+  <data name="VoicesEmptyTitle" xml:space="preserve">
+    <value>Nog geen stemmen</value>
+  </data>
+  <data name="VoicesFetchFailed" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="VoicesLoaded" xml:space="preserve">
+    <value>Laden van {0} stemmen voltooid</value>
+  </data>
+  <data name="VoicesMissingKey" xml:space="preserve">
+    <value>{0}: geen API-sleutel — voeg er een toe in het tabblad Referenties</value>
+  </data>
+  <data name="VoicesNoEnginesSelected" xml:space="preserve">
+    <value>Selecteer eerst minimaal één engine in het tabblad Spraakengines.</value>
+  </data>
+  <data name="VoicesPromoteFailed" xml:space="preserve">
+    <value>Kon {0} niet installeren (beheerderstoestemming kan vereist zijn)</value>
+  </data>
+  <data name="VoicesPromotedSingle" xml:space="preserve">
+    <value>{0} geïnstalleerd op SAPI</value>
+  </data>
+  <data name="VoicesSkippedNoKey" xml:space="preserve">
+    <value>{0} motoren overgeslagen — geen API-sleutel ingesteld</value>
+  </data>
+  <data name="VoicesUnpromoteFailed" xml:space="preserve">
+    <value>Verwijderd {0}; mislukt {1}</value>
   </data>
 </root>

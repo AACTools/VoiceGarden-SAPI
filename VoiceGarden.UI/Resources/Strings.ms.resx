@@ -56,9 +56,6 @@
   <data name="AdapterInstallation" xml:space="preserve">
     <value>Pemasangan Penyesuai</value>
   </data>
-  <data name="AddEnUsAlias" xml:space="preserve">
-    <value>Tambahkan alias en-US</value>
-  </data>
   <data name="Advanced" xml:space="preserve">
     <value>Maju</value>
   </data>
@@ -67,9 +64,6 @@
   </data>
   <data name="AnalyticsHint" xml:space="preserve">
     <value>Membantu kami memahami enjin yang digunakan. Tiada teks, kunci atau PII dihantar.</value>
-  </data>
-  <data name="APIKey" xml:space="preserve">
-    <value>Kunci API</value>
   </data>
   <data name="AppName" xml:space="preserve">
     <value>VoiceGarden</value>
@@ -92,50 +86,11 @@
   <data name="Checking" xml:space="preserve">
     <value>Menyemak...</value>
   </data>
-  <data name="Close" xml:space="preserve">
-    <value>tutup</value>
-  </data>
-  <data name="CloudVoices" xml:space="preserve">
-    <value>Suara Awan</value>
-  </data>
-  <data name="ConfigureCredentials" xml:space="preserve">
-    <value>Konfigurasi Bukti Kelayakan...</value>
-  </data>
-  <data name="ConfigureCredentialsTitle" xml:space="preserve">
-    <value>Konfigurasi Bukti kelayakan</value>
-  </data>
-  <data name="ConfigureVoices" xml:space="preserve">
-    <value>Konfigurasi Suara...</value>
-  </data>
-  <data name="ConfigureVoicesTitle" xml:space="preserve">
-    <value>Konfigurasi Suara</value>
-  </data>
-  <data name="CountDownloaded" xml:space="preserve">
-    <value>{0} dimuat turun</value>
-  </data>
-  <data name="CountInstalled" xml:space="preserve">
-    <value>{0} dipasang</value>
-  </data>
-  <data name="CountSelected" xml:space="preserve">
-    <value>{0} dipilih</value>
-  </data>
-  <data name="CountTotal" xml:space="preserve">
-    <value>{0} jumlah</value>
-  </data>
   <data name="Downloaded" xml:space="preserve">
     <value>Dimuat turun</value>
   </data>
-  <data name="DownloadedCount" xml:space="preserve">
-    <value>Memuat turun {0} model</value>
-  </data>
-  <data name="DownloadedFailedCount" xml:space="preserve">
-    <value>Dimuat turun {0}, gagal {1}</value>
-  </data>
   <data name="DownloadedStatus" xml:space="preserve">
     <value>Dimuat turun</value>
-  </data>
-  <data name="DownloadFailed" xml:space="preserve">
-    <value>Muat turun gagal: {0} model</value>
   </data>
   <data name="DownloadingModel" xml:space="preserve">
     <value>Memuat turun {0} ({1})...</value>
@@ -143,14 +98,8 @@
   <data name="DownloadModelFirst" xml:space="preserve">
     <value>Muat turun model dahulu</value>
   </data>
-  <data name="DownloadSelected" xml:space="preserve">
-    <value>Muat Turun Dipilih</value>
-  </data>
   <data name="EnableAnalytics" xml:space="preserve">
     <value>Hantar analitis penggunaan tanpa nama (ikut serta)</value>
-  </data>
-  <data name="EnableEdgeVoices" xml:space="preserve">
-    <value>Dayakan suara pelayar Edge</value>
   </data>
   <data name="Engine" xml:space="preserve">
     <value>Enjin:</value>
@@ -176,12 +125,6 @@
   <data name="FetchingVoices" xml:space="preserve">
     <value>Mengambil {0} suara...</value>
   </data>
-  <data name="FetchVoices" xml:space="preserve">
-    <value>Ambil Suara</value>
-  </data>
-  <data name="Filter" xml:space="preserve">
-    <value>Penapis:</value>
-  </data>
   <data name="FoundVoices" xml:space="preserve">
     <value>Menjumpai {0} suara</value>
   </data>
@@ -190,9 +133,6 @@
   </data>
   <data name="HelpImprove" xml:space="preserve">
     <value>Bantu Perbaiki VoiceGarden</value>
-  </data>
-  <data name="HideAdvanced" xml:space="preserve">
-    <value>▼ Sembunyikan Lanjutan</value>
   </data>
   <data name="Install" xml:space="preserve">
     <value>Pasang</value>
@@ -206,32 +146,14 @@
   <data name="InstalledModelsFailed" xml:space="preserve">
     <value>Dipasang {0}, gagal {1}</value>
   </data>
-  <data name="InstalledModelsSAPI" xml:space="preserve">
-    <value>Memasang {0} model pada SAPI</value>
-  </data>
-  <data name="InstalledOnly" xml:space="preserve">
-    <value>Dipasang sahaja</value>
-  </data>
   <data name="InstalledVoicesHKLM" xml:space="preserve">
     <value>Memasang {0} suara ke HKLM</value>
   </data>
   <data name="InstallFailed" xml:space="preserve">
     <value>Pemasangan gagal: {0}</value>
   </data>
-  <data name="InstallingSAPI" xml:space="preserve">
-    <value>Memasang model ke SAPI (HKLM)...</value>
-  </data>
   <data name="InstallSelected" xml:space="preserve">
     <value>Pasang Dipilih</value>
-  </data>
-  <data name="InstallToSAPI" xml:space="preserve">
-    <value>Pasang ke SAPI</value>
-  </data>
-  <data name="InvalidResult" xml:space="preserve">
-    <value>Tidak sah: {0}</value>
-  </data>
-  <data name="Key" xml:space="preserve">
-    <value>kunci:</value>
   </data>
   <data name="LangCompatDesc" xml:space="preserve">
     <value>Jika perisian AAC anda hanya menyokong bahasa tertentu (cth. Bahasa Inggeris), dayakan "Tambah alias en-US" semasa mempromosikan model SherpaOnnx. Ini menjadikan suara dalam mana-mana bahasa muncul sebagai suara Inggeris, jadi ia muncul dalam apl yang menapis mengikut bahasa.</value>
@@ -248,9 +170,6 @@
   <data name="LogLevel" xml:space="preserve">
     <value>Tahap log:</value>
   </data>
-  <data name="ManageModels" xml:space="preserve">
-    <value>Urus Model...</value>
-  </data>
   <data name="ModelFilesNotFound" xml:space="preserve">
     <value>Fail model tidak ditemui</value>
   </data>
@@ -266,15 +185,6 @@
   <data name="NoAudio" xml:space="preserve">
     <value>Tiada audio dijana</value>
   </data>
-  <data name="NoDownloadedModels" xml:space="preserve">
-    <value>Tiada model yang dimuat turun ditemui. Muat turun model dahulu, kemudian klik Imbas Semula jika perlu.</value>
-  </data>
-  <data name="NoDownloadUrl" xml:space="preserve">
-    <value>Tiada URL muat turun</value>
-  </data>
-  <data name="NoModelId" xml:space="preserve">
-    <value>Tidak dapat menentukan ID model untuk pratonton</value>
-  </data>
   <data name="NoModelsInstalled" xml:space="preserve">
     <value>Tiada model dipasang</value>
   </data>
@@ -283,9 +193,6 @@
   </data>
   <data name="NoThanks" xml:space="preserve">
     <value>Tidak terima kasih</value>
-  </data>
-  <data name="OfflineVoices" xml:space="preserve">
-    <value>Suara Luar Talian</value>
   </data>
   <data name="OnboardingDesc1" xml:space="preserve">
     <value>VoiceGarden ialah jambatan suara sumber terbuka percuma yang menghubungkan 20+ enjin teks ke pertuturan moden kepada mana-mana aplikasi Windows yang menyokong SAPI 5 — termasuk Grid 3, Mind Express, Balabolka, Tobii Communicator dan mana-mana apl yang dibina pada System.Speech.</value>
@@ -296,9 +203,6 @@
   <data name="OnboardingTitle" xml:space="preserve">
     <value>Selamat datang ke VoiceGarden</value>
   </data>
-  <data name="OnlyEnabledEngines" xml:space="preserve">
-    <value>Hanya enjin yang didayakan ditunjukkan. Togol enjin pada halaman utama.</value>
-  </data>
   <data name="OpenLogs" xml:space="preserve">
     <value>Buka Log</value>
   </data>
@@ -307,9 +211,6 @@
   </data>
   <data name="PreviewFailed" xml:space="preserve">
     <value>Pratonton gagal: {0}</value>
-  </data>
-  <data name="Previewing" xml:space="preserve">
-    <value>Pratonton...</value>
   </data>
   <data name="PreviewingVoice" xml:space="preserve">
     <value>Mempratonton {0}...</value>
@@ -323,50 +224,17 @@
   <data name="PrivacyIntro" xml:space="preserve">
     <value>VoiceGarden ialah projek sumber terbuka percuma yang dibina oleh sukarelawan. Untuk membantu kami memahami enjin TTS yang paling banyak digunakan, mengenal pasti pepijat dan mengutamakan pembangunan, kami ingin mengumpul analitis penggunaan tanpa nama.</value>
   </data>
-  <data name="Ready" xml:space="preserve">
-    <value>sedia</value>
-  </data>
-  <data name="Region" xml:space="preserve">
-    <value>Wilayah</value>
-  </data>
-  <data name="Register" xml:space="preserve">
-    <value>Daftar</value>
-  </data>
   <data name="RemovedVoices" xml:space="preserve">
     <value>{0} suara dialih keluar</value>
-  </data>
-  <data name="RequestingAdmin" xml:space="preserve">
-    <value>Meminta keistimewaan pentadbir...</value>
   </data>
   <data name="Reregister" xml:space="preserve">
     <value>Daftar semula</value>
   </data>
-  <data name="Rescan" xml:space="preserve">
-    <value>Imbas semula</value>
-  </data>
-  <data name="RescannedModels" xml:space="preserve">
-    <value>Diimbas semula: {0} model sedia</value>
-  </data>
-  <data name="Search" xml:space="preserve">
-    <value>Cari...</value>
-  </data>
   <data name="SearchVoices" xml:space="preserve">
     <value>Cari suara...</value>
   </data>
-  <data name="SelectModelsFirst" xml:space="preserve">
-    <value>Pilih model untuk dimuat turun dahulu</value>
-  </data>
   <data name="SelectVoicesFirst" xml:space="preserve">
     <value>Pilih suara untuk dipasang dahulu</value>
-  </data>
-  <data name="SherpaOnnxModels" xml:space="preserve">
-    <value>Model Sherpa Onnx</value>
-  </data>
-  <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
-    <value>TTS Neural Sherpa Onnx</value>
-  </data>
-  <data name="ShowAdvanced" xml:space="preserve">
-    <value>▶ Tunjukkan Lanjutan</value>
   </data>
   <data name="Step1Desc" xml:space="preserve">
     <value>Pada skrin utama, klik Pasang untuk 64-bit (dan 32-bit jika perlu). Ini mendaftarkan VoiceGarden sebagai suara SAPI 5 yang boleh digunakan oleh mana-mana apl yang serasi.</value>
@@ -389,17 +257,11 @@
   <data name="Uninstall" xml:space="preserve">
     <value>Nyahpasang</value>
   </data>
-  <data name="Validate" xml:space="preserve">
-    <value>Sahkan</value>
-  </data>
   <data name="Validating" xml:space="preserve">
     <value>Mengesahkan...</value>
   </data>
   <data name="ValidResult" xml:space="preserve">
     <value>Sah ({0} suara)</value>
-  </data>
-  <data name="VoiceEngines" xml:space="preserve">
-    <value>Enjin Suara</value>
   </data>
   <data name="WhatIsVoiceGarden" xml:space="preserve">
     <value>Apakah VoiceGarden?</value>
@@ -422,5 +284,314 @@
   </data>
   <data name="YesHelpImprove" xml:space="preserve">
     <value>Ya, bantu tingkatkan VoiceGarden</value>
+  </data>
+  <data name="AdvancedIntro" xml:space="preserve">
+    <value>Pendaftaran penyesuai, tetapan aplikasi, pengurusan model luar talian dan tentang — segala-galanya yang bukan sebahagian daripada aliran berpandu.</value>
+  </data>
+  <data name="AdvancedModelsHint" xml:space="preserve">
+    <value>Layari, muat turun dan pasang suara secara luar talian dari tab Suara — pilih enjin SherpaOnnx di sana.</value>
+  </data>
+  <data name="AdvancedModelsTitle" xml:space="preserve">
+    <value>Model luar talian</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>Tetapan</value>
+  </data>
+  <data name="AdvancedTabState" xml:space="preserve">
+    <value>alat dan tetapan</value>
+  </data>
+  <data name="AliasApplyNote" xml:space="preserve">
+    <value>Diterapkan setiap kali suara dipasang atau dipasang semula dari tab Suara. Suara sedia ada akan mengesan perubahan itu pada kali berikutnya anda memasangnya.</value>
+  </data>
+  <data name="AliasArabicHint" xml:space="preserve">
+    <value>Suara dalam bahasa yang ditulis dari kanan ke kiri (Arab, Urdu, Parsi, Ibrani, Pashto…) juga muncul di bawah Arab (ar-SA), jadi aplikasi yang disediakan untuk suara Arab boleh menemuinya.</value>
+  </data>
+  <data name="AliasArabicLabel" xml:space="preserve">
+    <value>Juga alias suara kanan-ke-kiri di bawah Arab</value>
+  </data>
+  <data name="AliasEnUsHint" xml:space="preserve">
+    <value>Suara dalam mana-mana bahasa lain juga muncul sebagai Bahasa Inggeris (en-US), jadi aplikasi yang hanya menyenaraikan suara Bahasa Inggeris — seperti beberapa tajuk AAC — boleh menggunakannya.</value>
+  </data>
+  <data name="AliasEnUsLabel" xml:space="preserve">
+    <value>Tambah alias en-US untuk suara bukan Inggeris</value>
+  </data>
+  <data name="AliasSettingsIntro" xml:space="preserve">
+    <value>Suara dipasang dengan bahasa sebenar mereka. Alias menambah salinan tambahan di bawah bahasa kedua supaya aplikasi yang menapis mengikut bahasa masih boleh menemuinya.</value>
+  </data>
+  <data name="AliasSettingsTitle" xml:space="preserve">
+    <value>Alias suara SAPI</value>
+  </data>
+  <data name="BackToEngines" xml:space="preserve">
+    <value>Kembali ke Enjin</value>
+  </data>
+  <data name="BadgeCloud" xml:space="preserve">
+    <value>Awan</value>
+  </data>
+  <data name="BadgeCredsNeeded" xml:space="preserve">
+    <value>Kunci diperlukan</value>
+  </data>
+  <data name="BadgeKeyStored" xml:space="preserve">
+    <value>Kunci disimpan</value>
+  </data>
+  <data name="BadgeNoCreds" xml:space="preserve">
+    <value>Tiada kunci</value>
+  </data>
+  <data name="BadgeOffline" xml:space="preserve">
+    <value>Luar talian</value>
+  </data>
+  <data name="ClearVisible" xml:space="preserve">
+    <value>Jelas ditunjukkan</value>
+  </data>
+  <data name="CredentialsFooterHint" xml:space="preserve">
+    <value>Sahkan kunci untuk memeriksa ia berfungsi sebelum memuatkan suara. Anda boleh kembali bila-bila masa.</value>
+  </data>
+  <data name="CredentialsIntro" xml:space="preserve">
+    <value>Masukkan kelayakan untuk setiap enjin yang dipilih. Nilai hanya disimpan pada komputer ini.</value>
+  </data>
+  <data name="CredentialsNoneNeeded" xml:space="preserve">
+    <value>Tiada enjin yang dipilih memerlukan kelayakan.</value>
+  </data>
+  <data name="DeselectAllVoices" xml:space="preserve">
+    <value>Nyahpilih semua suara</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>Muat turun</value>
+  </data>
+  <data name="DownloadFailedSingle" xml:space="preserve">
+    <value>Muat turun gagal untuk {0}</value>
+  </data>
+  <data name="DownloadFailedTitle" xml:space="preserve">
+    <value>Muat turun gagal untuk {0}. Semak sambungan internet anda dan cuba lagi — jika masih gagal, tutup aplikasi suara lain dan mulakan semula VoiceGarden.</value>
+  </data>
+  <data name="EdgeEngineDesc" xml:space="preserve">
+    <value>Suara awan Microsoft percuma dalam pelbagai bahasa. Pilihan dalam talian percuma terbaik — kualiti semula jadi, tanpa kunci API, memerlukan internet.</value>
+  </data>
+  <data name="EdgeEngineName" xml:space="preserve">
+    <value>Suara Tepi</value>
+  </data>
+  <data name="EngineDescKeyOnly" xml:space="preserve">
+    <value>{0} suara awan. Memerlukan kunci API.</value>
+  </data>
+  <data name="EngineDescKeyRegion" xml:space="preserve">
+    <value>{0} suara awan. Memerlukan kunci API dan wilayah.</value>
+  </data>
+  <data name="EngineDescKeySecretRegion" xml:space="preserve">
+    <value>Suara awan {0}. Memerlukan kunci akses, kunci rahsia dan wilayah.</value>
+  </data>
+  <data name="EngineDescKeyUserId" xml:space="preserve">
+    <value>Suara awan {0}. Memerlukan kunci API dan ID pengguna.</value>
+  </data>
+  <data name="EnginesSelectedSummary" xml:space="preserve">
+    <value>{0} dari {1} enjin dipilih</value>
+  </data>
+  <data name="FieldAPIKey" xml:space="preserve">
+    <value>Kunci API</value>
+  </data>
+  <data name="FieldAccessKeyId" xml:space="preserve">
+    <value>ID kunci capaian</value>
+  </data>
+  <data name="FieldInstanceId" xml:space="preserve">
+    <value>ID Instans</value>
+  </data>
+  <data name="FieldRegion" xml:space="preserve">
+    <value>Wilayah</value>
+  </data>
+  <data name="FieldSecretAccessKey" xml:space="preserve">
+    <value>Kunci akses rahsia</value>
+  </data>
+  <data name="FieldSubscriptionKey" xml:space="preserve">
+    <value>Kunci langganan</value>
+  </data>
+  <data name="FieldToken" xml:space="preserve">
+    <value>Token</value>
+  </data>
+  <data name="FieldUserId" xml:space="preserve">
+    <value>ID Pengguna</value>
+  </data>
+  <data name="FilterAllEngines" xml:space="preserve">
+    <value>Semua enjin</value>
+  </data>
+  <data name="FilterAllLanguages" xml:space="preserve">
+    <value>Semua bahasa</value>
+  </data>
+  <data name="FilterAllTypes" xml:space="preserve">
+    <value>Semua jenis</value>
+  </data>
+  <data name="FilterAnyEngine" xml:space="preserve">
+    <value>Semua enjin</value>
+  </data>
+  <data name="FilterAnyGender" xml:space="preserve">
+    <value>Mana-mana jantina</value>
+  </data>
+  <data name="FilterAnyLanguage" xml:space="preserve">
+    <value>Mana-mana bahasa</value>
+  </data>
+  <data name="FilterAnyQuality" xml:space="preserve">
+    <value>Sebarang kualiti</value>
+  </data>
+  <data name="FilterCredentials" xml:space="preserve">
+    <value>Kelayakan</value>
+  </data>
+  <data name="FilterCredsNeeded" xml:space="preserve">
+    <value>Kunci diperlukan</value>
+  </data>
+  <data name="FilterEngine" xml:space="preserve">
+    <value>Tapis mengikut enjin</value>
+  </data>
+  <data name="FilterGender" xml:space="preserve">
+    <value>Tapis mengikut jantina</value>
+  </data>
+  <data name="FilterLanguage" xml:space="preserve">
+    <value>Bahasa</value>
+  </data>
+  <data name="FilterNoCreds" xml:space="preserve">
+    <value>Tidak perlu kunci</value>
+  </data>
+  <data name="FilterOfflineOnly" xml:space="preserve">
+    <value>Hanya luar talian</value>
+  </data>
+  <data name="FilterOnlineOnly" xml:space="preserve">
+    <value>Dalam talian sahaja</value>
+  </data>
+  <data name="FilterQuality" xml:space="preserve">
+    <value>Tapis mengikut kualiti</value>
+  </data>
+  <data name="FilterType" xml:space="preserve">
+    <value>Jenis</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>Jantina</value>
+  </data>
+  <data name="LanguageFilterHiddenNote" xml:space="preserve">
+    <value>{0} enjin tersembunyi — bahasa mereka tidak diketahui sehingga suara mereka dimuatkan dalam tab Suara.</value>
+  </data>
+  <data name="LoadVoices" xml:space="preserve">
+    <value>Muatkan suara</value>
+  </data>
+  <data name="NextCredentials" xml:space="preserve">
+    <value>Seterusnya: Kredensial</value>
+  </data>
+  <data name="NextVoices" xml:space="preserve">
+    <value>Seterusnya: Suara</value>
+  </data>
+  <data name="PreviewFailedTitle" xml:space="preserve">
+    <value>Pratonton gagal untuk {0}.</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>Kualiti</value>
+  </data>
+  <data name="RefreshInstalled" xml:space="preserve">
+    <value>Segarkan dipasang</value>
+  </data>
+  <data name="RemoveSelected" xml:space="preserve">
+    <value>Alih keluar yang dipilih dari SAPI</value>
+  </data>
+  <data name="RescannedVoices" xml:space="preserve">
+    <value>Segar semula — {0} suara dipasang</value>
+  </data>
+  <data name="SearchEngines" xml:space="preserve">
+    <value>Enjin carian, bahasa…</value>
+  </data>
+  <data name="SelectAllVoices" xml:space="preserve">
+    <value>Pilih semua suara yang ditunjukkan</value>
+  </data>
+  <data name="SelectVisible" xml:space="preserve">
+    <value>Pilih yang ditunjukkan</value>
+  </data>
+  <data name="SherpaOnnxEngineDesc" xml:space="preserve">
+    <value>Suara neural luar talian dalam pelbagai bahasa. Terbaik untuk kebolehpercayaan dan privasi — berfungsi tanpa akaun atau internet setelah dimuat turun.</value>
+  </data>
+  <data name="SherpaOnnxEngineName" xml:space="preserve">
+    <value>Sherpa Onnx</value>
+  </data>
+  <data name="Step4Desc" xml:space="preserve">
+    <value>Buka tab Suara dan klik Muatkan suara. Tapis mengikut bahasa, jantina atau kualiti, pratonton yang anda suka, kemudian gunakan Muat Turun (model luar talian) dan Pasang ke SAPI. Suara yang dipasang akan muncul dalam aplikasi anda dengan serta-merta.</value>
+  </data>
+  <data name="Step4Title" xml:space="preserve">
+    <value>Dapatkan suara anda</value>
+  </data>
+  <data name="TabCredentials" xml:space="preserve">
+    <value>Kelayakan</value>
+  </data>
+  <data name="TabCredentialsCount" xml:space="preserve">
+    <value>Enjin {0} memerlukan kunci</value>
+  </data>
+  <data name="TabCredentialsNotNeeded" xml:space="preserve">
+    <value>tidak diperlukan</value>
+  </data>
+  <data name="TabCredentialsTitle" xml:space="preserve">
+    <value>Kelayakan</value>
+  </data>
+  <data name="TabEngines" xml:space="preserve">
+    <value>Enjin Suara</value>
+  </data>
+  <data name="TabEnginesCount" xml:space="preserve">
+    <value>{0} dipilih</value>
+  </data>
+  <data name="TabEnginesIntro" xml:space="preserve">
+    <value>Pilih enjin suara yang anda mahu gunakan. Pilih suara luar talian yang berfungsi tanpa akaun, suara awan percuma, atau enjin awan yang memerlukan kunci API.</value>
+  </data>
+  <data name="TabEnginesTitle" xml:space="preserve">
+    <value>Enjin Suara</value>
+  </data>
+  <data name="TabVoices" xml:space="preserve">
+    <value>Suara</value>
+  </data>
+  <data name="TabVoicesCount" xml:space="preserve">
+    <value>{0} suara</value>
+  </data>
+  <data name="TabVoicesIntro" xml:space="preserve">
+    <value>Setiap suara dari enjin yang anda pilih. Tapis, pratonton, kemudian pasang yang anda mahu ke dalam Windows SAPI.</value>
+  </data>
+  <data name="TabVoicesTitle" xml:space="preserve">
+    <value>Suara</value>
+  </data>
+  <data name="UnknownEngine" xml:space="preserve">
+    <value>Enjin tidak diketahui</value>
+  </data>
+  <data name="UnknownLanguage" xml:space="preserve">
+    <value>Tidak diketahui</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>Sahkan</value>
+  </data>
+  <data name="VerifyNoVoices" xml:space="preserve">
+    <value>Kunci diterima tetapi tiada suara dikembalikan — semak kunci mempunyai akses TTS.</value>
+  </data>
+  <data name="VoicesCountSummary" xml:space="preserve">
+    <value>{0} suara · {1} dipilih · {2} dipasang</value>
+  </data>
+  <data name="VoicesEmptyHint" xml:space="preserve">
+    <value>Pilih enjin suara anda dalam tab Enjin Suara terlebih dahulu (tambahkan kelayakan di sana juga jika enjin memerlukan kunci), kemudian muatkan suara di sini.</value>
+  </data>
+  <data name="VoicesEmptyNoEngines" xml:space="preserve">
+    <value>Tiada enjin dipilih — buka tab Enjin Suara dan tandakan sekurang-kurangnya satu enjin.</value>
+  </data>
+  <data name="VoicesEmptyTitle" xml:space="preserve">
+    <value>Tiada suara lagi</value>
+  </data>
+  <data name="VoicesFetchFailed" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="VoicesLoaded" xml:space="preserve">
+    <value>Dimuatkan {0} suara</value>
+  </data>
+  <data name="VoicesMissingKey" xml:space="preserve">
+    <value>{0}: tiada kunci API — tambah satu di tab Kredensial</value>
+  </data>
+  <data name="VoicesNoEnginesSelected" xml:space="preserve">
+    <value>Pilih sekurang-kurangnya satu enjin dalam tab Enjin Suara terlebih dahulu.</value>
+  </data>
+  <data name="VoicesPromoteFailed" xml:space="preserve">
+    <value>Tidak dapat memasang {0} (persetujuan pentadbir mungkin diperlukan)</value>
+  </data>
+  <data name="VoicesPromotedSingle" xml:space="preserve">
+    <value>{0} dipasang ke SAPI</value>
+  </data>
+  <data name="VoicesSkippedNoKey" xml:space="preserve">
+    <value>Enjin {0} diabaikan — tiada kunci API ditetapkan</value>
+  </data>
+  <data name="VoicesUnpromoteFailed" xml:space="preserve">
+    <value>Dihapus {0}; gagal {1}</value>
   </data>
 </root>

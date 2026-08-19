@@ -56,9 +56,6 @@
   <data name="AdapterInstallation" xml:space="preserve">
     <value>어댑터 설치</value>
   </data>
-  <data name="AddEnUsAlias" xml:space="preserve">
-    <value>en-US 별칭 추가</value>
-  </data>
   <data name="Advanced" xml:space="preserve">
     <value>고급의</value>
   </data>
@@ -67,9 +64,6 @@
   </data>
   <data name="AnalyticsHint" xml:space="preserve">
     <value>어떤 엔진이 사용되는지 이해하는 데 도움이 됩니다. 문자, 키 또는 PII가 전송되지 않았습니다.</value>
-  </data>
-  <data name="APIKey" xml:space="preserve">
-    <value>API 키</value>
   </data>
   <data name="AppName" xml:space="preserve">
     <value>보이스가든</value>
@@ -92,50 +86,11 @@
   <data name="Checking" xml:space="preserve">
     <value>확인 중...</value>
   </data>
-  <data name="Close" xml:space="preserve">
-    <value>닫다</value>
-  </data>
-  <data name="CloudVoices" xml:space="preserve">
-    <value>클라우드 보이스</value>
-  </data>
-  <data name="ConfigureCredentials" xml:space="preserve">
-    <value>자격 증명 구성...</value>
-  </data>
-  <data name="ConfigureCredentialsTitle" xml:space="preserve">
-    <value>자격 증명 구성</value>
-  </data>
-  <data name="ConfigureVoices" xml:space="preserve">
-    <value>음성 구성...</value>
-  </data>
-  <data name="ConfigureVoicesTitle" xml:space="preserve">
-    <value>음성 구성</value>
-  </data>
-  <data name="CountDownloaded" xml:space="preserve">
-    <value>{0} 다운로드됨</value>
-  </data>
-  <data name="CountInstalled" xml:space="preserve">
-    <value>{0} 설치됨</value>
-  </data>
-  <data name="CountSelected" xml:space="preserve">
-    <value>{0} 선택됨</value>
-  </data>
-  <data name="CountTotal" xml:space="preserve">
-    <value>총 {0}</value>
-  </data>
   <data name="Downloaded" xml:space="preserve">
     <value>다운로드됨</value>
   </data>
-  <data name="DownloadedCount" xml:space="preserve">
-    <value>모델 {0}개를 다운로드했습니다.</value>
-  </data>
-  <data name="DownloadedFailedCount" xml:space="preserve">
-    <value>{0} 다운로드, 실패 {1}</value>
-  </data>
   <data name="DownloadedStatus" xml:space="preserve">
     <value>다운로드됨</value>
-  </data>
-  <data name="DownloadFailed" xml:space="preserve">
-    <value>다운로드 실패: {0} 모델</value>
   </data>
   <data name="DownloadingModel" xml:space="preserve">
     <value>{0}({1}) 다운로드 중...</value>
@@ -143,14 +98,8 @@
   <data name="DownloadModelFirst" xml:space="preserve">
     <value>먼저 모델을 다운로드하세요.</value>
   </data>
-  <data name="DownloadSelected" xml:space="preserve">
-    <value>선택한 다운로드</value>
-  </data>
   <data name="EnableAnalytics" xml:space="preserve">
     <value>익명으로 사용 분석 보내기(선택)</value>
-  </data>
-  <data name="EnableEdgeVoices" xml:space="preserve">
-    <value>Edge 브라우저 음성 활성화</value>
   </data>
   <data name="Engine" xml:space="preserve">
     <value>엔진:</value>
@@ -176,12 +125,6 @@
   <data name="FetchingVoices" xml:space="preserve">
     <value>{0} 음성을 가져오는 중...</value>
   </data>
-  <data name="FetchVoices" xml:space="preserve">
-    <value>음성 가져오기</value>
-  </data>
-  <data name="Filter" xml:space="preserve">
-    <value>필터:</value>
-  </data>
   <data name="FoundVoices" xml:space="preserve">
     <value>{0}개의 목소리를 찾았습니다</value>
   </data>
@@ -190,9 +133,6 @@
   </data>
   <data name="HelpImprove" xml:space="preserve">
     <value>VoiceGarden 개선에 도움을 주세요</value>
-  </data>
-  <data name="HideAdvanced" xml:space="preserve">
-    <value>▼ 고급 숨기기</value>
   </data>
   <data name="Install" xml:space="preserve">
     <value>설치하다</value>
@@ -206,32 +146,14 @@
   <data name="InstalledModelsFailed" xml:space="preserve">
     <value>{0} 설치, 실패 {1}</value>
   </data>
-  <data name="InstalledModelsSAPI" xml:space="preserve">
-    <value>SAPI에 {0} 모델을 설치했습니다.</value>
-  </data>
-  <data name="InstalledOnly" xml:space="preserve">
-    <value>설치만 됨</value>
-  </data>
   <data name="InstalledVoicesHKLM" xml:space="preserve">
     <value>HKLM에 {0} 음성을 설치했습니다.</value>
   </data>
   <data name="InstallFailed" xml:space="preserve">
     <value>설치 실패: {0}</value>
   </data>
-  <data name="InstallingSAPI" xml:space="preserve">
-    <value>SAPI(HKLM)에 모델 설치 중...</value>
-  </data>
   <data name="InstallSelected" xml:space="preserve">
     <value>선택한 항목 설치</value>
-  </data>
-  <data name="InstallToSAPI" xml:space="preserve">
-    <value>SAPI에 설치</value>
-  </data>
-  <data name="InvalidResult" xml:space="preserve">
-    <value>유효하지 않음: {0}</value>
-  </data>
-  <data name="Key" xml:space="preserve">
-    <value>열쇠:</value>
   </data>
   <data name="LangCompatDesc" xml:space="preserve">
     <value>AAC 소프트웨어가 특정 언어(예: 영어)만 지원하는 경우 SherpaOnnx 모델을 홍보할 때 "en-US 별칭 추가"를 활성화하세요. 이렇게 하면 모든 언어의 음성이 영어 음성으로 나타나므로 언어별로 필터링되는 앱에 표시됩니다.</value>
@@ -248,9 +170,6 @@
   <data name="LogLevel" xml:space="preserve">
     <value>로그 수준:</value>
   </data>
-  <data name="ManageModels" xml:space="preserve">
-    <value>모델 관리...</value>
-  </data>
   <data name="ModelFilesNotFound" xml:space="preserve">
     <value>모델 파일을 찾을 수 없습니다.</value>
   </data>
@@ -266,15 +185,6 @@
   <data name="NoAudio" xml:space="preserve">
     <value>오디오가 생성되지 않았습니다.</value>
   </data>
-  <data name="NoDownloadedModels" xml:space="preserve">
-    <value>다운로드한 모델이 없습니다. 먼저 모델을 다운로드한 후 필요한 경우 다시 스캔을 클릭하세요.</value>
-  </data>
-  <data name="NoDownloadUrl" xml:space="preserve">
-    <value>다운로드 URL 없음</value>
-  </data>
-  <data name="NoModelId" xml:space="preserve">
-    <value>미리보기용 모델 ID를 확인할 수 없습니다.</value>
-  </data>
   <data name="NoModelsInstalled" xml:space="preserve">
     <value>설치된 모델이 없습니다.</value>
   </data>
@@ -283,9 +193,6 @@
   </data>
   <data name="NoThanks" xml:space="preserve">
     <value>아니요</value>
-  </data>
-  <data name="OfflineVoices" xml:space="preserve">
-    <value>오프라인 음성</value>
   </data>
   <data name="OnboardingDesc1" xml:space="preserve">
     <value>VoiceGarden은 Grid 3, Mind Express, Balabolka, Tobii Communicator 및 System.Speech에 구축된 모든 앱을 포함하여 SAPI 5를 지원하는 모든 Windows 애플리케이션에 20개 이상의 최신 텍스트 음성 변환 엔진을 연결하는 무료 오픈 소스 음성 브리지입니다.</value>
@@ -296,9 +203,6 @@
   <data name="OnboardingTitle" xml:space="preserve">
     <value>보이스가든에 오신 것을 환영합니다</value>
   </data>
-  <data name="OnlyEnabledEngines" xml:space="preserve">
-    <value>활성화된 엔진만 표시됩니다. 메인 페이지에서 엔진을 전환합니다.</value>
-  </data>
   <data name="OpenLogs" xml:space="preserve">
     <value>오픈 로그</value>
   </data>
@@ -307,9 +211,6 @@
   </data>
   <data name="PreviewFailed" xml:space="preserve">
     <value>미리보기 실패: {0}</value>
-  </data>
-  <data name="Previewing" xml:space="preserve">
-    <value>미리보기 중...</value>
   </data>
   <data name="PreviewingVoice" xml:space="preserve">
     <value>{0} 미리보기 중...</value>
@@ -323,50 +224,17 @@
   <data name="PrivacyIntro" xml:space="preserve">
     <value>VoiceGarden은 자원봉사자들이 구축한 무료 오픈 소스 프로젝트입니다. 어떤 TTS 엔진이 가장 많이 사용되는지 이해하고, 버그를 식별하고, 개발 우선순위를 정하는 데 도움을 주기 위해 익명의 사용 분석을 수집하고자 합니다.</value>
   </data>
-  <data name="Ready" xml:space="preserve">
-    <value>준비가 된</value>
-  </data>
-  <data name="Region" xml:space="preserve">
-    <value>지역</value>
-  </data>
-  <data name="Register" xml:space="preserve">
-    <value>등록하다</value>
-  </data>
   <data name="RemovedVoices" xml:space="preserve">
     <value>{0}개의 음성을 삭제했습니다.</value>
-  </data>
-  <data name="RequestingAdmin" xml:space="preserve">
-    <value>관리자 권한을 요청하는 중...</value>
   </data>
   <data name="Reregister" xml:space="preserve">
     <value>재등록</value>
   </data>
-  <data name="Rescan" xml:space="preserve">
-    <value>다시 스캔</value>
-  </data>
-  <data name="RescannedModels" xml:space="preserve">
-    <value>다시 검사됨: {0}개의 모델이 준비됨</value>
-  </data>
-  <data name="Search" xml:space="preserve">
-    <value>찾다...</value>
-  </data>
   <data name="SearchVoices" xml:space="preserve">
     <value>음성 검색...</value>
   </data>
-  <data name="SelectModelsFirst" xml:space="preserve">
-    <value>먼저 다운로드할 모델을 선택하세요.</value>
-  </data>
   <data name="SelectVoicesFirst" xml:space="preserve">
     <value>먼저 설치할 음성을 선택하세요.</value>
-  </data>
-  <data name="SherpaOnnxModels" xml:space="preserve">
-    <value>셰르파 Onnx 모델</value>
-  </data>
-  <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
-    <value>Sherpa Onnx 신경 TTS</value>
-  </data>
-  <data name="ShowAdvanced" xml:space="preserve">
-    <value>▶ 고급 표시</value>
   </data>
   <data name="Step1Desc" xml:space="preserve">
     <value>기본 화면에서 64비트용 설치(필요한 경우 32비트용)를 클릭합니다. 그러면 VoiceGarden이 호환되는 모든 앱에서 사용할 수 있는 SAPI 5 음성으로 등록됩니다.</value>
@@ -389,17 +257,11 @@
   <data name="Uninstall" xml:space="preserve">
     <value>제거</value>
   </data>
-  <data name="Validate" xml:space="preserve">
-    <value>검증</value>
-  </data>
   <data name="Validating" xml:space="preserve">
     <value>검증 중...</value>
   </data>
   <data name="ValidResult" xml:space="preserve">
     <value>유효함({0} 음성)</value>
-  </data>
-  <data name="VoiceEngines" xml:space="preserve">
-    <value>음성 엔진</value>
   </data>
   <data name="WhatIsVoiceGarden" xml:space="preserve">
     <value>보이스가든이란 무엇인가요?</value>
@@ -422,5 +284,314 @@
   </data>
   <data name="YesHelpImprove" xml:space="preserve">
     <value>예, VoiceGarden 개선에 도움을 주세요</value>
+  </data>
+  <data name="AdvancedIntro" xml:space="preserve">
+    <value>어댑터 등록, 앱 설정, 오프라인 모델 관리 및 정보 — 안내된 흐름의 일부가 아닌 모든 것.</value>
+  </data>
+  <data name="AdvancedModelsHint" xml:space="preserve">
+    <value>Voices 탭에서 오프라인 음성을 탐색, 다운로드 및 설치하세요 — 거기에서 SherpaOnnx 엔진을 선택하세요.</value>
+  </data>
+  <data name="AdvancedModelsTitle" xml:space="preserve">
+    <value>오프라인 모델</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>설정</value>
+  </data>
+  <data name="AdvancedTabState" xml:space="preserve">
+    <value>도구 및 설정</value>
+  </data>
+  <data name="AliasApplyNote" xml:space="preserve">
+    <value>음성이 설치되거나 음성 탭에서 다시 설치될 때마다 적용됩니다. 기존 음성은 다음에 설치할 때 변경 사항을 적용받습니다.</value>
+  </data>
+  <data name="AliasArabicHint" xml:space="preserve">
+    <value>오른쪽에서 왼쪽으로 읽는 언어(아랍어, 우르두어, 페르시아어, 히브리어, 파슈토어 등)의 음성도 아랍어(ar-SA) 아래에 나타나므로, 아랍어 음성용으로 설정된 앱에서도 찾을 수 있습니다.</value>
+  </data>
+  <data name="AliasArabicLabel" xml:space="preserve">
+    <value>또한 아랍어 아래에서 오른쪽에서 왼쪽으로 읽는 음성을 별칭으로 지정</value>
+  </data>
+  <data name="AliasEnUsHint" xml:space="preserve">
+    <value>다른 언어의 음성도 영어(en-US)로 나타나므로 일부 AAC 타이틀과 같이 영어 음성만 나열하는 앱도 이를 사용할 수 있습니다.</value>
+  </data>
+  <data name="AliasEnUsLabel" xml:space="preserve">
+    <value>영어가 아닌 음성에 대해 en-US 별칭 추가</value>
+  </data>
+  <data name="AliasSettingsIntro" xml:space="preserve">
+    <value>음성은 실제 언어로 설치됩니다. 별명은 두 번째 언어 아래에 추가 복사본을 만들어 언어로 필터링하는 앱에서도 여전히 찾을 수 있도록 합니다.</value>
+  </data>
+  <data name="AliasSettingsTitle" xml:space="preserve">
+    <value>SAPI 음성 별칭</value>
+  </data>
+  <data name="BackToEngines" xml:space="preserve">
+    <value>엔진으로 돌아가기</value>
+  </data>
+  <data name="BadgeCloud" xml:space="preserve">
+    <value>구름</value>
+  </data>
+  <data name="BadgeCredsNeeded" xml:space="preserve">
+    <value>키 필요</value>
+  </data>
+  <data name="BadgeKeyStored" xml:space="preserve">
+    <value>키가 저장되었습니다</value>
+  </data>
+  <data name="BadgeNoCreds" xml:space="preserve">
+    <value>키 없음</value>
+  </data>
+  <data name="BadgeOffline" xml:space="preserve">
+    <value>오프라인</value>
+  </data>
+  <data name="ClearVisible" xml:space="preserve">
+    <value>명확하게 보여줌</value>
+  </data>
+  <data name="CredentialsFooterHint" xml:space="preserve">
+    <value>보이스를 불러오기 전에 키가 작동하는지 확인하세요. 언제든지 돌아올 수 있습니다.</value>
+  </data>
+  <data name="CredentialsIntro" xml:space="preserve">
+    <value>선택한 각 엔진의 인증 정보를 입력하십시오. 값은 이 컴퓨터에만 저장됩니다.</value>
+  </data>
+  <data name="CredentialsNoneNeeded" xml:space="preserve">
+    <value>선택된 엔진에는 자격 증명이 필요하지 않습니다.</value>
+  </data>
+  <data name="DeselectAllVoices" xml:space="preserve">
+    <value>모든 음성 선택 해제</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>다운로드</value>
+  </data>
+  <data name="DownloadFailedSingle" xml:space="preserve">
+    <value>{0} 다운로드 실패</value>
+  </data>
+  <data name="DownloadFailedTitle" xml:space="preserve">
+    <value>{0} 다운로드에 실패했습니다. 인터넷 연결을 확인하고 다시 시도하세요 — 계속 실패하면 다른 음성 앱을 닫고 VoiceGarden을 재시작하세요.</value>
+  </data>
+  <data name="EdgeEngineDesc" xml:space="preserve">
+    <value>여러 언어로 제공되는 무료 마이크로소프트 클라우드 음성. 최고의 무료 온라인 옵션 — 자연스러운 품질, API 키 불필요, 인터넷 필요.</value>
+  </data>
+  <data name="EdgeEngineName" xml:space="preserve">
+    <value>엣지 보이스</value>
+  </data>
+  <data name="EngineDescKeyOnly" xml:space="preserve">
+    <value>{0} 클라우드 음성. API 키가 필요합니다.</value>
+  </data>
+  <data name="EngineDescKeyRegion" xml:space="preserve">
+    <value>{0} 클라우드 음성. API 키와 지역이 필요합니다.</value>
+  </data>
+  <data name="EngineDescKeySecretRegion" xml:space="preserve">
+    <value>{0} 클라우드 음성. 액세스 키, 시크릿 키 및 지역이 필요합니다.</value>
+  </data>
+  <data name="EngineDescKeyUserId" xml:space="preserve">
+    <value>{0} 클라우드 음성. API 키와 사용자 ID가 필요합니다.</value>
+  </data>
+  <data name="EnginesSelectedSummary" xml:space="preserve">
+    <value>{1}개의 엔진 중 {0} 선택됨</value>
+  </data>
+  <data name="FieldAPIKey" xml:space="preserve">
+    <value>API 키</value>
+  </data>
+  <data name="FieldAccessKeyId" xml:space="preserve">
+    <value>액세스 키 ID</value>
+  </data>
+  <data name="FieldInstanceId" xml:space="preserve">
+    <value>인스턴스 ID</value>
+  </data>
+  <data name="FieldRegion" xml:space="preserve">
+    <value>지역</value>
+  </data>
+  <data name="FieldSecretAccessKey" xml:space="preserve">
+    <value>비밀 액세스 키</value>
+  </data>
+  <data name="FieldSubscriptionKey" xml:space="preserve">
+    <value>구독 키</value>
+  </data>
+  <data name="FieldToken" xml:space="preserve">
+    <value>토큰</value>
+  </data>
+  <data name="FieldUserId" xml:space="preserve">
+    <value>사용자 ID</value>
+  </data>
+  <data name="FilterAllEngines" xml:space="preserve">
+    <value>모든 엔진</value>
+  </data>
+  <data name="FilterAllLanguages" xml:space="preserve">
+    <value>모든 언어</value>
+  </data>
+  <data name="FilterAllTypes" xml:space="preserve">
+    <value>모든 종류</value>
+  </data>
+  <data name="FilterAnyEngine" xml:space="preserve">
+    <value>모든 엔진</value>
+  </data>
+  <data name="FilterAnyGender" xml:space="preserve">
+    <value>모든 성별</value>
+  </data>
+  <data name="FilterAnyLanguage" xml:space="preserve">
+    <value>어떤 언어</value>
+  </data>
+  <data name="FilterAnyQuality" xml:space="preserve">
+    <value>어떤 품질</value>
+  </data>
+  <data name="FilterCredentials" xml:space="preserve">
+    <value>자격 증명</value>
+  </data>
+  <data name="FilterCredsNeeded" xml:space="preserve">
+    <value>키 필요</value>
+  </data>
+  <data name="FilterEngine" xml:space="preserve">
+    <value>엔진별로 필터</value>
+  </data>
+  <data name="FilterGender" xml:space="preserve">
+    <value>성별로 필터링</value>
+  </data>
+  <data name="FilterLanguage" xml:space="preserve">
+    <value>언어</value>
+  </data>
+  <data name="FilterNoCreds" xml:space="preserve">
+    <value>열쇠 필요 없음</value>
+  </data>
+  <data name="FilterOfflineOnly" xml:space="preserve">
+    <value>오프라인 전용</value>
+  </data>
+  <data name="FilterOnlineOnly" xml:space="preserve">
+    <value>온라인 전용</value>
+  </data>
+  <data name="FilterQuality" xml:space="preserve">
+    <value>품질별로 필터</value>
+  </data>
+  <data name="FilterType" xml:space="preserve">
+    <value>타입</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>성별</value>
+  </data>
+  <data name="LanguageFilterHiddenNote" xml:space="preserve">
+    <value>{0}개의 엔진이 숨겨져 있습니다 — 음성 탭에서 음성이 로드될 때까지 해당 언어는 알 수 없습니다.</value>
+  </data>
+  <data name="LoadVoices" xml:space="preserve">
+    <value>음성 불러오기</value>
+  </data>
+  <data name="NextCredentials" xml:space="preserve">
+    <value>다음: 자격 증명</value>
+  </data>
+  <data name="NextVoices" xml:space="preserve">
+    <value>다음: 목소리</value>
+  </data>
+  <data name="PreviewFailedTitle" xml:space="preserve">
+    <value>{0} 미리보기에 실패했습니다.</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>품질</value>
+  </data>
+  <data name="RefreshInstalled" xml:space="preserve">
+    <value>설치된 새로 고침</value>
+  </data>
+  <data name="RemoveSelected" xml:space="preserve">
+    <value>SAPI에서 선택된 항목 제거</value>
+  </data>
+  <data name="RescannedVoices" xml:space="preserve">
+    <value>새로 고침됨 — {0}개의 음성 설치됨</value>
+  </data>
+  <data name="SearchEngines" xml:space="preserve">
+    <value>검색 엔진, 언어…</value>
+  </data>
+  <data name="SelectAllVoices" xml:space="preserve">
+    <value>표시된 모든 음성 선택</value>
+  </data>
+  <data name="SelectVisible" xml:space="preserve">
+    <value>표시된 것 선택</value>
+  </data>
+  <data name="SherpaOnnxEngineDesc" xml:space="preserve">
+    <value>여러 언어의 오프라인 신경 음성. 신뢰성과 개인정보 보호에 가장 적합 — 다운로드 후 계정이나 인터넷 없이 작동합니다.</value>
+  </data>
+  <data name="SherpaOnnxEngineName" xml:space="preserve">
+    <value>셰르파온닉스</value>
+  </data>
+  <data name="Step4Desc" xml:space="preserve">
+    <value>음성 탭을 열고 '음성 불러오기'를 클릭하세요. 언어, 성별 또는 품질로 필터링하고 마음에 드는 것을 미리 들어본 후 '다운로드(오프라인 모델)'와 'SAPI에 설치'를 사용하세요. 설치된 음성은 앱에서 바로 나타납니다.</value>
+  </data>
+  <data name="Step4Title" xml:space="preserve">
+    <value>여러분의 목소리를 내세요</value>
+  </data>
+  <data name="TabCredentials" xml:space="preserve">
+    <value>자격 증명</value>
+  </data>
+  <data name="TabCredentialsCount" xml:space="preserve">
+    <value>{0} 엔진에는 키가 필요합니다</value>
+  </data>
+  <data name="TabCredentialsNotNeeded" xml:space="preserve">
+    <value>필요하지 않음</value>
+  </data>
+  <data name="TabCredentialsTitle" xml:space="preserve">
+    <value>자격 증명</value>
+  </data>
+  <data name="TabEngines" xml:space="preserve">
+    <value>음성 엔진</value>
+  </data>
+  <data name="TabEnginesCount" xml:space="preserve">
+    <value>{0}개 선택됨</value>
+  </data>
+  <data name="TabEnginesIntro" xml:space="preserve">
+    <value>사용할 음성 엔진을 선택하세요. 계정 없이 작동하는 오프라인 음성, 무료 클라우드 음성, 또는 API 키가 필요한 클라우드 엔진을 선택하세요.</value>
+  </data>
+  <data name="TabEnginesTitle" xml:space="preserve">
+    <value>음성 엔진</value>
+  </data>
+  <data name="TabVoices" xml:space="preserve">
+    <value>목소리</value>
+  </data>
+  <data name="TabVoicesCount" xml:space="preserve">
+    <value>{0}개의 목소리</value>
+  </data>
+  <data name="TabVoicesIntro" xml:space="preserve">
+    <value>선택한 엔진의 모든 음성. 필터링하고 미리 본 후, 원하는 음성을 Windows SAPI에 설치하세요.</value>
+  </data>
+  <data name="TabVoicesTitle" xml:space="preserve">
+    <value>목소리</value>
+  </data>
+  <data name="UnknownEngine" xml:space="preserve">
+    <value>알 수 없는 엔진</value>
+  </data>
+  <data name="UnknownLanguage" xml:space="preserve">
+    <value>알 수 없음</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>확인</value>
+  </data>
+  <data name="VerifyNoVoices" xml:space="preserve">
+    <value>키가 승인되었으나 음성이 반환되지 않았습니다 — 키에 TTS 접근 권한이 있는지 확인하세요.</value>
+  </data>
+  <data name="VoicesCountSummary" xml:space="preserve">
+    <value>{0}개의 음성 · {1}개 선택됨 · {2}개 설치됨</value>
+  </data>
+  <data name="VoicesEmptyHint" xml:space="preserve">
+    <value>먼저 음성 엔진 탭에서 음성 엔진을 선택하세요(엔진이 키를 필요로 하면 거기서 자격 증명도 추가하세요), 그런 다음 여기에서 음성을 불러오세요.</value>
+  </data>
+  <data name="VoicesEmptyNoEngines" xml:space="preserve">
+    <value>엔진이 선택되지 않음 — 음성 엔진 탭을 열고 적어도 하나의 엔진을 선택하세요.</value>
+  </data>
+  <data name="VoicesEmptyTitle" xml:space="preserve">
+    <value>아직 목소리가 없습니다</value>
+  </data>
+  <data name="VoicesFetchFailed" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="VoicesLoaded" xml:space="preserve">
+    <value>{0}개의 음성이 로드되었습니다</value>
+  </data>
+  <data name="VoicesMissingKey" xml:space="preserve">
+    <value>{0}: API 키 없음 — 자격 증명 탭에서 추가하세요</value>
+  </data>
+  <data name="VoicesNoEnginesSelected" xml:space="preserve">
+    <value>먼저 음성 엔진 탭에서 최소한 하나의 엔진을 선택하세요.</value>
+  </data>
+  <data name="VoicesPromoteFailed" xml:space="preserve">
+    <value>{0}을(를) 설치할 수 없습니다(관리자 승인이 필요할 수 있음)</value>
+  </data>
+  <data name="VoicesPromotedSingle" xml:space="preserve">
+    <value>{0}가 SAPI에 설치됨</value>
+  </data>
+  <data name="VoicesSkippedNoKey" xml:space="preserve">
+    <value>{0} 엔진 건너뜀 — API 키가 설정되지 않음</value>
+  </data>
+  <data name="VoicesUnpromoteFailed" xml:space="preserve">
+    <value>{0} 제거됨; {1} 실패</value>
   </data>
 </root>

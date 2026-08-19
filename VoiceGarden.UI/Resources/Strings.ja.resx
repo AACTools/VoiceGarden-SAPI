@@ -56,9 +56,6 @@
   <data name="AdapterInstallation" xml:space="preserve">
     <value>アダプターの取り付け</value>
   </data>
-  <data name="AddEnUsAlias" xml:space="preserve">
-    <value>en-US エイリアスの追加</value>
-  </data>
   <data name="Advanced" xml:space="preserve">
     <value>高度な</value>
   </data>
@@ -67,9 +64,6 @@
   </data>
   <data name="AnalyticsHint" xml:space="preserve">
     <value>どのエンジンが使用されているかを理解するのに役立ちます。テキスト、キー、PII は送信されません。</value>
-  </data>
-  <data name="APIKey" xml:space="preserve">
-    <value>APIキー</value>
   </data>
   <data name="AppName" xml:space="preserve">
     <value>ボイスガーデン</value>
@@ -92,50 +86,11 @@
   <data name="Checking" xml:space="preserve">
     <value>チェック中...</value>
   </data>
-  <data name="Close" xml:space="preserve">
-    <value>近い</value>
-  </data>
-  <data name="CloudVoices" xml:space="preserve">
-    <value>雲の声</value>
-  </data>
-  <data name="ConfigureCredentials" xml:space="preserve">
-    <value>資格情報を構成...</value>
-  </data>
-  <data name="ConfigureCredentialsTitle" xml:space="preserve">
-    <value>資格情報の構成</value>
-  </data>
-  <data name="ConfigureVoices" xml:space="preserve">
-    <value>音声を設定...</value>
-  </data>
-  <data name="ConfigureVoicesTitle" xml:space="preserve">
-    <value>ボイスを設定する</value>
-  </data>
-  <data name="CountDownloaded" xml:space="preserve">
-    <value>{0} がダウンロードされました</value>
-  </data>
-  <data name="CountInstalled" xml:space="preserve">
-    <value>{0} がインストールされました</value>
-  </data>
-  <data name="CountSelected" xml:space="preserve">
-    <value>{0} が選択されました</value>
-  </data>
-  <data name="CountTotal" xml:space="preserve">
-    <value>合計 {0}</value>
-  </data>
   <data name="Downloaded" xml:space="preserve">
     <value>ダウンロード済み</value>
   </data>
-  <data name="DownloadedCount" xml:space="preserve">
-    <value>{0} 個のモデルをダウンロードしました</value>
-  </data>
-  <data name="DownloadedFailedCount" xml:space="preserve">
-    <value>{0} をダウンロードしましたが、{1} に失敗しました</value>
-  </data>
   <data name="DownloadedStatus" xml:space="preserve">
     <value>ダウンロード済み</value>
-  </data>
-  <data name="DownloadFailed" xml:space="preserve">
-    <value>ダウンロードに失敗しました: {0} モデル</value>
   </data>
   <data name="DownloadingModel" xml:space="preserve">
     <value>{0} ({1}) をダウンロードしています...</value>
@@ -143,14 +98,8 @@
   <data name="DownloadModelFirst" xml:space="preserve">
     <value>まずモデルをダウンロードしてください</value>
   </data>
-  <data name="DownloadSelected" xml:space="preserve">
-    <value>選択したものをダウンロード</value>
-  </data>
   <data name="EnableAnalytics" xml:space="preserve">
     <value>匿名の使用状況分析を送信する (オプトイン)</value>
-  </data>
-  <data name="EnableEdgeVoices" xml:space="preserve">
-    <value>Edge ブラウザの音声を有効にする</value>
   </data>
   <data name="Engine" xml:space="preserve">
     <value>エンジン：</value>
@@ -176,12 +125,6 @@
   <data name="FetchingVoices" xml:space="preserve">
     <value>{0} 個の音声を取得しています...</value>
   </data>
-  <data name="FetchVoices" xml:space="preserve">
-    <value>ボイスをフェッチする</value>
-  </data>
-  <data name="Filter" xml:space="preserve">
-    <value>フィルター：</value>
-  </data>
   <data name="FoundVoices" xml:space="preserve">
     <value>{0} 個の音声が見つかりました</value>
   </data>
@@ -190,9 +133,6 @@
   </data>
   <data name="HelpImprove" xml:space="preserve">
     <value>VoiceGard の改善にご協力ください</value>
-  </data>
-  <data name="HideAdvanced" xml:space="preserve">
-    <value>▼ 詳細を隠す</value>
   </data>
   <data name="Install" xml:space="preserve">
     <value>インストール</value>
@@ -206,32 +146,14 @@
   <data name="InstalledModelsFailed" xml:space="preserve">
     <value>{0} をインストールしましたが、{1} に失敗しました</value>
   </data>
-  <data name="InstalledModelsSAPI" xml:space="preserve">
-    <value>{0} 個のモデルを SAPI にインストールしました</value>
-  </data>
-  <data name="InstalledOnly" xml:space="preserve">
-    <value>インストールのみ</value>
-  </data>
   <data name="InstalledVoicesHKLM" xml:space="preserve">
     <value>{0} 個の音声を HKLM にインストールしました</value>
   </data>
   <data name="InstallFailed" xml:space="preserve">
     <value>インストールに失敗しました: {0}</value>
   </data>
-  <data name="InstallingSAPI" xml:space="preserve">
-    <value>SAPI (HKLM) にモデルをインストールしています...</value>
-  </data>
   <data name="InstallSelected" xml:space="preserve">
     <value>選択したものをインストール</value>
-  </data>
-  <data name="InstallToSAPI" xml:space="preserve">
-    <value>SAPI へのインストール</value>
-  </data>
-  <data name="InvalidResult" xml:space="preserve">
-    <value>無効: {0}</value>
-  </data>
-  <data name="Key" xml:space="preserve">
-    <value>鍵：</value>
   </data>
   <data name="LangCompatDesc" xml:space="preserve">
     <value>AAC ソフトウェアが特定の言語 (英語など) のみをサポートしている場合は、SherpaOnnx モデルを宣伝するときに「en-US エイリアスの追加」を有効にします。これにより、あらゆる言語の音声が英語の音声として表示されるため、言語でフィルターしたアプリに表示されます。</value>
@@ -248,9 +170,6 @@
   <data name="LogLevel" xml:space="preserve">
     <value>ログレベル:</value>
   </data>
-  <data name="ManageModels" xml:space="preserve">
-    <value>モデルを管理...</value>
-  </data>
   <data name="ModelFilesNotFound" xml:space="preserve">
     <value>モデルファイルが見つかりません</value>
   </data>
@@ -266,15 +185,6 @@
   <data name="NoAudio" xml:space="preserve">
     <value>音声が生成されない</value>
   </data>
-  <data name="NoDownloadedModels" xml:space="preserve">
-    <value>ダウンロードされたモデルが見つかりません。まずモデルをダウンロードし、必要に応じて「再スキャン」をクリックします。</value>
-  </data>
-  <data name="NoDownloadUrl" xml:space="preserve">
-    <value>ダウンロードURLがありません</value>
-  </data>
-  <data name="NoModelId" xml:space="preserve">
-    <value>プレビュー用のモデル ID を特定できませんでした</value>
-  </data>
   <data name="NoModelsInstalled" xml:space="preserve">
     <value>モデルがインストールされていません</value>
   </data>
@@ -283,9 +193,6 @@
   </data>
   <data name="NoThanks" xml:space="preserve">
     <value>結構です</value>
-  </data>
-  <data name="OfflineVoices" xml:space="preserve">
-    <value>オフラインボイス</value>
   </data>
   <data name="OnboardingDesc1" xml:space="preserve">
     <value>VoiceGarden は、20 を超える最新のテキスト読み上げエンジンを、Grid 3、Mind Express、Balabolka、Tobii Communicator、System.Speech 上に構築されたアプリなど、SAPI 5 をサポートする Windows アプリケーションに接続する、無料のオープンソース音声ブリッジです。</value>
@@ -296,9 +203,6 @@
   <data name="OnboardingTitle" xml:space="preserve">
     <value>ボイスガーデンへようこそ</value>
   </data>
-  <data name="OnlyEnabledEngines" xml:space="preserve">
-    <value>有効なエンジンのみが表示されます。メインページでエンジンを切り替えます。</value>
-  </data>
   <data name="OpenLogs" xml:space="preserve">
     <value>ログを開く</value>
   </data>
@@ -307,9 +211,6 @@
   </data>
   <data name="PreviewFailed" xml:space="preserve">
     <value>プレビューが失敗しました: {0}</value>
-  </data>
-  <data name="Previewing" xml:space="preserve">
-    <value>プレビュー中...</value>
   </data>
   <data name="PreviewingVoice" xml:space="preserve">
     <value>{0} をプレビューしています...</value>
@@ -323,50 +224,17 @@
   <data name="PrivacyIntro" xml:space="preserve">
     <value>VoiceGarden は、ボランティアによって構築された無料のオープンソース プロジェクトです。どの TTS エンジンが最も使用されているかを理解し、バグを特定し、開発の優先順位を付けるために、匿名の使用状況分析を収集したいと考えています。</value>
   </data>
-  <data name="Ready" xml:space="preserve">
-    <value>準備ができて</value>
-  </data>
-  <data name="Region" xml:space="preserve">
-    <value>地域</value>
-  </data>
-  <data name="Register" xml:space="preserve">
-    <value>登録する</value>
-  </data>
   <data name="RemovedVoices" xml:space="preserve">
     <value>{0} 個の音声を削除しました</value>
-  </data>
-  <data name="RequestingAdmin" xml:space="preserve">
-    <value>管理者権限を要求しています...</value>
   </data>
   <data name="Reregister" xml:space="preserve">
     <value>再登録</value>
   </data>
-  <data name="Rescan" xml:space="preserve">
-    <value>再スキャン</value>
-  </data>
-  <data name="RescannedModels" xml:space="preserve">
-    <value>再スキャン: {0} 個のモデルが準備完了</value>
-  </data>
-  <data name="Search" xml:space="preserve">
-    <value>検索...</value>
-  </data>
   <data name="SearchVoices" xml:space="preserve">
     <value>音声を検索...</value>
   </data>
-  <data name="SelectModelsFirst" xml:space="preserve">
-    <value>最初にダウンロードするモデルを選択してください</value>
-  </data>
   <data name="SelectVoicesFirst" xml:space="preserve">
     <value>最初にインストールする音声を選択してください</value>
-  </data>
-  <data name="SherpaOnnxModels" xml:space="preserve">
-    <value>シェルパ Onnx モデル</value>
-  </data>
-  <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
-    <value>Sherpa Onnx ニューラル TTS</value>
-  </data>
-  <data name="ShowAdvanced" xml:space="preserve">
-    <value>▶ 詳細を表示</value>
   </data>
   <data name="Step1Desc" xml:space="preserve">
     <value>メイン画面で、「64 ビット (必要に応じて 32 ビット) 用にインストール」をクリックします。これにより、VoiceGarden が互換性のあるアプリで使用できる SAPI 5 音声として登録されます。</value>
@@ -389,17 +257,11 @@
   <data name="Uninstall" xml:space="preserve">
     <value>アンインストール</value>
   </data>
-  <data name="Validate" xml:space="preserve">
-    <value>検証する</value>
-  </data>
   <data name="Validating" xml:space="preserve">
     <value>検証中...</value>
   </data>
   <data name="ValidResult" xml:space="preserve">
     <value>有効 ({0} 声)</value>
-  </data>
-  <data name="VoiceEngines" xml:space="preserve">
-    <value>音声エンジン</value>
   </data>
   <data name="WhatIsVoiceGarden" xml:space="preserve">
     <value>ボイスガーデンとは何ですか？</value>
@@ -422,5 +284,314 @@
   </data>
   <data name="YesHelpImprove" xml:space="preserve">
     <value>はい、VoiceGarden の改善にご協力ください</value>
+  </data>
+  <data name="AdvancedIntro" xml:space="preserve">
+    <value>アダプターの登録、アプリの設定、オフラインモデルの管理、および「情報」 — ガイド付きフローに含まれないすべてのもの。</value>
+  </data>
+  <data name="AdvancedModelsHint" xml:space="preserve">
+    <value>音声タブからオフライン音声を閲覧、ダウンロード、インストールします — そこでSherpaOnnxエンジンを選択してください。</value>
+  </data>
+  <data name="AdvancedModelsTitle" xml:space="preserve">
+    <value>オフラインモデル</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="AdvancedTabState" xml:space="preserve">
+    <value>ツールと設定</value>
+  </data>
+  <data name="AliasApplyNote" xml:space="preserve">
+    <value>ボイスタブからボイスをインストールまたは再インストールするたびに適用されます。既存のボイスは、次回インストールしたときに変更を反映します。</value>
+  </data>
+  <data name="AliasArabicHint" xml:space="preserve">
+    <value>右から左に書く言語（アラビア語、ウルドゥー語、ペルシア語、ヘブライ語、パシュトー語…）の音声もアラビア語（ar-SA）の下に表示されるため、アラビア語の音声用に設定されたアプリでも見つけることができます。</value>
+  </data>
+  <data name="AliasArabicLabel" xml:space="preserve">
+    <value>またアラビア語の下に右から左への音声の別名を付けます</value>
+  </data>
+  <data name="AliasEnUsHint" xml:space="preserve">
+    <value>他の言語の音声も英語（en-US）として表示されるため、一部のAACタイトルのように英語の音声しか表示されないアプリでも使用できます。</value>
+  </data>
+  <data name="AliasEnUsLabel" xml:space="preserve">
+    <value>非英語の音声に en-US のエイリアスを追加する</value>
+  </data>
+  <data name="AliasSettingsIntro" xml:space="preserve">
+    <value>音声は元の言語でインストールされます。エイリアスは、第二言語の下に追加のコピーを追加するので、言語でフィルタリングするアプリでもそれらを見つけることができます。</value>
+  </data>
+  <data name="AliasSettingsTitle" xml:space="preserve">
+    <value>SAPIボイスのエイリアス</value>
+  </data>
+  <data name="BackToEngines" xml:space="preserve">
+    <value>エンジンに戻る</value>
+  </data>
+  <data name="BadgeCloud" xml:space="preserve">
+    <value>雲</value>
+  </data>
+  <data name="BadgeCredsNeeded" xml:space="preserve">
+    <value>キーが必要</value>
+  </data>
+  <data name="BadgeKeyStored" xml:space="preserve">
+    <value>キーが保存されました</value>
+  </data>
+  <data name="BadgeNoCreds" xml:space="preserve">
+    <value>キーなし</value>
+  </data>
+  <data name="BadgeOffline" xml:space="preserve">
+    <value>オフライン</value>
+  </data>
+  <data name="ClearVisible" xml:space="preserve">
+    <value>はっきり示された</value>
+  </data>
+  <data name="CredentialsFooterHint" xml:space="preserve">
+    <value>音声を読み込む前に、キーが機能するか確認してください。いつでも戻ってくることができます。</value>
+  </data>
+  <data name="CredentialsIntro" xml:space="preserve">
+    <value>選択した各エンジンの認証情報を入力してください。値はこのコンピュータにのみ保存されます。</value>
+  </data>
+  <data name="CredentialsNoneNeeded" xml:space="preserve">
+    <value>選択されたエンジンには認証情報は必要ありません。</value>
+  </data>
+  <data name="DeselectAllVoices" xml:space="preserve">
+    <value>すべての音声の選択を解除</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>ダウンロード</value>
+  </data>
+  <data name="DownloadFailedSingle" xml:space="preserve">
+    <value>{0} のダウンロードに失敗しました</value>
+  </data>
+  <data name="DownloadFailedTitle" xml:space="preserve">
+    <value>{0} のダウンロードに失敗しました。インターネット接続を確認して再試行してください — それでも失敗する場合は、他の音声アプリを閉じて VoiceGarden を再起動してください。</value>
+  </data>
+  <data name="EdgeEngineDesc" xml:space="preserve">
+    <value>多くの言語で利用できる無料のMicrosoftクラウド音声。最高の無料オンラインオプション — 自然な品質で、APIキー不要、インターネット接続が必要。</value>
+  </data>
+  <data name="EdgeEngineName" xml:space="preserve">
+    <value>エッジボイス</value>
+  </data>
+  <data name="EngineDescKeyOnly" xml:space="preserve">
+    <value>{0} クラウド音声。APIキーが必要です。</value>
+  </data>
+  <data name="EngineDescKeyRegion" xml:space="preserve">
+    <value>{0} クラウドボイス。APIキーとリージョンが必要です。</value>
+  </data>
+  <data name="EngineDescKeySecretRegion" xml:space="preserve">
+    <value>{0} クラウドの音声。アクセスキー、シークレットキー、およびリージョンが必要です。</value>
+  </data>
+  <data name="EngineDescKeyUserId" xml:space="preserve">
+    <value>{0} クラウドボイス。APIキーとユーザーIDが必要です。</value>
+  </data>
+  <data name="EnginesSelectedSummary" xml:space="preserve">
+    <value>{1} のうち {0} エンジンが選択されました</value>
+  </data>
+  <data name="FieldAPIKey" xml:space="preserve">
+    <value>APIキー</value>
+  </data>
+  <data name="FieldAccessKeyId" xml:space="preserve">
+    <value>アクセスキーID</value>
+  </data>
+  <data name="FieldInstanceId" xml:space="preserve">
+    <value>インスタンスID</value>
+  </data>
+  <data name="FieldRegion" xml:space="preserve">
+    <value>地域</value>
+  </data>
+  <data name="FieldSecretAccessKey" xml:space="preserve">
+    <value>秘密アクセスキー</value>
+  </data>
+  <data name="FieldSubscriptionKey" xml:space="preserve">
+    <value>サブスクリプションキー</value>
+  </data>
+  <data name="FieldToken" xml:space="preserve">
+    <value>トークン</value>
+  </data>
+  <data name="FieldUserId" xml:space="preserve">
+    <value>ユーザーID</value>
+  </data>
+  <data name="FilterAllEngines" xml:space="preserve">
+    <value>すべてのエンジン</value>
+  </data>
+  <data name="FilterAllLanguages" xml:space="preserve">
+    <value>すべての言語</value>
+  </data>
+  <data name="FilterAllTypes" xml:space="preserve">
+    <value>すべてのタイプ</value>
+  </data>
+  <data name="FilterAnyEngine" xml:space="preserve">
+    <value>すべてのエンジン</value>
+  </data>
+  <data name="FilterAnyGender" xml:space="preserve">
+    <value>どの性別でも</value>
+  </data>
+  <data name="FilterAnyLanguage" xml:space="preserve">
+    <value>どの言語でも</value>
+  </data>
+  <data name="FilterAnyQuality" xml:space="preserve">
+    <value>どんな品質でも</value>
+  </data>
+  <data name="FilterCredentials" xml:space="preserve">
+    <value>資格情報</value>
+  </data>
+  <data name="FilterCredsNeeded" xml:space="preserve">
+    <value>キーが必要</value>
+  </data>
+  <data name="FilterEngine" xml:space="preserve">
+    <value>エンジンで絞り込む</value>
+  </data>
+  <data name="FilterGender" xml:space="preserve">
+    <value>性別でフィルター</value>
+  </data>
+  <data name="FilterLanguage" xml:space="preserve">
+    <value>言語</value>
+  </data>
+  <data name="FilterNoCreds" xml:space="preserve">
+    <value>鍵は不要です</value>
+  </data>
+  <data name="FilterOfflineOnly" xml:space="preserve">
+    <value>オフライン専用</value>
+  </data>
+  <data name="FilterOnlineOnly" xml:space="preserve">
+    <value>オンラインのみ</value>
+  </data>
+  <data name="FilterQuality" xml:space="preserve">
+    <value>品質で絞り込む</value>
+  </data>
+  <data name="FilterType" xml:space="preserve">
+    <value>タイプ</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>性別</value>
+  </data>
+  <data name="LanguageFilterHiddenNote" xml:space="preserve">
+    <value>{0} のエンジンは隠されています — ボイスタブで声がロードされるまで、その言語は不明です。</value>
+  </data>
+  <data name="LoadVoices" xml:space="preserve">
+    <value>音声を読み込む</value>
+  </data>
+  <data name="NextCredentials" xml:space="preserve">
+    <value>次へ：資格情報</value>
+  </data>
+  <data name="NextVoices" xml:space="preserve">
+    <value>次へ：ボイス</value>
+  </data>
+  <data name="PreviewFailedTitle" xml:space="preserve">
+    <value>{0} のプレビューに失敗しました。</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>品質</value>
+  </data>
+  <data name="RefreshInstalled" xml:space="preserve">
+    <value>インストール済みを更新</value>
+  </data>
+  <data name="RemoveSelected" xml:space="preserve">
+    <value>SAPIから選択を削除</value>
+  </data>
+  <data name="RescannedVoices" xml:space="preserve">
+    <value>更新済み — {0} の音声がインストールされました</value>
+  </data>
+  <data name="SearchEngines" xml:space="preserve">
+    <value>検索エンジン、言語…</value>
+  </data>
+  <data name="SelectAllVoices" xml:space="preserve">
+    <value>表示されているすべての音声を選択</value>
+  </data>
+  <data name="SelectVisible" xml:space="preserve">
+    <value>表示されたものを選択</value>
+  </data>
+  <data name="SherpaOnnxEngineDesc" xml:space="preserve">
+    <value>多くの言語で利用可能なオフラインのニューラル音声。信頼性とプライバシーに最適 — ダウンロード後はアカウントやインターネットなしで動作します。</value>
+  </data>
+  <data name="SherpaOnnxEngineName" xml:space="preserve">
+    <value>シェルパオンニックス</value>
+  </data>
+  <data name="Step4Desc" xml:space="preserve">
+    <value>ボイスタブを開き、「音声を読み込む」をクリックします。言語、性別、品質でフィルタリングし、気に入った音声をプレビューしてから、「ダウンロード（オフラインモデル）」と「SAPIにインストール」を使用します。インストールされた音声はすぐにアプリに表示されます。</value>
+  </data>
+  <data name="Step4Title" xml:space="preserve">
+    <value>あなたの声を届けて</value>
+  </data>
+  <data name="TabCredentials" xml:space="preserve">
+    <value>資格情報</value>
+  </data>
+  <data name="TabCredentialsCount" xml:space="preserve">
+    <value>{0} エンジンには鍵が必要です</value>
+  </data>
+  <data name="TabCredentialsNotNeeded" xml:space="preserve">
+    <value>必要ない</value>
+  </data>
+  <data name="TabCredentialsTitle" xml:space="preserve">
+    <value>資格情報</value>
+  </data>
+  <data name="TabEngines" xml:space="preserve">
+    <value>音声エンジン</value>
+  </data>
+  <data name="TabEnginesCount" xml:space="preserve">
+    <value>{0} が選択されました</value>
+  </data>
+  <data name="TabEnginesIntro" xml:space="preserve">
+    <value>使用したい音声エンジンを選択してください。アカウントなしで動作するオフライン音声、無料のクラウド音声、またはAPIキーが必要なクラウドエンジンを選んでください。</value>
+  </data>
+  <data name="TabEnginesTitle" xml:space="preserve">
+    <value>音声エンジン</value>
+  </data>
+  <data name="TabVoices" xml:space="preserve">
+    <value>声</value>
+  </data>
+  <data name="TabVoicesCount" xml:space="preserve">
+    <value>{0} の声</value>
+  </data>
+  <data name="TabVoicesIntro" xml:space="preserve">
+    <value>選択したエンジンからのすべての声。フィルターをかけ、プレビューして、インストールしたいものを Windows SAPI にインストールしてください。</value>
+  </data>
+  <data name="TabVoicesTitle" xml:space="preserve">
+    <value>声</value>
+  </data>
+  <data name="UnknownEngine" xml:space="preserve">
+    <value>不明なエンジン</value>
+  </data>
+  <data name="UnknownLanguage" xml:space="preserve">
+    <value>不明</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>確認する</value>
+  </data>
+  <data name="VerifyNoVoices" xml:space="preserve">
+    <value>キーは受け入れられましたが、音声は返されませんでした — キーにTTSアクセスがあるか確認してください。</value>
+  </data>
+  <data name="VoicesCountSummary" xml:space="preserve">
+    <value>{0} 件の音声 · {1} 件選択済み · {2} 件インストール済み</value>
+  </data>
+  <data name="VoicesEmptyHint" xml:space="preserve">
+    <value>まず、音声エンジンタブで音声エンジンを選択してください（エンジンにキーが必要な場合は、そこに認証情報も追加してください）、その後ここで音声を読み込みます。</value>
+  </data>
+  <data name="VoicesEmptyNoEngines" xml:space="preserve">
+    <value>エンジンが選択されていません — 「音声エンジン」タブを開いて、少なくとも1つのエンジンにチェックを入れてください。</value>
+  </data>
+  <data name="VoicesEmptyTitle" xml:space="preserve">
+    <value>まだ声がありません</value>
+  </data>
+  <data name="VoicesFetchFailed" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="VoicesLoaded" xml:space="preserve">
+    <value>{0} のボイスを読み込みました</value>
+  </data>
+  <data name="VoicesMissingKey" xml:space="preserve">
+    <value>{0}: APIキーがありません — 資格情報タブで追加してください</value>
+  </data>
+  <data name="VoicesNoEnginesSelected" xml:space="preserve">
+    <value>まず、音声エンジンのタブで少なくとも1つのエンジンを選択してください。</value>
+  </data>
+  <data name="VoicesPromoteFailed" xml:space="preserve">
+    <value>{0} をインストールできませんでした（管理者の承認が必要な場合があります）</value>
+  </data>
+  <data name="VoicesPromotedSingle" xml:space="preserve">
+    <value>{0} が SAPI にインストールされました</value>
+  </data>
+  <data name="VoicesSkippedNoKey" xml:space="preserve">
+    <value>{0} エンジンはスキップされました — APIキーが設定されていません</value>
+  </data>
+  <data name="VoicesUnpromoteFailed" xml:space="preserve">
+    <value>{0} を削除しました; {1} に失敗しました</value>
   </data>
 </root>

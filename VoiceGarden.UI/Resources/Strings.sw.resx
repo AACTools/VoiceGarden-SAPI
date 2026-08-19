@@ -56,9 +56,6 @@
   <data name="AdapterInstallation" xml:space="preserve">
     <value>Ufungaji wa Adapta</value>
   </data>
-  <data name="AddEnUsAlias" xml:space="preserve">
-    <value>Ongeza lakabu za sw-US</value>
-  </data>
   <data name="Advanced" xml:space="preserve">
     <value>Advanced</value>
   </data>
@@ -67,9 +64,6 @@
   </data>
   <data name="AnalyticsHint" xml:space="preserve">
     <value>Inatusaidia kuelewa ni injini gani zinazotumika. Hakuna maandishi, funguo, au PII iliyotumwa.</value>
-  </data>
-  <data name="APIKey" xml:space="preserve">
-    <value>Ufunguo wa API</value>
   </data>
   <data name="AppName" xml:space="preserve">
     <value>Bustani ya Sauti</value>
@@ -92,50 +86,11 @@
   <data name="Checking" xml:space="preserve">
     <value>Inaangalia...</value>
   </data>
-  <data name="Close" xml:space="preserve">
-    <value>Funga</value>
-  </data>
-  <data name="CloudVoices" xml:space="preserve">
-    <value>Sauti za Wingu</value>
-  </data>
-  <data name="ConfigureCredentials" xml:space="preserve">
-    <value>Sanidi Kitambulisho...</value>
-  </data>
-  <data name="ConfigureCredentialsTitle" xml:space="preserve">
-    <value>Sanidi Kitambulisho</value>
-  </data>
-  <data name="ConfigureVoices" xml:space="preserve">
-    <value>Sanidi Sauti...</value>
-  </data>
-  <data name="ConfigureVoicesTitle" xml:space="preserve">
-    <value>Sanidi Sauti</value>
-  </data>
-  <data name="CountDownloaded" xml:space="preserve">
-    <value>{0} imepakuliwa</value>
-  </data>
-  <data name="CountInstalled" xml:space="preserve">
-    <value>{0} imesakinishwa</value>
-  </data>
-  <data name="CountSelected" xml:space="preserve">
-    <value>{0} imechaguliwa</value>
-  </data>
-  <data name="CountTotal" xml:space="preserve">
-    <value>{0} jumla</value>
-  </data>
   <data name="Downloaded" xml:space="preserve">
     <value>Imepakuliwa</value>
   </data>
-  <data name="DownloadedCount" xml:space="preserve">
-    <value>Imepakuliwa {0} miundo</value>
-  </data>
-  <data name="DownloadedFailedCount" xml:space="preserve">
-    <value>Imepakuliwa {0}, haikufaulu {1}</value>
-  </data>
   <data name="DownloadedStatus" xml:space="preserve">
     <value>Imepakuliwa</value>
-  </data>
-  <data name="DownloadFailed" xml:space="preserve">
-    <value>Imeshindwa kupakua: {0} miundo</value>
   </data>
   <data name="DownloadingModel" xml:space="preserve">
     <value>Inapakua {0} ({1})...</value>
@@ -143,14 +98,8 @@
   <data name="DownloadModelFirst" xml:space="preserve">
     <value>Pakua mfano kwanza</value>
   </data>
-  <data name="DownloadSelected" xml:space="preserve">
-    <value>Upakuaji Umechaguliwa</value>
-  </data>
   <data name="EnableAnalytics" xml:space="preserve">
     <value>Tuma uchanganuzi wa matumizi bila kukutambulisha (chagua kuingia)</value>
-  </data>
-  <data name="EnableEdgeVoices" xml:space="preserve">
-    <value>Washa sauti za kivinjari cha Edge</value>
   </data>
   <data name="Engine" xml:space="preserve">
     <value>Injini:</value>
@@ -176,12 +125,6 @@
   <data name="FetchingVoices" xml:space="preserve">
     <value>Inaleta sauti {0}...</value>
   </data>
-  <data name="FetchVoices" xml:space="preserve">
-    <value>Pata Sauti</value>
-  </data>
-  <data name="Filter" xml:space="preserve">
-    <value>Chuja:</value>
-  </data>
   <data name="FoundVoices" xml:space="preserve">
     <value>Imepata sauti {0}</value>
   </data>
@@ -190,9 +133,6 @@
   </data>
   <data name="HelpImprove" xml:space="preserve">
     <value>Saidia Kuboresha VoiceGarden</value>
-  </data>
-  <data name="HideAdvanced" xml:space="preserve">
-    <value>▼ Ficha ya Juu</value>
   </data>
   <data name="Install" xml:space="preserve">
     <value>Sakinisha</value>
@@ -206,32 +146,14 @@
   <data name="InstalledModelsFailed" xml:space="preserve">
     <value>Imesakinishwa {0}, haikufaulu {1}</value>
   </data>
-  <data name="InstalledModelsSAPI" xml:space="preserve">
-    <value>Imesakinisha {0} miundo kwenye SAPI</value>
-  </data>
-  <data name="InstalledOnly" xml:space="preserve">
-    <value>Imesakinishwa pekee</value>
-  </data>
   <data name="InstalledVoicesHKLM" xml:space="preserve">
     <value>Imesakinisha sauti {0} kwenye HKLM</value>
   </data>
   <data name="InstallFailed" xml:space="preserve">
     <value>Imeshindwa kusakinisha: {0}</value>
   </data>
-  <data name="InstallingSAPI" xml:space="preserve">
-    <value>Inasakinisha miundo kwenye SAPI (HKLM)...</value>
-  </data>
   <data name="InstallSelected" xml:space="preserve">
     <value>Sakinisha Umechaguliwa</value>
-  </data>
-  <data name="InstallToSAPI" xml:space="preserve">
-    <value>Sakinisha kwenye SAPI</value>
-  </data>
-  <data name="InvalidResult" xml:space="preserve">
-    <value>Batili: {0}</value>
-  </data>
-  <data name="Key" xml:space="preserve">
-    <value>Ufunguo:</value>
   </data>
   <data name="LangCompatDesc" xml:space="preserve">
     <value>Ikiwa programu yako ya AAC inaweza kutumia lugha fulani pekee (k.m. Kiingereza), washa "Ongeza lakabu en-US" unapotangaza miundo ya SherpaOnnx. Hii hufanya sauti katika lugha yoyote kuonekana kama sauti za Kiingereza, kwa hivyo zinaonekana katika programu zinazochuja kulingana na lugha.</value>
@@ -248,9 +170,6 @@
   <data name="LogLevel" xml:space="preserve">
     <value>Kiwango cha kumbukumbu:</value>
   </data>
-  <data name="ManageModels" xml:space="preserve">
-    <value>Dhibiti Miundo...</value>
-  </data>
   <data name="ModelFilesNotFound" xml:space="preserve">
     <value>Faili za muundo hazipatikani</value>
   </data>
@@ -266,15 +185,6 @@
   <data name="NoAudio" xml:space="preserve">
     <value>Hakuna sauti iliyotolewa</value>
   </data>
-  <data name="NoDownloadedModels" xml:space="preserve">
-    <value>Hakuna miundo iliyopakuliwa iliyopatikana. Pakua kielelezo kwanza, kisha ubofye Changanua tena ikihitajika.</value>
-  </data>
-  <data name="NoDownloadUrl" xml:space="preserve">
-    <value>Hakuna URL ya upakuaji</value>
-  </data>
-  <data name="NoModelId" xml:space="preserve">
-    <value>Haikuweza kubainisha kitambulisho cha muundo kwa uhakiki</value>
-  </data>
   <data name="NoModelsInstalled" xml:space="preserve">
     <value>Hakuna miundo iliyosakinishwa</value>
   </data>
@@ -283,9 +193,6 @@
   </data>
   <data name="NoThanks" xml:space="preserve">
     <value>Hapana, asante</value>
-  </data>
-  <data name="OfflineVoices" xml:space="preserve">
-    <value>Sauti za Nje ya Mtandao</value>
   </data>
   <data name="OnboardingDesc1" xml:space="preserve">
     <value>VoiceGarden ni daraja la sauti lisilolipishwa la chanzo huria ambalo huunganisha injini 20+ za kisasa za kubadilisha maandishi hadi usemi kwa programu yoyote ya Windows inayoauni SAPI 5 - ikiwa ni pamoja na Grid 3, Mind Express, Balabolka, Tobii Communicator, na programu yoyote iliyojengwa kwenye System.Speech.</value>
@@ -296,9 +203,6 @@
   <data name="OnboardingTitle" xml:space="preserve">
     <value>Karibu kwenye VoiceGarden</value>
   </data>
-  <data name="OnlyEnabledEngines" xml:space="preserve">
-    <value>Injini zilizowezeshwa pekee ndizo zinazoonyeshwa. Geuza injini kwenye ukurasa kuu.</value>
-  </data>
   <data name="OpenLogs" xml:space="preserve">
     <value>Fungua Kumbukumbu</value>
   </data>
@@ -307,9 +211,6 @@
   </data>
   <data name="PreviewFailed" xml:space="preserve">
     <value>Hakiki imeshindwa: {0}</value>
-  </data>
-  <data name="Previewing" xml:space="preserve">
-    <value>Inakagua...</value>
   </data>
   <data name="PreviewingVoice" xml:space="preserve">
     <value>Inakagua {0}...</value>
@@ -323,50 +224,17 @@
   <data name="PrivacyIntro" xml:space="preserve">
     <value>VoiceGarden ni mradi wa bure, wa chanzo huria uliojengwa na watu waliojitolea. Ili kutusaidia kuelewa ni injini gani za TTS zinazotumiwa zaidi, kutambua hitilafu, na kutanguliza maendeleo, tungependa kukusanya takwimu za matumizi bila kukutambulisha.</value>
   </data>
-  <data name="Ready" xml:space="preserve">
-    <value>Tayari</value>
-  </data>
-  <data name="Region" xml:space="preserve">
-    <value>Mkoa</value>
-  </data>
-  <data name="Register" xml:space="preserve">
-    <value>Sajili</value>
-  </data>
   <data name="RemovedVoices" xml:space="preserve">
     <value>Imeondoa sauti {0}</value>
-  </data>
-  <data name="RequestingAdmin" xml:space="preserve">
-    <value>Inaomba haki za msimamizi...</value>
   </data>
   <data name="Reregister" xml:space="preserve">
     <value>Jisajili upya</value>
   </data>
-  <data name="Rescan" xml:space="preserve">
-    <value>Changanua upya</value>
-  </data>
-  <data name="RescannedModels" xml:space="preserve">
-    <value>Imechanganuliwa upya: {0} miundo tayari</value>
-  </data>
-  <data name="Search" xml:space="preserve">
-    <value>Tafuta...</value>
-  </data>
   <data name="SearchVoices" xml:space="preserve">
     <value>Tafuta sauti...</value>
   </data>
-  <data name="SelectModelsFirst" xml:space="preserve">
-    <value>Chagua miundo ya kupakua kwanza</value>
-  </data>
   <data name="SelectVoicesFirst" xml:space="preserve">
     <value>Chagua sauti za kusakinisha kwanza</value>
-  </data>
-  <data name="SherpaOnnxModels" xml:space="preserve">
-    <value>Mifano ya Sherpa Onnx</value>
-  </data>
-  <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
-    <value>Sherpa Onnx Neural TTS</value>
-  </data>
-  <data name="ShowAdvanced" xml:space="preserve">
-    <value>▶ Onyesha Kina</value>
   </data>
   <data name="Step1Desc" xml:space="preserve">
     <value>Kwenye skrini kuu, bofya Sakinisha kwa 64-bit (na 32-bit ikiwa inahitajika). Hii husajili VoiceGarden kama sauti ya SAPI 5 ambayo programu yoyote inayooana inaweza kutumia.</value>
@@ -389,17 +257,11 @@
   <data name="Uninstall" xml:space="preserve">
     <value>Sanidua</value>
   </data>
-  <data name="Validate" xml:space="preserve">
-    <value>Thibitisha</value>
-  </data>
   <data name="Validating" xml:space="preserve">
     <value>Inathibitisha...</value>
   </data>
   <data name="ValidResult" xml:space="preserve">
     <value>Halali ({0} sauti)</value>
-  </data>
-  <data name="VoiceEngines" xml:space="preserve">
-    <value>Injini za Sauti</value>
   </data>
   <data name="WhatIsVoiceGarden" xml:space="preserve">
     <value>VoiceGarden ni nini?</value>
@@ -422,5 +284,314 @@
   </data>
   <data name="YesHelpImprove" xml:space="preserve">
     <value>Ndiyo, saidia kuboresha VoiceGarden</value>
+  </data>
+  <data name="AdvancedIntro" xml:space="preserve">
+    <value>Usajili wa kiunganishi, mipangilio ya programu, usimamizi wa modeli isiyo ya mtandao na kuhusu — kila kitu ambacho si sehemu ya mfuatano wa mwongozo.</value>
+  </data>
+  <data name="AdvancedModelsHint" xml:space="preserve">
+    <value>Vinjari, pakua na usakinishe sauti za kiofisi kutoka kwenye kabrasha la Sauti — chagua injini ya SherpaOnnx hapo.</value>
+  </data>
+  <data name="AdvancedModelsTitle" xml:space="preserve">
+    <value>Mifumo isiyo mtandao</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>Mipangilio</value>
+  </data>
+  <data name="AdvancedTabState" xml:space="preserve">
+    <value>zana na mipangilio</value>
+  </data>
+  <data name="AliasApplyNote" xml:space="preserve">
+    <value>Inatumika kila wakati sauti zinawekwa au kusanikishwa upya kutoka kwenye kichupo cha Sauti. Sauti zilizopo zinachukua mabadiliko wakati unaosanikisha tena.</value>
+  </data>
+  <data name="AliasArabicHint" xml:space="preserve">
+    <value>Sauti katika lugha zinazosomwa kutoka kulia kwenda kushoto (Kiarabu, Kiurdu, Kipersia, Kiebrania, Kipashto…) pia inaonekana chini ya Kiarabu (ar-SA), kwa hivyo programu zilizoundwa kwa sauti za Kiarabu zinaweza kuipata.</value>
+  </data>
+  <data name="AliasArabicLabel" xml:space="preserve">
+    <value>Pia jina lingine kwa sauti za kulia-kushoto chini ya Kiarabu</value>
+  </data>
+  <data name="AliasEnUsHint" xml:space="preserve">
+    <value>Sauti katika lugha nyingine yoyote pia inaonekana kama Kiingereza (en-US), kwa hivyo programu ambazo zinaorodhesha sauti za Kiingereza tu — kama baadhi ya vichwa vya AAC — zinaweza kuzitumia.</value>
+  </data>
+  <data name="AliasEnUsLabel" xml:space="preserve">
+    <value>Ongeza jina la utambulisho la en-US kwa sauti zisizo za Kiingereza</value>
+  </data>
+  <data name="AliasSettingsIntro" xml:space="preserve">
+    <value>Sauti zinasakinishwa kwa lugha yao halisi. Majina ya utani huongeza nakala zaidi chini ya lugha ya pili ili programu zinazochuja kwa lugha bado ziweze kuzipata.</value>
+  </data>
+  <data name="AliasSettingsTitle" xml:space="preserve">
+    <value>Vijina vya sauti vya SAPI</value>
+  </data>
+  <data name="BackToEngines" xml:space="preserve">
+    <value>Rudi kwa Mitambo</value>
+  </data>
+  <data name="BadgeCloud" xml:space="preserve">
+    <value>Wingu</value>
+  </data>
+  <data name="BadgeCredsNeeded" xml:space="preserve">
+    <value>Ufunguzi unaohitajika</value>
+  </data>
+  <data name="BadgeKeyStored" xml:space="preserve">
+    <value>Ufunguo umehifadhiwa</value>
+  </data>
+  <data name="BadgeNoCreds" xml:space="preserve">
+    <value>Hakuna ufunguo</value>
+  </data>
+  <data name="BadgeOffline" xml:space="preserve">
+    <value>Nje ya mtandao</value>
+  </data>
+  <data name="ClearVisible" xml:space="preserve">
+    <value>Imeonyeshwa wazi</value>
+  </data>
+  <data name="CredentialsFooterHint" xml:space="preserve">
+    <value>Thibitisha ufunguo kuona kama unafanya kazi kabla ya kupakia sauti. Unaweza kurudi wakati wowote.</value>
+  </data>
+  <data name="CredentialsIntro" xml:space="preserve">
+    <value>Ingiza vyeti vya kuingia kwa kila injini iliyochaguliwa. Thamani zinahifadhiwa kwenye kompyuta hii pekee.</value>
+  </data>
+  <data name="CredentialsNoneNeeded" xml:space="preserve">
+    <value>Hakuna injini zilizochaguliwa zinazohitaji nyaraka za uthibitisho.</value>
+  </data>
+  <data name="DeselectAllVoices" xml:space="preserve">
+    <value>Ondoa alama zote za sauti</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>Pakua</value>
+  </data>
+  <data name="DownloadFailedSingle" xml:space="preserve">
+    <value>Upakuaji umeshindikana kwa {0}</value>
+  </data>
+  <data name="DownloadFailedTitle" xml:space="preserve">
+    <value>Kupakua kwa {0} kimekosa. Angalia muunganisho wako wa intaneti na jaribu tena — ikiwa kinasalia kushindwa, funga programu nyingine za sauti na anza upya VoiceGarden.</value>
+  </data>
+  <data name="EdgeEngineDesc" xml:space="preserve">
+    <value>Sauti za wingu za Microsoft za bure katika lugha nyingi. Chaguo bora la bure mtandaoni — ubora wa asili, huna haja ya ufunguo wa API, inahitaji mtandao.</value>
+  </data>
+  <data name="EdgeEngineName" xml:space="preserve">
+    <value>Sauti za Kingo</value>
+  </data>
+  <data name="EngineDescKeyOnly" xml:space="preserve">
+    <value>Sauti za {0} wingu. Zinahitaji ufunguo wa API.</value>
+  </data>
+  <data name="EngineDescKeyRegion" xml:space="preserve">
+    <value>Sauti za wingu za {0}. Zinahitaji ufunguo wa API na eneo.</value>
+  </data>
+  <data name="EngineDescKeySecretRegion" xml:space="preserve">
+    <value>Vozis za {0} za wingu. Zinahitaji ufunguo wa kupata, ufunguo wa siri na kanda.</value>
+  </data>
+  <data name="EngineDescKeyUserId" xml:space="preserve">
+    <value>Sauti za wingu za {0}. Zinahitaji kitufe cha API na kitambulisho cha mtumiaji.</value>
+  </data>
+  <data name="EnginesSelectedSummary" xml:space="preserve">
+    <value>{0} kati ya {1} za injini zilizochaguliwa</value>
+  </data>
+  <data name="FieldAPIKey" xml:space="preserve">
+    <value>Ufunguzi wa API</value>
+  </data>
+  <data name="FieldAccessKeyId" xml:space="preserve">
+    <value>Kitambulisho cha ufunguo wa kufikia</value>
+  </data>
+  <data name="FieldInstanceId" xml:space="preserve">
+    <value>Kitambulisho cha Mfano</value>
+  </data>
+  <data name="FieldRegion" xml:space="preserve">
+    <value>Eneo</value>
+  </data>
+  <data name="FieldSecretAccessKey" xml:space="preserve">
+    <value>Ufunguo wa siri wa kupata</value>
+  </data>
+  <data name="FieldSubscriptionKey" xml:space="preserve">
+    <value>Ufunguzi wa usajili</value>
+  </data>
+  <data name="FieldToken" xml:space="preserve">
+    <value>Kibali</value>
+  </data>
+  <data name="FieldUserId" xml:space="preserve">
+    <value>Kitambulisho cha Mtumiaji</value>
+  </data>
+  <data name="FilterAllEngines" xml:space="preserve">
+    <value>Mitambo yote</value>
+  </data>
+  <data name="FilterAllLanguages" xml:space="preserve">
+    <value>Lugha zote</value>
+  </data>
+  <data name="FilterAllTypes" xml:space="preserve">
+    <value>Aina zote</value>
+  </data>
+  <data name="FilterAnyEngine" xml:space="preserve">
+    <value>Mitambo yote</value>
+  </data>
+  <data name="FilterAnyGender" xml:space="preserve">
+    <value>Jinsia yoyote</value>
+  </data>
+  <data name="FilterAnyLanguage" xml:space="preserve">
+    <value>Lugha yoyote</value>
+  </data>
+  <data name="FilterAnyQuality" xml:space="preserve">
+    <value>Ubora wowote</value>
+  </data>
+  <data name="FilterCredentials" xml:space="preserve">
+    <value>Cheti cha uthibitisho</value>
+  </data>
+  <data name="FilterCredsNeeded" xml:space="preserve">
+    <value>Ufunguzi unaohitajika</value>
+  </data>
+  <data name="FilterEngine" xml:space="preserve">
+    <value>Chuja kwa injini</value>
+  </data>
+  <data name="FilterGender" xml:space="preserve">
+    <value>Chuja kwa jinsia</value>
+  </data>
+  <data name="FilterLanguage" xml:space="preserve">
+    <value>Lugha</value>
+  </data>
+  <data name="FilterNoCreds" xml:space="preserve">
+    <value>Hakuna ufunguo unaohitajika</value>
+  </data>
+  <data name="FilterOfflineOnly" xml:space="preserve">
+    <value>Bila mtandao tu</value>
+  </data>
+  <data name="FilterOnlineOnly" xml:space="preserve">
+    <value>Mtandaoni tu</value>
+  </data>
+  <data name="FilterQuality" xml:space="preserve">
+    <value>Chuja kwa ubora</value>
+  </data>
+  <data name="FilterType" xml:space="preserve">
+    <value>Aina</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>Jinsia</value>
+  </data>
+  <data name="LanguageFilterHiddenNote" xml:space="preserve">
+    <value>Viendeshaji {0} vilivyofichwa — lugha zao hazijulikani hadi sauti zao zipo kwenye kichupo cha Sauti.</value>
+  </data>
+  <data name="LoadVoices" xml:space="preserve">
+    <value>Pakia sauti</value>
+  </data>
+  <data name="NextCredentials" xml:space="preserve">
+    <value>Ifuatayo: Vyeti vya Utambulisho</value>
+  </data>
+  <data name="NextVoices" xml:space="preserve">
+    <value>Ifuatayo: Sauti</value>
+  </data>
+  <data name="PreviewFailedTitle" xml:space="preserve">
+    <value>Uchakaji awali umeshindikana kwa {0}.</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>Ubora</value>
+  </data>
+  <data name="RefreshInstalled" xml:space="preserve">
+    <value>Sasisha imewekwa</value>
+  </data>
+  <data name="RemoveSelected" xml:space="preserve">
+    <value>Ondoa vilivyochaguliwa kutoka SAPI</value>
+  </data>
+  <data name="RescannedVoices" xml:space="preserve">
+    <value>Imesasishwa — sauti {0} zimesakinishwa</value>
+  </data>
+  <data name="SearchEngines" xml:space="preserve">
+    <value>Matafuta ya mtandao, lugha…</value>
+  </data>
+  <data name="SelectAllVoices" xml:space="preserve">
+    <value>Chagua sauti zote zilizoonyeshwa</value>
+  </data>
+  <data name="SelectVisible" xml:space="preserve">
+    <value>Chagua iliyoonyeshwa</value>
+  </data>
+  <data name="SherpaOnnxEngineDesc" xml:space="preserve">
+    <value>Sauti za neva zisizo mtandaoni katika lugha nyingi. Bora kwa uhakika na faragha — inafanya kazi bila akaunti au intaneti mara tu baada ya kupakuliwa.</value>
+  </data>
+  <data name="SherpaOnnxEngineName" xml:space="preserve">
+    <value>Sherpa Onnx</value>
+  </data>
+  <data name="Step4Desc" xml:space="preserve">
+    <value>Fungua kichupo cha Sauti na bonyeza Pakua sauti. Chuja kwa lugha, jinsia au ubora, tazama mapema zile unazopenda, kisha tumia Pakua (modeli za offline) na Sakinisha kwenye SAPI. Sauti zilizowekwa zinaonekana kwenye programu zako mara moja.</value>
+  </data>
+  <data name="Step4Title" xml:space="preserve">
+    <value>Pata sauti zenu</value>
+  </data>
+  <data name="TabCredentials" xml:space="preserve">
+    <value>Cheti cha uthibitisho</value>
+  </data>
+  <data name="TabCredentialsCount" xml:space="preserve">
+    <value>Mizunguko ya {0} inahitaji funguo</value>
+  </data>
+  <data name="TabCredentialsNotNeeded" xml:space="preserve">
+    <value>haihitajiki</value>
+  </data>
+  <data name="TabCredentialsTitle" xml:space="preserve">
+    <value>Cheti cha uthibitisho</value>
+  </data>
+  <data name="TabEngines" xml:space="preserve">
+    <value>Mifumo ya Sauti</value>
+  </data>
+  <data name="TabEnginesCount" xml:space="preserve">
+    <value>{0} imechaguliwa</value>
+  </data>
+  <data name="TabEnginesIntro" xml:space="preserve">
+    <value>Chagua injini za sauti unazotaka kutumia. Chagua sauti za offline zinazofanya kazi bila akaunti, sauti za wingu zisizo na malipo, au injini za wingu zinazohitaji ufunguo wa API.</value>
+  </data>
+  <data name="TabEnginesTitle" xml:space="preserve">
+    <value>Mifumo ya Sauti</value>
+  </data>
+  <data name="TabVoices" xml:space="preserve">
+    <value>Sauti</value>
+  </data>
+  <data name="TabVoicesCount" xml:space="preserve">
+    <value>sauti {0}</value>
+  </data>
+  <data name="TabVoicesIntro" xml:space="preserve">
+    <value>Kila sauti kutoka kwa injini uliyochagua. Chuja, hakiki, kisha sakinisha zile unazotaka kwenye Windows SAPI.</value>
+  </data>
+  <data name="TabVoicesTitle" xml:space="preserve">
+    <value>Sauti</value>
+  </data>
+  <data name="UnknownEngine" xml:space="preserve">
+    <value>Injini isiyojulikana</value>
+  </data>
+  <data name="UnknownLanguage" xml:space="preserve">
+    <value>Haijulikani</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>Thibitisha</value>
+  </data>
+  <data name="VerifyNoVoices" xml:space="preserve">
+    <value>Ufunguzi umekubaliwa lakini hakuna sauti zilizorejeshwa — angalia ufunguzi una upatikanaji wa TTS.</value>
+  </data>
+  <data name="VoicesCountSummary" xml:space="preserve">
+    <value>Sauti {0} · {1} zilizochaguliwa · {2} zimewekwa</value>
+  </data>
+  <data name="VoicesEmptyHint" xml:space="preserve">
+    <value>Chagua injini zako za sauti kwenye kichupo cha Injini za Sauti kwanza (ongeza vyeti pia pale ikiwa injini inahitaji ufunguo), kisha pakia sauti hapa.</value>
+  </data>
+  <data name="VoicesEmptyNoEngines" xml:space="preserve">
+    <value>Hakuna injini zilizochaguliwa — fungua kichupo cha Injinia za Sauti na weka tiki angalau kwenye injini moja.</value>
+  </data>
+  <data name="VoicesEmptyTitle" xml:space="preserve">
+    <value>Hakuna sauti bado</value>
+  </data>
+  <data name="VoicesFetchFailed" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="VoicesLoaded" xml:space="preserve">
+    <value>Sauti {0} zimepakwa</value>
+  </data>
+  <data name="VoicesMissingKey" xml:space="preserve">
+    <value>{0}: hakuna ufunguo wa API — ongeza moja kwenye kichupo cha Vyeti</value>
+  </data>
+  <data name="VoicesNoEnginesSelected" xml:space="preserve">
+    <value>Chagua angalau injini moja katika kichupo cha Injinia za Sauti kwanza.</value>
+  </data>
+  <data name="VoicesPromoteFailed" xml:space="preserve">
+    <value>Haiwezi kusakinisha {0} (maana ya msimamizi huenda yanahitajika)</value>
+  </data>
+  <data name="VoicesPromotedSingle" xml:space="preserve">
+    <value>{0} imewekwa kwenye SAPI</value>
+  </data>
+  <data name="VoicesSkippedNoKey" xml:space="preserve">
+    <value>Mota {0} zimekwepa — hakuna ufunguo wa API uliowekwa</value>
+  </data>
+  <data name="VoicesUnpromoteFailed" xml:space="preserve">
+    <value>Imeondolewa {0}; imeshindikana {1}</value>
   </data>
 </root>

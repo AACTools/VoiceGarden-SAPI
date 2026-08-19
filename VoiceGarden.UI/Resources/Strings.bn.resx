@@ -56,9 +56,6 @@
   <data name="AdapterInstallation" xml:space="preserve">
     <value>অ্যাডাপ্টার ইনস্টলেশন</value>
   </data>
-  <data name="AddEnUsAlias" xml:space="preserve">
-    <value>en-US উপনাম যোগ করুন</value>
-  </data>
   <data name="Advanced" xml:space="preserve">
     <value>উন্নত</value>
   </data>
@@ -67,9 +64,6 @@
   </data>
   <data name="AnalyticsHint" xml:space="preserve">
     <value>কোন ইঞ্জিন ব্যবহার করা হয় তা বুঝতে আমাদের সাহায্য করে। কোনো পাঠ্য, কী, বা PII পাঠানো হয়নি৷</value>
-  </data>
-  <data name="APIKey" xml:space="preserve">
-    <value>API কী</value>
   </data>
   <data name="AppName" xml:space="preserve">
     <value>ভয়েস গার্ডেন</value>
@@ -92,50 +86,11 @@
   <data name="Checking" xml:space="preserve">
     <value>পরীক্ষা করা হচ্ছে...</value>
   </data>
-  <data name="Close" xml:space="preserve">
-    <value>বন্ধ</value>
-  </data>
-  <data name="CloudVoices" xml:space="preserve">
-    <value>ক্লাউড ভয়েস</value>
-  </data>
-  <data name="ConfigureCredentials" xml:space="preserve">
-    <value>শংসাপত্র কনফিগার করুন...</value>
-  </data>
-  <data name="ConfigureCredentialsTitle" xml:space="preserve">
-    <value>শংসাপত্র কনফিগার করুন</value>
-  </data>
-  <data name="ConfigureVoices" xml:space="preserve">
-    <value>ভয়েস কনফিগার করুন...</value>
-  </data>
-  <data name="ConfigureVoicesTitle" xml:space="preserve">
-    <value>ভয়েস কনফিগার করুন</value>
-  </data>
-  <data name="CountDownloaded" xml:space="preserve">
-    <value>{0} ডাউনলোড করা হয়েছে</value>
-  </data>
-  <data name="CountInstalled" xml:space="preserve">
-    <value>{0} ইনস্টল করা হয়েছে</value>
-  </data>
-  <data name="CountSelected" xml:space="preserve">
-    <value>{0}টি নির্বাচিত৷</value>
-  </data>
-  <data name="CountTotal" xml:space="preserve">
-    <value>মোট {0}টি</value>
-  </data>
   <data name="Downloaded" xml:space="preserve">
     <value>ডাউনলোড করা হয়েছে</value>
   </data>
-  <data name="DownloadedCount" xml:space="preserve">
-    <value>ডাউনলোড করা {0} মডেল(গুলি)</value>
-  </data>
-  <data name="DownloadedFailedCount" xml:space="preserve">
-    <value>ডাউনলোড করা হয়েছে {0}, ব্যর্থ হয়েছে {1}</value>
-  </data>
   <data name="DownloadedStatus" xml:space="preserve">
     <value>ডাউনলোড করা হয়েছে</value>
-  </data>
-  <data name="DownloadFailed" xml:space="preserve">
-    <value>ডাউনলোড ব্যর্থ হয়েছে: {0} মডেল(গুলি)</value>
   </data>
   <data name="DownloadingModel" xml:space="preserve">
     <value>ডাউনলোড হচ্ছে {0} ({1})...</value>
@@ -143,14 +98,8 @@
   <data name="DownloadModelFirst" xml:space="preserve">
     <value>প্রথমে মডেলটি ডাউনলোড করুন</value>
   </data>
-  <data name="DownloadSelected" xml:space="preserve">
-    <value>ডাউনলোড নির্বাচিত</value>
-  </data>
   <data name="EnableAnalytics" xml:space="preserve">
     <value>বেনামী ব্যবহার বিশ্লেষণ পাঠান (অপ্ট-ইন)</value>
-  </data>
-  <data name="EnableEdgeVoices" xml:space="preserve">
-    <value>এজ ব্রাউজার ভয়েস সক্ষম করুন</value>
   </data>
   <data name="Engine" xml:space="preserve">
     <value>ইঞ্জিন:</value>
@@ -176,12 +125,6 @@
   <data name="FetchingVoices" xml:space="preserve">
     <value>{0}টি ভয়েস আনা হচ্ছে...</value>
   </data>
-  <data name="FetchVoices" xml:space="preserve">
-    <value>ভয়েস আনুন</value>
-  </data>
-  <data name="Filter" xml:space="preserve">
-    <value>ফিল্টার:</value>
-  </data>
   <data name="FoundVoices" xml:space="preserve">
     <value>{0}টি ভয়েস পাওয়া গেছে</value>
   </data>
@@ -190,9 +133,6 @@
   </data>
   <data name="HelpImprove" xml:space="preserve">
     <value>ভয়েস গার্ডেন উন্নত করতে সাহায্য করুন</value>
-  </data>
-  <data name="HideAdvanced" xml:space="preserve">
-    <value>▼ উন্নত লুকান</value>
   </data>
   <data name="Install" xml:space="preserve">
     <value>ইনস্টল করুন</value>
@@ -206,32 +146,14 @@
   <data name="InstalledModelsFailed" xml:space="preserve">
     <value>ইনস্টল করা হয়েছে {0}, ব্যর্থ হয়েছে {1}</value>
   </data>
-  <data name="InstalledModelsSAPI" xml:space="preserve">
-    <value>SAPI-তে {0} মডেল(গুলি) ইনস্টল করা হয়েছে৷</value>
-  </data>
-  <data name="InstalledOnly" xml:space="preserve">
-    <value>শুধুমাত্র ইনস্টল করা হয়েছে</value>
-  </data>
   <data name="InstalledVoicesHKLM" xml:space="preserve">
     <value>HKLM এ {0}টি ভয়েস ইনস্টল করা হয়েছে</value>
   </data>
   <data name="InstallFailed" xml:space="preserve">
     <value>ইনস্টল ব্যর্থ হয়েছে: {0}</value>
   </data>
-  <data name="InstallingSAPI" xml:space="preserve">
-    <value>SAPI (HKLM) এ মডেল ইনস্টল করা হচ্ছে...</value>
-  </data>
   <data name="InstallSelected" xml:space="preserve">
     <value>নির্বাচিত ইনস্টল করুন</value>
-  </data>
-  <data name="InstallToSAPI" xml:space="preserve">
-    <value>SAPI এ ইনস্টল করুন</value>
-  </data>
-  <data name="InvalidResult" xml:space="preserve">
-    <value>অবৈধ: {0}</value>
-  </data>
-  <data name="Key" xml:space="preserve">
-    <value>কী:</value>
   </data>
   <data name="LangCompatDesc" xml:space="preserve">
     <value>যদি আপনার AAC সফ্টওয়্যার শুধুমাত্র কিছু ভাষা সমর্থন করে (যেমন ইংরেজি), SherpaOnnx মডেলের প্রচার করার সময় "এন-ইউএস উপনাম যোগ করুন" সক্ষম করুন। এটি যেকোন ভাষায় কণ্ঠস্বরকে ইংরেজি ভয়েস হিসেবে দেখায়, তাই সেগুলি ভাষা অনুসারে ফিল্টার করা অ্যাপগুলিতে দেখা যায়।</value>
@@ -248,9 +170,6 @@
   <data name="LogLevel" xml:space="preserve">
     <value>লগ লেভেল:</value>
   </data>
-  <data name="ManageModels" xml:space="preserve">
-    <value>মডেলগুলি পরিচালনা করুন...</value>
-  </data>
   <data name="ModelFilesNotFound" xml:space="preserve">
     <value>মডেল ফাইল পাওয়া যায়নি</value>
   </data>
@@ -266,15 +185,6 @@
   <data name="NoAudio" xml:space="preserve">
     <value>কোনো অডিও তৈরি হয়নি</value>
   </data>
-  <data name="NoDownloadedModels" xml:space="preserve">
-    <value>কোন ডাউনলোড করা মডেল পাওয়া যায়নি. প্রথমে একটি মডেল ডাউনলোড করুন, তারপর প্রয়োজন হলে রিস্ক্যান ক্লিক করুন।</value>
-  </data>
-  <data name="NoDownloadUrl" xml:space="preserve">
-    <value>ডাউনলোড URL নেই</value>
-  </data>
-  <data name="NoModelId" xml:space="preserve">
-    <value>পূর্বরূপের জন্য মডেল আইডি নির্ধারণ করা যায়নি</value>
-  </data>
   <data name="NoModelsInstalled" xml:space="preserve">
     <value>কোন মডেল ইনস্টল করা নেই</value>
   </data>
@@ -283,9 +193,6 @@
   </data>
   <data name="NoThanks" xml:space="preserve">
     <value>না ধন্যবাদ</value>
-  </data>
-  <data name="OfflineVoices" xml:space="preserve">
-    <value>অফলাইন ভয়েস</value>
   </data>
   <data name="OnboardingDesc1" xml:space="preserve">
     <value>ভয়েসগার্ডেন হল একটি বিনামূল্যের, ওপেন-সোর্স ভয়েস ব্রিজ যা SAPI 5 সমর্থন করে এমন যেকোনো Windows অ্যাপ্লিকেশনের সাথে 20+ আধুনিক টেক্সট-টু-স্পীচ ইঞ্জিনকে সংযুক্ত করে — গ্রিড 3, মাইন্ড এক্সপ্রেস, বালাবোলকা, টোবি কমিউনিকেটর এবং System.Speech-এ নির্মিত যেকোনো অ্যাপ সহ।</value>
@@ -296,9 +203,6 @@
   <data name="OnboardingTitle" xml:space="preserve">
     <value>ভয়েসগার্ডেনে স্বাগতম</value>
   </data>
-  <data name="OnlyEnabledEngines" xml:space="preserve">
-    <value>শুধুমাত্র সক্ষম ইঞ্জিন দেখানো হয়. প্রধান পৃষ্ঠায় ইঞ্জিন টগল করুন।</value>
-  </data>
   <data name="OpenLogs" xml:space="preserve">
     <value>লগ খুলুন</value>
   </data>
@@ -307,9 +211,6 @@
   </data>
   <data name="PreviewFailed" xml:space="preserve">
     <value>পূর্বরূপ ব্যর্থ হয়েছে: {0}</value>
-  </data>
-  <data name="Previewing" xml:space="preserve">
-    <value>পূর্বরূপ দেখা হচ্ছে...</value>
   </data>
   <data name="PreviewingVoice" xml:space="preserve">
     <value>{0} পূর্বরূপ দেখা হচ্ছে...</value>
@@ -323,50 +224,17 @@
   <data name="PrivacyIntro" xml:space="preserve">
     <value>ভয়েসগার্ডেন স্বেচ্ছাসেবকদের দ্বারা নির্মিত একটি বিনামূল্যের, ওপেন সোর্স প্রকল্প৷ কোন টিটিএস ইঞ্জিনগুলি সবচেয়ে বেশি ব্যবহৃত হয় তা বোঝার জন্য, বাগগুলি সনাক্ত করতে এবং উন্নয়নকে অগ্রাধিকার দিতে আমাদের সাহায্য করার জন্য, আমরা বেনামী ব্যবহারের বিশ্লেষণ সংগ্রহ করতে চাই৷</value>
   </data>
-  <data name="Ready" xml:space="preserve">
-    <value>প্রস্তুত</value>
-  </data>
-  <data name="Region" xml:space="preserve">
-    <value>অঞ্চল</value>
-  </data>
-  <data name="Register" xml:space="preserve">
-    <value>নিবন্ধন করুন</value>
-  </data>
   <data name="RemovedVoices" xml:space="preserve">
     <value>সরানো হয়েছে {0}টি ভয়েস(গুলি)</value>
-  </data>
-  <data name="RequestingAdmin" xml:space="preserve">
-    <value>অ্যাডমিন বিশেষাধিকারের জন্য অনুরোধ করা হচ্ছে...</value>
   </data>
   <data name="Reregister" xml:space="preserve">
     <value>পুনরায় নিবন্ধন করুন</value>
   </data>
-  <data name="Rescan" xml:space="preserve">
-    <value>রিস্ক্যান করুন</value>
-  </data>
-  <data name="RescannedModels" xml:space="preserve">
-    <value>পুনরায় স্ক্যান করা হয়েছে: {0} মডেল(গুলি) প্রস্তুত৷</value>
-  </data>
-  <data name="Search" xml:space="preserve">
-    <value>অনুসন্ধান করুন...</value>
-  </data>
   <data name="SearchVoices" xml:space="preserve">
     <value>ভয়েস খুঁজুন...</value>
   </data>
-  <data name="SelectModelsFirst" xml:space="preserve">
-    <value>প্রথমে ডাউনলোড করতে মডেল নির্বাচন করুন</value>
-  </data>
   <data name="SelectVoicesFirst" xml:space="preserve">
     <value>প্রথমে ইনস্টল করতে ভয়েস নির্বাচন করুন</value>
-  </data>
-  <data name="SherpaOnnxModels" xml:space="preserve">
-    <value>শেরপা অনক্স মডেল</value>
-  </data>
-  <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
-    <value>শেরপা অনক্স নিউরাল টিটিএস</value>
-  </data>
-  <data name="ShowAdvanced" xml:space="preserve">
-    <value>▶ উন্নত দেখান</value>
   </data>
   <data name="Step1Desc" xml:space="preserve">
     <value>প্রধান স্ক্রিনে, 64-বিটের জন্য ইনস্টল করুন ক্লিক করুন (এবং প্রয়োজন হলে 32-বিট)। এটি ভয়েসগার্ডেনকে একটি SAPI 5 ভয়েস হিসাবে নিবন্ধিত করে যা যেকোনো সামঞ্জস্যপূর্ণ অ্যাপ ব্যবহার করতে পারে।</value>
@@ -389,17 +257,11 @@
   <data name="Uninstall" xml:space="preserve">
     <value>আনইনস্টল করুন</value>
   </data>
-  <data name="Validate" xml:space="preserve">
-    <value>যাচাই করুন</value>
-  </data>
   <data name="Validating" xml:space="preserve">
     <value>যাচাই করা হচ্ছে...</value>
   </data>
   <data name="ValidResult" xml:space="preserve">
     <value>বৈধ ({0}টি ভয়েস)</value>
-  </data>
-  <data name="VoiceEngines" xml:space="preserve">
-    <value>ভয়েস ইঞ্জিন</value>
   </data>
   <data name="WhatIsVoiceGarden" xml:space="preserve">
     <value>ভয়েসগার্ডেন কি?</value>
@@ -422,5 +284,314 @@
   </data>
   <data name="YesHelpImprove" xml:space="preserve">
     <value>হ্যাঁ, ভয়েসগার্ডেন উন্নত করতে সাহায্য করুন</value>
+  </data>
+  <data name="AdvancedIntro" xml:space="preserve">
+    <value>অ্যাডাপ্টার রেজিস্ট্রেশন, অ্যাপ সেটিংস, অফলাইন মডেল ব্যবস্থাপনা এবং সম্পর্কে — সব কিছু যা গাইডেড ফ্লোর অংশ নয়।</value>
+  </data>
+  <data name="AdvancedModelsHint" xml:space="preserve">
+    <value>ভয়েস ট্যাব থেকে অফলাইন ভয়েস ব্রাউজ, ডাউনলোড এবং ইনস্টল করুন — সেখানে SherpaOnnx ইঞ্জিন নির্বাচন করুন।</value>
+  </data>
+  <data name="AdvancedModelsTitle" xml:space="preserve">
+    <value>অফলাইন মডেল</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>সেটিংস</value>
+  </data>
+  <data name="AdvancedTabState" xml:space="preserve">
+    <value>উপকরণ এবং সেটিংস</value>
+  </data>
+  <data name="AliasApplyNote" xml:space="preserve">
+    <value>যখনই ভয়েস ট্যাব থেকে ভয়েস ইনস্টল বা পুনর্বিন্যাস করা হয় তখন প্রয়োগ করা হয়। বিদ্যমান ভয়েসগুলি পরের বার ইনস্টল করার সময় পরিবর্তনটি গ্রহণ করে।</value>
+  </data>
+  <data name="AliasArabicHint" xml:space="preserve">
+    <value>ডান থেকে বামে লেখার একটি ভাষায় কণ্ঠস্বর (আরবী, উর্দু, ফার্সি, হিব্রু, পশতু…) আরবী (ar-SA) এর অধীনে দেখায়, তাই আরবী কণ্ঠস্বরের জন্য সেট করা অ্যাপ্লিকেশনগুলি এটি খুঁজে পেতে পারে।</value>
+  </data>
+  <data name="AliasArabicLabel" xml:space="preserve">
+    <value>আরবির অধীনে ডান থেকে বাম কণ্ঠের জন্যও ছদ্মনাম</value>
+  </data>
+  <data name="AliasEnUsHint" xml:space="preserve">
+    <value>যে কোনো অন্যান্য ভাষার ভয়েসও ইংরেজি (en-US) হিসাবে প্রদর্শিত হয়, তাই শুধুমাত্র ইংরেজি ভয়েস তালিকাভুক্ত অ্যাপগুলো — যেমন কিছু AAC টাইটেল — এটি ব্যবহার করতে পারে।</value>
+  </data>
+  <data name="AliasEnUsLabel" xml:space="preserve">
+    <value>অ-ইংরেজি ভয়েসের জন্য en-US উপনাম যোগ করুন</value>
+  </data>
+  <data name="AliasSettingsIntro" xml:space="preserve">
+    <value>ভয়েসগুলো তাদের আসল ভাষার সাথে ইনস্টল করা হয়। বিকল্প নামগুলি একটি দ্বিতীয় ভাষার অধীনে অতিরিক্ত কপিগুলি যোগ করে যাতে ভাষা অনুযায়ী ফিল্টার করা অ্যাপ্লিকেশন এখনও সেগুলো খুঁজে পায়।</value>
+  </data>
+  <data name="AliasSettingsTitle" xml:space="preserve">
+    <value>SAPI ভয়েস অ্যালিয়াস</value>
+  </data>
+  <data name="BackToEngines" xml:space="preserve">
+    <value>ইঞ্জিন ফিরে</value>
+  </data>
+  <data name="BadgeCloud" xml:space="preserve">
+    <value>মেঘ</value>
+  </data>
+  <data name="BadgeCredsNeeded" xml:space="preserve">
+    <value>চাবি প্রয়োজন</value>
+  </data>
+  <data name="BadgeKeyStored" xml:space="preserve">
+    <value>চাবিটি সংরক্ষণ করা হয়েছে</value>
+  </data>
+  <data name="BadgeNoCreds" xml:space="preserve">
+    <value>কোনো চাবি নেই</value>
+  </data>
+  <data name="BadgeOffline" xml:space="preserve">
+    <value>অফলাইন</value>
+  </data>
+  <data name="ClearVisible" xml:space="preserve">
+    <value>পরিষ্কারভাবে দেখানো</value>
+  </data>
+  <data name="CredentialsFooterHint" xml:space="preserve">
+    <value>ভয়েস লোড করার আগে কাজ করছে কিনা পরীক্ষা করতে একটি কী যাচাই করুন। আপনি যেকোনো সময় ফিরে আসতে পারেন।</value>
+  </data>
+  <data name="CredentialsIntro" xml:space="preserve">
+    <value>প্রতিটি নির্বাচিত যন্ত্রের জন্য শংসাপত্রগুলি প্রবেশ করান। মানগুলি কেবল এই কম্পিউটারে সংরক্ষিত হয়।</value>
+  </data>
+  <data name="CredentialsNoneNeeded" xml:space="preserve">
+    <value>কোনো নির্বাচিত ইঞ্জিনের জন্য প্রমাণপত্রের প্রয়োজন নেই।</value>
+  </data>
+  <data name="DeselectAllVoices" xml:space="preserve">
+    <value>সব ভয়েস নির্বাচন বাতিল করুন</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>ডাউনলোড</value>
+  </data>
+  <data name="DownloadFailedSingle" xml:space="preserve">
+    <value>{0} এর জন্য ডাউনলোড ব্যর্থ হয়েছে</value>
+  </data>
+  <data name="DownloadFailedTitle" xml:space="preserve">
+    <value>{0} এর জন্য ডাউনলোড ব্যর্থ হয়েছে। আপনার ইন্টারনেট সংযোগ পরীক্ষা করুন এবং পুনরায় চেষ্টা করুন — যদি এটি চালিয়ে যায় ব্যর্থ হচ্ছে, অন্যান্য ভয়েস অ্যাপগুলো বন্ধ করুন এবং VoiceGarden পুনরায় চালু করুন।</value>
+  </data>
+  <data name="EdgeEngineDesc" xml:space="preserve">
+    <value>বিভিন্ন ভাষায় ফ্রি মাইক্রোসফট ক্লাউড ভয়েস। সেরা বিনামূল্যের অনলাইন অপশন — প্রাকৃতিক মানের, কোনো API কী নেই, ইন্টারনেট প্রয়োজন।</value>
+  </data>
+  <data name="EdgeEngineName" xml:space="preserve">
+    <value>এজ ভয়েসেস</value>
+  </data>
+  <data name="EngineDescKeyOnly" xml:space="preserve">
+    <value>{0} ক্লাউড ভয়েস। একটি API কী প্রয়োজন।</value>
+  </data>
+  <data name="EngineDescKeyRegion" xml:space="preserve">
+    <value>{0} ক্লাউড ভয়েস। একটি API কী এবং অঞ্চল প্রয়োজন।</value>
+  </data>
+  <data name="EngineDescKeySecretRegion" xml:space="preserve">
+    <value>{0} ক্লাউড ভয়েস। একটি অ্যাক্সেস কী, সিক্রেট কী এবং অঞ্চল প্রয়োজন।</value>
+  </data>
+  <data name="EngineDescKeyUserId" xml:space="preserve">
+    <value>{0} ক্লাউড ভয়েস। এর জন্য একটি API কী এবং ব্যবহারকারীর আইডি প্রয়োজন।</value>
+  </data>
+  <data name="EnginesSelectedSummary" xml:space="preserve">
+    <value>{1} ইঞ্জিনের মধ্যে {0} টি নির্বাচন করা হয়েছে</value>
+  </data>
+  <data name="FieldAPIKey" xml:space="preserve">
+    <value>এপিআই কী</value>
+  </data>
+  <data name="FieldAccessKeyId" xml:space="preserve">
+    <value>অ্যাক্সেস কী আইডি</value>
+  </data>
+  <data name="FieldInstanceId" xml:space="preserve">
+    <value>ইনস্ট্যান্স আইডি</value>
+  </data>
+  <data name="FieldRegion" xml:space="preserve">
+    <value>অঞ্চল</value>
+  </data>
+  <data name="FieldSecretAccessKey" xml:space="preserve">
+    <value>গোপন অ্যাক্সেস কী</value>
+  </data>
+  <data name="FieldSubscriptionKey" xml:space="preserve">
+    <value>সাবস্ক্রিপশন কী</value>
+  </data>
+  <data name="FieldToken" xml:space="preserve">
+    <value>টোকেন</value>
+  </data>
+  <data name="FieldUserId" xml:space="preserve">
+    <value>ব্যবহারকারী আইডি</value>
+  </data>
+  <data name="FilterAllEngines" xml:space="preserve">
+    <value>সমস্ত ইঞ্জিন</value>
+  </data>
+  <data name="FilterAllLanguages" xml:space="preserve">
+    <value>সমস্ত ভাষা</value>
+  </data>
+  <data name="FilterAllTypes" xml:space="preserve">
+    <value>সমস্ত প্রকার</value>
+  </data>
+  <data name="FilterAnyEngine" xml:space="preserve">
+    <value>সমস্ত ইঞ্জিন</value>
+  </data>
+  <data name="FilterAnyGender" xml:space="preserve">
+    <value>যেকোনো লিঙ্গ</value>
+  </data>
+  <data name="FilterAnyLanguage" xml:space="preserve">
+    <value>যেকোনো ভাষা</value>
+  </data>
+  <data name="FilterAnyQuality" xml:space="preserve">
+    <value>যেকোনো মান</value>
+  </data>
+  <data name="FilterCredentials" xml:space="preserve">
+    <value>প্রমাণপত্র</value>
+  </data>
+  <data name="FilterCredsNeeded" xml:space="preserve">
+    <value>চাবি প্রয়োজন</value>
+  </data>
+  <data name="FilterEngine" xml:space="preserve">
+    <value>ইঞ্জিন দ্বারা ফিল্টার করুন</value>
+  </data>
+  <data name="FilterGender" xml:space="preserve">
+    <value>লিঙ্গ অনুযায়ী ফিল্টার করুন</value>
+  </data>
+  <data name="FilterLanguage" xml:space="preserve">
+    <value>ভাষা</value>
+  </data>
+  <data name="FilterNoCreds" xml:space="preserve">
+    <value>কোনো চাবির প্রয়োজন নেই</value>
+  </data>
+  <data name="FilterOfflineOnly" xml:space="preserve">
+    <value>শুধুমাত্র অফলাইন</value>
+  </data>
+  <data name="FilterOnlineOnly" xml:space="preserve">
+    <value>শুধুমাত্র অনলাইনে</value>
+  </data>
+  <data name="FilterQuality" xml:space="preserve">
+    <value>গুণমান অনুযায়ী ফিল্টার করুন</value>
+  </data>
+  <data name="FilterType" xml:space="preserve">
+    <value>টাইপ</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>লিঙ্গ</value>
+  </data>
+  <data name="LanguageFilterHiddenNote" xml:space="preserve">
+    <value>{0}টি ইঞ্জিন লুকানো আছে — তাদের ভাষাগুলি অজানা যতক্ষণ না তাদের কণ্ঠস্বর ভয়েসেস ট্যাবে লোড করা হয়।</value>
+  </data>
+  <data name="LoadVoices" xml:space="preserve">
+    <value>ভয়েস লোড করুন</value>
+  </data>
+  <data name="NextCredentials" xml:space="preserve">
+    <value>পরবর্তী: প্রমাণপত্র</value>
+  </data>
+  <data name="NextVoices" xml:space="preserve">
+    <value>পরবর্তী: কণ্ঠস্বর</value>
+  </data>
+  <data name="PreviewFailedTitle" xml:space="preserve">
+    <value>{0}-এর জন্য পূর্বরূপ ব্যর্থ হয়েছে।</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>গুণমান</value>
+  </data>
+  <data name="RefreshInstalled" xml:space="preserve">
+    <value>রিফ্রেশ ইনস্টল হয়েছে</value>
+  </data>
+  <data name="RemoveSelected" xml:space="preserve">
+    <value>SAPI থেকে নির্বাচিতটি সরান</value>
+  </data>
+  <data name="RescannedVoices" xml:space="preserve">
+    <value>তাজা করা হয়েছে — {0} টি ভয়েস ইনস্টল করা হয়েছে</value>
+  </data>
+  <data name="SearchEngines" xml:space="preserve">
+    <value>সার্চ ইঞ্জিন, ভাষা…</value>
+  </data>
+  <data name="SelectAllVoices" xml:space="preserve">
+    <value>প্রদর্শিত সমস্ত কণ্ঠ নির্বাচন করুন</value>
+  </data>
+  <data name="SelectVisible" xml:space="preserve">
+    <value>প্রদর্শিত নির্বাচন করুন</value>
+  </data>
+  <data name="SherpaOnnxEngineDesc" xml:space="preserve">
+    <value>অনেক ভাষায় অফলাইন নিউরাল ভয়েস। নির্ভরযোগ্যতা এবং গোপনীয়তার জন্য সেরা — একবার ডাউনলোড করার পর কোনো অ্যাকাউন্ট বা ইন্টারনেট ছাড়াই কাজ করে।</value>
+  </data>
+  <data name="SherpaOnnxEngineName" xml:space="preserve">
+    <value>শেরপাঅনন্যক্স</value>
+  </data>
+  <data name="Step4Desc" xml:space="preserve">
+    <value>ভয়েস ট্যাবটি খুলুন এবং লোড ভয়েসেস ক্লিক করুন। ভাষা, লিঙ্গ বা মান দ্বারা ফিল্টার করুন, যে গুলো আপনি পছন্দ করেন তা প্রিভিউ করুন, তারপর ডাউনলোড (অফলাইন মডেল) এবং ইনস্টল টু SAPI ব্যবহার করুন। ইনস্টল করা ভয়েসগুলো আপনার অ্যাপগুলোতে সরাসরি প্রদর্শিত হবে।</value>
+  </data>
+  <data name="Step4Title" xml:space="preserve">
+    <value>আপনার কণ্ঠ পান</value>
+  </data>
+  <data name="TabCredentials" xml:space="preserve">
+    <value>প্রমাণপত্র</value>
+  </data>
+  <data name="TabCredentialsCount" xml:space="preserve">
+    <value>{0} ইঞ্জিনের জন্য চাবির প্রয়োজন</value>
+  </data>
+  <data name="TabCredentialsNotNeeded" xml:space="preserve">
+    <value>প্রয়োজন নেই</value>
+  </data>
+  <data name="TabCredentialsTitle" xml:space="preserve">
+    <value>প্রমাণপত্র</value>
+  </data>
+  <data name="TabEngines" xml:space="preserve">
+    <value>ভয়েস ইঞ্জিন</value>
+  </data>
+  <data name="TabEnginesCount" xml:space="preserve">
+    <value>{0} নির্বাচন করা হয়েছে</value>
+  </data>
+  <data name="TabEnginesIntro" xml:space="preserve">
+    <value>আপনি যে ভয়েস ইঞ্জিনগুলি ব্যবহার করতে চান তা নির্বাচন করুন। এমন অফলাইন ভয়েস বাছুন যা অ্যাকাউন্ট ছাড়াই কাজ করে, বিনামূল্যের ক্লাউড ভয়েস, অথবা এমন ক্লাউড ইঞ্জিন যা API কী প্রয়োজন।</value>
+  </data>
+  <data name="TabEnginesTitle" xml:space="preserve">
+    <value>ভয়েস ইঞ্জিন</value>
+  </data>
+  <data name="TabVoices" xml:space="preserve">
+    <value>কণ্ঠস্বর</value>
+  </data>
+  <data name="TabVoicesCount" xml:space="preserve">
+    <value>{0}টি কণ্ঠ</value>
+  </data>
+  <data name="TabVoicesIntro" xml:space="preserve">
+    <value>আপনি যে ইঞ্জিনগুলি নির্বাচিত করেছেন সেগুলির প্রতিটি কণ্ঠস্বর। ফিল্টার করুন, প্রিভিউ করুন, তারপর যেগুলি আপনি চান সেগুলি Windows SAPI তে ইনস্টল করুন।</value>
+  </data>
+  <data name="TabVoicesTitle" xml:space="preserve">
+    <value>কণ্ঠস্বর</value>
+  </data>
+  <data name="UnknownEngine" xml:space="preserve">
+    <value>অজানা ইঞ্জিন</value>
+  </data>
+  <data name="UnknownLanguage" xml:space="preserve">
+    <value>অজানা</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>যাচাই করুন</value>
+  </data>
+  <data name="VerifyNoVoices" xml:space="preserve">
+    <value>কী গ্রহণ করা হয়েছে কিন্তু কোনো ভয়েস ফেরত আসে নি — নিশ্চিত করুন যে কীর TTS অ্যাক্সেস আছে।</value>
+  </data>
+  <data name="VoicesCountSummary" xml:space="preserve">
+    <value>{0}টি ভয়েস · {1}টি নির্বাচিত · {2}টি ইনস্টল করা হয়েছে</value>
+  </data>
+  <data name="VoicesEmptyHint" xml:space="preserve">
+    <value>প্রথমে ভয়েস ইঞ্জিনস ট্যাবে আপনার ভয়েস ইঞ্জিন নির্বাচন করুন (যদি ইঞ্জিনের জন্য কী প্রয়োজন হয়, সেখানেও ক্রেডেনশিয়াল যোগ করুন), তারপর এখানে ভয়েস লোড করুন।</value>
+  </data>
+  <data name="VoicesEmptyNoEngines" xml:space="preserve">
+    <value>কোনও ইঞ্জিন নির্বাচিত হয়নি — ভয়েস ইঞ্জিনস ট্যাবটি খুলুন এবং অন্তত একটি ইঞ্জিন নির্বাচন করুন।</value>
+  </data>
+  <data name="VoicesEmptyTitle" xml:space="preserve">
+    <value>এখনও কোনো কণ্ঠ শুনা যায়নি</value>
+  </data>
+  <data name="VoicesFetchFailed" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="VoicesLoaded" xml:space="preserve">
+    <value>লোড করা হয়েছে {0}টি ভয়েস</value>
+  </data>
+  <data name="VoicesMissingKey" xml:space="preserve">
+    <value>{0}: কোনো API কী নেই — ক্রেডেনশিয়ালস ট্যাবে একটি যোগ করুন</value>
+  </data>
+  <data name="VoicesNoEnginesSelected" xml:space="preserve">
+    <value>প্রথমে ভয়েস ইঞ্জিনস ট্যাবে অন্তত একটি ইঞ্জিন নির্বাচন করুন।</value>
+  </data>
+  <data name="VoicesPromoteFailed" xml:space="preserve">
+    <value>{0} ইনস্টল করা যায়নি (প্রশাসকের অনুমোদন প্রয়োজন হতে পারে)</value>
+  </data>
+  <data name="VoicesPromotedSingle" xml:space="preserve">
+    <value>{0} SAPI-এ ইনস্টল করা হয়েছে</value>
+  </data>
+  <data name="VoicesSkippedNoKey" xml:space="preserve">
+    <value>{0} ইঞ্জিন এড়িয়ে গেছে — কোনো API কী সেট করা হয়নি</value>
+  </data>
+  <data name="VoicesUnpromoteFailed" xml:space="preserve">
+    <value>{0} সরানো হয়েছে; {1} ব্যর্থ হয়েছে</value>
   </data>
 </root>

@@ -56,9 +56,6 @@
   <data name="AdapterInstallation" xml:space="preserve">
     <value>Instalace adaptéru</value>
   </data>
-  <data name="AddEnUsAlias" xml:space="preserve">
-    <value>Přidat en-US alias</value>
-  </data>
   <data name="Advanced" xml:space="preserve">
     <value>Moderní</value>
   </data>
@@ -67,9 +64,6 @@
   </data>
   <data name="AnalyticsHint" xml:space="preserve">
     <value>Pomáhá nám pochopit, které motory se používají. Nebyl odeslán žádný text, klíče ani PII.</value>
-  </data>
-  <data name="APIKey" xml:space="preserve">
-    <value>Klíč API</value>
   </data>
   <data name="AppName" xml:space="preserve">
     <value>VoiceGarden</value>
@@ -92,50 +86,11 @@
   <data name="Checking" xml:space="preserve">
     <value>Kontrola...</value>
   </data>
-  <data name="Close" xml:space="preserve">
-    <value>Blízko</value>
-  </data>
-  <data name="CloudVoices" xml:space="preserve">
-    <value>Cloudové hlasy</value>
-  </data>
-  <data name="ConfigureCredentials" xml:space="preserve">
-    <value>Konfigurovat přihlašovací údaje...</value>
-  </data>
-  <data name="ConfigureCredentialsTitle" xml:space="preserve">
-    <value>Nakonfigurujte přihlašovací údaje</value>
-  </data>
-  <data name="ConfigureVoices" xml:space="preserve">
-    <value>Konfigurovat hlasy...</value>
-  </data>
-  <data name="ConfigureVoicesTitle" xml:space="preserve">
-    <value>Konfigurace hlasů</value>
-  </data>
-  <data name="CountDownloaded" xml:space="preserve">
-    <value>Staženo: {0}</value>
-  </data>
-  <data name="CountInstalled" xml:space="preserve">
-    <value>{0} nainstalováno</value>
-  </data>
-  <data name="CountSelected" xml:space="preserve">
-    <value>Vybráno: {0}</value>
-  </data>
-  <data name="CountTotal" xml:space="preserve">
-    <value>celkem {0}</value>
-  </data>
   <data name="Downloaded" xml:space="preserve">
     <value>Staženo</value>
   </data>
-  <data name="DownloadedCount" xml:space="preserve">
-    <value>Stažené modely (počet: {0})</value>
-  </data>
-  <data name="DownloadedFailedCount" xml:space="preserve">
-    <value>Staženo {0}, neúspěšné {1}</value>
-  </data>
   <data name="DownloadedStatus" xml:space="preserve">
     <value>Staženo</value>
-  </data>
-  <data name="DownloadFailed" xml:space="preserve">
-    <value>Stahování se nezdařilo: modely: {0}</value>
   </data>
   <data name="DownloadingModel" xml:space="preserve">
     <value>Stahování souboru {0} ({1})...</value>
@@ -143,14 +98,8 @@
   <data name="DownloadModelFirst" xml:space="preserve">
     <value>Nejprve si stáhněte model</value>
   </data>
-  <data name="DownloadSelected" xml:space="preserve">
-    <value>Stáhnout Vybráno</value>
-  </data>
   <data name="EnableAnalytics" xml:space="preserve">
     <value>Odesílat anonymní analýzy využití (přihlášení)</value>
-  </data>
-  <data name="EnableEdgeVoices" xml:space="preserve">
-    <value>Povolit hlasy prohlížeče Edge</value>
   </data>
   <data name="Engine" xml:space="preserve">
     <value>Motor:</value>
@@ -176,12 +125,6 @@
   <data name="FetchingVoices" xml:space="preserve">
     <value>Načítání {0} hlasů...</value>
   </data>
-  <data name="FetchVoices" xml:space="preserve">
-    <value>Načítání hlasů</value>
-  </data>
-  <data name="Filter" xml:space="preserve">
-    <value>Filtr:</value>
-  </data>
   <data name="FoundVoices" xml:space="preserve">
     <value>Počet nalezených hlasů: {0}</value>
   </data>
@@ -190,9 +133,6 @@
   </data>
   <data name="HelpImprove" xml:space="preserve">
     <value>Pomozte zlepšit VoiceGarden</value>
-  </data>
-  <data name="HideAdvanced" xml:space="preserve">
-    <value>▼ Skrýt Upřesnit</value>
   </data>
   <data name="Install" xml:space="preserve">
     <value>Instalovat</value>
@@ -206,32 +146,14 @@
   <data name="InstalledModelsFailed" xml:space="preserve">
     <value>Instalováno {0}, neúspěšné {1}</value>
   </data>
-  <data name="InstalledModelsSAPI" xml:space="preserve">
-    <value>Nainstalováno {0} modelů do SAPI</value>
-  </data>
-  <data name="InstalledOnly" xml:space="preserve">
-    <value>Pouze nainstalované</value>
-  </data>
   <data name="InstalledVoicesHKLM" xml:space="preserve">
     <value>Počet hlasů nainstalovaných do HKLM: {0}</value>
   </data>
   <data name="InstallFailed" xml:space="preserve">
     <value>Instalace se nezdařila: {0}</value>
   </data>
-  <data name="InstallingSAPI" xml:space="preserve">
-    <value>Instalace modelů do SAPI (HKLM)...</value>
-  </data>
   <data name="InstallSelected" xml:space="preserve">
     <value>Instalovat vybrané</value>
-  </data>
-  <data name="InstallToSAPI" xml:space="preserve">
-    <value>Nainstalujte do SAPI</value>
-  </data>
-  <data name="InvalidResult" xml:space="preserve">
-    <value>Neplatné: {0}</value>
-  </data>
-  <data name="Key" xml:space="preserve">
-    <value>Klíč:</value>
   </data>
   <data name="LangCompatDesc" xml:space="preserve">
     <value>Pokud váš software AAC podporuje pouze určité jazyky (např. angličtinu), povolte při propagaci modelů SherpaOnnx „Přidat en-US alias“. Díky tomu se hlasy v jakémkoli jazyce zobrazí jako anglické hlasy, takže se zobrazí v aplikacích, které filtrují podle jazyka.</value>
@@ -248,9 +170,6 @@
   <data name="LogLevel" xml:space="preserve">
     <value>Úroveň protokolu:</value>
   </data>
-  <data name="ManageModels" xml:space="preserve">
-    <value>Spravovat modely...</value>
-  </data>
   <data name="ModelFilesNotFound" xml:space="preserve">
     <value>Soubory modelu nebyly nalezeny</value>
   </data>
@@ -266,15 +185,6 @@
   <data name="NoAudio" xml:space="preserve">
     <value>Nebyl vytvořen žádný zvuk</value>
   </data>
-  <data name="NoDownloadedModels" xml:space="preserve">
-    <value>Nebyly nalezeny žádné stažené modely. Nejprve si stáhněte model a v případě potřeby klikněte na Znovu naskenovat.</value>
-  </data>
-  <data name="NoDownloadUrl" xml:space="preserve">
-    <value>Žádná adresa URL ke stažení</value>
-  </data>
-  <data name="NoModelId" xml:space="preserve">
-    <value>Nelze určit ID modelu pro náhled</value>
-  </data>
   <data name="NoModelsInstalled" xml:space="preserve">
     <value>Nejsou nainstalovány žádné modely</value>
   </data>
@@ -283,9 +193,6 @@
   </data>
   <data name="NoThanks" xml:space="preserve">
     <value>Ne, děkuji</value>
-  </data>
-  <data name="OfflineVoices" xml:space="preserve">
-    <value>Offline hlasy</value>
   </data>
   <data name="OnboardingDesc1" xml:space="preserve">
     <value>VoiceGarden je bezplatný hlasový most s otevřeným zdrojovým kódem, který propojuje více než 20 moderních motorů převodu textu na řeč s jakoukoli aplikací Windows, která podporuje SAPI 5 – včetně Grid 3, Mind Express, Balabolka, Tobii Communicator a jakékoli aplikace postavené na System.Speech.</value>
@@ -296,9 +203,6 @@
   <data name="OnboardingTitle" xml:space="preserve">
     <value>Vítejte ve VoiceGarden</value>
   </data>
-  <data name="OnlyEnabledEngines" xml:space="preserve">
-    <value>Jsou zobrazeny pouze povolené motory. Přepnout motory na hlavní stránce.</value>
-  </data>
   <data name="OpenLogs" xml:space="preserve">
     <value>Otevřete protokoly</value>
   </data>
@@ -307,9 +211,6 @@
   </data>
   <data name="PreviewFailed" xml:space="preserve">
     <value>Náhled se nezdařil: {0}</value>
-  </data>
-  <data name="Previewing" xml:space="preserve">
-    <value>Náhled...</value>
   </data>
   <data name="PreviewingVoice" xml:space="preserve">
     <value>Náhled {0}...</value>
@@ -323,50 +224,17 @@
   <data name="PrivacyIntro" xml:space="preserve">
     <value>VoiceGarden je bezplatný open-source projekt vytvořený dobrovolníky. Abychom nám pomohli porozumět tomu, které motory TTS jsou nejpoužívanější, identifikovat chyby a stanovit priority vývoje, rádi bychom shromažďovali anonymní analýzy využití.</value>
   </data>
-  <data name="Ready" xml:space="preserve">
-    <value>Připraveno</value>
-  </data>
-  <data name="Region" xml:space="preserve">
-    <value>Kraj</value>
-  </data>
-  <data name="Register" xml:space="preserve">
-    <value>Rejstřík</value>
-  </data>
   <data name="RemovedVoices" xml:space="preserve">
     <value>Odebráno {0} hlasů</value>
-  </data>
-  <data name="RequestingAdmin" xml:space="preserve">
-    <value>Požaduji administrátorská práva...</value>
   </data>
   <data name="Reregister" xml:space="preserve">
     <value>Znovu se zaregistrujte</value>
   </data>
-  <data name="Rescan" xml:space="preserve">
-    <value>Znovu naskenujte</value>
-  </data>
-  <data name="RescannedModels" xml:space="preserve">
-    <value>Znovu naskenováno: připraveno: {0} modelů</value>
-  </data>
-  <data name="Search" xml:space="preserve">
-    <value>Vyhledávání...</value>
-  </data>
   <data name="SearchVoices" xml:space="preserve">
     <value>Hledat hlasy...</value>
   </data>
-  <data name="SelectModelsFirst" xml:space="preserve">
-    <value>Nejprve vyberte modely ke stažení</value>
-  </data>
   <data name="SelectVoicesFirst" xml:space="preserve">
     <value>Nejprve vyberte hlasy, které chcete nainstalovat</value>
-  </data>
-  <data name="SherpaOnnxModels" xml:space="preserve">
-    <value>Modely Sherpa Onnx</value>
-  </data>
-  <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
-    <value>Sherpa Onnx Neural TTS</value>
-  </data>
-  <data name="ShowAdvanced" xml:space="preserve">
-    <value>▶ Zobrazit Upřesnit</value>
   </data>
   <data name="Step1Desc" xml:space="preserve">
     <value>Na hlavní obrazovce klikněte na Instalovat pro 64bitovou verzi (a 32bitovou v případě potřeby). Tím se VoiceGarden zaregistruje jako hlas SAPI 5, který může používat jakákoli kompatibilní aplikace.</value>
@@ -389,17 +257,11 @@
   <data name="Uninstall" xml:space="preserve">
     <value>Odinstalovat</value>
   </data>
-  <data name="Validate" xml:space="preserve">
-    <value>Ověřit</value>
-  </data>
   <data name="Validating" xml:space="preserve">
     <value>Ověřování...</value>
   </data>
   <data name="ValidResult" xml:space="preserve">
     <value>Platné (počet hlasů: {0})</value>
-  </data>
-  <data name="VoiceEngines" xml:space="preserve">
-    <value>Hlasové motory</value>
   </data>
   <data name="WhatIsVoiceGarden" xml:space="preserve">
     <value>Co je VoiceGarden?</value>
@@ -422,5 +284,314 @@
   </data>
   <data name="YesHelpImprove" xml:space="preserve">
     <value>Ano, pomozte zlepšit VoiceGarden</value>
+  </data>
+  <data name="AdvancedIntro" xml:space="preserve">
+    <value>Registrace adaptéru, nastavení aplikace, správa offline modelů a informace — vše, co není součástí řízeného procesu.</value>
+  </data>
+  <data name="AdvancedModelsHint" xml:space="preserve">
+    <value>Procházejte, stahujte a instalujte offline hlasy na kartě Hlasy — tam vyberte engine SherpaOnnx.</value>
+  </data>
+  <data name="AdvancedModelsTitle" xml:space="preserve">
+    <value>Offline modely</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>Nastavení</value>
+  </data>
+  <data name="AdvancedTabState" xml:space="preserve">
+    <value>nástroje a nastavení</value>
+  </data>
+  <data name="AliasApplyNote" xml:space="preserve">
+    <value>Použije se vždy, když jsou hlasy nainstalovány nebo přeinstalovány z karty Hlasy. Stávající hlasy změnu zachytí při příští instalaci.</value>
+  </data>
+  <data name="AliasArabicHint" xml:space="preserve">
+    <value>Hlas v jazyce psaném zprava doleva (arabština, urdština, perština, hebrejština, paštština…) se také zobrazuje pod arabštinou (ar-SA), takže aplikace nastavené na arabské hlasy jej mohou najít.</value>
+  </data>
+  <data name="AliasArabicLabel" xml:space="preserve">
+    <value>Také alias hlasů zprava doleva pod arabštinou</value>
+  </data>
+  <data name="AliasEnUsHint" xml:space="preserve">
+    <value>Hlas v jakémkoli jiném jazyce se také zobrazuje jako angličtina (en-US), takže aplikace, které zobrazují pouze anglické hlasy — například některé tituly AAC — ho mohou používat.</value>
+  </data>
+  <data name="AliasEnUsLabel" xml:space="preserve">
+    <value>Přidejte alias en-US pro neanglické hlasy</value>
+  </data>
+  <data name="AliasSettingsIntro" xml:space="preserve">
+    <value>Hlasy jsou nainstalovány se svým skutečným jazykem. Pseudonymy přidávají další kopie pod druhým jazykem, takže je aplikace, které filtrují podle jazyka, mohou stále najít.</value>
+  </data>
+  <data name="AliasSettingsTitle" xml:space="preserve">
+    <value>Alias hlasů SAPI</value>
+  </data>
+  <data name="BackToEngines" xml:space="preserve">
+    <value>Zpět na motory</value>
+  </data>
+  <data name="BadgeCloud" xml:space="preserve">
+    <value>Mrak</value>
+  </data>
+  <data name="BadgeCredsNeeded" xml:space="preserve">
+    <value>Klíč potřebný</value>
+  </data>
+  <data name="BadgeKeyStored" xml:space="preserve">
+    <value>Klíč uložen</value>
+  </data>
+  <data name="BadgeNoCreds" xml:space="preserve">
+    <value>Žádný klíč</value>
+  </data>
+  <data name="BadgeOffline" xml:space="preserve">
+    <value>Offline</value>
+  </data>
+  <data name="ClearVisible" xml:space="preserve">
+    <value>Jasně zobrazeno</value>
+  </data>
+  <data name="CredentialsFooterHint" xml:space="preserve">
+    <value>Ověřte klíč, abyste zkontrolovali, zda funguje, než načtete hlasy. Můžete se vrátit kdykoli.</value>
+  </data>
+  <data name="CredentialsIntro" xml:space="preserve">
+    <value>Zadejte přihlašovací údaje pro každý vybraný engine. Hodnoty jsou uloženy pouze na tomto počítači.</value>
+  </data>
+  <data name="CredentialsNoneNeeded" xml:space="preserve">
+    <value>Žádné vybrané motory nepotřebují přihlašovací údaje.</value>
+  </data>
+  <data name="DeselectAllVoices" xml:space="preserve">
+    <value>Zrušit výběr všech hlasů</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>Stáhnout</value>
+  </data>
+  <data name="DownloadFailedSingle" xml:space="preserve">
+    <value>Stažení pro {0} selhalo</value>
+  </data>
+  <data name="DownloadFailedTitle" xml:space="preserve">
+    <value>Stahování souboru {0} selhalo. Zkontrolujte své připojení k internetu a zkuste to znovu — pokud to bude stále selhávat, zavřete jiné hlasové aplikace a restartujte VoiceGarden.</value>
+  </data>
+  <data name="EdgeEngineDesc" xml:space="preserve">
+    <value>Volné cloudové hlasy Microsoftu v mnoha jazycích. Nejlepší volná online možnost — přirozená kvalita, bez API klíče, vyžaduje internet.</value>
+  </data>
+  <data name="EdgeEngineName" xml:space="preserve">
+    <value>Hlasy Edge</value>
+  </data>
+  <data name="EngineDescKeyOnly" xml:space="preserve">
+    <value>{0} cloud hlasů. Vyžaduje API klíč.</value>
+  </data>
+  <data name="EngineDescKeyRegion" xml:space="preserve">
+    <value>{0} cloud hlasů. Vyžaduje klíč API a oblast.</value>
+  </data>
+  <data name="EngineDescKeySecretRegion" xml:space="preserve">
+    <value>{0} hlasů z cloudu. Vyžaduje přístupový klíč, tajný klíč a region.</value>
+  </data>
+  <data name="EngineDescKeyUserId" xml:space="preserve">
+    <value>{0} cloud hlasů. Vyžaduje API klíč a uživatelské ID.</value>
+  </data>
+  <data name="EnginesSelectedSummary" xml:space="preserve">
+    <value>{0} z {1} vybraných motorů</value>
+  </data>
+  <data name="FieldAPIKey" xml:space="preserve">
+    <value>API klíč</value>
+  </data>
+  <data name="FieldAccessKeyId" xml:space="preserve">
+    <value>ID přístupového klíče</value>
+  </data>
+  <data name="FieldInstanceId" xml:space="preserve">
+    <value>ID instance</value>
+  </data>
+  <data name="FieldRegion" xml:space="preserve">
+    <value>Kraj</value>
+  </data>
+  <data name="FieldSecretAccessKey" xml:space="preserve">
+    <value>Tajný přístupový klíč</value>
+  </data>
+  <data name="FieldSubscriptionKey" xml:space="preserve">
+    <value>Předplatné klíč</value>
+  </data>
+  <data name="FieldToken" xml:space="preserve">
+    <value>Žeton</value>
+  </data>
+  <data name="FieldUserId" xml:space="preserve">
+    <value>Uživatelské ID</value>
+  </data>
+  <data name="FilterAllEngines" xml:space="preserve">
+    <value>Všechny motory</value>
+  </data>
+  <data name="FilterAllLanguages" xml:space="preserve">
+    <value>Všechny jazyky</value>
+  </data>
+  <data name="FilterAllTypes" xml:space="preserve">
+    <value>Všechny typy</value>
+  </data>
+  <data name="FilterAnyEngine" xml:space="preserve">
+    <value>Všechny motory</value>
+  </data>
+  <data name="FilterAnyGender" xml:space="preserve">
+    <value>Jakékoli pohlaví</value>
+  </data>
+  <data name="FilterAnyLanguage" xml:space="preserve">
+    <value>Jakýkoli jazyk</value>
+  </data>
+  <data name="FilterAnyQuality" xml:space="preserve">
+    <value>Jakákoli kvalita</value>
+  </data>
+  <data name="FilterCredentials" xml:space="preserve">
+    <value>Přihlašovací údaje</value>
+  </data>
+  <data name="FilterCredsNeeded" xml:space="preserve">
+    <value>Klíč potřebný</value>
+  </data>
+  <data name="FilterEngine" xml:space="preserve">
+    <value>Filtrovat podle motoru</value>
+  </data>
+  <data name="FilterGender" xml:space="preserve">
+    <value>Filtrovat podle pohlaví</value>
+  </data>
+  <data name="FilterLanguage" xml:space="preserve">
+    <value>Jazyk</value>
+  </data>
+  <data name="FilterNoCreds" xml:space="preserve">
+    <value>Klíč není potřeba</value>
+  </data>
+  <data name="FilterOfflineOnly" xml:space="preserve">
+    <value>Pouze offline</value>
+  </data>
+  <data name="FilterOnlineOnly" xml:space="preserve">
+    <value>Pouze online</value>
+  </data>
+  <data name="FilterQuality" xml:space="preserve">
+    <value>Filtrovat podle kvality</value>
+  </data>
+  <data name="FilterType" xml:space="preserve">
+    <value>Typ</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>Pohlaví</value>
+  </data>
+  <data name="LanguageFilterHiddenNote" xml:space="preserve">
+    <value>{0} skrytých motorů — jejich jazyky nejsou známy, dokud nejsou jejich hlasy načteny na kartě Hlasy.</value>
+  </data>
+  <data name="LoadVoices" xml:space="preserve">
+    <value>Načíst hlasy</value>
+  </data>
+  <data name="NextCredentials" xml:space="preserve">
+    <value>Další: Přihlašovací údaje</value>
+  </data>
+  <data name="NextVoices" xml:space="preserve">
+    <value>Další: Hlasy</value>
+  </data>
+  <data name="PreviewFailedTitle" xml:space="preserve">
+    <value>Náhled pro {0} selhal.</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>Kvalita</value>
+  </data>
+  <data name="RefreshInstalled" xml:space="preserve">
+    <value>Obnovení nainstalováno</value>
+  </data>
+  <data name="RemoveSelected" xml:space="preserve">
+    <value>Odstranit vybrané ze SAPI</value>
+  </data>
+  <data name="RescannedVoices" xml:space="preserve">
+    <value>Aktualizováno — nainstalováno {0} hlasů</value>
+  </data>
+  <data name="SearchEngines" xml:space="preserve">
+    <value>Vyhledávače, jazyky…</value>
+  </data>
+  <data name="SelectAllVoices" xml:space="preserve">
+    <value>Vyberte všechny zobrazené hlasy</value>
+  </data>
+  <data name="SelectVisible" xml:space="preserve">
+    <value>Vybrat zobrazené</value>
+  </data>
+  <data name="SherpaOnnxEngineDesc" xml:space="preserve">
+    <value>Offline neurální hlasy v mnoha jazycích. Nejlepší pro spolehlivost a soukromí — funguje bez účtu či internetu po stažení.</value>
+  </data>
+  <data name="SherpaOnnxEngineName" xml:space="preserve">
+    <value>Šerpa Onnx</value>
+  </data>
+  <data name="Step4Desc" xml:space="preserve">
+    <value>Otevřete kartu Hlasy a klikněte na Načíst hlasy. Filtrování podle jazyka, pohlaví nebo kvality, přehrajte si ty, které se vám líbí, poté použijte Stáhnout (offline modely) a Nainstalovat do SAPI. Nainstalované hlasy se okamžitě objeví ve vašich aplikacích.</value>
+  </data>
+  <data name="Step4Title" xml:space="preserve">
+    <value>Získejte své hlasy</value>
+  </data>
+  <data name="TabCredentials" xml:space="preserve">
+    <value>Pověření</value>
+  </data>
+  <data name="TabCredentialsCount" xml:space="preserve">
+    <value>{0} motory potřebují klíče</value>
+  </data>
+  <data name="TabCredentialsNotNeeded" xml:space="preserve">
+    <value>není potřeba</value>
+  </data>
+  <data name="TabCredentialsTitle" xml:space="preserve">
+    <value>Přihlašovací údaje</value>
+  </data>
+  <data name="TabEngines" xml:space="preserve">
+    <value>Hlasové motory</value>
+  </data>
+  <data name="TabEnginesCount" xml:space="preserve">
+    <value>{0} vybráno</value>
+  </data>
+  <data name="TabEnginesIntro" xml:space="preserve">
+    <value>Vyberte hlasové enginy, které chcete používat. Zvolte offline hlasy, které fungují bez účtu, bezplatné cloudové hlasy nebo cloudové enginy, které vyžadují API klíč.</value>
+  </data>
+  <data name="TabEnginesTitle" xml:space="preserve">
+    <value>Hlasové motory</value>
+  </data>
+  <data name="TabVoices" xml:space="preserve">
+    <value>Hlasy</value>
+  </data>
+  <data name="TabVoicesCount" xml:space="preserve">
+    <value>{0} hlasů</value>
+  </data>
+  <data name="TabVoicesIntro" xml:space="preserve">
+    <value>Každý hlas z vybraných engineů. Filtrovat, náhled, a pak nainstalovat ty, které chcete do Windows SAPI.</value>
+  </data>
+  <data name="TabVoicesTitle" xml:space="preserve">
+    <value>Hlasy</value>
+  </data>
+  <data name="UnknownEngine" xml:space="preserve">
+    <value>Neznámý motor</value>
+  </data>
+  <data name="UnknownLanguage" xml:space="preserve">
+    <value>Neznámý</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>Ověřit</value>
+  </data>
+  <data name="VerifyNoVoices" xml:space="preserve">
+    <value>Klíč přijat, ale žádné hlasy nebyly vráceny — zkontrolujte, zda klíč má přístup k TTS.</value>
+  </data>
+  <data name="VoicesCountSummary" xml:space="preserve">
+    <value>{0} hlasů · {1} vybráno · {2} nainstalováno</value>
+  </data>
+  <data name="VoicesEmptyHint" xml:space="preserve">
+    <value>Nejprve vyberte své hlasové motory na kartě Hlasové motory (zde také přidejte přihlašovací údaje, pokud motor vyžaduje klíč), poté načtěte hlasy zde.</value>
+  </data>
+  <data name="VoicesEmptyNoEngines" xml:space="preserve">
+    <value>Nebyly vybrány žádné motory — otevřete kartu Hlasové motory a zaškrtněte alespoň jeden motor.</value>
+  </data>
+  <data name="VoicesEmptyTitle" xml:space="preserve">
+    <value>Ještě žádné hlasy</value>
+  </data>
+  <data name="VoicesFetchFailed" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="VoicesLoaded" xml:space="preserve">
+    <value>Načteno {0} hlasů</value>
+  </data>
+  <data name="VoicesMissingKey" xml:space="preserve">
+    <value>{0}: žádný API klíč — přidejte ho na kartě Přihlašovací údaje</value>
+  </data>
+  <data name="VoicesNoEnginesSelected" xml:space="preserve">
+    <value>Nejprve vyberte na kartě Hlasové motory alespoň jeden motor.</value>
+  </data>
+  <data name="VoicesPromoteFailed" xml:space="preserve">
+    <value>Nepodařilo se nainstalovat {0} (může být vyžadováno schválení správce)</value>
+  </data>
+  <data name="VoicesPromotedSingle" xml:space="preserve">
+    <value>{0} nainstalován do SAPI</value>
+  </data>
+  <data name="VoicesSkippedNoKey" xml:space="preserve">
+    <value>{0} motorů přeskočeno — není nastavena žádná API klíč</value>
+  </data>
+  <data name="VoicesUnpromoteFailed" xml:space="preserve">
+    <value>Odstraněno {0}; selhalo {1}</value>
   </data>
 </root>

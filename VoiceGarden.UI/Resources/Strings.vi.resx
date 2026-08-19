@@ -56,9 +56,6 @@
   <data name="AdapterInstallation" xml:space="preserve">
     <value>Cài đặt bộ chuyển đổi</value>
   </data>
-  <data name="AddEnUsAlias" xml:space="preserve">
-    <value>Thêm bí danh en-US</value>
-  </data>
   <data name="Advanced" xml:space="preserve">
     <value>Trình độ cao</value>
   </data>
@@ -67,9 +64,6 @@
   </data>
   <data name="AnalyticsHint" xml:space="preserve">
     <value>Giúp chúng tôi hiểu động cơ nào được sử dụng. Không có văn bản, khóa hoặc PII nào được gửi.</value>
-  </data>
-  <data name="APIKey" xml:space="preserve">
-    <value>Khóa API</value>
   </data>
   <data name="AppName" xml:space="preserve">
     <value>Giọng NóiVườn</value>
@@ -92,50 +86,11 @@
   <data name="Checking" xml:space="preserve">
     <value>Đang kiểm tra...</value>
   </data>
-  <data name="Close" xml:space="preserve">
-    <value>Đóng</value>
-  </data>
-  <data name="CloudVoices" xml:space="preserve">
-    <value>Tiếng nói đám mây</value>
-  </data>
-  <data name="ConfigureCredentials" xml:space="preserve">
-    <value>Định cấu hình thông tin xác thực...</value>
-  </data>
-  <data name="ConfigureCredentialsTitle" xml:space="preserve">
-    <value>Định cấu hình thông tin xác thực</value>
-  </data>
-  <data name="ConfigureVoices" xml:space="preserve">
-    <value>Định cấu hình giọng nói...</value>
-  </data>
-  <data name="ConfigureVoicesTitle" xml:space="preserve">
-    <value>Định cấu hình giọng nói</value>
-  </data>
-  <data name="CountDownloaded" xml:space="preserve">
-    <value>{0} đã tải xuống</value>
-  </data>
-  <data name="CountInstalled" xml:space="preserve">
-    <value>{0} đã được cài đặt</value>
-  </data>
-  <data name="CountSelected" xml:space="preserve">
-    <value>{0} đã chọn</value>
-  </data>
-  <data name="CountTotal" xml:space="preserve">
-    <value>tổng cộng {0}</value>
-  </data>
   <data name="Downloaded" xml:space="preserve">
     <value>Đã tải xuống</value>
   </data>
-  <data name="DownloadedCount" xml:space="preserve">
-    <value>Đã tải xuống {0} mô hình</value>
-  </data>
-  <data name="DownloadedFailedCount" xml:space="preserve">
-    <value>Đã tải xuống {0}, không thành công {1}</value>
-  </data>
   <data name="DownloadedStatus" xml:space="preserve">
     <value>Đã tải xuống</value>
-  </data>
-  <data name="DownloadFailed" xml:space="preserve">
-    <value>Tải xuống không thành công: {0} kiểu máy</value>
   </data>
   <data name="DownloadingModel" xml:space="preserve">
     <value>Đang tải xuống {0} ({1})...</value>
@@ -143,14 +98,8 @@
   <data name="DownloadModelFirst" xml:space="preserve">
     <value>Tải xuống mô hình trước</value>
   </data>
-  <data name="DownloadSelected" xml:space="preserve">
-    <value>Tải xuống đã chọn</value>
-  </data>
   <data name="EnableAnalytics" xml:space="preserve">
     <value>Gửi phân tích sử dụng ẩn danh (chọn tham gia)</value>
-  </data>
-  <data name="EnableEdgeVoices" xml:space="preserve">
-    <value>Kích hoạt giọng nói của trình duyệt Edge</value>
   </data>
   <data name="Engine" xml:space="preserve">
     <value>Động cơ:</value>
@@ -176,12 +125,6 @@
   <data name="FetchingVoices" xml:space="preserve">
     <value>Đang tìm nạp {0} giọng nói...</value>
   </data>
-  <data name="FetchVoices" xml:space="preserve">
-    <value>Tìm nạp giọng nói</value>
-  </data>
-  <data name="Filter" xml:space="preserve">
-    <value>Lọc:</value>
-  </data>
   <data name="FoundVoices" xml:space="preserve">
     <value>Đã tìm thấy {0} giọng nói</value>
   </data>
@@ -190,9 +133,6 @@
   </data>
   <data name="HelpImprove" xml:space="preserve">
     <value>Giúp cải thiện VoiceGarden</value>
-  </data>
-  <data name="HideAdvanced" xml:space="preserve">
-    <value>▼ Ẩn nâng cao</value>
   </data>
   <data name="Install" xml:space="preserve">
     <value>Cài đặt</value>
@@ -206,32 +146,14 @@
   <data name="InstalledModelsFailed" xml:space="preserve">
     <value>Đã cài đặt {0}, không thành công {1}</value>
   </data>
-  <data name="InstalledModelsSAPI" xml:space="preserve">
-    <value>Đã cài đặt (các) mô hình {0} cho SAPI</value>
-  </data>
-  <data name="InstalledOnly" xml:space="preserve">
-    <value>Chỉ được cài đặt</value>
-  </data>
   <data name="InstalledVoicesHKLM" xml:space="preserve">
     <value>Đã cài đặt {0} giọng nói cho HKLM</value>
   </data>
   <data name="InstallFailed" xml:space="preserve">
     <value>Cài đặt không thành công: {0}</value>
   </data>
-  <data name="InstallingSAPI" xml:space="preserve">
-    <value>Đang cài đặt mô hình vào SAPI (HKLM)...</value>
-  </data>
   <data name="InstallSelected" xml:space="preserve">
     <value>Cài đặt đã chọn</value>
-  </data>
-  <data name="InstallToSAPI" xml:space="preserve">
-    <value>Cài đặt vào SAPI</value>
-  </data>
-  <data name="InvalidResult" xml:space="preserve">
-    <value>Không hợp lệ: {0}</value>
-  </data>
-  <data name="Key" xml:space="preserve">
-    <value>Chìa khóa:</value>
   </data>
   <data name="LangCompatDesc" xml:space="preserve">
     <value>Nếu phần mềm AAC của bạn chỉ hỗ trợ một số ngôn ngữ nhất định (ví dụ: tiếng Anh), hãy bật "Thêm bí danh en-US" khi quảng cáo các mẫu SherpaOnnx. Điều này làm cho giọng nói ở bất kỳ ngôn ngữ nào xuất hiện dưới dạng giọng nói tiếng Anh, vì vậy chúng hiển thị trong các ứng dụng lọc theo ngôn ngữ.</value>
@@ -248,9 +170,6 @@
   <data name="LogLevel" xml:space="preserve">
     <value>Cấp độ nhật ký:</value>
   </data>
-  <data name="ManageModels" xml:space="preserve">
-    <value>Quản lý mô hình...</value>
-  </data>
   <data name="ModelFilesNotFound" xml:space="preserve">
     <value>Không tìm thấy tệp mô hình</value>
   </data>
@@ -266,15 +185,6 @@
   <data name="NoAudio" xml:space="preserve">
     <value>Không có âm thanh được tạo ra</value>
   </data>
-  <data name="NoDownloadedModels" xml:space="preserve">
-    <value>Không tìm thấy mô hình đã tải xuống. Trước tiên hãy tải xuống mô hình, sau đó nhấp vào Quét lại nếu cần.</value>
-  </data>
-  <data name="NoDownloadUrl" xml:space="preserve">
-    <value>Không có URL tải xuống</value>
-  </data>
-  <data name="NoModelId" xml:space="preserve">
-    <value>Không thể xác định ID mẫu để xem trước</value>
-  </data>
   <data name="NoModelsInstalled" xml:space="preserve">
     <value>Không có mô hình nào được cài đặt</value>
   </data>
@@ -283,9 +193,6 @@
   </data>
   <data name="NoThanks" xml:space="preserve">
     <value>Không, cảm ơn</value>
-  </data>
-  <data name="OfflineVoices" xml:space="preserve">
-    <value>Giọng nói ngoại tuyến</value>
   </data>
   <data name="OnboardingDesc1" xml:space="preserve">
     <value>VoiceGarden là cầu nối giọng nói mã nguồn mở, miễn phí, kết nối hơn 20 công cụ chuyển văn bản thành giọng nói hiện đại với bất kỳ ứng dụng Windows nào hỗ trợ SAPI 5 — bao gồm Grid 3, Mind Express, Balabolka, Tobii Communicator và bất kỳ ứng dụng nào được xây dựng trên System.Speech.</value>
@@ -296,9 +203,6 @@
   <data name="OnboardingTitle" xml:space="preserve">
     <value>Chào mừng đến với VoiceGarden</value>
   </data>
-  <data name="OnlyEnabledEngines" xml:space="preserve">
-    <value>Chỉ các công cụ được kích hoạt mới được hiển thị. Chuyển đổi công cụ trên trang chính.</value>
-  </data>
   <data name="OpenLogs" xml:space="preserve">
     <value>Nhật ký mở</value>
   </data>
@@ -307,9 +211,6 @@
   </data>
   <data name="PreviewFailed" xml:space="preserve">
     <value>Xem trước không thành công: {0}</value>
-  </data>
-  <data name="Previewing" xml:space="preserve">
-    <value>Đang xem trước...</value>
   </data>
   <data name="PreviewingVoice" xml:space="preserve">
     <value>Đang xem trước {0}...</value>
@@ -323,50 +224,17 @@
   <data name="PrivacyIntro" xml:space="preserve">
     <value>VoiceGarden là một dự án mã nguồn mở miễn phí được xây dựng bởi các tình nguyện viên. Để giúp chúng tôi hiểu công cụ TTS nào được sử dụng nhiều nhất, xác định lỗi và ưu tiên phát triển, chúng tôi muốn thu thập các phân tích sử dụng ẩn danh.</value>
   </data>
-  <data name="Ready" xml:space="preserve">
-    <value>Sẵn sàng</value>
-  </data>
-  <data name="Region" xml:space="preserve">
-    <value>Vùng đất</value>
-  </data>
-  <data name="Register" xml:space="preserve">
-    <value>Đăng ký</value>
-  </data>
   <data name="RemovedVoices" xml:space="preserve">
     <value>Đã xóa {0} giọng nói</value>
-  </data>
-  <data name="RequestingAdmin" xml:space="preserve">
-    <value>Đang yêu cầu đặc quyền quản trị viên...</value>
   </data>
   <data name="Reregister" xml:space="preserve">
     <value>Đăng ký lại</value>
   </data>
-  <data name="Rescan" xml:space="preserve">
-    <value>Quét lại</value>
-  </data>
-  <data name="RescannedModels" xml:space="preserve">
-    <value>Đã quét lại: {0} mẫu đã sẵn sàng</value>
-  </data>
-  <data name="Search" xml:space="preserve">
-    <value>Tìm kiếm...</value>
-  </data>
   <data name="SearchVoices" xml:space="preserve">
     <value>Tìm kiếm giọng nói...</value>
   </data>
-  <data name="SelectModelsFirst" xml:space="preserve">
-    <value>Chọn mô hình để tải xuống đầu tiên</value>
-  </data>
   <data name="SelectVoicesFirst" xml:space="preserve">
     <value>Chọn giọng nói để cài đặt đầu tiên</value>
-  </data>
-  <data name="SherpaOnnxModels" xml:space="preserve">
-    <value>Người mẫu Sherpa Onnx</value>
-  </data>
-  <data name="SherpaOnnxNeuralTTS" xml:space="preserve">
-    <value>TTS thần kinh Sherpa Onnx</value>
-  </data>
-  <data name="ShowAdvanced" xml:space="preserve">
-    <value>▶ Hiển thị nâng cao</value>
   </data>
   <data name="Step1Desc" xml:space="preserve">
     <value>Trên màn hình chính, nhấp vào Cài đặt cho 64-bit (và 32-bit nếu cần). Thao tác này sẽ đăng ký VoiceGarden dưới dạng giọng nói SAPI 5 mà mọi ứng dụng tương thích đều có thể sử dụng.</value>
@@ -389,17 +257,11 @@
   <data name="Uninstall" xml:space="preserve">
     <value>Gỡ cài đặt</value>
   </data>
-  <data name="Validate" xml:space="preserve">
-    <value>Xác thực</value>
-  </data>
   <data name="Validating" xml:space="preserve">
     <value>Đang xác thực...</value>
   </data>
   <data name="ValidResult" xml:space="preserve">
     <value>Hợp lệ ({0} giọng nói)</value>
-  </data>
-  <data name="VoiceEngines" xml:space="preserve">
-    <value>Công cụ giọng nói</value>
   </data>
   <data name="WhatIsVoiceGarden" xml:space="preserve">
     <value>VoiceGarden là gì?</value>
@@ -422,5 +284,314 @@
   </data>
   <data name="YesHelpImprove" xml:space="preserve">
     <value>Có, giúp cải thiện VoiceGarden</value>
+  </data>
+  <data name="AdvancedIntro" xml:space="preserve">
+    <value>Đăng ký bộ chuyển đổi, cài đặt ứng dụng, quản lý mô hình ngoại tuyến và thông tin — mọi thứ không phải là một phần của quy trình hướng dẫn.</value>
+  </data>
+  <data name="AdvancedModelsHint" xml:space="preserve">
+    <value>Duyệt, tải xuống và cài đặt các giọng nói ngoại tuyến từ tab Giọng nói — chọn công cụ SherpaOnnx ở đó.</value>
+  </data>
+  <data name="AdvancedModelsTitle" xml:space="preserve">
+    <value>Mô hình ngoại tuyến</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>Cài đặt</value>
+  </data>
+  <data name="AdvancedTabState" xml:space="preserve">
+    <value>công cụ và cài đặt</value>
+  </data>
+  <data name="AliasApplyNote" xml:space="preserve">
+    <value>Áp dụng bất cứ khi nào giọng nói được cài đặt hoặc cài đặt lại từ tab Giọng nói. Các giọng nói hiện có sẽ nhận thay đổi vào lần tiếp theo bạn cài đặt chúng.</value>
+  </data>
+  <data name="AliasArabicHint" xml:space="preserve">
+    <value>Giọng nói trong một ngôn ngữ viết từ phải sang trái (Ả Rập, Urdu, Ba Tư, Hebrew, Pashto…) cũng xuất hiện dưới tiếng Ả Rập (ar-SA), do đó các ứng dụng được thiết lập cho giọng Ả Rập có thể tìm thấy nó.</value>
+  </data>
+  <data name="AliasArabicLabel" xml:space="preserve">
+    <value>Cũng là bí danh cho các giọng từ phải sang trái dưới tiếng Ả Rập</value>
+  </data>
+  <data name="AliasEnUsHint" xml:space="preserve">
+    <value>Giọng nói bằng bất kỳ ngôn ngữ nào khác cũng xuất hiện dưới dạng tiếng Anh (en-US), vì vậy các ứng dụng chỉ liệt kê giọng nói tiếng Anh — như một số ứng dụng AAC — có thể sử dụng nó.</value>
+  </data>
+  <data name="AliasEnUsLabel" xml:space="preserve">
+    <value>Thêm bí danh en-US cho các giọng nói không phải tiếng Anh</value>
+  </data>
+  <data name="AliasSettingsIntro" xml:space="preserve">
+    <value>Các giọng nói được cài đặt với ngôn ngữ thực của chúng. Bí danh thêm các bản sao phụ dưới một ngôn ngữ thứ hai để các ứng dụng lọc theo ngôn ngữ vẫn có thể tìm thấy chúng.</value>
+  </data>
+  <data name="AliasSettingsTitle" xml:space="preserve">
+    <value>Bí danh giọng SAPI</value>
+  </data>
+  <data name="BackToEngines" xml:space="preserve">
+    <value>Quay lại Engines</value>
+  </data>
+  <data name="BadgeCloud" xml:space="preserve">
+    <value>Đám mây</value>
+  </data>
+  <data name="BadgeCredsNeeded" xml:space="preserve">
+    <value>Cần chìa khóa</value>
+  </data>
+  <data name="BadgeKeyStored" xml:space="preserve">
+    <value>Khóa đã được lưu</value>
+  </data>
+  <data name="BadgeNoCreds" xml:space="preserve">
+    <value>Không có chìa khóa</value>
+  </data>
+  <data name="BadgeOffline" xml:space="preserve">
+    <value>Ngoại tuyến</value>
+  </data>
+  <data name="ClearVisible" xml:space="preserve">
+    <value>Hiển thị rõ ràng</value>
+  </data>
+  <data name="CredentialsFooterHint" xml:space="preserve">
+    <value>Xác minh một khóa để kiểm tra nó hoạt động trước khi tải giọng nói. Bạn có thể quay lại bất cứ lúc nào.</value>
+  </data>
+  <data name="CredentialsIntro" xml:space="preserve">
+    <value>Nhập thông tin đăng nhập cho từng công cụ được chọn. Các giá trị chỉ được lưu trên máy tính này.</value>
+  </data>
+  <data name="CredentialsNoneNeeded" xml:space="preserve">
+    <value>Không có công cụ nào được chọn cần thông tin xác thực.</value>
+  </data>
+  <data name="DeselectAllVoices" xml:space="preserve">
+    <value>Bỏ chọn tất cả giọng nói</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>Tải về</value>
+  </data>
+  <data name="DownloadFailedSingle" xml:space="preserve">
+    <value>Tải xuống thất bại cho {0}</value>
+  </data>
+  <data name="DownloadFailedTitle" xml:space="preserve">
+    <value>Tải xuống {0} thất bại. Kiểm tra kết nối internet của bạn và thử lại — nếu vẫn tiếp tục thất bại, hãy đóng các ứng dụng giọng nói khác và khởi động lại VoiceGarden.</value>
+  </data>
+  <data name="EdgeEngineDesc" xml:space="preserve">
+    <value>Các giọng nói đám mây Microsoft miễn phí bằng nhiều ngôn ngữ. Lựa chọn trực tuyến miễn phí tốt nhất — chất lượng tự nhiên, không cần khóa API, cần kết nối internet.</value>
+  </data>
+  <data name="EdgeEngineName" xml:space="preserve">
+    <value>Tiếng Nói Biên</value>
+  </data>
+  <data name="EngineDescKeyOnly" xml:space="preserve">
+    <value>{0} giọng nói đám mây. Cần một khóa API.</value>
+  </data>
+  <data name="EngineDescKeyRegion" xml:space="preserve">
+    <value>{0} giọng nói trên đám mây. Cần một khóa API và khu vực.</value>
+  </data>
+  <data name="EngineDescKeySecretRegion" xml:space="preserve">
+    <value>{0} giọng nói đám mây. Cần một khóa truy cập, khóa bí mật và khu vực.</value>
+  </data>
+  <data name="EngineDescKeyUserId" xml:space="preserve">
+    <value>{0} giọng nói trên đám mây. Cần một khóa API và ID người dùng.</value>
+  </data>
+  <data name="EnginesSelectedSummary" xml:space="preserve">
+    <value>{0} trong số {1} động cơ đã được chọn</value>
+  </data>
+  <data name="FieldAPIKey" xml:space="preserve">
+    <value>Khóa API</value>
+  </data>
+  <data name="FieldAccessKeyId" xml:space="preserve">
+    <value>ID khóa truy cập</value>
+  </data>
+  <data name="FieldInstanceId" xml:space="preserve">
+    <value>ID phiên bản</value>
+  </data>
+  <data name="FieldRegion" xml:space="preserve">
+    <value>Khu vực</value>
+  </data>
+  <data name="FieldSecretAccessKey" xml:space="preserve">
+    <value>Khóa truy cập bí mật</value>
+  </data>
+  <data name="FieldSubscriptionKey" xml:space="preserve">
+    <value>Khóa đăng ký</value>
+  </data>
+  <data name="FieldToken" xml:space="preserve">
+    <value>Mã thông báo</value>
+  </data>
+  <data name="FieldUserId" xml:space="preserve">
+    <value>ID người dùng</value>
+  </data>
+  <data name="FilterAllEngines" xml:space="preserve">
+    <value>Tất cả các động cơ</value>
+  </data>
+  <data name="FilterAllLanguages" xml:space="preserve">
+    <value>Tất cả các ngôn ngữ</value>
+  </data>
+  <data name="FilterAllTypes" xml:space="preserve">
+    <value>Tất cả các loại</value>
+  </data>
+  <data name="FilterAnyEngine" xml:space="preserve">
+    <value>Tất cả các động cơ</value>
+  </data>
+  <data name="FilterAnyGender" xml:space="preserve">
+    <value>Bất kỳ giới tính nào</value>
+  </data>
+  <data name="FilterAnyLanguage" xml:space="preserve">
+    <value>Bất kỳ ngôn ngữ nào</value>
+  </data>
+  <data name="FilterAnyQuality" xml:space="preserve">
+    <value>Bất kỳ chất lượng nào</value>
+  </data>
+  <data name="FilterCredentials" xml:space="preserve">
+    <value>Chứng chỉ</value>
+  </data>
+  <data name="FilterCredsNeeded" xml:space="preserve">
+    <value>Cần chìa khóa</value>
+  </data>
+  <data name="FilterEngine" xml:space="preserve">
+    <value>Lọc theo động cơ</value>
+  </data>
+  <data name="FilterGender" xml:space="preserve">
+    <value>Lọc theo giới tính</value>
+  </data>
+  <data name="FilterLanguage" xml:space="preserve">
+    <value>Ngôn ngữ</value>
+  </data>
+  <data name="FilterNoCreds" xml:space="preserve">
+    <value>Không cần chìa khóa</value>
+  </data>
+  <data name="FilterOfflineOnly" xml:space="preserve">
+    <value>Chỉ ngoại tuyến</value>
+  </data>
+  <data name="FilterOnlineOnly" xml:space="preserve">
+    <value>Chỉ trực tuyến</value>
+  </data>
+  <data name="FilterQuality" xml:space="preserve">
+    <value>Lọc theo chất lượng</value>
+  </data>
+  <data name="FilterType" xml:space="preserve">
+    <value>Loại</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>Giới tính</value>
+  </data>
+  <data name="LanguageFilterHiddenNote" xml:space="preserve">
+    <value>{0} động cơ bị ẩn — ngôn ngữ của chúng không được biết cho đến khi giọng nói của chúng được tải trong tab Giọng nói.</value>
+  </data>
+  <data name="LoadVoices" xml:space="preserve">
+    <value>Tải giọng nói</value>
+  </data>
+  <data name="NextCredentials" xml:space="preserve">
+    <value>Tiếp theo: Thông tin xác thực</value>
+  </data>
+  <data name="NextVoices" xml:space="preserve">
+    <value>Tiếp theo: Giọng nói</value>
+  </data>
+  <data name="PreviewFailedTitle" xml:space="preserve">
+    <value>Xem trước thất bại đối với {0}.</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>Chất lượng</value>
+  </data>
+  <data name="RefreshInstalled" xml:space="preserve">
+    <value>Làm mới đã được cài đặt</value>
+  </data>
+  <data name="RemoveSelected" xml:space="preserve">
+    <value>Xóa đã chọn khỏi SAPI</value>
+  </data>
+  <data name="RescannedVoices" xml:space="preserve">
+    <value>Đã làm mới — {0} giọng nói đã được cài đặt</value>
+  </data>
+  <data name="SearchEngines" xml:space="preserve">
+    <value>Công cụ tìm kiếm, ngôn ngữ…</value>
+  </data>
+  <data name="SelectAllVoices" xml:space="preserve">
+    <value>Chọn tất cả các giọng đã hiển thị</value>
+  </data>
+  <data name="SelectVisible" xml:space="preserve">
+    <value>Chọn đã hiển thị</value>
+  </data>
+  <data name="SherpaOnnxEngineDesc" xml:space="preserve">
+    <value>Giọng nói thần kinh ngoại tuyến với nhiều ngôn ngữ. Tốt nhất cho độ tin cậy và quyền riêng tư — hoạt động mà không cần tài khoản hoặc internet sau khi đã tải về.</value>
+  </data>
+  <data name="SherpaOnnxEngineName" xml:space="preserve">
+    <value>Sherpa Onnx</value>
+  </data>
+  <data name="Step4Desc" xml:space="preserve">
+    <value>Mở tab Voices và nhấp vào Load voices. Lọc theo ngôn ngữ, giới tính hoặc chất lượng, xem trước những giọng bạn thích, sau đó sử dụng Download (offline models) và Install to SAPI. Giọng đã cài sẽ xuất hiện ngay trong các ứng dụng của bạn.</value>
+  </data>
+  <data name="Step4Title" xml:space="preserve">
+    <value>Hãy lấy giọng nói của bạn</value>
+  </data>
+  <data name="TabCredentials" xml:space="preserve">
+    <value>Chứng chỉ</value>
+  </data>
+  <data name="TabCredentialsCount" xml:space="preserve">
+    <value>Động cơ {0} cần chìa khóa</value>
+  </data>
+  <data name="TabCredentialsNotNeeded" xml:space="preserve">
+    <value>không cần</value>
+  </data>
+  <data name="TabCredentialsTitle" xml:space="preserve">
+    <value>Chứng chỉ</value>
+  </data>
+  <data name="TabEngines" xml:space="preserve">
+    <value>Công cụ giọng nói</value>
+  </data>
+  <data name="TabEnginesCount" xml:space="preserve">
+    <value>{0} đã được chọn</value>
+  </data>
+  <data name="TabEnginesIntro" xml:space="preserve">
+    <value>Chọn các công cụ giọng nói mà bạn muốn sử dụng. Chọn giọng nói ngoại tuyến hoạt động mà không cần tài khoản, giọng nói đám mây miễn phí, hoặc các công cụ đám mây cần khóa API.</value>
+  </data>
+  <data name="TabEnginesTitle" xml:space="preserve">
+    <value>Công cụ giọng nói</value>
+  </data>
+  <data name="TabVoices" xml:space="preserve">
+    <value>Những giọng nói</value>
+  </data>
+  <data name="TabVoicesCount" xml:space="preserve">
+    <value>{0} giọng nói</value>
+  </data>
+  <data name="TabVoicesIntro" xml:space="preserve">
+    <value>Mỗi giọng nói từ các công cụ bạn đã chọn. Lọc, xem trước, sau đó cài đặt những giọng bạn muốn vào Windows SAPI.</value>
+  </data>
+  <data name="TabVoicesTitle" xml:space="preserve">
+    <value>Những giọng nói</value>
+  </data>
+  <data name="UnknownEngine" xml:space="preserve">
+    <value>Động cơ không xác định</value>
+  </data>
+  <data name="UnknownLanguage" xml:space="preserve">
+    <value>Không rõ</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>Xác minh</value>
+  </data>
+  <data name="VerifyNoVoices" xml:space="preserve">
+    <value>Khóa đã được chấp nhận nhưng không có giọng nói trả về — kiểm tra xem khóa có quyền truy cập TTS không.</value>
+  </data>
+  <data name="VoicesCountSummary" xml:space="preserve">
+    <value>{0} giọng nói · {1} đã chọn · {2} đã cài đặt</value>
+  </data>
+  <data name="VoicesEmptyHint" xml:space="preserve">
+    <value>Trước tiên hãy chọn các bộ máy giọng nói của bạn trong tab Bộ máy Giọng nói (cũng thêm thông tin xác thực ở đó nếu bộ máy cần khóa), sau đó tải các giọng nói tại đây.</value>
+  </data>
+  <data name="VoicesEmptyNoEngines" xml:space="preserve">
+    <value>Chưa chọn động cơ nào — mở tab Động cơ Giọng nói và đánh dấu ít nhất một động cơ.</value>
+  </data>
+  <data name="VoicesEmptyTitle" xml:space="preserve">
+    <value>Chưa có giọng nói</value>
+  </data>
+  <data name="VoicesFetchFailed" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="VoicesLoaded" xml:space="preserve">
+    <value>Đã tải {0} giọng nói</value>
+  </data>
+  <data name="VoicesMissingKey" xml:space="preserve">
+    <value>{0}: không có khóa API — thêm một cái trong tab Credentials</value>
+  </data>
+  <data name="VoicesNoEnginesSelected" xml:space="preserve">
+    <value>Trước tiên hãy chọn ít nhất một động cơ trong tab Động cơ Giọng nói.</value>
+  </data>
+  <data name="VoicesPromoteFailed" xml:space="preserve">
+    <value>Không thể cài đặt {0} (có thể cần sự chấp thuận của quản trị viên)</value>
+  </data>
+  <data name="VoicesPromotedSingle" xml:space="preserve">
+    <value>{0} đã được cài đặt vào SAPI</value>
+  </data>
+  <data name="VoicesSkippedNoKey" xml:space="preserve">
+    <value>{0} công cụ bị bỏ qua — chưa thiết lập khóa API</value>
+  </data>
+  <data name="VoicesUnpromoteFailed" xml:space="preserve">
+    <value>Đã xóa {0}; thất bại {1}</value>
   </data>
 </root>
