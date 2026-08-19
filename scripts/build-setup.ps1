@@ -45,16 +45,10 @@ $installerShortcutName = "VoiceGardenSAPI"
 $projectUrl = "https://github.com/AACTools/VoiceGarden-SAPI"
 
 if ([string]::IsNullOrWhiteSpace($Version)) {
-    $installerExe = Join-Path $payloadInput "Installer.exe"
-    if (Test-Path $installerExe) {
-        $v = (Get-Item $installerExe).VersionInfo.FileVersion
-        if (![string]::IsNullOrWhiteSpace($v)) {
-            $Version = $v
-        }
-    }
-    if ([string]::IsNullOrWhiteSpace($Version)) {
-        $Version = "0.5.0.0"
-    }
+    # No version passed (CI passes the tag version; local builds use
+    # -Version or build-release-local.ps1's InstallerVersion) — fall back
+    # to the current release so upgrades still work.
+    $Version = "0.6.0.0"
 }
 
 if (!(Test-Path $outputFull)) {
