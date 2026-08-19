@@ -239,11 +239,12 @@ jobs:
       run: |
         # Tag builds (v0.6.0) derive the MSI ProductVersion from the tag so
         # the installer version tracks releases; the 0.6.0.0 default in
-        # build-setup.ps1 only covers non-tag builds.
+        # build-setup.ps1 only covers non-tag builds. ($setupArgs, not
+        # $args — that's an automatic variable in PowerShell.)
         $ver = if ("${{ github.ref_type }}" -eq "tag") { "${{ github.ref_name }}" -replace '^v','' } else { "" }
-        $args = @("-PayloadDir", ".\payload", "-OutputDir", ".\installer-output")
-        if ($ver) { $args += @("-Version", "$ver.0") }
-        .\scripts\build-setup.ps1 @args
+        $setupArgs = @("-PayloadDir", ".\payload", "-OutputDir", ".\installer-output")
+        if ($ver) { $setupArgs += @("-Version", "$ver.0") }
+        .\scripts\build-setup.ps1 @setupArgs
 
     - name: Build setup.exe bootstrapper
       shell: pwsh
