@@ -594,4 +594,7 @@
   <data name="VoicesUnpromoteFailed" xml:space="preserve">
     <value>已移除{0}；失败{1}</value>
   </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>仅显示已安装的语音</value>
+  </data>
 </root>

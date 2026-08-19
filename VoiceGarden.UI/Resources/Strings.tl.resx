@@ -594,4 +594,7 @@
   <data name="VoicesUnpromoteFailed" xml:space="preserve">
     <value>Tinanggal {0}; nabigo {1}</value>
   </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>Ipakita lamang ang mga naka-install na boses</value>
+  </data>
 </root>

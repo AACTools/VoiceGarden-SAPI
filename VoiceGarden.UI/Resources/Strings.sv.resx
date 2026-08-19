@@ -594,4 +594,7 @@
   <data name="VoicesUnpromoteFailed" xml:space="preserve">
     <value>Borttagen {0}; misslyckades {1}</value>
   </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>Visa endast installerade röster</value>
+  </data>
 </root>

@@ -594,4 +594,7 @@
   <data name="VoicesUnpromoteFailed" xml:space="preserve">
     <value>Đã xóa {0}; thất bại {1}</value>
   </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>Chỉ hiển thị các giọng đã cài đặt</value>
+  </data>
 </root>

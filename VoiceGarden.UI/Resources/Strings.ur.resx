@@ -594,4 +594,7 @@ API کیز یا اسناد
   <data name="VoicesUnpromoteFailed" xml:space="preserve">
     <value>ہٹا دیا گیا {0}; ناکام رہا {1}</value>
   </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>صرف نصب شدہ آوازیں دکھائیں</value>
+  </data>
 </root>

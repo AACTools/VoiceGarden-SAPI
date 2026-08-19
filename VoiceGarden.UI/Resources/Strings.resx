@@ -595,4 +595,7 @@
   <data name="AdvancedModelsHint" xml:space="preserve">
     <value>Browse, download and install offline voices from the Voices tab — select the SherpaOnnx engine there.</value>
   </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>Show installed voices only</value>
+  </data>
 </root>

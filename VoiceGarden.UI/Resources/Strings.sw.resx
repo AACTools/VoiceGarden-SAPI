@@ -594,4 +594,7 @@
   <data name="VoicesUnpromoteFailed" xml:space="preserve">
     <value>Imeondolewa {0}; imeshindikana {1}</value>
   </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>Onyesha sauti zilizowekwa tu</value>
+  </data>
 </root>

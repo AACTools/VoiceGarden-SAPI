@@ -64,6 +64,9 @@
                 </StackPanel>
                 <TextBox Text="{Binding SearchText}" PlaceholderText="{lang:Localize SearchVoices}" MinWidth="190"
                          AutomationProperties.Name="{lang:Localize SearchVoices}"/>
+                <CheckBox Content="{lang:Localize FilterInstalledOnly}" IsChecked="{Binding InstalledOnly}"
+                          VerticalAlignment="Center"
+                          AutomationProperties.Name="{lang:Localize FilterInstalledOnly}"/>
                 <Button Content="{lang:Localize All}" Command="{Binding SelectAllCommand}"
                         AutomationProperties.Name="{lang:Localize SelectAllVoices}"/>
                 <Button Content="{lang:Localize None}" Command="{Binding SelectNoneCommand}"

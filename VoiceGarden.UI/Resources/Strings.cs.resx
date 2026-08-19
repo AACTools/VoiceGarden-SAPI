@@ -594,4 +594,7 @@
   <data name="VoicesUnpromoteFailed" xml:space="preserve">
     <value>Odstraněno {0}; selhalo {1}</value>
   </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>Zobrazit pouze nainstalované hlasy</value>
+  </data>
 </root>

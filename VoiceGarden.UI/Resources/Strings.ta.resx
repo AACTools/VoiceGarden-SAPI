@@ -594,4 +594,7 @@
   <data name="VoicesUnpromoteFailed" xml:space="preserve">
     <value>{0} நீக்கப்பட்டது; {1} தோல்வி பட்டது</value>
   </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>நிறுவப்பட்ட குரல்களையும் மட்டும் காட்டு</value>
+  </data>
 </root>

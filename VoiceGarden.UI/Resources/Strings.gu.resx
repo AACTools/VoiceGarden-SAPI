@@ -594,4 +594,7 @@
   <data name="VoicesUnpromoteFailed" xml:space="preserve">
     <value>{0} દૂર કર્યું; {1} નિષ્ફળ થયું</value>
   </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>કેવળ સ્થાપિત અવાજો દર્શાવો</value>
+  </data>
 </root>

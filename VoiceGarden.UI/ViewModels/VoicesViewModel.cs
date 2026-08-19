@@ -145,6 +145,11 @@ public partial class VoicesViewModel : ObservableObject
     [ObservableProperty] private int selectedCount;
     [ObservableProperty] private int installedCount;
 
+    /// <summary>Filter toggle: show only voices already installed to SAPI.</summary>
+    [ObservableProperty] private bool installedOnly;
+
+    partial void OnInstalledOnlyChanged(bool value) => ApplyFilter();
+
     /// <summary>Error banner at the top of the Voices tab (icon + text, cleared by the next action).</summary>
     [ObservableProperty] private string? errorText;
 
@@ -851,6 +856,8 @@ public partial class VoicesViewModel : ObservableObject
 
         FilteredVoices.Clear();
         IEnumerable<VoiceEntry> query = AllVoices;
+
+        if (InstalledOnly) query = query.Where(v => v.IsInstalled);
 
         if (engineActive) query = query.Where(v => string.Equals(v.EngineName, EngineFilter, StringComparison.OrdinalIgnoreCase));
         if (languageActive) query = query.Where(v => string.Equals(v.Language, LanguageFilter, StringComparison.OrdinalIgnoreCase));

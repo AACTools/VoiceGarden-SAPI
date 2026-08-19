@@ -594,4 +594,7 @@
   <data name="VoicesUnpromoteFailed" xml:space="preserve">
     <value>Entfernt {0}; fehlgeschlagen {1}</value>
   </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>Nur installierte Stimmen anzeigen</value>
+  </data>
 </root>

@@ -594,4 +594,7 @@
   <data name="VoicesUnpromoteFailed" xml:space="preserve">
     <value>Αφαιρέθηκε {0}· απέτυχε {1}</value>
   </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>Εμφάνιση μόνο των εγκατεστημένων φωνών</value>
+  </data>
 </root>

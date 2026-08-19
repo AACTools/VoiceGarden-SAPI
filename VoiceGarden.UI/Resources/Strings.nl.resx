@@ -594,4 +594,7 @@
   <data name="VoicesUnpromoteFailed" xml:space="preserve">
     <value>Verwijderd {0}; mislukt {1}</value>
   </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>Alleen geïnstalleerde stemmen tonen</value>
+  </data>
 </root>

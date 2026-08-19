@@ -594,4 +594,7 @@
   <data name="VoicesUnpromoteFailed" xml:space="preserve">
     <value>ลบ {0} แล้ว; ล้มเหลว {1}</value>
   </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>แสดงเฉพาะเสียงที่ติดตั้งแล้ว</value>
+  </data>
 </root>

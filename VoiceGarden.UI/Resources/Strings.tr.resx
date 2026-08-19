@@ -594,4 +594,7 @@
   <data name="VoicesUnpromoteFailed" xml:space="preserve">
     <value>{0} kaldırıldı; {1} başarısız oldu</value>
   </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>Yalnızca yüklü sesleri göster</value>
+  </data>
 </root>

@@ -594,4 +594,7 @@
   <data name="VoicesUnpromoteFailed" xml:space="preserve">
     <value>हटाया गया {0}; असफल {1}</value>
   </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>केवल इंस्टॉल की गई आवाज़ें दिखाएँ</value>
+  </data>
 </root>

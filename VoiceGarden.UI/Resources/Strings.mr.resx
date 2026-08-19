@@ -594,4 +594,7 @@
   <data name="VoicesUnpromoteFailed" xml:space="preserve">
     <value>काढले {0}; अयशस्वी {1}</value>
   </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>केवळ स्थापित केलेली आवाजी दाखवा</value>
+  </data>
 </root>

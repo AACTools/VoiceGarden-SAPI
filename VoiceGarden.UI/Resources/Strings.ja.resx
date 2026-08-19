@@ -594,4 +594,7 @@
   <data name="VoicesUnpromoteFailed" xml:space="preserve">
     <value>{0} を削除しました; {1} に失敗しました</value>
   </data>
+  <data name="FilterInstalledOnly" xml:space="preserve">
+    <value>インストールされている音声のみ表示</value>
+  </data>
 </root>
