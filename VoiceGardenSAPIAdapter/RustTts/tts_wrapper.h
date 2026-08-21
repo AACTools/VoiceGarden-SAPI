@@ -39,9 +39,21 @@ typedef struct tts_voice {
  */
 typedef void (*CAudioCb)(const uint8_t*, uintptr_t, void*);
 
-typedef void (*CBoundaryCb)(const char*, float, float, void*);
+/**
+ * Word-boundary callback:
+ * cb(word, char_offset, char_len, start_s, end_s, estimated, userdata).
+ * char_offset/char_len are -1 when unknown. `estimated` is 1 when the
+ * timings are proportional estimates (unpatched voice, wpm model), 0
+ * when measured (floravox duration tensor, cloud provider timings).
+ */
+typedef void (*CBoundaryCb)(const char*, int32_t, int32_t, float, float, int32_t, void*);
 
-typedef void (*CBoundaryCb2)(const char*, int32_t, int32_t, float, float, void*);
+/**
+ * Mark/bookmark callback: cb(name, char_offset, start_s, end_s, userdata).
+ * char_offset is -1 when unknown; start/end are the measured (or
+ * estimated) audio position the mark fires at.
+ */
+typedef void (*CMarkCb)(const char*, int32_t, float, float, void*);
 
 typedef void (*CVisemeCb)(int32_t, float, void*);
 
@@ -219,7 +231,11 @@ void tts_set_volume(struct tts_ctx *ctx, float volume);
 void tts_set_on_audio(struct tts_ctx *ctx, CAudioCb cb, void *userdata);
 
 /**
- * Set the callback for word boundary events.
+ * Set the word-boundary callback:
+ * cb(word, char_offset, char_len, start_s, end_s, estimated, userdata).
+ * char_offset/char_len are -1 when unknown. `estimated` is 1 when the
+ * timings are proportional estimates (unpatched voice, wpm model), 0
+ * when measured (floravox duration tensor, cloud provider timings).
  *
  * # Safety
  * `ctx` must be valid.
@@ -227,13 +243,14 @@ void tts_set_on_audio(struct tts_ctx *ctx, CAudioCb cb, void *userdata);
 void tts_set_on_boundary(struct tts_ctx *ctx, CBoundaryCb cb, void *userdata);
 
 /**
- * Extended boundary callback with source-text char offset and length.
- * cb(word, char_offset, char_len, start_s, end_s, userdata)
+ * Set the mark/bookmark callback: cb(name, char_offset, start_s, end_s, userdata).
+ * Fires for `<mark>`/`<bookmark>` SSML tags at their measured audio
+ * position on engines that report them (floravox).
  *
  * # Safety
  * `ctx` must be valid.
  */
-void tts_set_on_boundary2(struct tts_ctx *ctx, CBoundaryCb2 cb, void *userdata);
+void tts_set_on_mark(struct tts_ctx *ctx, CMarkCb cb, void *userdata);
 
 /**
  * Viseme callback for lip-sync / facial animation.

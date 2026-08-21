@@ -94,7 +94,7 @@ bool Loader::Initialize() {
     ok &= GetFunc("tts_set_pitch", setPitch);
     ok &= GetFunc("tts_set_volume", setVolume);
     ok &= GetFunc("tts_set_on_audio", setOnAudio);
-    ok &= GetFunc("tts_set_on_boundary2", setOnBoundary2);
+    ok &= GetFunc("tts_set_on_boundary", setOnBoundary);
     ok &= GetFunc("tts_set_on_viseme", setOnViseme);
     ok &= GetFunc("tts_set_on_start", setOnStart);
     ok &= GetFunc("tts_set_on_end", setOnEnd);

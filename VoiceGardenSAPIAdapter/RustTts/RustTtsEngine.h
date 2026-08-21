@@ -15,7 +15,7 @@ namespace RustTts {
 using AudioCallback = std::function<void(const uint8_t*, uint32_t)>;
 
 // Boundary callback: (word, charOffset, charLen, startSec, endSec)
-using BoundaryCallback = std::function<void(const char*, int32_t, int32_t, float, float)>;
+using BoundaryCallback = std::function<void(const char*, int32_t, int32_t, float, float, bool)>;
 
 // Viseme callback: (visemeId, offsetSec)
 using VisemeCallback = std::function<void(int32_t, float)>;

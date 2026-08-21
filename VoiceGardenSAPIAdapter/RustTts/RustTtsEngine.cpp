@@ -119,7 +119,7 @@ std::string Engine::GetLastError() const {
 void Engine::RegisterCallbacks() {
     auto& loader = Loader::Instance();
     loader.setOnAudio(m_ctx, &Engine::OnAudioThunk, this);
-    loader.setOnBoundary2(m_ctx, &Engine::OnBoundaryThunk, this);
+    loader.setOnBoundary(m_ctx, &Engine::OnBoundaryThunk, this);
     loader.setOnViseme(m_ctx, &Engine::OnVisemeThunk, this);
     loader.setOnError(m_ctx, &Engine::OnErrorThunk, this);
 }
@@ -136,10 +136,11 @@ void Engine::OnAudioThunk(const uint8_t* data, uintptr_t len, void* ud) {
 
 void Engine::OnBoundaryThunk(const char* word, int32_t charOffset,
                               int32_t charLen, float startS, float endS,
-                              void* ud) {
+                              int32_t estimated, void* ud) {
     auto* self = static_cast<Engine*>(ud);
     if (self && self->m_onBoundary) {
-        self->m_onBoundary(word, charOffset, charLen, startS, endS);
+        self->m_onBoundary(word, charOffset, charLen, startS, endS,
+                           estimated != 0);
     }
 }
 

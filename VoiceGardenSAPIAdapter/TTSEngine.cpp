@@ -996,7 +996,8 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
     });
 
     m_rustTts->SetOnBoundary([this](const char* word, int32_t charOffset,
-                                    int32_t charLen, float startS, float endS) {
+                                    int32_t charLen, float startS, float endS,
+                                    bool estimated) {
         // Skip events with invalid offsets
         if (charOffset < 0 || charLen <= 0)
             return;

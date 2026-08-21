@@ -15,7 +15,7 @@ struct tts_voice;
 struct tts_engine_info;
 
 typedef void (*CAudioCb)(const uint8_t*, uintptr_t, void*);
-typedef void (*CBoundaryCb2)(const char*, int32_t, int32_t, float, float, void*);
+typedef void (*CBoundaryCb)(const char*, int32_t, int32_t, float, float, int32_t, void*);
 typedef void (*CVisemeCb)(int32_t, float, void*);
 typedef void (*CVoidCb)(void*);
 typedef void (*CErrorCb)(const char*, void*);
@@ -41,7 +41,7 @@ public:
     void          (*setPitch)(tts_ctx*, float) = nullptr;
     void          (*setVolume)(tts_ctx*, float) = nullptr;
     void          (*setOnAudio)(tts_ctx*, CAudioCb, void*) = nullptr;
-    void          (*setOnBoundary2)(tts_ctx*, CBoundaryCb2, void*) = nullptr;
+    void          (*setOnBoundary)(tts_ctx*, CBoundaryCb, void*) = nullptr;
     void          (*setOnViseme)(tts_ctx*, CVisemeCb, void*) = nullptr;
     void          (*setOnStart)(tts_ctx*, CVoidCb, void*) = nullptr;
     void          (*setOnEnd)(tts_ctx*, CVoidCb, void*) = nullptr;
