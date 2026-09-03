@@ -896,11 +896,17 @@ static const char* Iso6393ToPrimary(const std::string& iso3)
 //   modelsDir— the models root (floravox resolves modelId under it)
 //   lang     — primary language subtag; fetches the published lexicon +
 //              Phonetisaurus + ByT5 G2P bundle for that language (cached;
-//              fetch failure degrades to the model's own phonemizer)
+//              fetch failure degrades to the model's own phonemizer).
+//              WITHOUT a language, floravox letter-spells every word
+//              (its G2P chain ends in letter spelling) — so this must be
+//              derivable for every routed voice.
 //   misaki   — "us"/"gb" document-level English pre-pass (numbers and
 //              heteronyms come out right)
+// fallbackLocale — the token's Attributes\Locale (e.g. "en-US"), used when
+//              the model id carries no language (coqui, matcha, …).
 static std::string BuildFloravoxCredentials(const std::filesystem::path& modelsRoot,
-                                            const std::filesystem::path& rel)
+                                            const std::filesystem::path& rel,
+                                            const std::string& fallbackLocale = {})
 {
     std::string modelId = rel.generic_string(); // forward slashes for the Rust side
     std::string modelsDir = modelsRoot.generic_string();
@@ -909,6 +915,7 @@ static std::string BuildFloravoxCredentials(const std::filesystem::path& modelsR
     //   piper-en_US-amy-low/…  → "en" (+ "us" misaki)
     //   piper-fa_IR-amir-medium/… → "fa"
     //   mms_eng/…              → "en"
+    //   coqui-en-ljspeech/…    → "en"
     std::string first = rel.begin()->string();
     for (auto& c : first) c = static_cast<char>(::tolower(static_cast<unsigned char>(c)));
 
@@ -925,7 +932,7 @@ static std::string BuildFloravoxCredentials(const std::filesystem::path& modelsR
         localePart = dash2 == std::string::npos ? rest : rest.substr(0, dash2);
     }
 
-    if (family == "piper" && !localePart.empty())
+    if ((family == "piper" || family == "coqui") && !localePart.empty())
     {
         const auto uscore = localePart.find('_');
         lang = uscore == std::string::npos ? localePart : localePart.substr(0, uscore);
@@ -944,6 +951,19 @@ static std::string BuildFloravoxCredentials(const std::filesystem::path& modelsR
             lang = "en";
             misaki = "us";
         }
+    }
+
+    // Fallback: the promoted token's locale (written from the catalog at
+    // promotion time) covers families whose ids carry no language.
+    if (lang.empty() && !fallbackLocale.empty())
+    {
+        auto primary = fallbackLocale;
+        for (auto& c : primary) c = static_cast<char>(::tolower(static_cast<unsigned char>(c)));
+        const auto sep = primary.find_first_of("-_");
+        if (sep != std::string::npos)
+            primary = primary.substr(0, sep);
+        if (primary.size() == 2 || primary.size() == 3)
+            lang = primary;
     }
 
     if (lang == "en")
@@ -1091,8 +1111,23 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
                 std::string floravoxCreds;
                 if (ModelSupportsFloravox(onnxPath.parent_path(), modelId))
                 {
-                    floravoxCreds = BuildFloravoxCredentials(p, rel);
-                    LogInfo("RustTts: floravox candidate for '{}' (supported local layout)", modelId);
+                    // Token locale (e.g. "en-US") — the catalog language for
+                    // this voice, used when the model id carries none.
+                    std::string tokenLocale;
+                    if (m_cpToken)
+                    {
+                        CComPtr<ISpDataKey> cpAttrs;
+                        CSpDynamicString pszLocale;
+                        if (SUCCEEDED(m_cpToken->OpenKey(L"Attributes", &cpAttrs)) &&
+                            SUCCEEDED(cpAttrs->GetStringValue(L"Locale", &pszLocale)) &&
+                            pszLocale.m_psz)
+                        {
+                            tokenLocale = WStringToUTF8(std::wstring(pszLocale.m_psz));
+                        }
+                    }
+                    floravoxCreds = BuildFloravoxCredentials(p, rel, tokenLocale);
+                    LogInfo("RustTts: floravox candidate for '{}' (supported local layout, locale='{}')",
+                            modelId, tokenLocale);
                 }
 
                 if (!floravoxCreds.empty())
