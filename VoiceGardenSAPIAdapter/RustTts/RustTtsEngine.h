@@ -14,8 +14,15 @@ namespace RustTts {
 // Audio chunk callback: (pcmBytes, numBytes)
 using AudioCallback = std::function<void(const uint8_t*, uint32_t)>;
 
-// Boundary callback: (word, charOffset, charLen, startSec, endSec)
+// Boundary callback: (word, charOffset, charLen, startSec, endSec, estimated).
+// `estimated` is false when the engine measured the timing (floravox
+// duration tensor, cloud provider timings) and true for synthetic
+// interpolations (sherpa-onnx).
 using BoundaryCallback = std::function<void(const char*, int32_t, int32_t, float, float, bool)>;
+
+// Mark callback: (name, charOffset, startSec, endSec) — fired for SSML
+// <mark name="..."/> bookmarks (floravox; mapped to SPEI_TTSBOOKMARK).
+using MarkCallback = std::function<void(const char*, int32_t, float, float)>;
 
 // Viseme callback: (visemeId, offsetSec)
 using VisemeCallback = std::function<void(int32_t, float)>;
@@ -60,6 +67,7 @@ public:
     // Register callbacks. The engine stores these and calls them during Speak().
     void SetOnAudio(AudioCallback cb);
     void SetOnBoundary(BoundaryCallback cb);
+    void SetOnMark(MarkCallback cb);
     void SetOnViseme(VisemeCallback cb);
     void SetOnError(ErrorCallback cb);
 
@@ -72,6 +80,7 @@ private:
     // Callbacks — stored as members so they live as long as the engine.
     AudioCallback m_onAudio;
     BoundaryCallback m_onBoundary;
+    MarkCallback m_onMark;
     VisemeCallback m_onViseme;
     ErrorCallback m_onError;
 
@@ -82,7 +91,9 @@ private:
     static void OnAudioThunk(const uint8_t* data, uintptr_t len, void* ud);
     static void OnBoundaryThunk(const char* word, int32_t charOffset,
                                 int32_t charLen, float startS, float endS,
-                                void* ud);
+                                int32_t estimated, void* ud);
+    static void OnMarkThunk(const char* name, int32_t charOffset,
+                            float startS, float endS, void* ud);
     static void OnVisemeThunk(int32_t visemeId, float offsetS, void* ud);
     static void OnErrorThunk(const char* msg, void* ud);
 };
