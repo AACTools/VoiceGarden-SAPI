@@ -54,13 +54,8 @@ bool Engine::Speak(const std::string& text) {
 
 bool Engine::SpeakSsml(const std::string& ssml) {
     if (!m_ctx) return false;
-    // Debug: write marker file to verify SpeakSsml is called
-    FILE* f = nullptr;
-    fopen_s(&f, "C:\\Users\\WillWade\\AppData\\Local\\Temp\\vg_ssml_debug.txt", "a");
-    if (f) { fprintf(f, "SpeakSsml len=%zu first80=%.80s\n", ssml.size(), ssml.c_str()); fclose(f); }
     auto& loader = Loader::Instance();
     int32_t rc = loader.speakSsml(m_ctx, ssml.c_str());
-    if (f) { fopen_s(&f, "C:\\Users\\WillWade\\AppData\\Local\\Temp\\vg_ssml_debug.txt", "a"); if (f) { fprintf(f, "rc=%d\n", rc); fclose(f); } }
     if (rc != 0) {
         const char* err = loader.getLastError(m_ctx);
         spdlog::warn("RustTts::Engine::SpeakSsml failed: {}", err ? err : "(unknown)");
@@ -102,6 +97,10 @@ void Engine::SetOnBoundary(BoundaryCallback cb) {
     m_onBoundary = std::move(cb);
 }
 
+void Engine::SetOnMark(MarkCallback cb) {
+    m_onMark = std::move(cb);
+}
+
 void Engine::SetOnViseme(VisemeCallback cb) {
     m_onViseme = std::move(cb);
 }
@@ -120,6 +119,9 @@ void Engine::RegisterCallbacks() {
     auto& loader = Loader::Instance();
     loader.setOnAudio(m_ctx, &Engine::OnAudioThunk, this);
     loader.setOnBoundary(m_ctx, &Engine::OnBoundaryThunk, this);
+    if (loader.setOnMark) {
+        loader.setOnMark(m_ctx, &Engine::OnMarkThunk, this);
+    }
     loader.setOnViseme(m_ctx, &Engine::OnVisemeThunk, this);
     loader.setOnError(m_ctx, &Engine::OnErrorThunk, this);
 }
@@ -141,6 +143,14 @@ void Engine::OnBoundaryThunk(const char* word, int32_t charOffset,
     if (self && self->m_onBoundary) {
         self->m_onBoundary(word, charOffset, charLen, startS, endS,
                            estimated != 0);
+    }
+}
+
+void Engine::OnMarkThunk(const char* name, int32_t charOffset,
+                          float startS, float endS, void* ud) {
+    auto* self = static_cast<Engine*>(ud);
+    if (self && self->m_onMark) {
+        self->m_onMark(name, charOffset, startS, endS);
     }
 }
 

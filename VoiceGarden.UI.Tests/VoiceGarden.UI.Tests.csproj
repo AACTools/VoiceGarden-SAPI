@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <IsPackable>false</IsPackable>
+    <!-- The UI is WinExe/self-contained; reference its sources loosely. -->
+    <NoWarn>CA1416</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageReference Include="RustTtsWrapper.Bindings" Version="0.5.3" />
+  </ItemGroup>
+
+  <!--
+    Reference the UI's sidecar generator by linking the source file: a full
+    ProjectReference would drag the Avalonia WinExe output type into the
+    test host. The generator is deliberately dependency-free.
+  -->
+  <ItemGroup>
+    <Compile Include="..\VoiceGarden.UI\Services\PiperSidecarGenerator.cs" Link="Services\PiperSidecarGenerator.cs" />
+  </ItemGroup>
+
+</Project>
