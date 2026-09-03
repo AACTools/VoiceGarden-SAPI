@@ -122,6 +122,22 @@ public sealed class PiperSidecarGeneratorTests : IDisposable
         Assert.Null(written);
     }
 
+    [Theory]
+    [InlineData("zipvoice-zh_en-emilia")]
+    [InlineData("supertonic-3-multilingual")]
+    [InlineData("kyutai-en-pocket-tts")]      // "pocket" is not a prefix here — matches anywhere
+    [InlineData("kitten")]
+    public void FlowFamiliesNeverGetSidecars(string modelId)
+    {
+        // These carry tokens.txt like every sherpa model but are flow /
+        // diffusion graphs floravox cannot load — the sidecar would only
+        // invite a broken floravox route. They stay on sherpa-onnx.
+        WriteSherpaLayout("a 1\n");
+
+        Assert.Null(PiperSidecarGenerator.EnsureSidecar(_dir, modelId, sampleRate: null));
+        Assert.False(File.Exists(Path.Combine(_dir, "model.onnx.json")));
+    }
+
     [Fact]
     public void RegeneratesOurStaleSidecar_NeverShippedOnes()
     {

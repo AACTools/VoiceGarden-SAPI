@@ -31,14 +31,21 @@ public static class PiperSidecarGenerator
     {
         try
         {
+            // Flow/diffusion families (zipvoice, supertonic, pocket, kitten)
+            // are not floravox graphs - they carry tokens.txt too, so they
+            // must be excluded by name before any layout check.
+            if (IsFlowModelFamily(modelId))
+                return null;
+
             var onnx = FindModelOnnx(modelDir);
             if (onnx is null) return null;
 
             var tokensPath = Path.Combine(modelDir, "tokens.txt");
             if (!File.Exists(tokensPath)) return null;
 
-            // Kokoro voices don't use a phoneme map (their tokens file is a
-            // speaker/char table) — leave them to their own backend config.
+            // Kokoro voices don't need a generated sidecar: floravox's
+            // KokoroBackend reads tokens.txt and voices.bin directly from
+            // the model dir.
             if (File.Exists(Path.Combine(modelDir, "voices.bin"))) return null;
 
             var sidecarPath = onnx + ".json";
@@ -90,6 +97,18 @@ public static class PiperSidecarGenerator
 
     /// <summary>Marker key written into generated sidecars (never shipped ones).</summary>
     private const string GeneratorMarker = "voicegardenGenerated";
+
+    /// <summary>
+    /// Flow/diffusion model families that floravox cannot load (its backends
+    /// are piper/MMS VITS, Matcha + vocoder, Kokoro). They carry tokens.txt
+    /// like every sherpa model, so exclusion is by name.
+    /// </summary>
+    internal static bool IsFlowModelFamily(string modelId)
+    {
+        var id = modelId.ToLowerInvariant();
+        return id.Contains("zipvoice") || id.Contains("supertonic")
+            || id.Contains("pocket") || id.Contains("kitten");
+    }
 
     private static bool WasGeneratedByUs(string sidecarPath)
     {

@@ -15,6 +15,7 @@ namespace VoiceGarden.UI.Tests;
 public sealed class FloravoxEngineTests : IDisposable
 {
     private readonly string? _voiceDir;
+    private readonly string? _kokoroDir;
 
     public FloravoxEngineTests()
     {
@@ -26,12 +27,23 @@ public sealed class FloravoxEngineTests : IDisposable
             return;
         }
         // First piper voice dir with a *.onnx.json sidecar (routing key used
-        // by the C++ adapter — see HasPiperSidecar in TTSEngine.cpp).
+        // by the C++ adapter — see ModelSupportsFloravox in TTSEngine.cpp).
         _voiceDir = (from d in Directory.EnumerateDirectories(modelsRoot, "*", SearchOption.AllDirectories)
                      where Directory.EnumerateFiles(d, "*.onnx.json").Any()
                      let onnx = Directory.EnumerateFiles(d, "*.onnx").FirstOrDefault()
                      where onnx != null
                      select d).FirstOrDefault();
+        // Kokoro voice in pure sherpa layout (model.onnx + tokens.txt +
+        // voices.bin, NO sidecar) — floravox self-serves these.
+        _kokoroDir = (from d in Directory.EnumerateDirectories(modelsRoot, "*", SearchOption.TopDirectoryOnly)
+                      where Path.GetFileName(d).StartsWith("kokoro-en-", StringComparison.OrdinalIgnoreCase)
+                      where Directory.EnumerateFiles(d, "voices.bin", SearchOption.AllDirectories).Any()
+                      where Directory.EnumerateFiles(d, "tokens.txt", SearchOption.AllDirectories).Any()
+                      where Directory.EnumerateFiles(d, "*.onnx", SearchOption.AllDirectories)
+                          .Any(f => !Path.GetFileName(f).Contains("vocoder"))
+                      select Directory.EnumerateDirectories(d).FirstOrDefault(
+                          inner => Directory.EnumerateFiles(inner, "model.onnx").Any()))
+                     .FirstOrDefault();
     }
 
     public void Dispose() { }
@@ -43,6 +55,39 @@ public sealed class FloravoxEngineTests : IDisposable
         withLang
             ? new() { ["modelId"] = modelId, ["modelsDir"] = modelsRoot, ["lang"] = "en" }
             : new() { ["modelId"] = modelId, ["modelsDir"] = modelsRoot };
+
+    [Fact]
+    public void KokoroSpeaksThroughFloravoxFromSherpaLayout()
+    {
+        // Kokoro ships as model.onnx + tokens.txt + voices.bin with NO
+        // piper sidecar — floravox's KokoroBackend self-serves the layout.
+        // This is the path the C++ adapter now routes kokoro voices through.
+        if (_kokoroDir is null)
+        {
+            return; // no local kokoro voice — skip
+        }
+
+        var modelsRoot = ModelsRoot!.Replace('\\', '/');
+        var modelId = _kokoroDir!.Replace('\\', '/')[(modelsRoot.Length + 1)..];
+        var creds = new Dictionary<string, string>
+        {
+            ["modelId"] = modelId,
+            ["modelsDir"] = modelsRoot,
+            ["lang"] = "en",
+            ["misaki"] = "us",
+        };
+
+        using var client = new TtsClient("floravox", creds);
+        var audioBytes = 0L;
+        var boundaries = new List<string>();
+        client.SetOnAudio(data => audioBytes += data.Length);
+        client.SetOnBoundary((w, _, _, s, e, _) => boundaries.Add(w));
+
+        client.SpeakSync("<speak>Kokoro speaks through floravox with the number 42.</speak>");
+
+        Assert.True(audioBytes > 0, $"no audio produced ({audioBytes} bytes)");
+        Assert.NotEmpty(boundaries);
+    }
 
     [Fact]
     public void MissingVoiceSurfacesAsSpeakError()

@@ -15,7 +15,7 @@ Powered by [rust-tts-wrapper](https://github.com/AACTools/rust-tts-wrapper) for 
 | **Cloud TTS** | OpenAI, Google Cloud, AWS Polly, ElevenLabs, Cartesia, Deepgram | Yes |
 | **More cloud** | Watson, PlayHT, Wit.ai, Gemini, Hume AI, xAI Grok, Fish Audio, Mistral, Murf, Unreal Speech, Resemble, Uplift AI, Models Lab | Yes |
 
-All engines support **word boundary events** for word highlighting in AAC software. Offline piper-family voices prefer the floravox engine: duration-tensor timings on patched voices, SSML `<mark>` → `SPEI_TTSBOOKMARK`, and published per-language G2P bundles (cached; synthesis still works offline). SherpaOnnx is the automatic fallback (32-bit hosts, missing engine).
+All engines support **word boundary events** for word highlighting in AAC software. Offline voices route to **floravox** wherever it's supported (piper/MMS VITS, Matcha, Kokoro — self-served from sherpa layout; duration-tensor timings on patched voices, SSML `<mark>` → `SPEI_TTSBOOKMARK`, published per-language G2P bundles cached locally, synthesis still works offline). **SherpaOnnx** is the automatic fallback (32-bit hosts, engine failure) and the only engine for the flow/diffusion families (zipvoice, supertonic, pocket, kitten).
 
 \* floravox on x64 needs Windows 10 1903+ (the static onnxruntime DirectML floor); older systems fall back to SherpaOnnx.
 

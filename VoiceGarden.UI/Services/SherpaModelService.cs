@@ -784,12 +784,20 @@ public class SherpaModelService
         // Generate the piper sidecar while the catalog entry (with the
         // sample rate) is at hand, so the floravox engine can pick the voice
         // up on the next scan/promotion without needing sherpa layout.
+        // Flow families (zipvoice/supertonic/pocket/kitten) stay sherpa-only.
         var extractedModelDir = FindExtractedModelDir(destDir);
-        if (extractedModelDir != null)
+        if (extractedModelDir != null && !IsFlowModelType(model.ModelType))
             PiperSidecarGenerator.EnsureSidecar(extractedModelDir, model.Id, model.SampleRate);
 
         progress?.Report((100, "Done"));
     }
+
+    /// <summary>Catalog model_type values floravox cannot load (flow/diffusion graphs).</summary>
+    private static bool IsFlowModelType(string? modelType) => modelType is not null
+        && (modelType.Equals("zipvoice", StringComparison.OrdinalIgnoreCase)
+            || modelType.Equals("supertonic", StringComparison.OrdinalIgnoreCase)
+            || modelType.Equals("pocket", StringComparison.OrdinalIgnoreCase)
+            || modelType.Equals("kitten", StringComparison.OrdinalIgnoreCase));
 
     /// <summary>The .onnx-bearing directory inside a freshly extracted model dir (flat or nested).</summary>
     private static string? FindExtractedModelDir(string modelDir)
