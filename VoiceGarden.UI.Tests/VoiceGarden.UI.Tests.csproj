@@ -17,4 +17,13 @@
     <PackageReference Include="RustTtsWrapper.Bindings" Version="0.5.3" />
   </ItemGroup>
 
+  <!--
+    Reference the UI's sidecar generator by linking the source file: a full
+    ProjectReference would drag the Avalonia WinExe output type into the
+    test host. The generator is deliberately dependency-free.
+  -->
+  <ItemGroup>
+    <Compile Include="..\VoiceGarden.UI\Services\PiperSidecarGenerator.cs" Link="Services\PiperSidecarGenerator.cs" />
+  </ItemGroup>
+
 </Project>

@@ -553,6 +553,11 @@ public class SherpaModelService
                     installed.ModelType = 1; // Matcha
                 else
                     installed.ModelType = 0; // VITS
+
+                // Best-effort: give sherpa-layout voices a piper sidecar so
+                // the floravox engine (measured timing, lexicon G2P) can load
+                // them. Re-runs when tokens.txt is newer than the sidecar.
+                PiperSidecarGenerator.EnsureSidecar(modelDir, modelId);
             }
 
             result.Add(installed);
@@ -776,7 +781,22 @@ public class SherpaModelService
         // shared models dir so synthesis works out of the box.
         await EnsureZipvoiceVocoderAsync(model, progress);
 
+        // Generate the piper sidecar while the catalog entry (with the
+        // sample rate) is at hand, so the floravox engine can pick the voice
+        // up on the next scan/promotion without needing sherpa layout.
+        var extractedModelDir = FindExtractedModelDir(destDir);
+        if (extractedModelDir != null)
+            PiperSidecarGenerator.EnsureSidecar(extractedModelDir, model.Id, model.SampleRate);
+
         progress?.Report((100, "Done"));
+    }
+
+    /// <summary>The .onnx-bearing directory inside a freshly extracted model dir (flat or nested).</summary>
+    private static string? FindExtractedModelDir(string modelDir)
+    {
+        var onnx = Directory.GetFiles(modelDir, "*.onnx", SearchOption.AllDirectories)
+            .FirstOrDefault(f => !Path.GetFileName(f).Contains("vocoder", StringComparison.OrdinalIgnoreCase));
+        return onnx is null ? null : Path.GetDirectoryName(onnx);
     }
 
     /// <summary>
