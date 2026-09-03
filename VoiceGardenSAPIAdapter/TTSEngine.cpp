@@ -827,6 +827,103 @@ static void MigrateLegacySherpaModelDir(const std::filesystem::path& modelsDir,
     }
 }
 
+// A piper voice directory carries an `X.onnx` + `X.onnx.json` pair; the
+// sidecar is what the floravox engine reads (sample rate, inference params,
+// phoneme map, language). Voices without it (kokoro/mms/matcha in sherpa
+// layout) stay on the sherpa-onnx engine until the UI installer generates
+// sidecars for them.
+static bool HasPiperSidecar(const std::filesystem::path& modelDir)
+{
+    std::error_code ec;
+    for (const auto& entry : std::filesystem::directory_iterator(modelDir, ec))
+    {
+        if (!entry.is_regular_file(ec))
+            continue;
+        auto name = entry.path().filename().wstring();
+        if (name.size() > 10)
+        {
+            std::transform(name.begin(), name.end(), name.begin(), ::towlower);
+            if (name.ends_with(L".onnx.json"))
+                return true;
+        }
+    }
+    return false;
+}
+
+// ISO 639-3 → primary subtag for the MMS-style model ids the installer
+// downloads (mms_eng, mms_fas, ...). Unknown codes yield "" (no lexicon
+// bundle fetch; the model's own phonemizer still works).
+static const char* Iso6393ToPrimary(const std::string& iso3)
+{
+    static const std::pair<const char*, const char*> kMap[] = {
+        {"eng", "en"}, {"fas", "fa"}, {"pes", "fa"}, {"arb", "ar"}, {"spa", "es"},
+        {"fra", "fr"}, {"deu", "de"}, {"por", "pt"}, {"ita", "it"}, {"rus", "ru"},
+        {"zho", "zh"}, {"hin", "hi"}, {"jpn", "ja"}, {"kor", "ko"}, {"vie", "vi"},
+        {"tur", "tr"}, {"pol", "pl"}, {"nld", "nl"}, {"swe", "sv"}, {"fin", "fi"},
+        {"ces", "cs"}, {"ell", "el"}, {"heb", "he"}, {"ukr", "uk"}, {"hye", "hy"},
+    };
+    for (const auto& [code, primary] : kMap)
+        if (iso3 == code)
+            return primary;
+    return "";
+}
+
+// Credentials for the floravox engine:
+//   modelId  — voice dir relative to the models root, forward slashes
+//   modelsDir— the models root (floravox resolves modelId under it)
+//   lang     — primary language subtag; fetches the published lexicon +
+//              Phonetisaurus + ByT5 G2P bundle for that language (cached;
+//              fetch failure degrades to the model's own phonemizer)
+//   misaki   — "us"/"gb" document-level English pre-pass (numbers and
+//              heteronyms come out right)
+static std::string BuildFloravoxCredentials(const std::filesystem::path& modelsRoot,
+                                            const std::filesystem::path& rel)
+{
+    std::string modelId = rel.generic_string(); // forward slashes for the Rust side
+    std::string modelsDir = modelsRoot.generic_string();
+
+    // First path component identifies the family and (usually) the language:
+    //   piper-en_US-amy-low/…  → "en" (+ "us" misaki)
+    //   piper-fa_IR-amir-medium/… → "fa"
+    //   mms_eng/…              → "en"
+    std::string first = rel.begin()->string();
+    for (auto& c : first) c = static_cast<char>(::tolower(static_cast<unsigned char>(c)));
+
+    std::string lang;
+    std::string misaki;
+    std::string localePart; // e.g. "en_us" / "fa_ir" — used for the misaki variant
+
+    const auto dash1 = first.find('-');
+    std::string family = dash1 == std::string::npos ? first : first.substr(0, dash1);
+    if (dash1 != std::string::npos)
+    {
+        auto rest = first.substr(dash1 + 1);
+        const auto dash2 = rest.find('-');
+        localePart = dash2 == std::string::npos ? rest : rest.substr(0, dash2);
+    }
+
+    if (family == "piper" && !localePart.empty())
+    {
+        const auto uscore = localePart.find('_');
+        lang = uscore == std::string::npos ? localePart : localePart.substr(0, uscore);
+    }
+    else if (family == "mms" && !localePart.empty())
+    {
+        lang = Iso6393ToPrimary(localePart);
+    }
+
+    if (lang == "en")
+        misaki = localePart.find("gb") != std::string::npos ? "gb" : "us";
+
+    std::string creds = "{\"modelId\":\"" + modelId + "\",\"modelsDir\":\"" + modelsDir + "\"";
+    if (!lang.empty())
+        creds += ",\"lang\":\"" + lang + "\"";
+    if (!misaki.empty())
+        creds += ",\"misaki\":\"" + misaki + "\"";
+    creds += "}";
+    return creds;
+}
+
 bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
 {
     // Try to use rust-tts-wrapper for cloud engines.
@@ -948,8 +1045,45 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
                 // directory names so the wrapper's registry lookup succeeds.
                 MigrateLegacySherpaModelDir(p, modelId, m_cpToken);
                 std::replace(basePath.begin(), basePath.end(), '\\', '/');
-                credsJson = "{\"modelId\":\"" + modelId + "\",\"modelPath\":\"" + basePath + "\"}";
-                LogInfo("RustTts: SherpaOnnx credentials: {}", credsJson);
+
+                // Piper-family voices with a piper sidecar (*.onnx.json) route
+                // through the floravox engine: measured word boundaries (from
+                // the model's duration tensor), native SSML marks, and the
+                // published lexicon/Phonetisaurus/ByT5 G2P chain. Everything
+                // else (and any floravox failure — e.g. the 32-bit DLL ships
+                // without floravox) falls back to the sherpa-onnx engine.
+                std::string floravoxCreds;
+                if (HasPiperSidecar(onnxPath.parent_path()))
+                {
+                    floravoxCreds = BuildFloravoxCredentials(p, rel);
+                    LogInfo("RustTts: floravox candidate for '{}' (piper sidecar found)", modelId);
+                }
+
+                if (!floravoxCreds.empty())
+                {
+                    m_rustTts = std::make_unique<RustTts::Engine>();
+                    if (m_rustTts->Create("floravox", floravoxCreds))
+                    {
+                        m_rustTtsEngineId = "floravox";
+                        // floravox parses SSML natively (<prosody rate>, <break>,
+                        // <bookmark>) and reports offsets into the SSML document,
+                        // so Speak() builds SSML and boundaries map through
+                        // m_offsetMappings instead of m_plainToSapiMap.
+                        m_rustTtsUseSsml = true;
+                        LogInfo("RustTts: using floravox engine for piper voice '{}'", modelId);
+                    }
+                    else
+                    {
+                        LogWarn("RustTts: floravox engine unavailable for '{}', falling back to sherpaonnx", modelId);
+                        m_rustTts.reset();
+                    }
+                }
+
+                if (!m_rustTts)
+                {
+                    credsJson = "{\"modelId\":\"" + modelId + "\",\"modelPath\":\"" + basePath + "\"}";
+                    LogInfo("RustTts: SherpaOnnx credentials: {}", credsJson);
+                }
             }
             else
             {
@@ -970,17 +1104,24 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
         credsJson = "{\"apiKey\":\"" + key + "\"}";
     }
 
-    // Create the RustTts engine
-    m_rustTts = std::make_unique<RustTts::Engine>();
-    if (!m_rustTts->Create(lowerType, credsJson))
+    // Create the RustTts engine (unless the floravox fast path above
+    // already created one for a piper-family voice)
+    if (!m_rustTts)
     {
-        LogWarn("RustTts: failed to create engine '{}', falling back", lowerType);
-        m_rustTts.reset();
-        return false;
+        m_rustTts = std::make_unique<RustTts::Engine>();
+        if (!m_rustTts->Create(lowerType, credsJson))
+        {
+            LogWarn("RustTts: failed to create engine '{}', falling back", lowerType);
+            m_rustTts.reset();
+            return false;
+        }
+        m_rustTtsEngineId = lowerType;
     }
 
-    // Set voice if specified
-    if (pszVoice.m_psz && *pszVoice.m_psz)
+    // Set voice if specified. floravox pins the voice via the modelId
+    // credential — a registry Voice value would override it per call with a
+    // selector the engine cannot resolve, so it is not forwarded.
+    if (pszVoice.m_psz && *pszVoice.m_psz && m_rustTtsEngineId != "floravox")
     {
         m_rustTts->SetVoice(WStringToUTF8(std::wstring(pszVoice.m_psz)));
     }
@@ -998,18 +1139,43 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
     m_rustTts->SetOnBoundary([this](const char* word, int32_t charOffset,
                                     int32_t charLen, float startS, float endS,
                                     bool estimated) {
-        // Skip events with invalid offsets
-        if (charOffset < 0 || charLen <= 0)
+        // Skip events with invalid timing rather than corrupt the stream
+        if (startS < 0)
             return;
 
-        // Translate plain-text offsets (from Rust) → SAPI source offsets
-        ULONG sapiOffset = TranslateOffset(static_cast<ULONG>(charOffset));
-
-        LogInfo("RustTts boundary: word='{}' plainOffset={} sapiOffset={} len={} startS={:.3f}",
-                word ? word : "(null)", charOffset, sapiOffset, charLen, startS);
-
+        // floravox measures timings from the model's duration tensor
+        // (estimated == false); sherpa-onnx interpolates them. Measured
+        // offsets are trusted verbatim — in particular they must never be
+        // shifted by the online silence/delay compensation, which is only
+        // meaningful for estimated timings (issue #15).
         uint64_t offsetTicks = static_cast<uint64_t>(startS * 1e7);
         ULONGLONG audioBytes = WaveTicksToBytes(offsetTicks);
+
+        ULONG sapiOffset = 0;
+        ULONG sapiLen = static_cast<ULONG>(charLen > 0 ? charLen : 0);
+        if (charOffset >= 0)
+        {
+            if (m_rustTtsUseSsml)
+            {
+                // SSML mode: Rust reports offsets into the built SSML
+                // document; map them back to SAPI source offsets.
+                ULONG ssmlOffset = static_cast<ULONG>(charOffset);
+                MapTextOffset(ssmlOffset, sapiLen);
+                sapiOffset = ssmlOffset;
+            }
+            else
+            {
+                // Plain-text mode: offsets index the extracted plain text.
+                sapiOffset = TranslateOffset(static_cast<ULONG>(charOffset));
+            }
+        }
+        // charOffset < 0: no text anchor (e.g. measured boundary for text the
+        // frontend rewrote). Emit an audio-time-only event instead of losing
+        // the timing (issue #15 nit): lParam 0 marks "no source position".
+
+        LogInfo("RustTts boundary: word='{}' plainOffset={} sapiOffset={} len={} startS={:.3f} {}",
+                word ? word : "(null)", charOffset, sapiOffset, sapiLen, startS,
+                estimated ? "estimated" : "measured");
 
         std::lock_guard lock(m_outputSiteMutex);
         if (!m_pOutputSite) return;
@@ -1020,7 +1186,51 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
         ev.eEventId = SPEI_WORD_BOUNDARY;
         ev.elParamType = SPET_LPARAM_IS_UNDEFINED;
         ev.lParam = static_cast<LPARAM>(sapiOffset);
-        ev.wParam = static_cast<WPARAM>(charLen);
+        ev.wParam = static_cast<WPARAM>(sapiLen);
+        m_pOutputSite->AddEvents(&ev, 1);
+    });
+
+    // floravox fires marks for SSML <bookmark mark='...'/> — deliver them as
+    // real SPEI_TTS_BOOKMARK events and retire the matching simulated ones.
+    m_rustTts->SetOnMark([this](const char* name, int32_t charOffset,
+                                float startS, float /*endS*/) {
+        if (startS < 0 || !name)
+            return;
+
+        uint64_t offsetTicks = static_cast<uint64_t>(startS * 1e7);
+        ULONGLONG audioBytes = WaveTicksToBytes(offsetTicks);
+
+        std::wstring nameW = UTF8ToWString(name);
+        ULONG sapiOffset = 0;
+        if (charOffset >= 0 && m_rustTtsUseSsml)
+        {
+            ULONG ssmlOffset = static_cast<ULONG>(charOffset);
+            ULONG len = 0;
+            MapTextOffset(ssmlOffset, len);
+            sapiOffset = ssmlOffset;
+        }
+
+        LogInfo("RustTts mark: name='{}' sapiOffset={} startS={:.3f}", name, sapiOffset, startS);
+
+        // A real mark supersedes any queued simulation for the same name.
+        for (size_t i = m_bookmarkIndex; i < m_bookmarks.size(); ++i)
+        {
+            if (m_bookmarks[i].name == nameW)
+            {
+                m_bookmarkIndex = i + 1;
+                break;
+            }
+        }
+
+        std::lock_guard lock(m_outputSiteMutex);
+        if (!m_pOutputSite) return;
+        SPEVENT ev;
+        ZeroMemory(&ev, sizeof(ev));
+        ev.ullAudioStreamOffset = audioBytes;
+        ev.eEventId = SPEI_TTS_BOOKMARK;
+        ev.elParamType = SPET_LPARAM_IS_STRING;
+        ev.lParam = reinterpret_cast<LPARAM>(nameW.c_str());
+        ev.wParam = _wtol(nameW.c_str());
         m_pOutputSite->AddEvents(&ev, 1);
     });
 
@@ -1033,9 +1243,16 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
         LogErr("RustTts engine error: {}", msg ? msg : "(null)");
     });
 
-    m_onlineVoiceName = pszVoice.m_psz ? pszVoice.m_psz : L"";
-    m_rustTtsUseSsml = false; // All engines use plain text — Rust builds SSML internally
-    LogInfo("RustTts voice created: {} / {}", engineType, pszVoice.m_psz ? pszVoice.m_psz : L"(default)");
+    // <voice name='...'> is only meaningful for online engines; floravox
+    // would fail to resolve the name against its models dir.
+    if (m_rustTtsEngineId != "floravox")
+        m_onlineVoiceName = pszVoice.m_psz ? pszVoice.m_psz : L"";
+    // SSML mode is opt-in per engine: floravox sets it in its fast path
+    // (native <prosody>/<break>/<bookmark> + marks); everything else sends
+    // plain text and lets the wrapper build markup internally.
+    LogInfo("RustTts voice created: {} (engine '{}', ssml={}) / {}", engineType,
+            m_rustTtsEngineId, m_rustTtsUseSsml,
+            pszVoice.m_psz ? pszVoice.m_psz : L"(default)");
     return true;
 }
 
@@ -1516,10 +1733,22 @@ bool CTTSEngine::BuildSSML(const SPVTEXTFRAG* pTextFragList)
                 m_ssml.append(L"ms'/>");
                 break;
 
-            case SPVA_Bookmark: // insert a <bookmark mark='xx'/>
-                m_ssml.append(L"<bookmark mark='");
-                AppendTextFragToSsml(pTextFrag);
-                m_ssml.append(L"'/>");
+            case SPVA_Bookmark:
+                // floravox parses SSML-standard <mark name='...'/>; the
+                // Microsoft <bookmark mark='...'/> dialect is only meaningful
+                // for Azure-family engines.
+                if (m_rustTtsEngineId == "floravox")
+                {
+                    m_ssml.append(L"<mark name='");
+                    AppendTextFragToSsml(pTextFrag);
+                    m_ssml.append(L"'/>");
+                }
+                else
+                {
+                    m_ssml.append(L"<bookmark mark='");
+                    AppendTextFragToSsml(pTextFrag);
+                    m_ssml.append(L"'/>");
+                }
                 // keep track of every bookmark, so when there's no text, we can simulate bookmark events instead
                 m_bookmarks.emplace_back(pTextFrag->ulTextSrcOffset, std::wstring(pTextFrag->pTextStart, pTextFrag->ulTextLen));
                 break;
