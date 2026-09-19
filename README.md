@@ -2,7 +2,7 @@
 
 > Forked from [NaturalVoiceSAPIAdapter](https://github.com/gexgd0419/NaturalVoiceSAPIAdapter). Developed at [AACTools/VoiceGarden-SAPI](https://github.com/AACTools/VoiceGarden-SAPI).
 
-A [SAPI 5 text-to-speech engine][1] that connects **23 TTS engines** to any Windows application that supports SAPI voices — including Grid 3, Mind Express, Balabolka, Clicker, and any software using `System.Speech`.
+A [SAPI 5 text-to-speech engine][1] that connects **22 TTS engines** to any Windows application that supports SAPI voices — including Grid 3, Mind Express, Balabolka, Clicker, and any software using `System.Speech`.
 
 Powered by [rust-tts-wrapper](https://github.com/AACTools/rust-tts-wrapper) for all synthesis, voice listing, and word boundary events.
 
@@ -10,14 +10,12 @@ Powered by [rust-tts-wrapper](https://github.com/AACTools/rust-tts-wrapper) for 
 
 | Category | Engines | Cloud? |
 |----------|---------|--------|
-| **Offline neural** | floravox (piper/MMS VITS, Matcha, Kokoro — measured word timings, SSML bookmarks, lexicon + Phonetisaurus + ByT5 G2P) and SherpaOnnx (Kokoro, Piper, MMS, VITS, Matcha, Kitten) as fallback | No — fully local* |
+| **Offline neural** | SherpaOnnx (Kokoro, Piper, MMS, VITS, Matcha, Kitten) | No — fully local |
 | **Microsoft** | Azure Cognitive Services, Edge browser voices (credential-free) | Yes |
 | **Cloud TTS** | OpenAI, Google Cloud, AWS Polly, ElevenLabs, Cartesia, Deepgram | Yes |
 | **More cloud** | Watson, PlayHT, Wit.ai, Gemini, Hume AI, xAI Grok, Fish Audio, Mistral, Murf, Unreal Speech, Resemble, Uplift AI, Models Lab | Yes |
 
-All engines support **word boundary events** for word highlighting in AAC software. Offline voices route to **floravox** wherever it's supported (piper/MMS VITS, Matcha, Kokoro — self-served from sherpa layout; duration-tensor timings on patched voices, SSML `<mark>` → `SPEI_TTSBOOKMARK`, published per-language G2P bundles cached locally, synthesis still works offline). **SherpaOnnx** is the automatic fallback (32-bit hosts, engine failure) and the only engine for the flow/diffusion families (zipvoice, supertonic, pocket, kitten).
-
-\* floravox on x64 needs Windows 10 1903+ (the static onnxruntime DirectML floor); older systems fall back to SherpaOnnx.
+All engines support **word boundary events** for word highlighting in AAC software (Azure/Google report real timings, the rest audio-scaled estimates). SSML bookmarks from cloud engines fire as real `SPEI_TTSBOOKMARK` events.
 
 ## Quick Start
 
@@ -58,15 +56,15 @@ VoiceGarden.UI.exe validate --engine azure --voice en-US-JennyNeural --key KEY -
 │  │  VoiceGardenSAPIAdapter.dll (C++ COM DLL)          │  │
 │  │  • BuildSSML (SAPI fragments → SSML)               │  │
 │  │  • Word boundary offset mapping                     │  │
-│  │  • SSML marks → SPEI_TTSBOOKMARK (floravox)         │  │
+│  │  • SSML marks → SPEI_TTSBOOKMARK (cloud engines)    │  │
 │  │  • Audio streaming + silence compensation           │  │
 │  │         │ loads via LoadLibrary                     │  │
 │  │  ┌────────▼─────────────────────────────────┐   │  │
 │  │  │  rust_tts_wrapper.dll (Rust)              │   │  │
-│  │  │  • 23 engines (floravox, SherpaOnnx,      │   │  │
-│  │  │    Azure, Edge, OpenAI, Google, ...)      │   │  │
+│  │  │  • 22 engines (SherpaOnnx, Azure, Edge,   │   │  │
+│  │  │    OpenAI, Google, ElevenLabs, Polly, ...)│   │  │
 │  │  │  • Word boundaries (Azure/Google: real,   │   │  │
-│  │  │    floravox: measured, others: estimated) │   │  │
+│  │  │    others: estimated)                     │   │  │
 │  │  │  • Viseme events (Azure/Edge)             │   │  │
 │  │  │  • Connection pooling (Azure/Edge WS)     │   │  │
 │  │  │  • Sec-MS-GEC token (Edge voices)         │   │  │
@@ -93,8 +91,8 @@ VoiceGarden.UI.exe validate --engine azure --voice en-US-JennyNeural --key KEY -
 | `VoiceGardenSAPIAdapter/` | C++ SAPI COM DLL — SSML building, offset mapping, audio streaming. Loads `rust_tts_wrapper.dll` for all synthesis |
 | `VoiceGardenSAPIAdapter/RustTts/` | C++ wrapper for the Rust DLL (dynamic loading, ABI canary, callback marshalling) |
 | `VoiceGarden.UI/` | Avalonia UI app — configuration, model management, voice preview, analytics |
-| `VoiceGarden.UI/Services/PiperSidecarGenerator.cs` | Generates piper `*.onnx.json` sidecars for sherpa-layout voices so they route through floravox |
-| `VoiceGarden.UI.Tests/` | xunit tests: floravox integration (boundaries, marks, G2P) + sidecar generator units |
+| `VoiceGarden.UI/Services/PiperSidecarGenerator.cs` | Generates piper `*.onnx.json` sidecars for sherpa-layout voices (piper config format; dormant-ready for engines that consume them) |
+| `VoiceGarden.UI.Tests/` | xunit tests: sidecar generator units |
 | `SherpaOnnx/` | Model discovery (voice enumerator scans for installed models) |
 | `Setup/` + `SetupLauncher/` | WiX MSI package + setup.exe bootstrapper |
 
@@ -136,7 +134,7 @@ Each cloud engine needs its API key set in the Engine Config tab. Search voices 
 
 ### Unit + integration (.NET)
 ```powershell
-dotnet test VoiceGarden.UI.Tests\VoiceGarden.UI.Tests.csproj   # floravox integration (skips w/o local models) + sidecar generator units
+dotnet test VoiceGarden.UI.Tests\VoiceGarden.UI.Tests.csproj   # sidecar generator units
 .\scripts\test-rust-dll-pin.ps1                                 # CI ships the csproj-pinned rust DLL
 .\scripts\test-rust-abi.ps1                                     # export/ABI canary check incl. negative control
 ```

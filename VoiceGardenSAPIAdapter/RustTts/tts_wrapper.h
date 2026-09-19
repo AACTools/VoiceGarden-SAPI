@@ -41,10 +41,17 @@ typedef void (*CAudioCb)(const uint8_t*, uintptr_t, void*);
 
 /**
  * Word-boundary callback:
- * cb(word, char_offset, char_len, start_s, end_s, estimated, userdata).
- * char_offset/char_len are -1 when unknown. `estimated` is 1 when the
- * timings are proportional estimates (unpatched voice, wpm model), 0
- * when measured (floravox duration tensor, cloud provider timings).
+ * cb(word, byte_offset, byte_len, start_s, end_s, estimated, userdata).
+ * byte_offset is a UTF-8 byte index into the spoken text, byte_len a
+ * byte length — pair them to slice the text safely. An unlocatable
+ * word holds the last known offset (0 if nothing matched) with
+ * byte_len -1. `estimated` is 1 when the timings are proportional
+ * duration tensor, cloud provider timings). Exceptions: the Windows
+ * SAPI native-boundary path reports UTF-16 code-unit offsets/lengths
+ * (the units ISpVoice events provide), and the Azure/Edge WebSocket
+ * path passes Azure's own text.Offset/text.Length through unchanged
+ * when Azure supplies them (units per Azure's documentation; the
+ * wrapper's fallback arithmetic when they are absent is UTF-8 bytes).
  */
 typedef void (*CBoundaryCb)(const char*, int32_t, int32_t, float, float, int32_t, void*);
 
@@ -129,9 +136,11 @@ int32_t tts_speak(struct tts_ctx *ctx, const char *text);
 /**
  * Speak pre-built SSML using the engine in `ctx`.
  *
- * The SSML is passed directly to the engine without SpeechMarkdown
- * conversion or rate/pitch/volume wrapping. Callers are responsible
- * for embedding all prosody in the SSML.
+ * The SSML bypasses rate/pitch/volume wrapping; callers are
+ * responsible for embedding all prosody in the SSML. Engines that
+ * parse SSML receive it directly; engines that do not (ElevenLabs)
+ * get it translated via SpeechMarkdown into their model-matched
+ * prompt dialect.
  *
  * Returns 0 on success, -1 on failure.
  *
@@ -232,10 +241,10 @@ void tts_set_on_audio(struct tts_ctx *ctx, CAudioCb cb, void *userdata);
 
 /**
  * Set the word-boundary callback:
- * cb(word, char_offset, char_len, start_s, end_s, estimated, userdata).
- * char_offset/char_len are -1 when unknown. `estimated` is 1 when the
- * timings are proportional estimates (unpatched voice, wpm model), 0
- * when measured (floravox duration tensor, cloud provider timings).
+ * cb(word, byte_offset, byte_len, start_s, end_s, estimated, userdata).
+ * byte_offset/byte_len are UTF-8 bytes into the spoken text; an
+ * unlocatable word holds the last known offset with byte_len -1 (see
+ * CBoundaryCb for the full contract and the SAPI UTF-16 exception).
  *
  * # Safety
  * `ctx` must be valid.
@@ -245,7 +254,6 @@ void tts_set_on_boundary(struct tts_ctx *ctx, CBoundaryCb cb, void *userdata);
 /**
  * Set the mark/bookmark callback: cb(name, char_offset, start_s, end_s, userdata).
  * Fires for `<mark>`/`<bookmark>` SSML tags at their measured audio
- * position on engines that report them (floravox).
  *
  * # Safety
  * `ctx` must be valid.

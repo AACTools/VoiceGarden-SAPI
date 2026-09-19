@@ -6,7 +6,7 @@ namespace VoiceGarden.UI.Services;
 /// <summary>
 /// Generates piper-style sidecar configs (<c>X.onnx.json</c>) for local
 /// voices that ship in sherpa layout (<c>model.onnx</c> + <c>tokens.txt</c>)
-/// so the floravox engine can load them (issue #15, SPD installer parity).
+/// so piper-layout consumers can load them (issue #15, SPD installer parity).
 ///
 /// Ports the SPD hardening rules:
 ///  - sidecar is re-generated when <c>tokens.txt</c> is newer (models updated
@@ -14,7 +14,7 @@ namespace VoiceGarden.UI.Services;
 ///  - <c>phoneme_id_map</c> keys are case-folded (the G2P chain looks up
 ///    phonemes case-insensitively; sherpa token tables ship single-case),
 ///  - a <c>language.code</c> sidecar is written when derivable from the
-///    model id (floravox 0.8.5 uses it for language routing).
+///    model id (piper consumers use it for language routing).
 /// </summary>
 public static class PiperSidecarGenerator
 {
@@ -32,7 +32,7 @@ public static class PiperSidecarGenerator
         try
         {
             // Flow/diffusion families (zipvoice, supertonic, pocket, kitten)
-            // are not floravox graphs - they carry tokens.txt too, so they
+            // are not piper-graph families - they carry tokens.txt too, so they
             // must be excluded by name before any layout check.
             if (IsFlowModelFamily(modelId))
                 return null;
@@ -43,7 +43,7 @@ public static class PiperSidecarGenerator
             var tokensPath = Path.Combine(modelDir, "tokens.txt");
             if (!File.Exists(tokensPath)) return null;
 
-            // Kokoro voices don't need a generated sidecar: floravox's
+            // Kokoro voices don't need a generated sidecar: their backends
             // KokoroBackend reads tokens.txt and voices.bin directly from
             // the model dir.
             if (File.Exists(Path.Combine(modelDir, "voices.bin"))) return null;
@@ -52,7 +52,7 @@ public static class PiperSidecarGenerator
             if (File.Exists(sidecarPath))
             {
                 // Only OUR generated sidecars are refreshed. A shipped or
-                // patched sidecar (piper releases, floravox duration-surgery
+                // patched sidecar (piper releases, duration-surgery
                 // output) is authoritative — regenerating it from tokens.txt
                 // would drop espeak/inference/audio config it carries.
                 if (!WasGeneratedByUs(sidecarPath))
@@ -99,7 +99,7 @@ public static class PiperSidecarGenerator
     private const string GeneratorMarker = "voicegardenGenerated";
 
     /// <summary>
-    /// Flow/diffusion model families that floravox cannot load (its backends
+    /// Flow/diffusion model families that piper-format sidecars do not fit (their graphs
     /// are piper/MMS VITS, Matcha + vocoder, Kokoro). They carry tokens.txt
     /// like every sherpa model, so exclusion is by name.
     /// </summary>

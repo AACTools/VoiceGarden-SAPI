@@ -555,7 +555,7 @@ public class SherpaModelService
                     installed.ModelType = 0; // VITS
 
                 // Best-effort: give sherpa-layout voices a piper sidecar so
-                // the floravox engine (measured timing, lexicon G2P) can load
+                // piper-layout consumers can load
                 // them. Re-runs when tokens.txt is newer than the sidecar.
                 PiperSidecarGenerator.EnsureSidecar(modelDir, modelId);
             }
@@ -782,7 +782,7 @@ public class SherpaModelService
         await EnsureZipvoiceVocoderAsync(model, progress);
 
         // Generate the piper sidecar while the catalog entry (with the
-        // sample rate) is at hand, so the floravox engine can pick the voice
+        // sample rate) is at hand, so consumers can pick the voice
         // up on the next scan/promotion without needing sherpa layout.
         // Flow families (zipvoice/supertonic/pocket/kitten) stay sherpa-only.
         var extractedModelDir = FindExtractedModelDir(destDir);
@@ -792,7 +792,7 @@ public class SherpaModelService
         progress?.Report((100, "Done"));
     }
 
-    /// <summary>Catalog model_type values floravox cannot load (flow/diffusion graphs).</summary>
+    /// <summary>Catalog model_type values that piper-format sidecars do not fit (flow/diffusion graphs).</summary>
     private static bool IsFlowModelType(string? modelType) => modelType is not null
         && (modelType.Equals("zipvoice", StringComparison.OrdinalIgnoreCase)
             || modelType.Equals("supertonic", StringComparison.OrdinalIgnoreCase)

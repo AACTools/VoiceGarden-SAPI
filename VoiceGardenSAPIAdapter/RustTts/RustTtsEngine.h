@@ -15,13 +15,12 @@ namespace RustTts {
 using AudioCallback = std::function<void(const uint8_t*, uint32_t)>;
 
 // Boundary callback: (word, charOffset, charLen, startSec, endSec, estimated).
-// `estimated` is false when the engine measured the timing (floravox
-// duration tensor, cloud provider timings) and true for synthetic
-// interpolations (sherpa-onnx).
+// `estimated` is false when the engine measured the timing (cloud provider
+// timings) and true for synthetic interpolations (sherpa-onnx).
 using BoundaryCallback = std::function<void(const char*, int32_t, int32_t, float, float, bool)>;
 
 // Mark callback: (name, charOffset, startSec, endSec) — fired for SSML
-// <mark name="..."/> bookmarks (floravox; mapped to SPEI_TTSBOOKMARK).
+// bookmark events by engines that report them (mapped to SPEI_TTSBOOKMARK).
 using MarkCallback = std::function<void(const char*, int32_t, float, float)>;
 
 // Viseme callback: (visemeId, offsetSec)

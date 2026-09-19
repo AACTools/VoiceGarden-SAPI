@@ -117,7 +117,7 @@ private: // Member variables
 	CComPtr<ISpPhoneConverter> m_phoneConverter;
 	std::unique_ptr<RustTts::Engine> m_rustTts;
 	bool m_rustTtsUseSsml = false;
-	// rust-tts-wrapper engine id in use ("floravox", "sherpaonnx", "azure", ...).
+	// rust-tts-wrapper engine id in use ("sherpaonnx", "azure", ...).
 	std::string m_rustTtsEngineId;
 	std::future<void> m_lastCancellingFuture;
 
