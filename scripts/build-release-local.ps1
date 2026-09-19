@@ -415,28 +415,22 @@ foreach ($Platform in $Platforms) {
     Copy-Item $mainOut\* $platformPayload\ -Recurse -Force
 }
 
-# Rust TTS wrapper native DLL (from NuGet package cache) — CI copies this in
-# the setup-composition job (msbuild.yml); the local build had no equivalent,
-# producing payloads without rust_tts_wrapper.dll.
+# Rust TTS wrapper native DLL — pinned to the csproj's RustTtsWrapper.Bindings
+# version via the shared resolver (issue #15: shipping a cached-but-unpinned
+# DLL risks a callback-ABI mismatch with the thunk code).
 $rustDllDir = Join-Path $env:USERPROFILE ".nuget\packages\rustttswrapper.bindings"
 if (Test-Path $rustDllDir) {
     foreach ($rid in @("win-x64", "win-x86")) {
         $arch = $rid -replace 'win-', ''
         $targetDir = Join-Path $PayloadDir $arch
         if (-not (Test-Path $targetDir)) { continue }
-        $dll = Get-ChildItem -Path $rustDllDir -Recurse -Filter "rust_tts_wrapper.dll" |
-            Where-Object { $_.FullName -like "*\runtimes\$rid\native\*" } |
-            Sort-Object {
-                $ver = $_.FullName.Substring($rustDllDir.Length + 1).Split('\')[0]
-                try { [version]$ver } catch { [version]($ver -replace '-.*$', '') }
-            } -Descending |
-            Select-Object -First 1
+        $dll = & "$PSScriptRoot\Get-RustTtsWrapperDll.ps1" -Rid $rid
         if ($dll) {
-            Copy-Item $dll.FullName $targetDir -Force
-            $dllVersion = $dll.FullName.Substring($rustDllDir.Length + 1).Split('\')[0]
-            Write-Host "  rust_tts_wrapper.dll $dllVersion ($rid) -> payload\$arch\" -ForegroundColor DarkGray
+            Copy-Item $dll $targetDir -Force
+            $dllVersion = $dll.Substring($rustDllDir.Length + 1).Split('\')[0]
+            Write-Host "  rust_tts_wrapper.dll $dllVersion ($rid, csproj-pinned) -> payload\$arch\" -ForegroundColor DarkGray
         } else {
-            Write-Host "  WARNING: rust_tts_wrapper.dll not found for $rid in NuGet cache" -ForegroundColor Yellow
+            Write-Host "  WARNING: rust_tts_wrapper.dll for $rid not resolvable (see resolver warnings)" -ForegroundColor Yellow
         }
     }
 } else {

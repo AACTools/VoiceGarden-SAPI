@@ -971,12 +971,15 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
     }
 
     // Create the RustTts engine
-    m_rustTts = std::make_unique<RustTts::Engine>();
-    if (!m_rustTts->Create(lowerType, credsJson))
     {
-        LogWarn("RustTts: failed to create engine '{}', falling back", lowerType);
-        m_rustTts.reset();
-        return false;
+        m_rustTts = std::make_unique<RustTts::Engine>();
+        if (!m_rustTts->Create(lowerType, credsJson))
+        {
+            LogWarn("RustTts: failed to create engine '{}', falling back", lowerType);
+            m_rustTts.reset();
+            return false;
+        }
+        m_rustTtsEngineId = lowerType;
     }
 
     // Set voice if specified
@@ -998,18 +1001,44 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
     m_rustTts->SetOnBoundary([this](const char* word, int32_t charOffset,
                                     int32_t charLen, float startS, float endS,
                                     bool estimated) {
-        // Skip events with invalid offsets
-        if (charOffset < 0 || charLen <= 0)
+        // Skip events with invalid timing rather than corrupt the stream
+        if (startS < 0)
             return;
 
-        // Translate plain-text offsets (from Rust) → SAPI source offsets
-        ULONG sapiOffset = TranslateOffset(static_cast<ULONG>(charOffset));
-
-        LogInfo("RustTts boundary: word='{}' plainOffset={} sapiOffset={} len={} startS={:.3f}",
-                word ? word : "(null)", charOffset, sapiOffset, charLen, startS);
-
+        // `estimated` is false when the engine measured the timing (cloud
+        // provider timings) and true for synthetic interpolations
+        // (sherpa-onnx). Measured offsets are trusted verbatim — in
+        // particular they must never be shifted by the online silence/delay
+        // compensation, which is only meaningful for estimated timings
+        // (issue #15).
         uint64_t offsetTicks = static_cast<uint64_t>(startS * 1e7);
         ULONGLONG audioBytes = WaveTicksToBytes(offsetTicks);
+
+        ULONG sapiOffset = 0;
+        ULONG sapiLen = static_cast<ULONG>(charLen > 0 ? charLen : 0);
+        if (charOffset >= 0)
+        {
+            if (m_rustTtsUseSsml)
+            {
+                // SSML mode: Rust reports offsets into the built SSML
+                // document; map them back to SAPI source offsets.
+                ULONG ssmlOffset = static_cast<ULONG>(charOffset);
+                MapTextOffset(ssmlOffset, sapiLen);
+                sapiOffset = ssmlOffset;
+            }
+            else
+            {
+                // Plain-text mode: offsets index the extracted plain text.
+                sapiOffset = TranslateOffset(static_cast<ULONG>(charOffset));
+            }
+        }
+        // charOffset < 0: no text anchor (e.g. measured boundary for text the
+        // frontend rewrote). Emit an audio-time-only event instead of losing
+        // the timing (issue #15 nit): lParam 0 marks "no source position".
+
+        LogInfo("RustTts boundary: word='{}' plainOffset={} sapiOffset={} len={} startS={:.3f} {}",
+                word ? word : "(null)", charOffset, sapiOffset, sapiLen, startS,
+                estimated ? "estimated" : "measured");
 
         std::lock_guard lock(m_outputSiteMutex);
         if (!m_pOutputSite) return;
@@ -1020,7 +1049,52 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
         ev.eEventId = SPEI_WORD_BOUNDARY;
         ev.elParamType = SPET_LPARAM_IS_UNDEFINED;
         ev.lParam = static_cast<LPARAM>(sapiOffset);
-        ev.wParam = static_cast<WPARAM>(charLen);
+        ev.wParam = static_cast<WPARAM>(sapiLen);
+        m_pOutputSite->AddEvents(&ev, 1);
+    });
+
+    // Engines that fire mark callbacks (cloud engines with SSML marks)
+    // deliver them as real SPEI_TTS_BOOKMARK events and retire the matching
+    // simulated ones.
+    m_rustTts->SetOnMark([this](const char* name, int32_t charOffset,
+                                float startS, float /*endS*/) {
+        if (startS < 0 || !name)
+            return;
+
+        uint64_t offsetTicks = static_cast<uint64_t>(startS * 1e7);
+        ULONGLONG audioBytes = WaveTicksToBytes(offsetTicks);
+
+        std::wstring nameW = UTF8ToWString(name);
+        ULONG sapiOffset = 0;
+        if (charOffset >= 0 && m_rustTtsUseSsml)
+        {
+            ULONG ssmlOffset = static_cast<ULONG>(charOffset);
+            ULONG len = 0;
+            MapTextOffset(ssmlOffset, len);
+            sapiOffset = ssmlOffset;
+        }
+
+        LogInfo("RustTts mark: name='{}' sapiOffset={} startS={:.3f}", name, sapiOffset, startS);
+
+        // A real mark supersedes any queued simulation for the same name.
+        for (size_t i = m_bookmarkIndex; i < m_bookmarks.size(); ++i)
+        {
+            if (m_bookmarks[i].name == nameW)
+            {
+                m_bookmarkIndex = i + 1;
+                break;
+            }
+        }
+
+        std::lock_guard lock(m_outputSiteMutex);
+        if (!m_pOutputSite) return;
+        SPEVENT ev;
+        ZeroMemory(&ev, sizeof(ev));
+        ev.ullAudioStreamOffset = audioBytes;
+        ev.eEventId = SPEI_TTS_BOOKMARK;
+        ev.elParamType = SPET_LPARAM_IS_STRING;
+        ev.lParam = reinterpret_cast<LPARAM>(nameW.c_str());
+        ev.wParam = _wtol(nameW.c_str());
         m_pOutputSite->AddEvents(&ev, 1);
     });
 
@@ -1034,8 +1108,12 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
     });
 
     m_onlineVoiceName = pszVoice.m_psz ? pszVoice.m_psz : L"";
-    m_rustTtsUseSsml = false; // All engines use plain text — Rust builds SSML internally
-    LogInfo("RustTts voice created: {} / {}", engineType, pszVoice.m_psz ? pszVoice.m_psz : L"(default)");
+    // SSML mode is opt-in per engine; today every engine synthesizes plain
+    // text and lets the wrapper build markup internally (inline SSML still
+    // reaches tts_speak_ssml via the PUA sentinel path in Speak()).
+    LogInfo("RustTts voice created: {} (engine '{}') / {}", engineType,
+            m_rustTtsEngineId,
+            pszVoice.m_psz ? pszVoice.m_psz : L"(default)");
     return true;
 }
 

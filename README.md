@@ -2,7 +2,7 @@
 
 > Forked from [NaturalVoiceSAPIAdapter](https://github.com/gexgd0419/NaturalVoiceSAPIAdapter). Developed at [AACTools/VoiceGarden-SAPI](https://github.com/AACTools/VoiceGarden-SAPI).
 
-A [SAPI 5 text-to-speech engine][1] that connects **21+ TTS engines** to any Windows application that supports SAPI voices — including Grid 3, Mind Express, Balabolka, Clicker, and any software using `System.Speech`.
+A [SAPI 5 text-to-speech engine][1] that connects **22 TTS engines** to any Windows application that supports SAPI voices — including Grid 3, Mind Express, Balabolka, Clicker, and any software using `System.Speech`.
 
 Powered by [rust-tts-wrapper](https://github.com/AACTools/rust-tts-wrapper) for all synthesis, voice listing, and word boundary events.
 
@@ -15,7 +15,7 @@ Powered by [rust-tts-wrapper](https://github.com/AACTools/rust-tts-wrapper) for 
 | **Cloud TTS** | OpenAI, Google Cloud, AWS Polly, ElevenLabs, Cartesia, Deepgram | Yes |
 | **More cloud** | Watson, PlayHT, Wit.ai, Gemini, Hume AI, xAI Grok, Fish Audio, Mistral, Murf, Unreal Speech, Resemble, Uplift AI, Models Lab | Yes |
 
-All engines support **word boundary events** for word highlighting in AAC software.
+All engines support **word boundary events** for word highlighting in AAC software (Azure/Google report real timings, the rest audio-scaled estimates). SSML bookmarks from cloud engines fire as real `SPEI_TTSBOOKMARK` events.
 
 ## Quick Start
 
@@ -56,19 +56,21 @@ VoiceGarden.UI.exe validate --engine azure --voice en-US-JennyNeural --key KEY -
 │  │  VoiceGardenSAPIAdapter.dll (C++ COM DLL)          │  │
 │  │  • BuildSSML (SAPI fragments → SSML)               │  │
 │  │  • Word boundary offset mapping                     │  │
+│  │  • SSML marks → SPEI_TTSBOOKMARK (cloud engines)    │  │
 │  │  • Audio streaming + silence compensation           │  │
 │  │         │ loads via LoadLibrary                     │  │
-│  │  ┌────────▼─────────────────────────────────────┐   │  │
-│  │  │  rust_tts_wrapper.dll (Rust, 22MB)           │   │  │
-│  │  │  • 21 engines (SherpaOnnx, Azure, Edge,      │   │  │
-│  │  │    OpenAI, Google, ElevenLabs, Polly, ...)   │   │  │
-│  │  │  • Word boundary events (Azure/Google: real,  │   │  │
-│  │  │    others: estimated)                         │   │  │
-│  │  │  • Viseme events (Azure/Edge)                 │   │  │
-│  │  │  • Connection pooling (Azure/Edge WS)         │   │  │
-│  │  │  • Sec-MS-GEC token (Edge voices)             │   │  │
-│  │  │  • SherpaOnnx model auto-detection            │   │  │
-│  │  └──────────────────────────────────────────────┘   │  │
+│  │  ┌────────▼─────────────────────────────────┐   │  │
+│  │  │  rust_tts_wrapper.dll (Rust)              │   │  │
+│  │  │  • 22 engines (SherpaOnnx, Azure, Edge,   │   │  │
+│  │  │    OpenAI, Google, ElevenLabs, Polly, ...)│   │  │
+│  │  │  • Word boundaries (Azure/Google: real,   │   │  │
+│  │  │    others: estimated)                     │   │  │
+│  │  │  • Viseme events (Azure/Edge)             │   │  │
+│  │  │  • Connection pooling (Azure/Edge WS)     │   │  │
+│  │  │  • Sec-MS-GEC token (Edge voices)         │   │  │
+│  │  │  • SherpaOnnx model auto-detection        │   │  │
+│  │  │  • ABI canary: refuses pre-0.5 DLLs       │   │  │
+│  │  └───────────────────────────────────────────┘   │  │
 │  └────────────────────────────────────────────────────┘  │
 │                                                           │
 │  ┌─────────────────────────────────────────────────────┐ │
@@ -87,8 +89,10 @@ VoiceGarden.UI.exe validate --engine azure --voice en-US-JennyNeural --key KEY -
 | Component | Description |
 |-----------|-------------|
 | `VoiceGardenSAPIAdapter/` | C++ SAPI COM DLL — SSML building, offset mapping, audio streaming. Loads `rust_tts_wrapper.dll` for all synthesis |
-| `VoiceGardenSAPIAdapter/RustTts/` | C++ wrapper for the Rust DLL (dynamic loading, callback marshalling) |
+| `VoiceGardenSAPIAdapter/RustTts/` | C++ wrapper for the Rust DLL (dynamic loading, ABI canary, callback marshalling) |
 | `VoiceGarden.UI/` | Avalonia UI app — configuration, model management, voice preview, analytics |
+| `VoiceGarden.UI/Services/PiperSidecarGenerator.cs` | Generates piper `*.onnx.json` sidecars for sherpa-layout voices (piper config format; dormant-ready for engines that consume them) |
+| `VoiceGarden.UI.Tests/` | xunit tests: sidecar generator units |
 | `SherpaOnnx/` | Model discovery (voice enumerator scans for installed models) |
 | `Setup/` + `SetupLauncher/` | WiX MSI package + setup.exe bootstrapper |
 
@@ -127,6 +131,13 @@ Free, credential-free voices from Microsoft Edge's Read Aloud feature. Enable in
 Each cloud engine needs its API key set in the Engine Config tab. Search voices by language name (e.g., "arabic", "gujarati") or voice ID.
 
 ## Testing
+
+### Unit + integration (.NET)
+```powershell
+dotnet test VoiceGarden.UI.Tests\VoiceGarden.UI.Tests.csproj   # sidecar generator units
+.\scripts\test-rust-dll-pin.ps1                                 # CI ships the csproj-pinned rust DLL
+.\scripts\test-rust-abi.ps1                                     # export/ABI canary check incl. negative control
+```
 
 ### Boundary crash test (Grid3 pattern)
 ```powershell

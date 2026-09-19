@@ -95,6 +95,7 @@ bool Loader::Initialize() {
     ok &= GetFunc("tts_set_volume", setVolume);
     ok &= GetFunc("tts_set_on_audio", setOnAudio);
     ok &= GetFunc("tts_set_on_boundary", setOnBoundary);
+    ok &= GetFunc("tts_set_on_mark", setOnMark);
     ok &= GetFunc("tts_set_on_viseme", setOnViseme);
     ok &= GetFunc("tts_set_on_start", setOnStart);
     ok &= GetFunc("tts_set_on_end", setOnEnd);
@@ -108,7 +109,14 @@ bool Loader::Initialize() {
         return false;
     }
 
-    spdlog::info("RustTts: all function pointers resolved");
+    // ABI canary (issue #15): GetProcAddress cannot distinguish the old
+    // 4-arg tts_set_on_boundary (wrapper < 0.5.0, rust-tts-wrapper#31
+    // consolidation) from the current 7-arg one — the symbol name is
+    // identical, but the old calling convention leaves charOffset/charLen/
+    // estimated in never-set registers. tts_set_on_mark only exists in
+    // DLLs built with the consolidated callback ABI, so requiring it
+    // refuses to load any DLL old enough to be wrong.
+    spdlog::info("RustTts: all function pointers resolved (ABI canary: tts_set_on_mark present)");
     return true;
 }
 
