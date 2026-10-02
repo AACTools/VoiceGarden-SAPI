@@ -63,7 +63,7 @@
     <value>Alle</value>
   </data>
   <data name="AnalyticsHint" xml:space="preserve">
-    <value>Hilft uns zu verstehen, welche Motoren verwendet werden. Es wurden keine Texte, Schlüssel oder PII gesendet.</value>
+    <value>Hilft uns zu verstehen, welche Sprachprovider verwendet werden. Es wurden keine Texte, Schlüssel oder PII gesendet.</value>
   </data>
   <data name="AppName" xml:space="preserve">
     <value>VoiceGarden</value>
@@ -102,7 +102,7 @@
     <value>Senden Sie anonyme Nutzungsanalysen (Opt-in)</value>
   </data>
   <data name="Engine" xml:space="preserve">
-    <value>Motor:</value>
+    <value>Sprachprovider:</value>
   </data>
   <data name="EnterApiKey" xml:space="preserve">
     <value>Geben Sie einen API-Schlüssel ein</value>
@@ -270,7 +270,7 @@
     <value>Was wir sammeln:</value>
   </data>
   <data name="WhatWeCollectList" xml:space="preserve">
-    <value>• Motortypen aktiviert
+    <value>• Sprachprovider aktiviert
 • Anzahl der heruntergeladenen Modelle
 • Adapterregistrierungsereignisse</value>
   </data>
@@ -322,7 +322,7 @@
     <value>SAPI-Sprachalias</value>
   </data>
   <data name="BackToEngines" xml:space="preserve">
-    <value>Zurück zu den Motoren</value>
+    <value>Zurück zu den Sprachprovider</value>
   </data>
   <data name="BadgeCloud" xml:space="preserve">
     <value>Wolke</value>
@@ -382,7 +382,7 @@
     <value>{0} Cloud-Stimmen. Benötigt einen API-Schlüssel und eine Benutzer-ID.</value>
   </data>
   <data name="EnginesSelectedSummary" xml:space="preserve">
-    <value>{0} von {1} Motoren ausgewählt</value>
+    <value>{0} von {1} Sprachprovidern ausgewählt</value>
   </data>
   <data name="FieldAPIKey" xml:space="preserve">
     <value>API-Schlüssel</value>
@@ -409,7 +409,7 @@
     <value>Benutzer-ID</value>
   </data>
   <data name="FilterAllEngines" xml:space="preserve">
-    <value>Alle Motoren</value>
+    <value>Alle Sprachprovider</value>
   </data>
   <data name="FilterAllLanguages" xml:space="preserve">
     <value>Alle Sprachen</value>
@@ -418,7 +418,7 @@
     <value>Alle Arten</value>
   </data>
   <data name="FilterAnyEngine" xml:space="preserve">
-    <value>Alle Motoren</value>
+    <value>Alle Sprachprovider</value>
   </data>
   <data name="FilterAnyGender" xml:space="preserve">
     <value>Jedes Geschlecht</value>
@@ -436,7 +436,7 @@
     <value>Schlüssel benötigt</value>
   </data>
   <data name="FilterEngine" xml:space="preserve">
-    <value>Nach Motor filtern</value>
+    <value>Nach Sprachprovider filtern</value>
   </data>
   <data name="FilterGender" xml:space="preserve">
     <value>Nach Geschlecht filtern</value>
@@ -463,7 +463,7 @@
     <value>Geschlecht</value>
   </data>
   <data name="LanguageFilterHiddenNote" xml:space="preserve">
-    <value>{0} Motoren versteckt — ihre Sprachen sind unbekannt, bis ihre Stimmen im Tab „Stimmen“ geladen werden.</value>
+    <value>{0} Sprachprovider versteckt — ihre Sprachen sind unbekannt, bis ihre Stimmen im Tab „Stimmen“ geladen werden.</value>
   </data>
   <data name="LoadVoices" xml:space="preserve">
     <value>Stimmen laden</value>
@@ -514,7 +514,7 @@
     <value>Anmeldeinformationen</value>
   </data>
   <data name="TabCredentialsCount" xml:space="preserve">
-    <value>{0}-Motoren benötigen Schlüssel</value>
+    <value>{0}-Sprachprovider benötigen Schlüssel</value>
   </data>
   <data name="TabCredentialsNotNeeded" xml:space="preserve">
     <value>nicht benötigt</value>
@@ -547,7 +547,7 @@
     <value>Stimmen</value>
   </data>
   <data name="UnknownEngine" xml:space="preserve">
-    <value>Unbekannter Motor</value>
+    <value>Unbekannter Sprachprovider</value>
   </data>
   <data name="UnknownLanguage" xml:space="preserve">
     <value>Unbekannt</value>
@@ -562,10 +562,10 @@
     <value>{0} Stimmen · {1} ausgewählt · {2} installiert</value>
   </data>
   <data name="VoicesEmptyHint" xml:space="preserve">
-    <value>Wählen Sie zuerst Ihre Sprachmotoren im Tab 'Sprachmotoren' aus (fügen Sie dort auch die Anmeldedaten hinzu, falls der Motor einen Schlüssel benötigt), und laden Sie dann hier die Stimmen.</value>
+    <value>Wählen Sie zuerst Ihre Sprachprovider im Tab 'Sprachprovider' aus (fügen Sie dort auch die Anmeldedaten hinzu, falls der Sprachprovider einen Schlüssel benötigt), und laden Sie dann hier die Stimmen.</value>
   </data>
   <data name="VoicesEmptyNoEngines" xml:space="preserve">
-    <value>Keine Motoren ausgewählt — öffnen Sie die Registerkarte Sprachmotoren und markieren Sie mindestens einen Motor.</value>
+    <value>Keine Sprachprovider ausgewählt — öffnen Sie die Registerkarte Sprachprovider und markieren Sie mindestens einen Sprachprovider.</value>
   </data>
   <data name="VoicesEmptyTitle" xml:space="preserve">
     <value>Noch keine Stimmen</value>
@@ -580,7 +580,7 @@
     <value>{0}: kein API-Schlüssel — füge einen im Reiter "Anmeldedaten" hinzu</value>
   </data>
   <data name="VoicesNoEnginesSelected" xml:space="preserve">
-    <value>Wählen Sie zunächst mindestens einen Motor im Tab 'Sprachmotoren' aus.</value>
+    <value>Wählen Sie zunächst mindestens einen Sprachprovider im Tab 'Sprachprovider' aus.</value>
   </data>
   <data name="VoicesPromoteFailed" xml:space="preserve">
     <value>Konnte {0} nicht installieren (Administratorgenehmigung ist möglicherweise erforderlich)</value>
@@ -589,7 +589,7 @@
     <value>{0} in SAPI installiert</value>
   </data>
   <data name="VoicesSkippedNoKey" xml:space="preserve">
-    <value>{0} Motoren übersprungen — kein API-Schlüssel gesetzt</value>
+    <value>{0} Sprachprovider übersprungen — kein API-Schlüssel gesetzt</value>
   </data>
   <data name="VoicesUnpromoteFailed" xml:space="preserve">
     <value>Entfernt {0}; fehlgeschlagen {1}</value>
