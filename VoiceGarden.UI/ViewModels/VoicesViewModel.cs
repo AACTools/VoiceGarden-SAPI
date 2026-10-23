@@ -829,6 +829,35 @@ public partial class VoicesViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task UnpromoteOne(VoiceEntry? voice)
+    {
+        if (voice == null || !voice.IsInstalled) return;
+
+        IsLoading = true;
+        try
+        {
+            var rc = await Task.Run(() => VoicePromotionService.UnpromoteElevated(voice.TokenName));
+            if (rc == 0)
+            {
+                voice.IsInstalled = false;
+                StatusText = Loc.GetString("RemovedVoices", 1);
+                ClearError();
+            }
+            else
+            {
+                var msg = rc == -2 ? Loc.GetString("InstallCancelled") : Loc.GetString("VoicesUnpromoteFailed", 0, 1);
+                StatusText = msg;
+                ShowError(msg);
+            }
+        }
+        finally
+        {
+            IsLoading = false;
+            UpdateCounts();
+        }
+    }
+
+    [RelayCommand]
     private async Task UnpromoteSelected()
     {
         var selected = AllVoices.Where(v => v.IsSelected && v.IsInstalled).ToList();
@@ -839,9 +868,9 @@ public partial class VoicesViewModel : ObservableObject
         }
 
         IsLoading = true;
+        int removed = 0, failed = 0, cancelled = 0;
         try
         {
-            int removed = 0, failed = 0;
             foreach (var voice in selected)
             {
                 var rc = await Task.Run(() => VoicePromotionService.UnpromoteElevated(voice.TokenName));
@@ -850,13 +879,24 @@ public partial class VoicesViewModel : ObservableObject
                     voice.IsInstalled = false;
                     removed++;
                 }
+                else if (rc == -2)
+                {
+                    cancelled++;
+                    failed++;
+                }
                 else
                 {
                     failed++;
                 }
             }
 
+            // Recompute from the registry rather than trusting per-call
+            // results — the "Installed" badges must reflect actual token
+            // state even when an elevated import raced or failed silently.
+            await RefreshInstalledStatus();
+            ApplyFilter();
             UpdateCounts();
+
             if (failed == 0)
             {
                 StatusText = Loc.GetString("RemovedVoices", removed);
@@ -865,6 +905,8 @@ public partial class VoicesViewModel : ObservableObject
             else
             {
                 var friendly = Loc.GetString("VoicesUnpromoteFailed", removed, failed);
+                if (cancelled == failed)
+                    friendly = Loc.GetString("InstallCancelled");
                 StatusText = friendly;
                 ShowError(friendly);
             }

@@ -145,8 +145,13 @@
                                             AutomationProperties.Name="{Binding AutomationLabel, StringFormat='Download {0}'}"/>
                                     <Button Classes="Compact Primary" Content="{lang:Localize Install}"
                                             Command="{Binding $parent[ListBox].((vm:VoicesViewModel)DataContext).PromoteCommand}"
-                                            CommandParameter="{Binding}" IsEnabled="{Binding CanPromote}"
+                                            CommandParameter="{Binding}" IsVisible="{Binding !IsInstalled}"
+                                            IsEnabled="{Binding CanPromote}"
                                             AutomationProperties.Name="{Binding AutomationLabel, StringFormat='Install {0} to SAPI'}"/>
+                                    <Button Classes="Compact Secondary" Content="{lang:Localize Uninstall}"
+                                            Command="{Binding $parent[ListBox].((vm:VoicesViewModel)DataContext).UnpromoteOneCommand}"
+                                            CommandParameter="{Binding}" IsVisible="{Binding IsInstalled}"
+                                            AutomationProperties.Name="{Binding AutomationLabel, StringFormat='Uninstall {0} from SAPI'}"/>
                                 </StackPanel>
                             </Grid>
                         </DataTemplate>
