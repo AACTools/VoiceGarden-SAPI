@@ -151,32 +151,9 @@ public static class LocalEngineService
                 var dest = Path.Combine(engine.InstallDir, fileName);
                 var part = dest + ".part";
                 if (File.Exists(dest)) continue; // already downloaded
-                TryDelete(part); // stale part from a crashed/killed download
 
                 progress?.Report((100 * i / downloads.Length, $"Downloading {fileName}..."));
-                using var resp = await http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
-                resp.EnsureSuccessStatusCode();
-                var reportedTotal = resp.Content.Headers.ContentLength ?? total;
-
-                {
-                    await using var src = await resp.Content.ReadAsStreamAsync();
-                    await using var dst = File.Create(part);
-                    var buffer = new byte[1 << 16];
-                    long copied = 0;
-                    int read;
-                    while ((read = await src.ReadAsync(buffer)) > 0)
-                    {
-                        await dst.WriteAsync(buffer.AsMemory(0, read));
-                        copied += read;
-                        if (reportedTotal > 0 && i == downloads.Length - 1)
-                        {
-                            var filePct = (int)(100 * copied / reportedTotal);
-                            progress?.Report((Math.Min(99, 100 * i / downloads.Length + filePct / downloads.Length),
-                                $"Downloading {fileName}... {copied / (1024 * 1024)} MB"));
-                        }
-                    }
-                }
-
+                await DownloadResumableAsync(http, url, part, total, i, downloads.Length, progress);
                 MoveWithRetry(part, dest);
             }
             progress?.Report((100, "Done"));
@@ -184,6 +161,77 @@ public static class LocalEngineService
         finally
         {
             gate.Release();
+        }
+    }
+
+    /// <summary>
+    /// Download with resume. HuggingFace's CDN drops long-lived streams
+    /// (observed at ~98% of a 647 MB file) — on mid-stream failure the
+    /// .part is kept and the retry continues from its length via a Range
+    /// request. Servers that ignore Range restart from scratch.
+    /// </summary>
+    private static async Task DownloadResumableAsync(HttpClient http, string url, string part,
+        long fallbackTotal, int fileIndex, int fileCount,
+        IProgress<(int percent, string status)>? progress)
+    {
+        const int maxAttempts = 8;
+        for (var attempt = 1; ; attempt++)
+        {
+            long already = 0;
+            if (File.Exists(part)) already = new FileInfo(part).Length;
+
+            try
+            {
+                using var req = new HttpRequestMessage(HttpMethod.Get, url);
+                if (already > 0) req.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(already, null);
+
+                using var resp = await http.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
+                resp.EnsureSuccessStatusCode();
+
+                long total;
+                if (resp.StatusCode == System.Net.HttpStatusCode.PartialContent &&
+                    resp.Content.Headers.ContentRange?.HasLength == true)
+                {
+                    total = resp.Content.Headers.ContentRange.Length.Value; // full entity length
+                }
+                else
+                {
+                    // Range not honoured — restart from scratch
+                    already = 0;
+                    total = resp.Content.Headers.ContentLength ?? fallbackTotal;
+                }
+
+                {
+                    await using var src = await resp.Content.ReadAsStreamAsync();
+                    await using var dst = new FileStream(part, already > 0 ? FileMode.Append : FileMode.Create,
+                        FileAccess.Write, FileShare.None);
+                    var buffer = new byte[1 << 16];
+                    long copied = already;
+                    int read;
+                    while ((read = await src.ReadAsync(buffer)) > 0)
+                    {
+                        await dst.WriteAsync(buffer.AsMemory(0, read));
+                        copied += read;
+                        if (total > 0)
+                        {
+                            var filePct = (int)(100 * copied / total);
+                            progress?.Report((Math.Min(99, 100 * fileIndex / fileCount + filePct / fileCount),
+                                $"Downloading {Path.GetFileName(part)}... {copied / (1024 * 1024)} MB" +
+                                (attempt > 1 ? $" (retry {attempt})" : "")));
+                        }
+                    }
+                }
+
+                if (total > 0 && new FileInfo(part).Length != total)
+                    throw new IOException($"incomplete: {new FileInfo(part).Length:N0}/{total:N0} bytes");
+                return; // complete
+            }
+            catch (Exception ex) when (attempt < maxAttempts &&
+                (ex is HttpRequestException || ex is IOException || ex is TaskCanceledException))
+            {
+                // keep the .part and retry from its length
+                await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempt, 5)));
+            }
         }
     }
 
