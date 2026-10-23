@@ -24,6 +24,8 @@
   -->
   <ItemGroup>
     <Compile Include="..\VoiceGarden.UI\Services\PiperSidecarGenerator.cs" Link="Services\PiperSidecarGenerator.cs" />
+    <Compile Include="..\VoiceGarden.UI\Services\SapiLanguage.cs" Link="Services\SapiLanguage.cs" />
+    <Compile Include="..\VoiceGarden.UI\Services\LocalEngineService.cs" Link="Services\LocalEngineService.cs" />
   </ItemGroup>
 
 </Project>
