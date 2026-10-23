@@ -667,22 +667,26 @@ public partial class VoicesViewModel : ObservableObject
 
     /// <summary>
     /// Download a local GGUF engine's models. All voices of the engine share
-    /// the files, so progress and completion reflect on every sibling row.
+    /// the files, so progress AND the in-flight state mirror onto every
+    /// sibling row (their Download buttons disable for the duration too).
     /// </summary>
     private async Task DownloadLocalEngine(VoiceEntry voice)
     {
         var engine = voice.LocalEngine!;
-        voice.IsDownloading = true;
-        voice.DownloadProgress = 0;
-        voice.DownloadStatus = Loc.GetString("DownloadingModel", engine.DisplayName, engine.ApproxSizeText);
+        var siblings = AllVoices.Where(v => v.IsLocalGguf && v.EngineId == engine.EngineId).ToList();
+        foreach (var s in siblings)
+        {
+            s.IsDownloading = true;
+            s.DownloadProgress = 0;
+            s.DownloadStatus = Loc.GetString("DownloadingModel", engine.DisplayName, engine.ApproxSizeText);
+        }
         StatusText = voice.DownloadStatus;
 
         try
         {
             var progress = new Progress<(int pct, string msg)>(p =>
             {
-                // Mirror onto every row of this engine — shared download
-                foreach (var sibling in AllVoices.Where(v => v.IsLocalGguf && v.EngineId == engine.EngineId))
+                foreach (var sibling in siblings)
                 {
                     sibling.DownloadProgress = p.pct;
                     sibling.DownloadStatus = $"{p.pct}% - {engine.DisplayName}";
@@ -690,7 +694,7 @@ public partial class VoicesViewModel : ObservableObject
             });
 
             await LocalEngineService.DownloadAsync(engine, (IProgress<(int, string)>)progress);
-            foreach (var sibling in AllVoices.Where(v => v.IsLocalGguf && v.EngineId == engine.EngineId))
+            foreach (var sibling in siblings)
             {
                 sibling.IsDownloaded = true;
                 sibling.DownloadProgress = 100;
@@ -707,7 +711,7 @@ public partial class VoicesViewModel : ObservableObject
         }
         finally
         {
-            voice.IsDownloading = false;
+            foreach (var sibling in siblings) sibling.IsDownloading = false;
         }
     }
 
