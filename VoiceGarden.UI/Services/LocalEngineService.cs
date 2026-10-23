@@ -74,12 +74,13 @@ public static class LocalEngineService
 
     // OmniVoice's voice id IS the language (the wrapper passes it as the
     // ov_synthesize language). Table mirrors the wrapper's
-    // omnivoice_language_codes() (64 locales).
+    // omnivoice_language_codes(), minus locales the ENGINE rejects: the
+    // runtime has no English regional variants ("en-GB"/"en-US" and every
+    // "English (…)" name fail ov_synthesize — base "english" only), and a
+    // few base languages (e.g. "ar") are absent from its table too.
     private static readonly EngineVoice[] OmniVoiceVoices =
     {
         new("en", "en", "English"),
-        new("en-GB", "en-GB", "English (British)"),
-        new("en-US", "en-US", "English (American)"),
         new("fr", "fr", "French"),
         new("de", "de", "German"),
         new("es", "es", "Spanish"),

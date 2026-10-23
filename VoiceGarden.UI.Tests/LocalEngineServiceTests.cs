@@ -138,12 +138,14 @@ public sealed class LocalEngineServiceTests : IDisposable
     public void OmniVoiceExposesTheWrapperLocales()
     {
         // Mirrors the wrapper's omnivoice_language_codes() table — one
-        // promotable voice per locale (voice id = language).
+        // promotable voice per locale (voice id = language) — minus the
+        // locales the runtime rejects (verified against the shipped DLL):
+        // no English regional variants exist in its table.
         var engine = LocalEngineService.Find("omnivoice-local")!;
-        Assert.True(engine.Voices.Length >= 60);
+        Assert.True(engine.Voices.Length >= 55);
         Assert.Contains(engine.Voices, v => v.Id == "en");
-        Assert.Contains(engine.Voices, v => v.Id == "en-GB");
         Assert.Contains(engine.Voices, v => v.Id == "fr");
+        Assert.DoesNotContain(engine.Voices, v => v.Id == "en-GB" || v.Id == "en-US");
         // ids must be unique (token names derive from them)
         Assert.Equal(engine.Voices.Length, engine.Voices.Select(v => v.Id).Distinct().Count());
     }
