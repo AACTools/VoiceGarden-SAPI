@@ -859,6 +859,11 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
         // Sherpa EngineType maps to "sherpaonnx" in rust-tts-wrapper
         if (lowerType == "sherpa")
             lowerType = "sherpaonnx";
+        // Friendly spellings for the offline engine ids that contain a dash
+        if (lowerType == "qwen3local")
+            lowerType = "qwen3-local";
+        if (lowerType == "omnivoicelocal")
+            lowerType = "omnivoice-local";
     }
     else if (hasSherpaPath)
     {
@@ -918,6 +923,66 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
     {
         // Edge is credential-free
         credsJson = "{}";
+    }
+    else if (lowerType == "qwen3-local")
+    {
+        // Qwen3-TTS offline (qwen3-tts.cpp / GGML): the model dir holds
+        // qwen3-tts-0.6b-f16.gguf etc. The engine runtime DLL ships beside
+        // rust_tts_wrapper.dll in the installer payload.
+        CSpDynamicString pszQwen3Dir;
+        if (!CheckHrNotFound(pConfigKey->GetStringValue(L"Qwen3ModelsDir", &pszQwen3Dir)) && pszQwen3Dir.m_psz)
+        {
+            std::string dir = WStringToUTF8(std::wstring(pszQwen3Dir.m_psz));
+            std::replace(dir.begin(), dir.end(), '\\', '/');
+            credsJson = "{\"modelsDir\":\"" + dir + "\"}";
+            LogInfo("RustTts: qwen3-local credentials: {}", credsJson);
+        }
+        else
+        {
+            LogWarn("RustTts: qwen3-local voice has no Qwen3ModelsDir");
+            return false;
+        }
+    }
+    else if (lowerType == "omnivoice-local")
+    {
+        // OmniVoice offline (omnivoice.cpp / GGUF): model + codec GGUFs are
+        // required; language / numSteps / seed / instruct optional.
+        CSpDynamicString pszOvModel, pszOvCodec, pszOvLang, pszOvInstruct;
+        bool hasModel = !CheckHrNotFound(pConfigKey->GetStringValue(L"OmniVoiceModelPath", &pszOvModel)) && pszOvModel.m_psz;
+        bool hasCodec = !CheckHrNotFound(pConfigKey->GetStringValue(L"OmniVoiceCodecPath", &pszOvCodec)) && pszOvCodec.m_psz;
+        if (hasModel && hasCodec)
+        {
+            auto toForward = [](const wchar_t* w) {
+                std::string s = WStringToUTF8(std::wstring(w));
+                std::replace(s.begin(), s.end(), '\\', '/');
+                return s;
+            };
+            credsJson = "{\"modelPath\":\"" + toForward(pszOvModel.m_psz)
+                      + "\",\"codecPath\":\"" + toForward(pszOvCodec.m_psz) + "\"";
+            if (!CheckHrNotFound(pConfigKey->GetStringValue(L"OmniVoiceLanguage", &pszOvLang)) && pszOvLang.m_psz)
+                credsJson += ",\"language\":\"" + WStringToUTF8(std::wstring(pszOvLang.m_psz)) + "\"";
+            if (!CheckHrNotFound(pConfigKey->GetStringValue(L"OmniVoiceInstruct", &pszOvInstruct)) && pszOvInstruct.m_psz)
+                credsJson += ",\"instruct\":\"" + WStringToUTF8(std::wstring(pszOvInstruct.m_psz)) + "\"";
+            // numSteps / seed are stored as string values (ISpDataKey is string-only)
+            CSpDynamicString pszOvSteps, pszOvSeed;
+            if (!CheckHrNotFound(pConfigKey->GetStringValue(L"OmniVoiceNumSteps", &pszOvSteps)) && pszOvSteps.m_psz)
+            {
+                try { credsJson += ",\"numSteps\":" + std::to_string(std::stoul(WStringToUTF8(std::wstring(pszOvSteps.m_psz)))); }
+                catch (...) { /* non-numeric — omit */ }
+            }
+            if (!CheckHrNotFound(pConfigKey->GetStringValue(L"OmniVoiceSeed", &pszOvSeed)) && pszOvSeed.m_psz)
+            {
+                try { credsJson += ",\"seed\":" + std::to_string(std::stoul(WStringToUTF8(std::wstring(pszOvSeed.m_psz)))); }
+                catch (...) { /* non-numeric — omit */ }
+            }
+            credsJson += "}";
+            LogInfo("RustTts: omnivoice-local credentials: {}", credsJson);
+        }
+        else
+        {
+            LogWarn("RustTts: omnivoice-local voice needs OmniVoiceModelPath and OmniVoiceCodecPath");
+            return false;
+        }
     }
     else if (lowerType == "sherpaonnx")
     {

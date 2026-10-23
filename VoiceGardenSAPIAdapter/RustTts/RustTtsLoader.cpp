@@ -54,10 +54,19 @@ bool Loader::Initialize() {
         for (const char* dllName : dllNames) {
             auto path = searchDir / dllName;
             if (std::filesystem::exists(path)) {
-                m_hModule = LoadLibraryW(path.wstring().c_str());
+                // LOAD_WITH_ALTERED_SEARCH_PATH: the wrapper DLL has hard
+                // imports (qwen3-tts / omnivoice / ggml engine runtimes since
+                // rust-tts-wrapper 1.6.4) that sit BESIDE it in the payload —
+                // plain LoadLibrary would search the host process's app dir
+                // and PATH instead and fail with 126.
+                m_hModule = LoadLibraryExW(path.wstring().c_str(), nullptr,
+                                           LOAD_WITH_ALTERED_SEARCH_PATH);
                 if (m_hModule) {
                     spdlog::info("RustTts: loaded {}", path.string());
                     break;
+                } else {
+                    spdlog::warn("RustTts: LoadLibraryEx failed for {} (GLE={})",
+                                 path.string(), GetLastError());
                 }
             }
         }

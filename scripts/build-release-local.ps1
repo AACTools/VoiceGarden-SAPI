@@ -415,9 +415,11 @@ foreach ($Platform in $Platforms) {
     Copy-Item $mainOut\* $platformPayload\ -Recurse -Force
 }
 
-# Rust TTS wrapper native DLL — pinned to the csproj's RustTtsWrapper.Bindings
+# Rust TTS wrapper native DLLs — pinned to the csproj's RustTtsWrapper.Bindings
 # version via the shared resolver (issue #15: shipping a cached-but-unpinned
-# DLL risks a callback-ABI mismatch with the thunk code).
+# DLL risks a callback-ABI mismatch with the thunk code). -CopyAllNativeTo
+# also ships the engine runtime DLLs beside the wrapper (qwen3-tts /
+# omnivoice engines need them to load).
 $rustDllDir = Join-Path $env:USERPROFILE ".nuget\packages\rustttswrapper.bindings"
 if (Test-Path $rustDllDir) {
     foreach ($rid in @("win-x64", "win-x86")) {
@@ -426,9 +428,9 @@ if (Test-Path $rustDllDir) {
         if (-not (Test-Path $targetDir)) { continue }
         $dll = & "$PSScriptRoot\Get-RustTtsWrapperDll.ps1" -Rid $rid
         if ($dll) {
-            Copy-Item $dll $targetDir -Force
+            & "$PSScriptRoot\Get-RustTtsWrapperDll.ps1" -Rid $rid -CopyAllNativeTo $targetDir
             $dllVersion = $dll.Substring($rustDllDir.Length + 1).Split('\')[0]
-            Write-Host "  rust_tts_wrapper.dll $dllVersion ($rid, csproj-pinned) -> payload\$arch\" -ForegroundColor DarkGray
+            Write-Host "  rust_tts_wrapper.dll $dllVersion (+ engine DLLs) ($rid, csproj-pinned) -> payload\$arch\" -ForegroundColor DarkGray
         } else {
             Write-Host "  WARNING: rust_tts_wrapper.dll for $rid not resolvable (see resolver warnings)" -ForegroundColor Yellow
         }
