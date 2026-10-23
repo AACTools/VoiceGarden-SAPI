@@ -1,9 +1,11 @@
 <#
 .SYNOPSIS
-    Remove all VoiceGarden/Sherpa/Cloud SAPI voice tokens from the registry.
+    Remove all VoiceGarden/Sherpa/Cloud/Local SAPI voice tokens from the registry.
 .DESCRIPTION
-    Wipes Sherpa-* and Cloud-* tokens from HKLM\SOFTWARE\Microsoft\Speech\Voices\Tokens
-    so you can test from a clean state. Built-in Microsoft voices (TTS_MS_*) are kept.
+    Wipes Sherpa-*, Cloud-*, Local-*, NaturalVoice-*, eSpeak* and VoiceGarden-*
+    tokens from HKLM/HKCU Speech token roots so you can test from a clean
+    state. Built-in Microsoft voices (TTS_MS_*) are kept. Self-elevates when
+    not run as administrator.
 .PARAMETER DryRun
     Show what would be deleted without actually deleting.
 .EXAMPLE
@@ -13,6 +15,17 @@
 param(
     [switch]$DryRun
 )
+
+# --- Elevation: HKLM deletes need admin; self-elevate when needed ---
+$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()
+    ).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+if (-not $isAdmin -and -not $DryRun) {
+    Write-Host "HKLM cleanup needs administrator rights - relaunching elevated..." -ForegroundColor Yellow
+    $args = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath)
+    if ($DryRun) { $args += '-DryRun' }
+    Start-Process (Get-Process -Id $PID).ProcessName -ArgumentList $args -Verb RunAs -Wait
+    exit
+}
 
 $tokensRoot = "HKLM:\SOFTWARE\Microsoft\Speech\Voices\Tokens"
 
@@ -30,6 +43,7 @@ $prefixes = @("Sherpa-", "Cloud-", "Local-", "NaturalVoice-", "eSpeak", "VoiceGa
 # Note: eSpeak voices are also from our adapter in 32-bit land
 $deleted = 0
 $kept = 0
+$failed = 0
 
 foreach ($root in @($tokensRoot, $wowTokensRoot, $hkcuTokensRoot, $oneCoreRoot, $wowOneCoreRoot)) {
     if (-not (Test-Path $root)) { continue }
@@ -50,10 +64,14 @@ foreach ($root in @($tokensRoot, $wowTokensRoot, $hkcuTokensRoot, $oneCoreRoot, 
                 Write-Host "  [DRY-RUN] Would delete: $name ($hive)" -ForegroundColor Yellow
             } else {
                 try {
-                    Remove-Item $child.PSPath -Recurse -Force
+                    # -ErrorAction Stop: registry access-denied is otherwise
+                    # non-terminating and used to print "Deleted" on failure.
+                    Remove-Item $child.PSPath -Recurse -Force -ErrorAction Stop
                     Write-Host "  Deleted: $name ($hive)" -ForegroundColor Green
                 } catch {
-                    Write-Host "  FAILED:  $name ($hive) - $_" -ForegroundColor Red
+                    Write-Host "  FAILED:  $name ($hive) - $($_.Exception.Message)" -ForegroundColor Red
+                    $failed++
+                    continue
                 }
             }
             $deleted++
@@ -88,7 +106,7 @@ foreach ($key in $vgRoots) {
 
 Write-Host ""
 $action = if ($DryRun) { "would be" } else { "were" }
-Write-Host "Summary: $deleted voice token(s) $action removed, $kept built-in voice(s) kept" -ForegroundColor Cyan
+Write-Host "Summary: $deleted voice token(s) $action removed, $kept built-in voice(s) kept$(if ($failed -gt 0) { ", $failed FAILED (run elevated!)" })" -ForegroundColor $(if ($failed -gt 0) { "Red" } else { "Cyan" })
 if (-not $DryRun -and $deleted -gt 0) {
     Write-Host "Clean state. Restart any SAPI clients (Grid3) to pick up changes." -ForegroundColor Cyan
 }
