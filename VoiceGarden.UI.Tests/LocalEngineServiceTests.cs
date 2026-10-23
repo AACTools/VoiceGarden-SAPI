@@ -122,14 +122,29 @@ public sealed class LocalEngineServiceTests : IDisposable
     public void TokenValues_OmniVoiceCarriesModelAndCodecPaths()
     {
         var engine = LocalEngineService.Find("omnivoice-local")!;
-        var voice = engine.Voices.Single();
-        Assert.Equal("en", voice.Id); // voice id = language for this engine
+        var voice = engine.Voices.Single(v => v.Id == "en");
         var (_, config, attributes) = LocalEngineService.BuildTokenValues(engine, voice, @"C:\models\ov");
 
         Assert.Equal("omnivoice-local", config["EngineType"]);
         Assert.Equal("en", config["Voice"]);
         Assert.EndsWith("omnivoice-base-Q8_0.gguf", config["OmniVoiceModelPath"].Replace('/', '\\'));
         Assert.EndsWith("omnivoice-tokenizer-F32.gguf", config["OmniVoiceCodecPath"].Replace('/', '\\'));
+        // Speed default: 32 diffusion steps is ~30x realtime on CPU
+        Assert.Equal("16", config["OmniVoiceNumSteps"]);
         Assert.Equal("Local;Offline", attributes["VoiceGardenType"]);
+    }
+
+    [Fact]
+    public void OmniVoiceExposesTheWrapperLocales()
+    {
+        // Mirrors the wrapper's omnivoice_language_codes() table — one
+        // promotable voice per locale (voice id = language).
+        var engine = LocalEngineService.Find("omnivoice-local")!;
+        Assert.True(engine.Voices.Length >= 60);
+        Assert.Contains(engine.Voices, v => v.Id == "en");
+        Assert.Contains(engine.Voices, v => v.Id == "en-GB");
+        Assert.Contains(engine.Voices, v => v.Id == "fr");
+        // ids must be unique (token names derive from them)
+        Assert.Equal(engine.Voices.Length, engine.Voices.Select(v => v.Id).Distinct().Count());
     }
 }

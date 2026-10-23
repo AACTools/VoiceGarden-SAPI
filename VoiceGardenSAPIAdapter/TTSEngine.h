@@ -5,6 +5,7 @@
 
 #include "pch.h"
 #include <deque>
+#include <thread>
 #include "Logger.h"
 #include "SapiException.h"
 

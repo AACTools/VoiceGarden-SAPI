@@ -72,11 +72,75 @@ public static class LocalEngineService
         new("pt", "pt", "Portuguese"),
     };
 
+    // OmniVoice's voice id IS the language (the wrapper passes it as the
+    // ov_synthesize language). Table mirrors the wrapper's
+    // omnivoice_language_codes() (64 locales).
     private static readonly EngineVoice[] OmniVoiceVoices =
     {
-        // OmniVoice's voice id IS the language (the wrapper passes it as the
-        // ov_synthesize language) — the engine id is not a valid language.
         new("en", "en", "English"),
+        new("en-GB", "en-GB", "English (British)"),
+        new("en-US", "en-US", "English (American)"),
+        new("fr", "fr", "French"),
+        new("de", "de", "German"),
+        new("es", "es", "Spanish"),
+        new("it", "it", "Italian"),
+        new("pt", "pt", "Portuguese"),
+        new("ru", "ru", "Russian"),
+        new("zh", "zh", "Chinese"),
+        new("ja", "ja", "Japanese"),
+        new("ko", "ko", "Korean"),
+        new("hi", "hi", "Hindi"),
+        new("ar", "ar", "Arabic"),
+        new("tr", "tr", "Turkish"),
+        new("pl", "pl", "Polish"),
+        new("nl", "nl", "Dutch"),
+        new("sv", "sv", "Swedish"),
+        new("da", "da", "Danish"),
+        new("no", "no", "Norwegian"),
+        new("fi", "fi", "Finnish"),
+        new("cs", "cs", "Czech"),
+        new("el", "el", "Greek"),
+        new("he", "he", "Hebrew"),
+        new("th", "th", "Thai"),
+        new("vi", "vi", "Vietnamese"),
+        new("id", "id", "Indonesian"),
+        new("ms", "ms", "Malay"),
+        new("uk", "uk", "Ukrainian"),
+        new("ro", "ro", "Romanian"),
+        new("hu", "hu", "Hungarian"),
+        new("bg", "bg", "Bulgarian"),
+        new("hr", "hr", "Croatian"),
+        new("sk", "sk", "Slovak"),
+        new("sl", "sl", "Slovenian"),
+        new("sr", "sr", "Serbian"),
+        new("lt", "lt", "Lithuanian"),
+        new("lv", "lv", "Latvian"),
+        new("et", "et", "Estonian"),
+        new("is", "is", "Icelandic"),
+        new("ga", "ga", "Irish"),
+        new("cy", "cy", "Welsh"),
+        new("sw", "sw", "Swahili"),
+        new("af", "af", "Afrikaans"),
+        new("bn", "bn", "Bengali"),
+        new("ta", "ta", "Tamil"),
+        new("te", "te", "Telugu"),
+        new("kn", "kn", "Kannada"),
+        new("ml", "ml", "Malayalam"),
+        new("mr", "mr", "Marathi"),
+        new("gu", "gu", "Gujarati"),
+        new("pa", "pa", "Punjabi"),
+        new("ur", "ur", "Urdu"),
+        new("si", "si", "Sinhala"),
+        new("my", "my", "Burmese"),
+        new("km", "km", "Khmer"),
+        new("lo", "lo", "Lao"),
+        new("ne", "ne", "Nepali"),
+        new("fa", "fa", "Persian"),
+        new("ps", "ps", "Pashto"),
+        new("az", "az", "Azerbaijani"),
+        new("kk", "kk", "Kazakh"),
+        new("ky", "ky", "Kyrgyz"),
+        new("uz", "uz", "Uzbek"),
     };
 
     public static readonly LocalEngine[] Catalog =
@@ -301,6 +365,10 @@ public static class LocalEngineService
         {
             config["OmniVoiceModelPath"] = Path.Combine(installDir, "omnivoice-base-Q8_0.gguf");
             config["OmniVoiceCodecPath"] = Path.Combine(installDir, "omnivoice-tokenizer-F32.gguf");
+            // Diffusion steps: the wrapper defaults to 32 which is glacial on
+            // CPU (~30x realtime observed). 16 halves synthesis time with a
+            // minor quality cost — override via the OmniVoiceNumSteps value.
+            config["OmniVoiceNumSteps"] = "16";
         }
 
         var locale = voice.Bcp47.Contains('-') ? voice.Bcp47 : DefaultLocaleFor(voice.Bcp47);

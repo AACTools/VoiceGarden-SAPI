@@ -946,7 +946,15 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
         {
             std::string dir = WStringToUTF8(std::wstring(pszQwen3Dir.m_psz));
             std::replace(dir.begin(), dir.end(), '\\', '/');
-            credsJson = "{\"modelsDir\":\"" + dir + "\"}";
+            // The wrapper defaults to 4 threads — on multi-core machines that
+            // wastes most of the CPU (f16 measured RTF ~4.8 at 4 threads).
+            // Use all hardware threads (capped) unless the token overrides.
+            CSpDynamicString pszQwen3Threads;
+            DWORD hwThreads = std::thread::hardware_concurrency();
+            std::string threads = std::to_string(hwThreads > 0 ? std::min<DWORD>(hwThreads, 32u) : 4u);
+            if (!CheckHrNotFound(pConfigKey->GetStringValue(L"Qwen3Threads", &pszQwen3Threads)) && pszQwen3Threads.m_psz)
+                threads = WStringToUTF8(std::wstring(pszQwen3Threads.m_psz));
+            credsJson = "{\"modelsDir\":\"" + dir + "\",\"threads\":" + threads + "}";
             LogInfo("RustTts: qwen3-local credentials: {}", credsJson);
         }
         else
