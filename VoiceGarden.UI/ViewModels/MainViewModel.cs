@@ -57,6 +57,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         // Load settings from registry
         sherpaEnabled = !RegistryService.GetFlag("NoSherpaVoices", !BrandingConfig.DefaultSherpaEnabled);
         edgeEnabled = !RegistryService.GetFlag("NoEdgeVoices");
+        qwen3LocalEnabled = !RegistryService.GetFlag("NoQwen3LocalVoices", false);
+        omnivoiceLocalEnabled = !RegistryService.GetFlag("NoOmniVoiceLocalVoices", false);
         AnalyticsEnabled = Services.AnalyticsService.IsEnabled;
         // spdlog levels: 0=trace … 4=error, 6=off; adapter defaults to info(2)
         LogLevelIndex = RegistryService.GetDword("LogLevel", 2);
@@ -140,8 +142,26 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     [ObservableProperty] private bool sherpaEnabled;
     [ObservableProperty] private bool edgeEnabled;
+    [ObservableProperty] private bool qwen3LocalEnabled;
+    [ObservableProperty] private bool omnivoiceLocalEnabled;
 
     partial void OnSherpaEnabledChanged(bool value) => RegistryService.SetFlag("NoSherpaVoices", !value);
+
+    partial void OnQwen3LocalEnabledChanged(bool value) => RegistryService.SetFlag("NoQwen3LocalVoices", !value);
+    partial void OnOmnivoiceLocalEnabledChanged(bool value) => RegistryService.SetFlag("NoOmniVoiceLocalVoices", !value);
+
+    public void SetLocalEngineEnabled(string engineId, bool value)
+    {
+        switch (engineId)
+        {
+            case "qwen3-local":
+                Qwen3LocalEnabled = value;
+                break;
+            case "omnivoice-local":
+                OmnivoiceLocalEnabled = value;
+                break;
+        }
+    }
 
     partial void OnEdgeEnabledChanged(bool value)
     {

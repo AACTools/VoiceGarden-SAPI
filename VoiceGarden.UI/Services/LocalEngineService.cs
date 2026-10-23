@@ -43,6 +43,9 @@ public static class LocalEngineService
 
         public string InstallDir => Path.Combine(EnginesRoot, EngineId);
 
+        /// <summary>Rough download size across all files (UI display only).</summary>
+        public string ApproxSizeText => EngineId == "omnivoice-local" ? "≈1.3 GB" : "≈1.6 GB";
+
         public (string url, string fileName, long bytes)[] FileDownloads() =>
             FileNames.Select(f => ($"{BaseUrl}/{f}", f, ApproxFileSizeBytes)).ToArray();
 
@@ -88,7 +91,9 @@ public static class LocalEngineService
             EngineId: "qwen3-local",
             DisplayName: "Qwen3-TTS local",
             Vendor: "Qwen",
-            FileNames: new[] { "qwen3-tts-0.6b-f16.gguf", "qwen3-tts-tokenizer-f16.gguf" },
+            // The engine loader prefers q8_0 over f16 when present — ship
+            // the quantized talker (f16 stays available for manual use).
+            FileNames: new[] { "qwen3-tts-0.6b-q8_0.gguf", "qwen3-tts-tokenizer-f16.gguf" },
             DownloadBaseUrl: "https://huggingface.co/willwade/qwen3-tts-0.6b-gguf/resolve/main",
             UrlOverrideEnv: null,
             Voices: Qwen3Voices),
@@ -223,6 +228,69 @@ public static class LocalEngineService
         catch (UnauthorizedAccessException) { return false; }
         catch { return false; }
     }
+
+    /// <summary>
+    /// Promote with UAC fallback: direct HKLM write when elevated, else a
+    /// generated .reg imported via reg.exe (mirrors the cloud/sherpa paths).
+    /// 0 = ok, -2 = UAC cancelled, other = failure.
+    /// </summary>
+    public static int PromoteElevated(LocalEngine engine, EngineVoice voice)
+    {
+        if (Promote(engine, voice)) return 0;
+        if (!IsInstalled(engine)) return -1;
+
+        var (friendly, config, attributes) = BuildTokenValues(engine, voice, engine.InstallDir);
+        var tokenName = $"Local-{engine.EngineId}-{voice.Id}";
+        var langId = SapiLanguage.TryResolve(attributes.GetValueOrDefault("Locale", "en-US"), out _, out var id) ? id : "409";
+
+        var lines = new List<string> { "Windows Registry Editor Version 5.00", "" };
+        foreach (var root in new[] { s_tokensRoot, s_oneCoreRoot })
+        {
+            lines.Add($"[HKEY_LOCAL_MACHINE\\{root}\\{tokenName}]");
+            lines.Add($"@=\"{RegEscape(friendly)}\"");
+            lines.Add($"\"CLSID\"=\"{TtsEngineClsid}\"");
+            lines.Add($"[HKEY_LOCAL_MACHINE\\{root}\\{tokenName}\\VoiceGardenConfig]");
+            foreach (var (key, value) in config)
+                lines.Add($"\"{key}\"=\"{RegEscape(value)}\"");
+            lines.Add($"[HKEY_LOCAL_MACHINE\\{root}\\{tokenName}\\Attributes]");
+            foreach (var (key, value) in attributes)
+                lines.Add($"\"{key}\"=\"{RegEscape(value)}\"");
+            lines.Add($"\"Language\"=\"{langId}\"");
+            lines.Add("");
+        }
+
+        var regDir = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+            "VoiceGardenSAPIAdapter");
+        Directory.CreateDirectory(regDir);
+        var regPath = Path.Combine(regDir, "promote_local_engine.reg");
+        File.WriteAllLines(regPath, lines);
+
+        try
+        {
+            var psi = new System.Diagnostics.ProcessStartInfo("reg.exe", $"import \"{regPath}\"")
+            {
+                Verb = "runas",
+                UseShellExecute = true,
+                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+                CreateNoWindow = true,
+            };
+            var p = System.Diagnostics.Process.Start(psi);
+            p?.WaitForExit(15000);
+            return p?.ExitCode ?? -1;
+        }
+        catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+        {
+            return -2; // UAC cancelled
+        }
+        finally
+        {
+            try { File.Delete(regPath); } catch { }
+        }
+    }
+
+    private static string RegEscape(string value) =>
+        value.Replace("\\", "\\\\").Replace("\"", "\\\"");
 
     /// <summary>Promote every voice of every installed engine. (promote-all)</summary>
     public static (int promoted, int failed) PromoteAll()

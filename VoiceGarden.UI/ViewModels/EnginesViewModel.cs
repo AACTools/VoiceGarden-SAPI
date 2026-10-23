@@ -82,6 +82,32 @@ public partial class EnginesViewModel : ObservableObject
             };
             AddItem(sherpa);
 
+            // Offline — GGUF engines (Qwen3-TTS local, OmniVoice local).
+            // Selected = the engines' voices appear in the Voices tab; the
+            // GGUFs themselves are downloaded per voice row there.
+            foreach (var local in Services.LocalEngineService.Catalog)
+            {
+                var item = new EngineCatalogItem
+                {
+                    Id = local.EngineId,
+                    DisplayName = Loc.GetString(local.EngineId == "qwen3-local"
+                        ? "Qwen3LocalEngineName" : "OmniVoiceLocalEngineName"),
+                    Description = Loc.GetString(local.EngineId == "qwen3-local"
+                        ? "Qwen3LocalEngineDesc" : "OmniVoiceLocalEngineDesc"),
+                    Kind = EngineKind.LocalGguf,
+                    LocalEngine = local,
+                    IsSelected = local.EngineId == "qwen3-local"
+                        ? _owner.Qwen3LocalEnabled
+                        : _owner.OmnivoiceLocalEnabled,
+                };
+                AddItem(item);
+
+                // Known languages feed the Engines filter/search.
+                foreach (var v in local.Voices)
+                    EngineCatalogItem.AddLanguageTokens(item.Languages, v.Bcp47);
+                if (item.Languages.Count > 0) item.NotifyLanguagesChanged();
+            }
+
             // Online, free — Edge Read-Aloud voices
             var edge = new EngineCatalogItem
             {
@@ -173,6 +199,9 @@ public partial class EnginesViewModel : ObservableObject
         {
             case EngineKind.OfflineModel:
                 _owner.SetSherpaEngineEnabled(value);
+                break;
+            case EngineKind.LocalGguf:
+                _owner.SetLocalEngineEnabled(item.Id, value);
                 break;
             case EngineKind.CloudFree:
                 _owner.SetEdgeEngineEnabled(value);

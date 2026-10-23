@@ -27,7 +27,8 @@ public sealed class LocalEngineServiceTests : IDisposable
     {
         var qwen = LocalEngineService.Find("qwen3-local");
         Assert.NotNull(qwen);
-        Assert.Equal(new[] { "qwen3-tts-0.6b-f16.gguf", "qwen3-tts-tokenizer-f16.gguf" }, qwen!.FileNames);
+        // q8_0 talker preferred by the engine loader; tokenizer ships f16 only
+        Assert.Equal(new[] { "qwen3-tts-0.6b-q8_0.gguf", "qwen3-tts-tokenizer-f16.gguf" }, qwen!.FileNames);
         Assert.Equal("https://huggingface.co/willwade/qwen3-tts-0.6b-gguf/resolve/main", qwen.DownloadBaseUrl);
 
         var ov = LocalEngineService.Find("omnivoice-local");

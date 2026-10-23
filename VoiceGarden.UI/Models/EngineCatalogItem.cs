@@ -14,6 +14,8 @@ public enum EngineKind
     CloudCreds,
     /// <summary>Cloud engine without credentials (Edge Read-Aloud).</summary>
     CloudFree,
+    /// <summary>Local GGUF-based offline engine (Qwen3-TTS / OmniVoice).</summary>
+    LocalGguf,
 }
 
 /// <summary>
@@ -28,11 +30,14 @@ public partial class EngineCatalogItem : ObservableObject
     public string Description { get; init; } = "";
     public EngineKind Kind { get; init; }
 
-    public bool IsOffline => Kind == EngineKind.OfflineModel;
+    public bool IsOffline => Kind is EngineKind.OfflineModel or EngineKind.LocalGguf;
     public bool NeedsCredentials => Kind == EngineKind.CloudCreds;
 
     /// <summary>Underlying persistent setting for credentialed engines; null for Sherpa/Edge.</summary>
     public CloudEngineSetting? CloudSetting { get; init; }
+
+    /// <summary>Catalog entry for LocalGguf engines; null otherwise.</summary>
+    public Services.LocalEngineService.LocalEngine? LocalEngine { get; init; }
 
     /// <summary>True when an API key is stored for this engine.</summary>
     [ObservableProperty] private bool hasStoredKey;
