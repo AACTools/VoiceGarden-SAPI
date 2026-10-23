@@ -775,29 +775,47 @@ public partial class VoicesViewModel : ObservableObject
                 else { failed += sherpaIds.Count; lastError = message; }
             }
 
-            // Cloud / Edge / local-GGUF voices — one by one
-            foreach (var voice in selected.Where(v => v.IsCloud || v.IsLocalGguf))
+            // Cloud / Edge voices — one by one (local GGUF engines only when
+            // their shared models are downloaded, mirroring the sherpa filter)
+            var localSelected = selected.Where(v => v.IsLocalGguf && v.IsDownloaded).ToList();
+            foreach (var voice in localSelected)
             {
-                var (ok, message) = voice.IsLocalGguf
-                    ? await PromoteLocalEngineVoice(voice)
-                    : await PromoteCloudVoice(voice);
+                var (ok, message) = await PromoteLocalEngineVoice(voice);
                 if (ok) promoted++;
                 else { failed++; lastError = message; }
             }
 
+            foreach (var voice in selected.Where(v => v.IsCloud))
+            {
+                var (ok, message) = await PromoteCloudVoice(voice);
+                if (ok) promoted++;
+                else { failed++; lastError = message; }
+            }
+
+            // Selected local voices skipped because the models aren't
+            // downloaded yet — say so instead of a silent count mismatch.
+            var skippedLocal = selected.Count(v => v.IsLocalGguf && !v.IsDownloaded);
+
             await RefreshInstalledStatus();
             UpdateCounts();
 
+            var skippedNote = skippedLocal > 0
+                ? Loc.GetString("DownloadModelFirst") + $" ({skippedLocal})"
+                : "";
+
             if (failed == 0)
             {
-                StatusText = Loc.GetString("InstalledVoicesHKLM", promoted);
+                var summary = Loc.GetString("InstalledVoicesHKLM", promoted);
+                StatusText = skippedNote.Length > 0 ? $"{summary} — {skippedNote}" : summary;
                 ClearError();
+                if (skippedNote.Length > 0) ShowError(summary, skippedNote);
             }
             else
             {
                 var friendly = Loc.GetString("InstalledModelsFailed", promoted, failed);
-                StatusText = friendly + (lastError.Length > 0 ? $" ({lastError})" : "");
-                ShowError(friendly, lastError.Length > 0 ? lastError : null);
+                var detail = string.Join("; ", new[] { lastError, skippedNote }.Where(s => s.Length > 0));
+                StatusText = friendly + (detail.Length > 0 ? $" ({detail})" : "");
+                ShowError(friendly, detail.Length > 0 ? detail : null);
             }
         }
         finally
@@ -910,6 +928,11 @@ public partial class VoicesViewModel : ObservableObject
 
     private async Task<(bool ok, string message)> PromoteLocalEngineVoice(VoiceEntry voice)
     {
+        // Distinct message when the models aren't downloaded yet — the
+        // generic "administrator approval may be required" hint misleads.
+        if (!voice.IsDownloaded)
+            return (false, Loc.GetString("DownloadModelFirst"));
+
         var engine = voice.LocalEngine!;
         var engineVoice = voice.LocalVoice!;
 
@@ -919,6 +942,7 @@ public partial class VoicesViewModel : ObservableObject
         {
             0 => (true, ""),
             -2 => (false, Loc.GetString("InstallCancelled")),
+            -3 => (false, Loc.GetString("DownloadModelFirst")),
             _ => (false, Loc.GetString("VoicesPromoteFailed", voice.Name)),
         };
     }

@@ -102,11 +102,26 @@ public static class LocalEngineService
     public static LocalEngine? Find(string engineId) =>
         Catalog.FirstOrDefault(e => e.EngineId.Equals(engineId, StringComparison.OrdinalIgnoreCase));
 
-    /// <summary>All engine files exist on disk (engine usable).</summary>
-    public static bool IsInstalled(LocalEngine engine) =>
-        engine.FileNames.All(f => File.Exists(Path.Combine(engine.InstallDir, f)));
+    /// <summary>
+    /// All files needed to USE the engine are on disk. The qwen3 loader
+    /// accepts either talker quantization (prefers q8_0, falls back to f16),
+    /// so an existing f16 install counts — no forced 1.3 GB re-download.
+    /// </summary>
+    public static bool IsInstalled(LocalEngine engine)
+    {
+        if (engine.EngineId == "qwen3-local")
+        {
+            return File.Exists(Path.Combine(engine.InstallDir, "qwen3-tts-tokenizer-f16.gguf"))
+                && (File.Exists(Path.Combine(engine.InstallDir, "qwen3-tts-0.6b-q8_0.gguf"))
+                    || File.Exists(Path.Combine(engine.InstallDir, "qwen3-tts-0.6b-f16.gguf")));
+        }
+        return engine.FileNames.All(f => File.Exists(Path.Combine(engine.InstallDir, f)));
+    }
 
-    /// <summary>Download all files of an engine (staged .part, then rename).</summary>
+    /// <summary>Download all files of an engine (staged .part, then rename).
+    /// Per-engine mutual exclusion: all voices of an engine share the files,
+    /// so a second concurrent download (second row, double-click) would
+    /// corrupt the same .part — it throws instead.</summary>
     public static async Task DownloadAsync(LocalEngine engine,
         IProgress<(int percent, string status)>? progress = null,
         HttpClient? http = null)
@@ -119,44 +134,103 @@ public static class LocalEngineService
                 $"{engine.UrlOverrideEnv} to their HTTPS base URL (see SAPI issue #19).");
         }
 
-        http ??= new HttpClient();
-        http.DefaultRequestHeaders.UserAgent.ParseAdd("VoiceGarden-SAPI");
-        Directory.CreateDirectory(engine.InstallDir);
+        var gate = DownloadGate(engine.EngineId);
+        if (!await gate.WaitAsync(0))
+            throw new InvalidOperationException($"{engine.EngineId}: download already in progress");
 
-        var downloads = engine.FileDownloads();
-        for (var i = 0; i < downloads.Length; i++)
+        try
         {
-            var (url, fileName, total) = downloads[i];
-            var dest = Path.Combine(engine.InstallDir, fileName);
-            var part = dest + ".part";
-            if (File.Exists(dest)) continue; // already downloaded
+            http ??= new HttpClient();
+            http.DefaultRequestHeaders.UserAgent.ParseAdd("VoiceGarden-SAPI");
+            Directory.CreateDirectory(engine.InstallDir);
 
-            progress?.Report((100 * i / downloads.Length, $"Downloading {fileName}..."));
-            using var resp = await http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
-            resp.EnsureSuccessStatusCode();
-            var reportedTotal = resp.Content.Headers.ContentLength ?? total;
-
+            var downloads = engine.FileDownloads();
+            for (var i = 0; i < downloads.Length; i++)
             {
-                await using var src = await resp.Content.ReadAsStreamAsync();
-                await using var dst = File.Create(part);
-                var buffer = new byte[1 << 16];
-                long copied = 0;
-                int read;
-                while ((read = await src.ReadAsync(buffer)) > 0)
+                var (url, fileName, total) = downloads[i];
+                var dest = Path.Combine(engine.InstallDir, fileName);
+                var part = dest + ".part";
+                if (File.Exists(dest)) continue; // already downloaded
+                TryDelete(part); // stale part from a crashed/killed download
+
+                progress?.Report((100 * i / downloads.Length, $"Downloading {fileName}..."));
+                using var resp = await http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+                resp.EnsureSuccessStatusCode();
+                var reportedTotal = resp.Content.Headers.ContentLength ?? total;
+
                 {
-                    await dst.WriteAsync(buffer.AsMemory(0, read));
-                    copied += read;
-                    if (reportedTotal > 0 && i == downloads.Length - 1)
+                    await using var src = await resp.Content.ReadAsStreamAsync();
+                    await using var dst = File.Create(part);
+                    var buffer = new byte[1 << 16];
+                    long copied = 0;
+                    int read;
+                    while ((read = await src.ReadAsync(buffer)) > 0)
                     {
-                        var filePct = (int)(100 * copied / reportedTotal);
-                        progress?.Report((Math.Min(99, 100 * i / downloads.Length + filePct / downloads.Length),
-                            $"Downloading {fileName}... {copied / (1024 * 1024)} MB"));
+                        await dst.WriteAsync(buffer.AsMemory(0, read));
+                        copied += read;
+                        if (reportedTotal > 0 && i == downloads.Length - 1)
+                        {
+                            var filePct = (int)(100 * copied / reportedTotal);
+                            progress?.Report((Math.Min(99, 100 * i / downloads.Length + filePct / downloads.Length),
+                                $"Downloading {fileName}... {copied / (1024 * 1024)} MB"));
+                        }
                     }
                 }
+
+                MoveWithRetry(part, dest);
             }
-            File.Move(part, dest, overwrite: true);
+            progress?.Report((100, "Done"));
         }
-        progress?.Report((100, "Done"));
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, SemaphoreSlim>
+        s_downloadGates = new();
+
+    /// <summary>Per-engine download mutex (test hook: hold it to simulate an
+    /// in-flight download).</summary>
+    internal static SemaphoreSlim DownloadGate(string engineId) =>
+        s_downloadGates.GetOrAdd(engineId, _ => new SemaphoreSlim(1, 1));
+
+    /// <summary>Move retry: antivirus/indexers (or a just-closed app) can hold
+    /// the .part briefly after the stream is disposed.</summary>
+    private static void MoveWithRetry(string part, string dest)
+    {
+        for (var attempt = 0; ; attempt++)
+        {
+            try
+            {
+                File.Move(part, dest, overwrite: true);
+                return;
+            }
+            catch (IOException) when (attempt < 5)
+            {
+                Thread.Sleep(500);
+            }
+        }
+    }
+
+    private static void TryDelete(string path)
+    {
+        for (var attempt = 0; ; attempt++)
+        {
+            try
+            {
+                if (File.Exists(path)) File.Delete(path);
+                return;
+            }
+            catch (IOException) when (attempt < 3)
+            {
+                Thread.Sleep(300);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return;
+            }
+        }
     }
 
     /// <summary>Pure mapping used when writing a token — unit-testable.</summary>
@@ -232,12 +306,12 @@ public static class LocalEngineService
     /// <summary>
     /// Promote with UAC fallback: direct HKLM write when elevated, else a
     /// generated .reg imported via reg.exe (mirrors the cloud/sherpa paths).
-    /// 0 = ok, -2 = UAC cancelled, other = failure.
+    /// 0 = ok, -2 = UAC cancelled, -3 = engine not downloaded, other = failure.
     /// </summary>
     public static int PromoteElevated(LocalEngine engine, EngineVoice voice)
     {
+        if (!IsInstalled(engine)) return -3;
         if (Promote(engine, voice)) return 0;
-        if (!IsInstalled(engine)) return -1;
 
         var (friendly, config, attributes) = BuildTokenValues(engine, voice, engine.InstallDir);
         var tokenName = $"Local-{engine.EngineId}-{voice.Id}";

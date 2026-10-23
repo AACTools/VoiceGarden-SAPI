@@ -59,14 +59,48 @@ public sealed class LocalEngineServiceTests : IDisposable
     [Fact]
     public void InstallStateRequiresAllFiles()
     {
-        var engine = LocalEngineService.Find("qwen3-local")!;
-        // EnginesRoot is static — test via a fabricated dir against FileNames directly
+        var engine = LocalEngineService.Find("omnivoice-local")!;
         var dir = Path.Combine(_root, engine.EngineId);
         Directory.CreateDirectory(dir);
         Assert.False(engine.FileNames.All(f => File.Exists(Path.Combine(dir, f))));
 
         foreach (var f in engine.FileNames) File.WriteAllText(Path.Combine(dir, f), "gguf");
         Assert.True(engine.FileNames.All(f => File.Exists(Path.Combine(dir, f))));
+    }
+
+    [Fact]
+    public void Qwen3InstalledWithEitherTalkerQuantization()
+    {
+        // The engine loader prefers q8_0 but accepts f16 — an existing f16
+        // install must count (no forced re-download after the q8 switch).
+        var engine = LocalEngineService.Find("qwen3-local")!;
+        var dir = engine.InstallDir; // real engines dir — read-only check on files
+        var tokenizer = Path.Combine(dir, "qwen3-tts-tokenizer-f16.gguf");
+        if (!File.Exists(tokenizer)) return; // nothing on this machine — skip
+
+        var q8 = File.Exists(Path.Combine(dir, "qwen3-tts-0.6b-q8_0.gguf"));
+        var f16 = File.Exists(Path.Combine(dir, "qwen3-tts-0.6b-f16.gguf"));
+        Assert.Equal(q8 || f16, LocalEngineService.IsInstalled(engine));
+    }
+
+    [Fact]
+    public async Task ConcurrentDownloadsOfSameEngineAreRejected()
+    {
+        // All voices of an engine share one GGUF set — a second concurrent
+        // download (second row, double-click) must throw, not corrupt the
+        // same .part files (the bug that produced the locked 0.3 MB corpse).
+        var engine = LocalEngineService.Find("omnivoice-local")!;
+        var gate = LocalEngineService.DownloadGate(engine.EngineId);
+        await gate.WaitAsync();
+        try
+        {
+            await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                LocalEngineService.DownloadAsync(engine));
+        }
+        finally
+        {
+            gate.Release();
+        }
     }
 
     [Fact]
