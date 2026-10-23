@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace VoiceGarden.UI;
 
-internal class Program
+internal partial class Program
 {
     [DllImport("kernel32.dll")]
     private static extern bool AttachConsole(int processId);
@@ -28,12 +28,42 @@ internal class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        // CLI mode if any arguments provided
+        // CLI mode if any arguments provided (never force elevation for CLI —
+        // scripts/tests call it; promotion paths self-elevate per action)
         if (args.Length > 0)
         {
             AttachConsole(-1); // Attach to parent console
             var exitCode = CliDispatcher.Run(args);
             Environment.Exit(exitCode);
+        }
+
+        // GUI mode self-elevates: voice promotion/removal writes HKLM, and a
+        // non-elevated instance (Start Menu shortcut launches asInvoker — only
+        // the installer-spawned copy runs elevated) otherwise hits a UAC
+        // round-trip per action, which silently failed removals when the
+        // prompt was missed. One prompt at launch instead.
+        if (!args.Contains("--no-elevate", StringComparer.OrdinalIgnoreCase) && !IsElevated())
+        {
+            try
+            {
+                var psi = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = Environment.ProcessPath!,
+                    Verb = "runas",
+                    UseShellExecute = true,
+                };
+                var p = System.Diagnostics.Process.Start(psi);
+                if (p != null) { Environment.Exit(0); }
+            }
+            catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+            {
+                // UAC declined — continue non-elevated (read-only use);
+                // promotion actions still self-elevate per action.
+            }
+            catch
+            {
+                // Relaunch failed (no shell, etc.) — continue as-is.
+            }
         }
 
         // Prevent multiple instances of the GUI
@@ -151,4 +181,11 @@ internal class Program
             .UsePlatformDetect()
             .WithInterFont()
             .LogToTrace();
+}
+
+internal partial class Program
+{
+    private static bool IsElevated() =>
+        System.Security.Principal.WindowsIdentity.GetCurrent().Owner
+            .IsWellKnown(System.Security.Principal.WellKnownSidType.BuiltinAdministratorsSid);
 }
