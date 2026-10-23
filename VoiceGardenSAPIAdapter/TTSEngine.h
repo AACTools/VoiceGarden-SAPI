@@ -4,6 +4,7 @@
 #include "resource.h"
 
 #include "pch.h"
+#include <deque>
 #include "Logger.h"
 #include "SapiException.h"
 
@@ -156,6 +157,11 @@ private: // Member variables
 
 	std::vector<BookmarkInfo> m_bookmarks;
 	size_t m_bookmarkIndex = 0;
+
+	// Mark names queued as SPEI_TTS_BOOKMARK (SPET_LPARAM_IS_STRING). SAPI
+	// does not copy string params — these must outlive the client's event
+	// pump, so they live until the next utterance clears them.
+	std::deque<std::wstring> m_markEventNames;
 
 private:
 	int OnAudioData(uint8_t* data, uint32_t len);

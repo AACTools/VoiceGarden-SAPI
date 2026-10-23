@@ -514,7 +514,7 @@ public partial class VoicesViewModel : ObservableObject
                             ["codecPath"] = Path.Combine(installDir, "omnivoice-tokenizer-F32.gguf"),
                         };
                     using var client = new RustTtsWrapper.TtsClient(engine.EngineId, creds);
-                    if (engine.EngineId == "qwen3-local") client.SetVoice(voiceId);
+                    client.SetVoice(voiceId); // qwen3: timbre/language id; omnivoice: language
                     return client.SynthToBytes("Hello, this is a local voice preview.");
                 });
 

@@ -248,6 +248,8 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
         m_pendingBoundaries.clear();
         m_boundaryIndex = 0;
         m_totalAudioBytesWritten = 0;
+        // Previous utterance's mark strings can go — its events were pumped
+        m_markEventNames.clear();
 
         std::string speakText;
         bool useSsml = m_rustTtsUseSsml;
@@ -1118,9 +1120,9 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
         m_pOutputSite->AddEvents(&ev, 1);
     });
 
-    // Engines that fire mark callbacks (cloud engines with SSML marks)
-    // deliver them as real SPEI_TTS_BOOKMARK events and retire the matching
-    // simulated ones.
+    // Engines that fire mark callbacks (qwen3-local, cloud engines with SSML
+    // marks) deliver them as real SPEI_TTS_BOOKMARK events and retire the
+    // matching simulated ones.
     m_rustTts->SetOnMark([this](const char* name, int32_t charOffset,
                                 float startS, float /*endS*/) {
         if (startS < 0 || !name)
@@ -1153,13 +1155,20 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
 
         std::lock_guard lock(m_outputSiteMutex);
         if (!m_pOutputSite) return;
+        // SPET_LPARAM_IS_STRING events are NOT copied by SAPI: the string
+        // must outlive the client's event pump (which runs AFTER Speak
+        // returns). A stack local here crashed the host app the moment it
+        // processed the queued bookmark — keep names in a deque (stable
+        // references) that is cleared at the start of the next utterance.
+        m_markEventNames.emplace_back(std::move(nameW));
+        const wchar_t* stableName = m_markEventNames.back().c_str();
         SPEVENT ev;
         ZeroMemory(&ev, sizeof(ev));
         ev.ullAudioStreamOffset = audioBytes;
         ev.eEventId = SPEI_TTS_BOOKMARK;
         ev.elParamType = SPET_LPARAM_IS_STRING;
-        ev.lParam = reinterpret_cast<LPARAM>(nameW.c_str());
-        ev.wParam = _wtol(nameW.c_str());
+        ev.lParam = reinterpret_cast<LPARAM>(stableName);
+        ev.wParam = _wtol(stableName);
         m_pOutputSite->AddEvents(&ev, 1);
     });
 

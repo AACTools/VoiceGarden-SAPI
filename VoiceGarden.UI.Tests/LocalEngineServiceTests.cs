@@ -123,10 +123,11 @@ public sealed class LocalEngineServiceTests : IDisposable
     {
         var engine = LocalEngineService.Find("omnivoice-local")!;
         var voice = engine.Voices.Single();
+        Assert.Equal("en", voice.Id); // voice id = language for this engine
         var (_, config, attributes) = LocalEngineService.BuildTokenValues(engine, voice, @"C:\models\ov");
 
         Assert.Equal("omnivoice-local", config["EngineType"]);
-        Assert.Equal("omnivoice-local", config["Voice"]);
+        Assert.Equal("en", config["Voice"]);
         Assert.EndsWith("omnivoice-base-Q8_0.gguf", config["OmniVoiceModelPath"].Replace('/', '\\'));
         Assert.EndsWith("omnivoice-tokenizer-F32.gguf", config["OmniVoiceCodecPath"].Replace('/', '\\'));
         Assert.Equal("Local;Offline", attributes["VoiceGardenType"]);

@@ -74,7 +74,9 @@ public static class LocalEngineService
 
     private static readonly EngineVoice[] OmniVoiceVoices =
     {
-        new("omnivoice-local", "en", "OmniVoice local (600+ languages)"),
+        // OmniVoice's voice id IS the language (the wrapper passes it as the
+        // ov_synthesize language) — the engine id is not a valid language.
+        new("en", "en", "English"),
     };
 
     public static readonly LocalEngine[] Catalog =
