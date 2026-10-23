@@ -137,6 +137,13 @@ private: // Member variables
 	// callback to translate Rust's plain-text offsets back to SAPI offsets.
 	std::vector<ULONG> m_plainToSapiMap;
 
+	// The plain text sent to the engine for the current utterance (empty in
+	// SSML/sentinel modes). Engines that report word boundaries without
+	// source coordinates (qwen3-local, omnivoice-local) get their positions
+	// recovered by locating each reported word in this text.
+	std::wstring m_plainSpeakText;
+	size_t m_boundarySearchPos = 0;
+
 	ErrorMode m_errorMode = ErrorMode::ProbeForError;
 	bool m_isEdgeVoice = false;
 	bool m_onlineDelayOptimization = false;

@@ -250,6 +250,8 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
         m_totalAudioBytesWritten = 0;
         // Previous utterance's mark strings can go — its events were pumped
         m_markEventNames.clear();
+        // Word-position recovery cursor (see the boundary callback)
+        m_boundarySearchPos = 0;
 
         std::string speakText;
         bool useSsml = m_rustTtsUseSsml;
@@ -335,6 +337,7 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
 
         if (!sentinelDetected)
         {
+            m_plainSpeakText.clear();
             if (m_rustTtsUseSsml)
             {
                 if (!BuildSSML(pTextFragList))
@@ -355,7 +358,14 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
                     return S_OK;
                 }
                 speakText = WStringToUTF8(plainTextW);
+                m_plainSpeakText = std::move(plainTextW);
             }
+        }
+        else
+        {
+            // Sentinel payload text has no 1:1 source mapping here — leave
+            // m_plainSpeakText empty; offset-less boundaries are dropped.
+            m_plainSpeakText.clear();
         }
 
         // Synchronous synthesis — prevents race condition where boundary events
@@ -1082,8 +1092,9 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
         ULONGLONG audioBytes = WaveTicksToBytes(offsetTicks);
 
         ULONG sapiOffset = 0;
-        ULONG sapiLen = static_cast<ULONG>(charLen > 0 ? charLen : 0);
-        if (charOffset >= 0)
+        ULONG sapiLen = 0;
+        bool emit = false;
+        if (charOffset >= 0 && charLen > 0)
         {
             if (m_rustTtsUseSsml)
             {
@@ -1098,10 +1109,41 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
                 // Plain-text mode: offsets index the extracted plain text.
                 sapiOffset = TranslateOffset(static_cast<ULONG>(charOffset));
             }
+            sapiLen = static_cast<ULONG>(charLen);
+            emit = true;
         }
-        // charOffset < 0: no text anchor (e.g. measured boundary for text the
-        // frontend rewrote). Emit an audio-time-only event instead of losing
-        // the timing (issue #15 nit): lParam 0 marks "no source position".
+        else if (charOffset < 0 && word && *word && !m_plainSpeakText.empty())
+        {
+            // The engine reports no source coordinates (qwen3-local,
+            // omnivoice-local) but carries the word text: recover the
+            // position by locating it in the plain text we sent (monotonic
+            // scan, so repeated words advance).
+            //
+            // Degenerate events (position 0 / length 0) are NOT emitted:
+            // System.Speech's OnSpeakProgress does substring math on them
+            // on its async worker and crashed .NET hosts (Grid 3,
+            // ArgumentOutOfRangeException length -1) a few seconds after
+            // speech ended.
+            std::wstring wordW = UTF8ToWString(word);
+            auto found = m_plainSpeakText.find(wordW, m_boundarySearchPos);
+            if (found != std::wstring::npos)
+            {
+                ULONG plainOff = static_cast<ULONG>(found);
+                sapiOffset = TranslateOffset(plainOff);
+                sapiLen = static_cast<ULONG>(wordW.size());
+                m_boundarySearchPos = found + wordW.size();
+                emit = true;
+            }
+        }
+        // charLen <= 0 with a valid offset, or an unmatchable word: no
+        // event. Losing one highlight tick beats crashing the host.
+
+        if (!emit)
+        {
+            LogInfo("RustTts boundary (no anchor, dropped): word='{}' startS={:.3f}",
+                    word ? word : "(null)", startS);
+            return;
+        }
 
         LogInfo("RustTts boundary: word='{}' plainOffset={} sapiOffset={} len={} startS={:.3f} {}",
                 word ? word : "(null)", charOffset, sapiOffset, sapiLen, startS,

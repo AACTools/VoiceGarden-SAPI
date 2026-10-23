@@ -26,7 +26,7 @@ $wowOneCoreRoot = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Speech_OneCore\Voices\To
 # Also check HKCU (promoted voices can end up here too)
 $hkcuTokensRoot = "HKCU:\SOFTWARE\Microsoft\Speech\Voices\Tokens"
 
-$prefixes = @("Sherpa-", "Cloud-", "NaturalVoice-", "eSpeak", "VoiceGarden-")
+$prefixes = @("Sherpa-", "Cloud-", "Local-", "NaturalVoice-", "eSpeak", "VoiceGarden-")
 # Note: eSpeak voices are also from our adapter in 32-bit land
 $deleted = 0
 $kept = 0
