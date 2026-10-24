@@ -1,0 +1,520 @@
+using Microsoft.Win32;
+
+namespace VoiceGarden.UI.Services;
+
+/// <summary>
+/// Local GGUF-based offline engines (rust-tts-wrapper 1.6.5+): qwen3-local
+/// (Qwen3-TTS via qwen3-tts.cpp) and omnivoice-local (voice cloning, 600+
+/// languages). Downloads the GGUFs, tracks install state, and promotes
+/// SAPI voice tokens (SAPI issue #19).
+///
+/// Model sources (HuggingFace, direct GGUF downloads):
+///  - qwen3-local:   willwade/qwen3-tts-0.6b-gguf (converted with predict-woo's
+///    pipeline — qwen3-tts.cpp's loader requires these exact file names).
+///  - omnivoice-local: Serveurperso/OmniVoice-GGUF (canonical source for the
+///    omnivoice.cpp engine the wrapper bundles).
+/// </summary>
+public static class LocalEngineService
+{
+    private const string TtsEngineClsid = "{013AB33B-AD1A-401C-8BEE-F6E2B046A94E}";
+    private static readonly string s_tokensRoot = @"SOFTWARE\Microsoft\Speech\Voices\Tokens";
+    private static readonly string s_oneCoreRoot = @"SOFTWARE\Microsoft\Speech_OneCore\Voices\Tokens";
+
+    public sealed record EngineFile(string FileName, string? Url, long ApproxBytes);
+
+    public sealed record EngineVoice(string Id, string Bcp47, string Display);
+
+    public sealed record LocalEngine(
+        string EngineId,
+        string DisplayName,
+        string Vendor,
+        string[] FileNames,
+        string DownloadBaseUrl,
+        string? UrlOverrideEnv,
+        EngineVoice[] Voices)
+    {
+        /// <summary>Downloads are possible (direct URLs or override env set).</summary>
+        public bool Downloadable => !string.IsNullOrEmpty(DownloadBaseUrl) ||
+            (UrlOverrideEnv != null && !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(UrlOverrideEnv)));
+
+        public string BaseUrl => !string.IsNullOrEmpty(DownloadBaseUrl)
+            ? DownloadBaseUrl
+            : (Environment.GetEnvironmentVariable(UrlOverrideEnv ?? "") ?? "").TrimEnd('/');
+
+        public string InstallDir => Path.Combine(EnginesRoot, EngineId);
+
+        /// <summary>Rough download size across all files (UI display only).</summary>
+        public string ApproxSizeText => EngineId == "omnivoice-local" ? "≈1.3 GB" : "≈1.6 GB";
+
+        public (string url, string fileName, long bytes)[] FileDownloads() =>
+            FileNames.Select(f => ($"{BaseUrl}/{f}", f, ApproxFileSizeBytes)).ToArray();
+
+        private long ApproxFileSizeBytes => EngineId == "omnivoice-local" ? 1_300_000_000 : 1_200_000_000;
+    }
+
+    public static string EnginesRoot { get; } = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "VoiceGardenSAPIAdapter", "engines");
+
+    // qwen3 voice ids mirror rust-tts-wrapper's supported_languages() table.
+    private static readonly EngineVoice[] Qwen3Voices =
+    {
+        new("default", "en", "Default timbre"),
+        new("en", "en", "English"),
+        new("zh", "zh-CN", "Chinese (Mandarin)"),
+        new("ja", "ja", "Japanese"),
+        new("ko", "ko", "Korean"),
+        new("de", "de", "German"),
+        new("fr", "fr", "French"),
+        new("ru", "ru", "Russian"),
+        new("es", "es", "Spanish"),
+        new("it", "it", "Italian"),
+        new("pt", "pt", "Portuguese"),
+    };
+
+    // OmniVoice's voice id IS the language (the wrapper passes it as the
+    // ov_synthesize language). Table mirrors the wrapper's
+    // omnivoice_language_codes(), minus locales the ENGINE rejects: the
+    // runtime has no English regional variants ("en-GB"/"en-US" and every
+    // "English (…)" name fail ov_synthesize — base "english" only), and a
+    // few base languages (e.g. "ar") are absent from its table too.
+    private static readonly EngineVoice[] OmniVoiceVoices =
+    {
+        new("en", "en", "English"),
+        new("fr", "fr", "French"),
+        new("de", "de", "German"),
+        new("es", "es", "Spanish"),
+        new("it", "it", "Italian"),
+        new("pt", "pt", "Portuguese"),
+        new("ru", "ru", "Russian"),
+        new("zh", "zh", "Chinese"),
+        new("ja", "ja", "Japanese"),
+        new("ko", "ko", "Korean"),
+        new("hi", "hi", "Hindi"),
+        new("ar", "ar", "Arabic"),
+        new("tr", "tr", "Turkish"),
+        new("pl", "pl", "Polish"),
+        new("nl", "nl", "Dutch"),
+        new("sv", "sv", "Swedish"),
+        new("da", "da", "Danish"),
+        new("no", "no", "Norwegian"),
+        new("fi", "fi", "Finnish"),
+        new("cs", "cs", "Czech"),
+        new("el", "el", "Greek"),
+        new("he", "he", "Hebrew"),
+        new("th", "th", "Thai"),
+        new("vi", "vi", "Vietnamese"),
+        new("id", "id", "Indonesian"),
+        new("ms", "ms", "Malay"),
+        new("uk", "uk", "Ukrainian"),
+        new("ro", "ro", "Romanian"),
+        new("hu", "hu", "Hungarian"),
+        new("bg", "bg", "Bulgarian"),
+        new("hr", "hr", "Croatian"),
+        new("sk", "sk", "Slovak"),
+        new("sl", "sl", "Slovenian"),
+        new("sr", "sr", "Serbian"),
+        new("lt", "lt", "Lithuanian"),
+        new("lv", "lv", "Latvian"),
+        new("et", "et", "Estonian"),
+        new("is", "is", "Icelandic"),
+        new("ga", "ga", "Irish"),
+        new("cy", "cy", "Welsh"),
+        new("sw", "sw", "Swahili"),
+        new("af", "af", "Afrikaans"),
+        new("bn", "bn", "Bengali"),
+        new("ta", "ta", "Tamil"),
+        new("te", "te", "Telugu"),
+        new("kn", "kn", "Kannada"),
+        new("ml", "ml", "Malayalam"),
+        new("mr", "mr", "Marathi"),
+        new("gu", "gu", "Gujarati"),
+        new("pa", "pa", "Punjabi"),
+        new("ur", "ur", "Urdu"),
+        new("si", "si", "Sinhala"),
+        new("my", "my", "Burmese"),
+        new("km", "km", "Khmer"),
+        new("lo", "lo", "Lao"),
+        new("ne", "ne", "Nepali"),
+        new("fa", "fa", "Persian"),
+        new("ps", "ps", "Pashto"),
+        new("az", "az", "Azerbaijani"),
+        new("kk", "kk", "Kazakh"),
+        new("ky", "ky", "Kyrgyz"),
+        new("uz", "uz", "Uzbek"),
+    };
+
+    public static readonly LocalEngine[] Catalog =
+    {
+        new(
+            EngineId: "omnivoice-local",
+            DisplayName: "OmniVoice local",
+            Vendor: "OmniVoice",
+            FileNames: new[] { "omnivoice-base-Q8_0.gguf", "omnivoice-tokenizer-F32.gguf" },
+            DownloadBaseUrl: "https://huggingface.co/Serveurperso/OmniVoice-GGUF/resolve/main",
+            UrlOverrideEnv: null,
+            Voices: OmniVoiceVoices),
+        new(
+            EngineId: "qwen3-local",
+            DisplayName: "Qwen3-TTS local",
+            Vendor: "Qwen",
+            // The engine loader prefers q8_0 over f16 when present — ship
+            // the quantized talker (f16 stays available for manual use).
+            FileNames: new[] { "qwen3-tts-0.6b-q8_0.gguf", "qwen3-tts-tokenizer-f16.gguf" },
+            DownloadBaseUrl: "https://huggingface.co/willwade/qwen3-tts-0.6b-gguf/resolve/main",
+            UrlOverrideEnv: null,
+            Voices: Qwen3Voices),
+    };
+
+    public static LocalEngine? Find(string engineId) =>
+        Catalog.FirstOrDefault(e => e.EngineId.Equals(engineId, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>
+    /// All files needed to USE the engine are on disk. The qwen3 loader
+    /// accepts either talker quantization (prefers q8_0, falls back to f16),
+    /// so an existing f16 install counts — no forced 1.3 GB re-download.
+    /// </summary>
+    public static bool IsInstalled(LocalEngine engine)
+    {
+        if (engine.EngineId == "qwen3-local")
+        {
+            return File.Exists(Path.Combine(engine.InstallDir, "qwen3-tts-tokenizer-f16.gguf"))
+                && (File.Exists(Path.Combine(engine.InstallDir, "qwen3-tts-0.6b-q8_0.gguf"))
+                    || File.Exists(Path.Combine(engine.InstallDir, "qwen3-tts-0.6b-f16.gguf")));
+        }
+        return engine.FileNames.All(f => File.Exists(Path.Combine(engine.InstallDir, f)));
+    }
+
+    /// <summary>Download all files of an engine (staged .part, then rename).
+    /// Per-engine mutual exclusion: all voices of an engine share the files,
+    /// so a second concurrent download (second row, double-click) would
+    /// corrupt the same .part — it throws instead.</summary>
+    public static async Task DownloadAsync(LocalEngine engine,
+        IProgress<(int percent, string status)>? progress = null,
+        HttpClient? http = null)
+    {
+        if (!engine.Downloadable)
+        {
+            throw new InvalidOperationException(
+                $"{engine.EngineId}: no download source. Pre-converted GGUFs are not published " +
+                "upstream yet — host qwen3-tts-0.6b-f16.gguf + qwen3-tts-tokenizer-f16.gguf and set " +
+                $"{engine.UrlOverrideEnv} to their HTTPS base URL (see SAPI issue #19).");
+        }
+
+        var gate = DownloadGate(engine.EngineId);
+        if (!await gate.WaitAsync(0))
+            throw new InvalidOperationException($"{engine.EngineId}: download already in progress");
+
+        try
+        {
+            http ??= new HttpClient();
+            http.DefaultRequestHeaders.UserAgent.ParseAdd("VoiceGarden-SAPI");
+            Directory.CreateDirectory(engine.InstallDir);
+
+            var downloads = engine.FileDownloads();
+            for (var i = 0; i < downloads.Length; i++)
+            {
+                var (url, fileName, total) = downloads[i];
+                var dest = Path.Combine(engine.InstallDir, fileName);
+                var part = dest + ".part";
+                if (File.Exists(dest)) continue; // already downloaded
+
+                progress?.Report((100 * i / downloads.Length, $"Downloading {fileName}..."));
+                await DownloadResumableAsync(http, url, part, total, i, downloads.Length, progress);
+                MoveWithRetry(part, dest);
+            }
+            progress?.Report((100, "Done"));
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    /// <summary>
+    /// Download with resume. HuggingFace's CDN drops long-lived streams
+    /// (observed at ~98% of a 647 MB file) — on mid-stream failure the
+    /// .part is kept and the retry continues from its length via a Range
+    /// request. Servers that ignore Range restart from scratch.
+    /// </summary>
+    private static async Task DownloadResumableAsync(HttpClient http, string url, string part,
+        long fallbackTotal, int fileIndex, int fileCount,
+        IProgress<(int percent, string status)>? progress)
+    {
+        const int maxAttempts = 8;
+        for (var attempt = 1; ; attempt++)
+        {
+            long already = 0;
+            if (File.Exists(part)) already = new FileInfo(part).Length;
+
+            try
+            {
+                using var req = new HttpRequestMessage(HttpMethod.Get, url);
+                if (already > 0) req.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(already, null);
+
+                using var resp = await http.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
+                resp.EnsureSuccessStatusCode();
+
+                long total;
+                if (resp.StatusCode == System.Net.HttpStatusCode.PartialContent &&
+                    resp.Content.Headers.ContentRange?.HasLength == true)
+                {
+                    total = resp.Content.Headers.ContentRange.Length.Value; // full entity length
+                }
+                else
+                {
+                    // Range not honoured — restart from scratch
+                    already = 0;
+                    total = resp.Content.Headers.ContentLength ?? fallbackTotal;
+                }
+
+                {
+                    await using var src = await resp.Content.ReadAsStreamAsync();
+                    await using var dst = new FileStream(part, already > 0 ? FileMode.Append : FileMode.Create,
+                        FileAccess.Write, FileShare.None);
+                    var buffer = new byte[1 << 16];
+                    long copied = already;
+                    int read;
+                    while ((read = await src.ReadAsync(buffer)) > 0)
+                    {
+                        await dst.WriteAsync(buffer.AsMemory(0, read));
+                        copied += read;
+                        if (total > 0)
+                        {
+                            var filePct = (int)(100 * copied / total);
+                            progress?.Report((Math.Min(99, 100 * fileIndex / fileCount + filePct / fileCount),
+                                $"Downloading {Path.GetFileName(part)}... {copied / (1024 * 1024)} MB" +
+                                (attempt > 1 ? $" (retry {attempt})" : "")));
+                        }
+                    }
+                }
+
+                if (total > 0 && new FileInfo(part).Length != total)
+                    throw new IOException($"incomplete: {new FileInfo(part).Length:N0}/{total:N0} bytes");
+                return; // complete
+            }
+            catch (Exception ex) when (attempt < maxAttempts &&
+                (ex is HttpRequestException || ex is IOException || ex is TaskCanceledException))
+            {
+                // keep the .part and retry from its length
+                await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempt, 5)));
+            }
+        }
+    }
+
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, SemaphoreSlim>
+        s_downloadGates = new();
+
+    /// <summary>Per-engine download mutex (test hook: hold it to simulate an
+    /// in-flight download).</summary>
+    internal static SemaphoreSlim DownloadGate(string engineId) =>
+        s_downloadGates.GetOrAdd(engineId, _ => new SemaphoreSlim(1, 1));
+
+    /// <summary>Move retry: antivirus/indexers (or a just-closed app) can hold
+    /// the .part briefly after the stream is disposed.</summary>
+    private static void MoveWithRetry(string part, string dest)
+    {
+        for (var attempt = 0; ; attempt++)
+        {
+            try
+            {
+                File.Move(part, dest, overwrite: true);
+                return;
+            }
+            catch (IOException) when (attempt < 5)
+            {
+                Thread.Sleep(500);
+            }
+        }
+    }
+
+    private static void TryDelete(string path)
+    {
+        for (var attempt = 0; ; attempt++)
+        {
+            try
+            {
+                if (File.Exists(path)) File.Delete(path);
+                return;
+            }
+            catch (IOException) when (attempt < 3)
+            {
+                Thread.Sleep(300);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return;
+            }
+        }
+    }
+
+    /// <summary>Pure mapping used when writing a token — unit-testable.</summary>
+    public static (string friendlyName, Dictionary<string, string> config, Dictionary<string, string> attributes)
+        BuildTokenValues(LocalEngine engine, EngineVoice voice, string installDir)
+    {
+        var config = new Dictionary<string, string>
+        {
+            ["EngineType"] = engine.EngineId,
+            ["Voice"] = voice.Id,
+        };
+
+        if (engine.EngineId == "qwen3-local")
+        {
+            config["Qwen3ModelsDir"] = installDir;
+        }
+        else if (engine.EngineId == "omnivoice-local")
+        {
+            config["OmniVoiceModelPath"] = Path.Combine(installDir, "omnivoice-base-Q8_0.gguf");
+            config["OmniVoiceCodecPath"] = Path.Combine(installDir, "omnivoice-tokenizer-F32.gguf");
+            // Diffusion steps: the wrapper defaults to 32 which is glacial on
+            // CPU (~30x realtime observed). 16 halves synthesis time with a
+            // minor quality cost — override via the OmniVoiceNumSteps value.
+            config["OmniVoiceNumSteps"] = "16";
+        }
+
+        var locale = voice.Bcp47.Contains('-') ? voice.Bcp47 : DefaultLocaleFor(voice.Bcp47);
+        var attributes = new Dictionary<string, string>
+        {
+            ["Name"] = $"{engine.DisplayName} ({voice.Display})",
+            ["Gender"] = "Neutral",
+            ["Age"] = "Adult",
+            ["Locale"] = locale,
+            ["Vendor"] = engine.Vendor,
+            ["VoiceGardenType"] = "Local;Offline",
+        };
+
+        var friendly = $"{engine.DisplayName} ({voice.Display})";
+        return (friendly, config, attributes);
+    }
+
+    private static string DefaultLocaleFor(string bcp47) => bcp47 switch
+    {
+        "en" => "en-US",
+        "zh" => "zh-CN",
+        "ja" => "ja-JP",
+        "ko" => "ko-KR",
+        "de" => "de-DE",
+        "fr" => "fr-FR",
+        "ru" => "ru-RU",
+        "es" => "es-ES",
+        "it" => "it-IT",
+        "pt" => "pt-BR",
+        _ => bcp47,
+    };
+
+    /// <summary>
+    /// Promote a voice of an installed engine to HKLM (both token roots).
+    /// Returns false on access denied (elevation needed) or missing files.
+    /// </summary>
+    public static bool Promote(LocalEngine engine, EngineVoice voice)
+    {
+        if (!IsInstalled(engine)) return false;
+        var tokenName = $"Local-{engine.EngineId}-{voice.Id}";
+        var (friendly, config, attributes) = BuildTokenValues(engine, voice, engine.InstallDir);
+
+        try
+        {
+            WriteToken(s_tokensRoot, tokenName, friendly, config, attributes);
+            WriteToken(s_oneCoreRoot, tokenName, friendly, config, attributes);
+            return true;
+        }
+        catch (UnauthorizedAccessException) { return false; }
+        catch { return false; }
+    }
+
+    /// <summary>
+    /// Promote with UAC fallback: direct HKLM write when elevated, else a
+    /// generated .reg imported via reg.exe (mirrors the cloud/sherpa paths).
+    /// 0 = ok, -2 = UAC cancelled, -3 = engine not downloaded, other = failure.
+    /// </summary>
+    public static int PromoteElevated(LocalEngine engine, EngineVoice voice)
+    {
+        if (!IsInstalled(engine)) return -3;
+        if (Promote(engine, voice)) return 0;
+
+        var (friendly, config, attributes) = BuildTokenValues(engine, voice, engine.InstallDir);
+        var tokenName = $"Local-{engine.EngineId}-{voice.Id}";
+        var langId = SapiLanguage.TryResolve(attributes.GetValueOrDefault("Locale", "en-US"), out _, out var id) ? id : "409";
+
+        var lines = new List<string> { "Windows Registry Editor Version 5.00", "" };
+        foreach (var root in new[] { s_tokensRoot, s_oneCoreRoot })
+        {
+            lines.Add($"[HKEY_LOCAL_MACHINE\\{root}\\{tokenName}]");
+            lines.Add($"@=\"{RegEscape(friendly)}\"");
+            lines.Add($"\"CLSID\"=\"{TtsEngineClsid}\"");
+            lines.Add($"[HKEY_LOCAL_MACHINE\\{root}\\{tokenName}\\VoiceGardenConfig]");
+            foreach (var (key, value) in config)
+                lines.Add($"\"{key}\"=\"{RegEscape(value)}\"");
+            lines.Add($"[HKEY_LOCAL_MACHINE\\{root}\\{tokenName}\\Attributes]");
+            foreach (var (key, value) in attributes)
+                lines.Add($"\"{key}\"=\"{RegEscape(value)}\"");
+            lines.Add($"\"Language\"=\"{langId}\"");
+            lines.Add("");
+        }
+
+        var regDir = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+            "VoiceGardenSAPIAdapter");
+        Directory.CreateDirectory(regDir);
+        var regPath = Path.Combine(regDir, "promote_local_engine.reg");
+        File.WriteAllLines(regPath, lines);
+
+        try
+        {
+            var psi = new System.Diagnostics.ProcessStartInfo("reg.exe", $"import \"{regPath}\"")
+            {
+                Verb = "runas",
+                UseShellExecute = true,
+                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+                CreateNoWindow = true,
+            };
+            var p = System.Diagnostics.Process.Start(psi);
+            p?.WaitForExit(15000);
+            return p?.ExitCode ?? -1;
+        }
+        catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+        {
+            return -2; // UAC cancelled
+        }
+        finally
+        {
+            try { File.Delete(regPath); } catch { }
+        }
+    }
+
+    private static string RegEscape(string value) =>
+        value.Replace("\\", "\\\\").Replace("\"", "\\\"");
+
+    /// <summary>Promote every voice of every installed engine. (promote-all)</summary>
+    public static (int promoted, int failed) PromoteAll()
+    {
+        int promoted = 0, failed = 0;
+        foreach (var engine in Catalog.Where(IsInstalled))
+        {
+            foreach (var voice in engine.Voices)
+            {
+                if (Promote(engine, voice)) promoted++;
+                else failed++;
+            }
+        }
+        return (promoted, failed);
+    }
+
+    private static void WriteToken(string root, string tokenName, string friendlyName,
+        Dictionary<string, string> config, Dictionary<string, string> attributes)
+    {
+        using var token = Registry.LocalMachine.CreateSubKey($@"{root}\{tokenName}", writable: true)
+            ?? throw new InvalidOperationException("Cannot create HKLM token");
+        token.SetValue("", friendlyName, RegistryValueKind.String);
+        token.SetValue("CLSID", TtsEngineClsid, RegistryValueKind.String);
+
+        using var cfg = token.CreateSubKey("VoiceGardenConfig");
+        foreach (var (key, value) in config) cfg.SetValue(key, value, RegistryValueKind.String);
+
+        using var attrs = token.CreateSubKey("Attributes");
+        foreach (var (key, value) in attributes) attrs.SetValue(key, value, RegistryValueKind.String);
+        // SAPI Language attribute = hex lang id; resolve via the shared helper
+        if (SapiLanguage.TryResolve(attributes.GetValueOrDefault("Locale", "en-US"), out _, out var langId))
+            attrs.SetValue("Language", langId, RegistryValueKind.String);
+    }
+}

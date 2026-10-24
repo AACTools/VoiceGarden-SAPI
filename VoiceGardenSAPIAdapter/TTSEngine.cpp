@@ -248,6 +248,10 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
         m_pendingBoundaries.clear();
         m_boundaryIndex = 0;
         m_totalAudioBytesWritten = 0;
+        // Previous utterance's mark strings can go — its events were pumped
+        m_markEventNames.clear();
+        // Word-position recovery cursor (see the boundary callback)
+        m_boundarySearchPos = 0;
 
         std::string speakText;
         bool useSsml = m_rustTtsUseSsml;
@@ -333,6 +337,7 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
 
         if (!sentinelDetected)
         {
+            m_plainSpeakText.clear();
             if (m_rustTtsUseSsml)
             {
                 if (!BuildSSML(pTextFragList))
@@ -353,7 +358,14 @@ STDMETHODIMP CTTSEngine::Speak(DWORD /*dwSpeakFlags*/,
                     return S_OK;
                 }
                 speakText = WStringToUTF8(plainTextW);
+                m_plainSpeakText = std::move(plainTextW);
             }
+        }
+        else
+        {
+            // Sentinel payload text has no 1:1 source mapping here — leave
+            // m_plainSpeakText empty; offset-less boundaries are dropped.
+            m_plainSpeakText.clear();
         }
 
         // Synchronous synthesis — prevents race condition where boundary events
@@ -859,6 +871,11 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
         // Sherpa EngineType maps to "sherpaonnx" in rust-tts-wrapper
         if (lowerType == "sherpa")
             lowerType = "sherpaonnx";
+        // Friendly spellings for the offline engine ids that contain a dash
+        if (lowerType == "qwen3local")
+            lowerType = "qwen3-local";
+        if (lowerType == "omnivoicelocal")
+            lowerType = "omnivoice-local";
     }
     else if (hasSherpaPath)
     {
@@ -919,6 +936,74 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
         // Edge is credential-free
         credsJson = "{}";
     }
+    else if (lowerType == "qwen3-local")
+    {
+        // Qwen3-TTS offline (qwen3-tts.cpp / GGML): the model dir holds
+        // qwen3-tts-0.6b-f16.gguf etc. The engine runtime DLL ships beside
+        // rust_tts_wrapper.dll in the installer payload.
+        CSpDynamicString pszQwen3Dir;
+        if (!CheckHrNotFound(pConfigKey->GetStringValue(L"Qwen3ModelsDir", &pszQwen3Dir)) && pszQwen3Dir.m_psz)
+        {
+            std::string dir = WStringToUTF8(std::wstring(pszQwen3Dir.m_psz));
+            std::replace(dir.begin(), dir.end(), '\\', '/');
+            // The wrapper defaults to 4 threads — on multi-core machines that
+            // wastes most of the CPU (f16 measured RTF ~4.8 at 4 threads).
+            // Use all hardware threads (capped) unless the token overrides.
+            CSpDynamicString pszQwen3Threads;
+            DWORD hwThreads = std::thread::hardware_concurrency();
+            std::string threads = std::to_string(hwThreads > 0 ? std::min<DWORD>(hwThreads, 32u) : 4u);
+            if (!CheckHrNotFound(pConfigKey->GetStringValue(L"Qwen3Threads", &pszQwen3Threads)) && pszQwen3Threads.m_psz)
+                threads = WStringToUTF8(std::wstring(pszQwen3Threads.m_psz));
+            credsJson = "{\"modelsDir\":\"" + dir + "\",\"threads\":" + threads + "}";
+            LogInfo("RustTts: qwen3-local credentials: {}", credsJson);
+        }
+        else
+        {
+            LogWarn("RustTts: qwen3-local voice has no Qwen3ModelsDir");
+            return false;
+        }
+    }
+    else if (lowerType == "omnivoice-local")
+    {
+        // OmniVoice offline (omnivoice.cpp / GGUF): model + codec GGUFs are
+        // required; language / numSteps / seed / instruct optional.
+        CSpDynamicString pszOvModel, pszOvCodec, pszOvLang, pszOvInstruct;
+        bool hasModel = !CheckHrNotFound(pConfigKey->GetStringValue(L"OmniVoiceModelPath", &pszOvModel)) && pszOvModel.m_psz;
+        bool hasCodec = !CheckHrNotFound(pConfigKey->GetStringValue(L"OmniVoiceCodecPath", &pszOvCodec)) && pszOvCodec.m_psz;
+        if (hasModel && hasCodec)
+        {
+            auto toForward = [](const wchar_t* w) {
+                std::string s = WStringToUTF8(std::wstring(w));
+                std::replace(s.begin(), s.end(), '\\', '/');
+                return s;
+            };
+            credsJson = "{\"modelPath\":\"" + toForward(pszOvModel.m_psz)
+                      + "\",\"codecPath\":\"" + toForward(pszOvCodec.m_psz) + "\"";
+            if (!CheckHrNotFound(pConfigKey->GetStringValue(L"OmniVoiceLanguage", &pszOvLang)) && pszOvLang.m_psz)
+                credsJson += ",\"language\":\"" + WStringToUTF8(std::wstring(pszOvLang.m_psz)) + "\"";
+            if (!CheckHrNotFound(pConfigKey->GetStringValue(L"OmniVoiceInstruct", &pszOvInstruct)) && pszOvInstruct.m_psz)
+                credsJson += ",\"instruct\":\"" + WStringToUTF8(std::wstring(pszOvInstruct.m_psz)) + "\"";
+            // numSteps / seed are stored as string values (ISpDataKey is string-only)
+            CSpDynamicString pszOvSteps, pszOvSeed;
+            if (!CheckHrNotFound(pConfigKey->GetStringValue(L"OmniVoiceNumSteps", &pszOvSteps)) && pszOvSteps.m_psz)
+            {
+                try { credsJson += ",\"numSteps\":" + std::to_string(std::stoul(WStringToUTF8(std::wstring(pszOvSteps.m_psz)))); }
+                catch (...) { /* non-numeric — omit */ }
+            }
+            if (!CheckHrNotFound(pConfigKey->GetStringValue(L"OmniVoiceSeed", &pszOvSeed)) && pszOvSeed.m_psz)
+            {
+                try { credsJson += ",\"seed\":" + std::to_string(std::stoul(WStringToUTF8(std::wstring(pszOvSeed.m_psz)))); }
+                catch (...) { /* non-numeric — omit */ }
+            }
+            credsJson += "}";
+            LogInfo("RustTts: omnivoice-local credentials: {}", credsJson);
+        }
+        else
+        {
+            LogWarn("RustTts: omnivoice-local voice needs OmniVoiceModelPath and OmniVoiceCodecPath");
+            return false;
+        }
+    }
     else if (lowerType == "sherpaonnx")
     {
         // SherpaOnnx via Rust. Derive modelId and modelPath from the registry.
@@ -971,12 +1056,15 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
     }
 
     // Create the RustTts engine
-    m_rustTts = std::make_unique<RustTts::Engine>();
-    if (!m_rustTts->Create(lowerType, credsJson))
     {
-        LogWarn("RustTts: failed to create engine '{}', falling back", lowerType);
-        m_rustTts.reset();
-        return false;
+        m_rustTts = std::make_unique<RustTts::Engine>();
+        if (!m_rustTts->Create(lowerType, credsJson))
+        {
+            LogWarn("RustTts: failed to create engine '{}', falling back", lowerType);
+            m_rustTts.reset();
+            return false;
+        }
+        m_rustTtsEngineId = lowerType;
     }
 
     // Set voice if specified
@@ -998,18 +1086,76 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
     m_rustTts->SetOnBoundary([this](const char* word, int32_t charOffset,
                                     int32_t charLen, float startS, float endS,
                                     bool estimated) {
-        // Skip events with invalid offsets
-        if (charOffset < 0 || charLen <= 0)
+        // Skip events with invalid timing rather than corrupt the stream
+        if (startS < 0)
             return;
 
-        // Translate plain-text offsets (from Rust) → SAPI source offsets
-        ULONG sapiOffset = TranslateOffset(static_cast<ULONG>(charOffset));
-
-        LogInfo("RustTts boundary: word='{}' plainOffset={} sapiOffset={} len={} startS={:.3f}",
-                word ? word : "(null)", charOffset, sapiOffset, charLen, startS);
-
+        // `estimated` is false when the engine measured the timing (cloud
+        // provider timings) and true for synthetic interpolations
+        // (sherpa-onnx). Measured offsets are trusted verbatim — in
+        // particular they must never be shifted by the online silence/delay
+        // compensation, which is only meaningful for estimated timings
+        // (issue #15).
         uint64_t offsetTicks = static_cast<uint64_t>(startS * 1e7);
         ULONGLONG audioBytes = WaveTicksToBytes(offsetTicks);
+
+        ULONG sapiOffset = 0;
+        ULONG sapiLen = 0;
+        bool emit = false;
+        if (charOffset >= 0 && charLen > 0)
+        {
+            if (m_rustTtsUseSsml)
+            {
+                // SSML mode: Rust reports offsets into the built SSML
+                // document; map them back to SAPI source offsets.
+                ULONG ssmlOffset = static_cast<ULONG>(charOffset);
+                MapTextOffset(ssmlOffset, sapiLen);
+                sapiOffset = ssmlOffset;
+            }
+            else
+            {
+                // Plain-text mode: offsets index the extracted plain text.
+                sapiOffset = TranslateOffset(static_cast<ULONG>(charOffset));
+            }
+            sapiLen = static_cast<ULONG>(charLen);
+            emit = true;
+        }
+        else if (charOffset < 0 && word && *word && !m_plainSpeakText.empty())
+        {
+            // The engine reports no source coordinates (qwen3-local,
+            // omnivoice-local) but carries the word text: recover the
+            // position by locating it in the plain text we sent (monotonic
+            // scan, so repeated words advance).
+            //
+            // Degenerate events (position 0 / length 0) are NOT emitted:
+            // System.Speech's OnSpeakProgress does substring math on them
+            // on its async worker and crashed .NET hosts (Grid 3,
+            // ArgumentOutOfRangeException length -1) a few seconds after
+            // speech ended.
+            std::wstring wordW = UTF8ToWString(word);
+            auto found = m_plainSpeakText.find(wordW, m_boundarySearchPos);
+            if (found != std::wstring::npos)
+            {
+                ULONG plainOff = static_cast<ULONG>(found);
+                sapiOffset = TranslateOffset(plainOff);
+                sapiLen = static_cast<ULONG>(wordW.size());
+                m_boundarySearchPos = found + wordW.size();
+                emit = true;
+            }
+        }
+        // charLen <= 0 with a valid offset, or an unmatchable word: no
+        // event. Losing one highlight tick beats crashing the host.
+
+        if (!emit)
+        {
+            LogInfo("RustTts boundary (no anchor, dropped): word='{}' startS={:.3f}",
+                    word ? word : "(null)", startS);
+            return;
+        }
+
+        LogInfo("RustTts boundary: word='{}' plainOffset={} sapiOffset={} len={} startS={:.3f} {}",
+                word ? word : "(null)", charOffset, sapiOffset, sapiLen, startS,
+                estimated ? "estimated" : "measured");
 
         std::lock_guard lock(m_outputSiteMutex);
         if (!m_pOutputSite) return;
@@ -1020,7 +1166,59 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
         ev.eEventId = SPEI_WORD_BOUNDARY;
         ev.elParamType = SPET_LPARAM_IS_UNDEFINED;
         ev.lParam = static_cast<LPARAM>(sapiOffset);
-        ev.wParam = static_cast<WPARAM>(charLen);
+        ev.wParam = static_cast<WPARAM>(sapiLen);
+        m_pOutputSite->AddEvents(&ev, 1);
+    });
+
+    // Engines that fire mark callbacks (qwen3-local, cloud engines with SSML
+    // marks) deliver them as real SPEI_TTS_BOOKMARK events and retire the
+    // matching simulated ones.
+    m_rustTts->SetOnMark([this](const char* name, int32_t charOffset,
+                                float startS, float /*endS*/) {
+        if (startS < 0 || !name)
+            return;
+
+        uint64_t offsetTicks = static_cast<uint64_t>(startS * 1e7);
+        ULONGLONG audioBytes = WaveTicksToBytes(offsetTicks);
+
+        std::wstring nameW = UTF8ToWString(name);
+        ULONG sapiOffset = 0;
+        if (charOffset >= 0 && m_rustTtsUseSsml)
+        {
+            ULONG ssmlOffset = static_cast<ULONG>(charOffset);
+            ULONG len = 0;
+            MapTextOffset(ssmlOffset, len);
+            sapiOffset = ssmlOffset;
+        }
+
+        LogInfo("RustTts mark: name='{}' sapiOffset={} startS={:.3f}", name, sapiOffset, startS);
+
+        // A real mark supersedes any queued simulation for the same name.
+        for (size_t i = m_bookmarkIndex; i < m_bookmarks.size(); ++i)
+        {
+            if (m_bookmarks[i].name == nameW)
+            {
+                m_bookmarkIndex = i + 1;
+                break;
+            }
+        }
+
+        std::lock_guard lock(m_outputSiteMutex);
+        if (!m_pOutputSite) return;
+        // SPET_LPARAM_IS_STRING events are NOT copied by SAPI: the string
+        // must outlive the client's event pump (which runs AFTER Speak
+        // returns). A stack local here crashed the host app the moment it
+        // processed the queued bookmark — keep names in a deque (stable
+        // references) that is cleared at the start of the next utterance.
+        m_markEventNames.emplace_back(std::move(nameW));
+        const wchar_t* stableName = m_markEventNames.back().c_str();
+        SPEVENT ev;
+        ZeroMemory(&ev, sizeof(ev));
+        ev.ullAudioStreamOffset = audioBytes;
+        ev.eEventId = SPEI_TTS_BOOKMARK;
+        ev.elParamType = SPET_LPARAM_IS_STRING;
+        ev.lParam = reinterpret_cast<LPARAM>(stableName);
+        ev.wParam = _wtol(stableName);
         m_pOutputSite->AddEvents(&ev, 1);
     });
 
@@ -1034,8 +1232,12 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
     });
 
     m_onlineVoiceName = pszVoice.m_psz ? pszVoice.m_psz : L"";
-    m_rustTtsUseSsml = false; // All engines use plain text — Rust builds SSML internally
-    LogInfo("RustTts voice created: {} / {}", engineType, pszVoice.m_psz ? pszVoice.m_psz : L"(default)");
+    // SSML mode is opt-in per engine; today every engine synthesizes plain
+    // text and lets the wrapper build markup internally (inline SSML still
+    // reaches tts_speak_ssml via the PUA sentinel path in Speak()).
+    LogInfo("RustTts voice created: {} (engine '{}') / {}", engineType,
+            m_rustTtsEngineId,
+            pszVoice.m_psz ? pszVoice.m_psz : L"(default)");
     return true;
 }
 

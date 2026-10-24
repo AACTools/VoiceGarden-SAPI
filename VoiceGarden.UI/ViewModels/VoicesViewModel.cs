@@ -19,6 +19,8 @@ public enum AggregatedVoiceKind
     Cloud,
     /// <summary>Edge Read-Aloud voice (no credentials).</summary>
     EdgeFree,
+    /// <summary>Voice of a local GGUF engine (Qwen3-TTS / OmniVoice).</summary>
+    LocalGguf,
 }
 
 /// <summary>One voice row in the aggregated Voices tab.</summary>
@@ -37,8 +39,15 @@ public partial class VoiceEntry : ObservableObject
     /// <summary>Catalog entry for downloadable Sherpa models; null for cloud voices.</summary>
     public SherpaModelService.CatalogModel? CatalogModel { get; init; }
 
+    /// <summary>Engine catalog entry for local GGUF voices; null otherwise.</summary>
+    public LocalEngineService.LocalEngine? LocalEngine { get; init; }
+
+    /// <summary>Voice within the local GGUF engine; null otherwise.</summary>
+    public LocalEngineService.EngineVoice? LocalVoice { get; init; }
+
     public bool IsSherpa => Kind == AggregatedVoiceKind.SherpaModel;
-    public bool IsCloud => Kind != AggregatedVoiceKind.SherpaModel;
+    public bool IsLocalGguf => Kind == AggregatedVoiceKind.LocalGguf;
+    public bool IsCloud => !IsSherpa && !IsLocalGguf;
 
     [ObservableProperty] private bool isSelected;
     [ObservableProperty] private bool isInstalled;
@@ -52,13 +61,15 @@ public partial class VoiceEntry : ObservableObject
 
     public string TokenName => IsSherpa
         ? $"Sherpa-{Id}"
-        : $"Cloud-{EngineId}-{Id}".Replace("/", "_").Replace("\\", "_");
+        : IsLocalGguf
+            ? $"Local-{EngineId}-{Id}"
+            : $"Cloud-{EngineId}-{Id}".Replace("/", "_").Replace("\\", "_");
 
-    public bool CanPreview => !IsSherpa || IsDownloaded;
+    public bool CanPreview => (IsSherpa || IsLocalGguf) ? IsDownloaded : true;
 
-    public bool CanPromote => !IsInstalled && (!IsSherpa || IsDownloaded);
+    public bool CanPromote => !IsInstalled && ((IsSherpa || IsLocalGguf) ? IsDownloaded : true);
 
-    public bool ShowDownload => IsSherpa && !IsDownloaded;
+    public bool ShowDownload => (IsSherpa || IsLocalGguf) && !IsDownloaded;
 
     public string QualityBadge => string.IsNullOrEmpty(Quality) || Quality == "unknown" ? "" : Quality;
 
@@ -73,7 +84,9 @@ public partial class VoiceEntry : ObservableObject
 
     public string GenderLabel => Gender is "Male" or "Female" ? Gender : "";
 
-    public string SizeText => CatalogModel is { FileSizeMb: > 0 } m ? $"{m.FileSizeMb:F0} MB" : "";
+    public string SizeText => CatalogModel is { FileSizeMb: > 0 } m
+        ? $"{m.FileSizeMb:F0} MB"
+        : LocalEngine is { } le ? le.ApproxSizeText : "";
 
     public string DetailsToolTip
     {
@@ -237,6 +250,10 @@ public partial class VoicesViewModel : ObservableObject
                     case EngineKind.OfflineModel:
                         await LoadSherpaEntries(notes);
                         break;
+                    case EngineKind.LocalGguf:
+                        if (engine.LocalEngine is { } local)
+                            LoadLocalEngineEntries(local);
+                        break;
                     case EngineKind.CloudFree:
                         await FetchCloudVoices("edge", engine.DisplayName, "", "", notes);
                         break;
@@ -304,6 +321,31 @@ public partial class VoicesViewModel : ObservableObject
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
         foreach (var v in AllVoices)
             v.ShowId = duplicated.Contains(v.Name);
+    }
+
+    /// <summary>
+    /// Local GGUF engine voices. All voices of one engine share the same
+    /// downloaded files, so IsDownloaded reflects the engine install state.
+    /// </summary>
+    private void LoadLocalEngineEntries(LocalEngineService.LocalEngine engine)
+    {
+        var installed = LocalEngineService.IsInstalled(engine);
+        foreach (var voice in engine.Voices)
+        {
+            AllVoices.Add(new VoiceEntry
+            {
+                Kind = AggregatedVoiceKind.LocalGguf,
+                EngineId = engine.EngineId,
+                EngineName = Loc.GetString(engine.EngineId == "qwen3-local"
+                    ? "Qwen3LocalEngineName" : "OmniVoiceLocalEngineName"),
+                Id = voice.Id,
+                Name = $"{engine.DisplayName} ({voice.Display})",
+                Language = voice.Bcp47,
+                LocalEngine = engine,
+                LocalVoice = voice,
+                IsDownloaded = installed,
+            });
+        }
     }
 
     private async Task LoadSherpaEntries(List<string> notes)
@@ -448,7 +490,7 @@ public partial class VoicesViewModel : ObservableObject
     {
         if (voice == null) return;
 
-        if (voice.IsSherpa && !voice.IsDownloaded)
+        if ((voice.IsSherpa || voice.IsLocalGguf) && !voice.IsDownloaded)
         {
             StatusText = Loc.GetString("DownloadModelFirst");
             return;
@@ -457,7 +499,36 @@ public partial class VoicesViewModel : ObservableObject
         StatusText = Loc.GetString("PreviewingVoice", voice.Name);
         try
         {
-            if (voice.IsSherpa)
+            if (voice.IsLocalGguf)
+            {
+                var engine = voice.LocalEngine!;
+                var voiceId = voice.Id;
+                var installDir = engine.InstallDir;
+                var audio = await Task.Run(() =>
+                {
+                    var creds = engine.EngineId == "qwen3-local"
+                        ? new Dictionary<string, string> { ["modelsDir"] = installDir }
+                        : new Dictionary<string, string>
+                        {
+                            ["modelPath"] = Path.Combine(installDir, "omnivoice-base-Q8_0.gguf"),
+                            ["codecPath"] = Path.Combine(installDir, "omnivoice-tokenizer-F32.gguf"),
+                        };
+                    using var client = new RustTtsWrapper.TtsClient(engine.EngineId, creds);
+                    client.SetVoice(voiceId); // qwen3: timbre/language id; omnivoice: language
+                    return client.SynthToBytes("Hello, this is a local voice preview.");
+                });
+
+                if (audio.Length > 0)
+                {
+                    AudioPreview.PlayPcm(audio, 24000, "vg_localgguf_");
+                    StatusText = Loc.GetString("PreviewingVoice", voice.Name);
+                }
+                else
+                {
+                    StatusText = Loc.GetString("NoAudio");
+                }
+            }
+            else if (voice.IsSherpa)
             {
                 // Scan + path derivation off the UI thread (the scan takes
                 // the archive lock and loads the catalog — seconds, and can
@@ -550,10 +621,18 @@ public partial class VoicesViewModel : ObservableObject
     [RelayCommand]
     private async Task Download(VoiceEntry? voice)
     {
-        if (voice == null || !voice.IsSherpa || voice.CatalogModel == null || voice.IsDownloading) return;
+        if (voice == null || voice.IsDownloading) return;
+        if (voice.IsSherpa && voice.CatalogModel == null) return;
+        if (voice.IsLocalGguf && voice.LocalEngine == null) return;
         ClearError();
 
-        var sizeMb = voice.CatalogModel.FileSizeMb > 0 ? $"{voice.CatalogModel.FileSizeMb:F0}MB" : "??MB";
+        if (voice.IsLocalGguf)
+        {
+            await DownloadLocalEngine(voice);
+            return;
+        }
+
+        var sizeMb = voice.CatalogModel!.FileSizeMb > 0 ? $"{voice.CatalogModel.FileSizeMb:F0}MB" : "??MB";
         voice.IsDownloading = true;
         voice.DownloadProgress = 0;
         voice.DownloadStatus = Loc.GetString("DownloadingModel", voice.Id, sizeMb);
@@ -586,12 +665,62 @@ public partial class VoicesViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// Download a local GGUF engine's models. All voices of the engine share
+    /// the files, so progress AND the in-flight state mirror onto every
+    /// sibling row (their Download buttons disable for the duration too).
+    /// </summary>
+    private async Task DownloadLocalEngine(VoiceEntry voice)
+    {
+        var engine = voice.LocalEngine!;
+        var siblings = AllVoices.Where(v => v.IsLocalGguf && v.EngineId == engine.EngineId).ToList();
+        foreach (var s in siblings)
+        {
+            s.IsDownloading = true;
+            s.DownloadProgress = 0;
+            s.DownloadStatus = Loc.GetString("DownloadingModel", engine.DisplayName, engine.ApproxSizeText);
+        }
+        StatusText = voice.DownloadStatus;
+
+        try
+        {
+            var progress = new Progress<(int pct, string msg)>(p =>
+            {
+                foreach (var sibling in siblings)
+                {
+                    sibling.DownloadProgress = p.pct;
+                    sibling.DownloadStatus = $"{p.pct}% - {engine.DisplayName}";
+                }
+            });
+
+            await LocalEngineService.DownloadAsync(engine, (IProgress<(int, string)>)progress);
+            foreach (var sibling in siblings)
+            {
+                sibling.IsDownloaded = true;
+                sibling.DownloadProgress = 100;
+                sibling.DownloadStatus = Loc.GetString("DownloadedStatus");
+            }
+            StatusText = Loc.GetString("DownloadedStatus");
+        }
+        catch (Exception ex)
+        {
+            var detail = ex.InnerException?.Message ?? ex.Message;
+            voice.DownloadStatus = $"Failed: {detail}";
+            StatusText = Loc.GetString("DownloadFailedSingle", engine.DisplayName);
+            ShowError(Loc.GetString("DownloadFailedTitle", engine.DisplayName), detail);
+        }
+        finally
+        {
+            foreach (var sibling in siblings) sibling.IsDownloading = false;
+        }
+    }
+
     [RelayCommand]
     private async Task Promote(VoiceEntry? voice)
     {
         if (voice == null) return;
 
-        if (voice.IsSherpa && !voice.IsDownloaded)
+        if ((voice.IsSherpa || voice.IsLocalGguf) && !voice.IsDownloaded)
         {
             StatusText = Loc.GetString("DownloadModelFirst");
             return;
@@ -602,7 +731,9 @@ public partial class VoicesViewModel : ObservableObject
         {
             var (ok, message) = voice.IsSherpa
                 ? await PromoteSherpaModels(new[] { voice.Id })
-                : await PromoteCloudVoice(voice);
+                : voice.IsLocalGguf
+                    ? await PromoteLocalEngineVoice(voice)
+                    : await PromoteCloudVoice(voice);
 
             if (ok)
             {
@@ -648,7 +779,16 @@ public partial class VoicesViewModel : ObservableObject
                 else { failed += sherpaIds.Count; lastError = message; }
             }
 
-            // Cloud / Edge voices — one by one
+            // Cloud / Edge voices — one by one (local GGUF engines only when
+            // their shared models are downloaded, mirroring the sherpa filter)
+            var localSelected = selected.Where(v => v.IsLocalGguf && v.IsDownloaded).ToList();
+            foreach (var voice in localSelected)
+            {
+                var (ok, message) = await PromoteLocalEngineVoice(voice);
+                if (ok) promoted++;
+                else { failed++; lastError = message; }
+            }
+
             foreach (var voice in selected.Where(v => v.IsCloud))
             {
                 var (ok, message) = await PromoteCloudVoice(voice);
@@ -656,24 +796,64 @@ public partial class VoicesViewModel : ObservableObject
                 else { failed++; lastError = message; }
             }
 
+            // Selected local voices skipped because the models aren't
+            // downloaded yet — say so instead of a silent count mismatch.
+            var skippedLocal = selected.Count(v => v.IsLocalGguf && !v.IsDownloaded);
+
             await RefreshInstalledStatus();
             UpdateCounts();
 
+            var skippedNote = skippedLocal > 0
+                ? Loc.GetString("DownloadModelFirst") + $" ({skippedLocal})"
+                : "";
+
             if (failed == 0)
             {
-                StatusText = Loc.GetString("InstalledVoicesHKLM", promoted);
+                var summary = Loc.GetString("InstalledVoicesHKLM", promoted);
+                StatusText = skippedNote.Length > 0 ? $"{summary} — {skippedNote}" : summary;
                 ClearError();
+                if (skippedNote.Length > 0) ShowError(summary, skippedNote);
             }
             else
             {
                 var friendly = Loc.GetString("InstalledModelsFailed", promoted, failed);
-                StatusText = friendly + (lastError.Length > 0 ? $" ({lastError})" : "");
-                ShowError(friendly, lastError.Length > 0 ? lastError : null);
+                var detail = string.Join("; ", new[] { lastError, skippedNote }.Where(s => s.Length > 0));
+                StatusText = friendly + (detail.Length > 0 ? $" ({detail})" : "");
+                ShowError(friendly, detail.Length > 0 ? detail : null);
             }
         }
         finally
         {
             IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task UnpromoteOne(VoiceEntry? voice)
+    {
+        if (voice == null || !voice.IsInstalled) return;
+
+        IsLoading = true;
+        try
+        {
+            var rc = await Task.Run(() => VoicePromotionService.UnpromoteElevated(voice.TokenName));
+            if (rc == 0)
+            {
+                voice.IsInstalled = false;
+                StatusText = Loc.GetString("RemovedVoices", 1);
+                ClearError();
+            }
+            else
+            {
+                var msg = rc == -2 ? Loc.GetString("InstallCancelled") : Loc.GetString("VoicesUnpromoteFailed", 0, 1);
+                StatusText = msg;
+                ShowError(msg);
+            }
+        }
+        finally
+        {
+            IsLoading = false;
+            UpdateCounts();
         }
     }
 
@@ -688,9 +868,9 @@ public partial class VoicesViewModel : ObservableObject
         }
 
         IsLoading = true;
+        int removed = 0, failed = 0, cancelled = 0;
         try
         {
-            int removed = 0, failed = 0;
             foreach (var voice in selected)
             {
                 var rc = await Task.Run(() => VoicePromotionService.UnpromoteElevated(voice.TokenName));
@@ -699,13 +879,24 @@ public partial class VoicesViewModel : ObservableObject
                     voice.IsInstalled = false;
                     removed++;
                 }
+                else if (rc == -2)
+                {
+                    cancelled++;
+                    failed++;
+                }
                 else
                 {
                     failed++;
                 }
             }
 
+            // Recompute from the registry rather than trusting per-call
+            // results — the "Installed" badges must reflect actual token
+            // state even when an elevated import raced or failed silently.
+            await RefreshInstalledStatus();
+            ApplyFilter();
             UpdateCounts();
+
             if (failed == 0)
             {
                 StatusText = Loc.GetString("RemovedVoices", removed);
@@ -714,6 +905,8 @@ public partial class VoicesViewModel : ObservableObject
             else
             {
                 var friendly = Loc.GetString("VoicesUnpromoteFailed", removed, failed);
+                if (cancelled == failed)
+                    friendly = Loc.GetString("InstallCancelled");
                 StatusText = friendly;
                 ShowError(friendly);
             }
@@ -775,6 +968,27 @@ public partial class VoicesViewModel : ObservableObject
         {
             0 => (true, ""),
             -2 => (false, Loc.GetString("InstallCancelled")),
+            _ => (false, Loc.GetString("VoicesPromoteFailed", voice.Name)),
+        };
+    }
+
+    private async Task<(bool ok, string message)> PromoteLocalEngineVoice(VoiceEntry voice)
+    {
+        // Distinct message when the models aren't downloaded yet — the
+        // generic "administrator approval may be required" hint misleads.
+        if (!voice.IsDownloaded)
+            return (false, Loc.GetString("DownloadModelFirst"));
+
+        var engine = voice.LocalEngine!;
+        var engineVoice = voice.LocalVoice!;
+
+        var rc = await Task.Run(() => LocalEngineService.PromoteElevated(engine, engineVoice));
+
+        return rc switch
+        {
+            0 => (true, ""),
+            -2 => (false, Loc.GetString("InstallCancelled")),
+            -3 => (false, Loc.GetString("DownloadModelFirst")),
             _ => (false, Loc.GetString("VoicesPromoteFailed", voice.Name)),
         };
     }

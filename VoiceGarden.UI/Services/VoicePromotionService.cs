@@ -45,7 +45,8 @@ public static class VoicePromotionService
         foreach (var name in key.GetSubKeyNames())
         {
             if (!name.StartsWith("Cloud-", StringComparison.OrdinalIgnoreCase) &&
-                !name.StartsWith("Sherpa-", StringComparison.OrdinalIgnoreCase))
+                !name.StartsWith("Sherpa-", StringComparison.OrdinalIgnoreCase) &&
+                !name.StartsWith("Local-", StringComparison.OrdinalIgnoreCase))
                 continue;
 
             var pv = new PromotedVoice { TokenName = name };

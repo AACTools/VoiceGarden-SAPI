@@ -410,3 +410,4 @@ archive/
 out-full/
 out-rust-tts/
 payload/
+installer-output.zip

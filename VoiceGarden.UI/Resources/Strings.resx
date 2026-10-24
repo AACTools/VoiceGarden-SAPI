@@ -430,6 +430,18 @@
   <data name="SherpaOnnxEngineName" xml:space="preserve">
     <value>SherpaOnnx</value>
   </data>
+  <data name="Qwen3LocalEngineName" xml:space="preserve">
+    <value>Qwen3-TTS local</value>
+  </data>
+  <data name="Qwen3LocalEngineDesc" xml:space="preserve">
+    <value>Offline LLM-based speech (10 languages plus zero-shot from any reference recording). GGUF models (~1.6 GB) are downloaded when you install a voice.</value>
+  </data>
+  <data name="OmniVoiceLocalEngineName" xml:space="preserve">
+    <value>OmniVoice local</value>
+  </data>
+  <data name="OmniVoiceLocalEngineDesc" xml:space="preserve">
+    <value>Offline speech in 600+ languages with voice cloning from a reference clip. GGUF models (~1.3 GB) are downloaded when you install a voice.</value>
+  </data>
   <data name="SherpaOnnxEngineDesc" xml:space="preserve">
     <value>Offline neural voices in many languages. Best for reliability and privacy — works without an account or internet once downloaded.</value>
   </data>

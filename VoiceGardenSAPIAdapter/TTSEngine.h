@@ -4,6 +4,8 @@
 #include "resource.h"
 
 #include "pch.h"
+#include <deque>
+#include <thread>
 #include "Logger.h"
 #include "SapiException.h"
 
@@ -117,6 +119,8 @@ private: // Member variables
 	CComPtr<ISpPhoneConverter> m_phoneConverter;
 	std::unique_ptr<RustTts::Engine> m_rustTts;
 	bool m_rustTtsUseSsml = false;
+	// rust-tts-wrapper engine id in use ("sherpaonnx", "azure", ...).
+	std::string m_rustTtsEngineId;
 	std::future<void> m_lastCancellingFuture;
 
 	// Boundary events queued during synthesis, delivered via SAPI AddEvents
@@ -133,6 +137,13 @@ private: // Member variables
 	// Populated by ExtractSherpaPlainTextWithMap(). Used by boundary
 	// callback to translate Rust's plain-text offsets back to SAPI offsets.
 	std::vector<ULONG> m_plainToSapiMap;
+
+	// The plain text sent to the engine for the current utterance (empty in
+	// SSML/sentinel modes). Engines that report word boundaries without
+	// source coordinates (qwen3-local, omnivoice-local) get their positions
+	// recovered by locating each reported word in this text.
+	std::wstring m_plainSpeakText;
+	size_t m_boundarySearchPos = 0;
 
 	ErrorMode m_errorMode = ErrorMode::ProbeForError;
 	bool m_isEdgeVoice = false;
@@ -154,6 +165,11 @@ private: // Member variables
 
 	std::vector<BookmarkInfo> m_bookmarks;
 	size_t m_bookmarkIndex = 0;
+
+	// Mark names queued as SPEI_TTS_BOOKMARK (SPET_LPARAM_IS_STRING). SAPI
+	// does not copy string params — these must outlive the client's event
+	// pump, so they live until the next utterance clears them.
+	std::deque<std::wstring> m_markEventNames;
 
 private:
 	int OnAudioData(uint8_t* data, uint32_t len);

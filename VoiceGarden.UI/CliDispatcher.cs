@@ -27,6 +27,7 @@ public static class CliDispatcher
                 "promoted" => RunListPromoted(),
                 "unpromote" => RunUnpromote(args),
                 "models" => RunModels(args),
+                "localengines" => RunLocalEngines(args),
                 "-h" or "--help" or "/?" => ShowHelp(),
                 _ => UnknownCommand(command)
             };
@@ -292,6 +293,98 @@ public static class CliDispatcher
             "rescan" => RunModelsRescan(),
             _ => UnknownCommand($"models {sub}")
         };
+    }
+
+    private static int RunLocalEngines(string[] args)
+    {
+        if (args.Length < 2)
+        {
+            Console.WriteLine("Usage: localengines <list|download|promote-all|promote <engine> [voice]>");
+            return 1;
+        }
+
+        var sub = args[1].ToLowerInvariant();
+        return sub switch
+        {
+            "list" => RunLocalEnginesList(),
+            "download" => RunLocalEnginesDownload(args),
+            "promote-all" => RunLocalEnginesPromoteAll(),
+            "promote" => RunLocalEnginesPromote(args),
+            _ => UnknownCommand($"localengines {sub}")
+        };
+    }
+
+    private static int RunLocalEnginesList()
+    {
+        foreach (var engine in Services.LocalEngineService.Catalog)
+        {
+            var installed = Services.LocalEngineService.IsInstalled(engine);
+            Console.WriteLine($"{engine.EngineId,-16} {(installed ? "INSTALLED" : (engine.Downloadable ? "not installed" : "no download source"))}");
+            foreach (var f in engine.FileNames)
+            {
+                var ok = File.Exists(Path.Combine(engine.InstallDir, f));
+                Console.WriteLine($"    {(ok ? "[ok] " : "[  ] ")}{f}");
+            }
+            Console.WriteLine($"    voices: {string.Join(", ", engine.Voices.Select(v => v.Id))}");
+        }
+        return 0;
+    }
+
+    private static int RunLocalEnginesDownload(string[] args)
+    {
+        if (args.Length < 3)
+        {
+            Console.Error.WriteLine("Error: engine ID required. Usage: localengines download <qwen3-local|omnivoice-local>");
+            return 1;
+        }
+        var engine = Services.LocalEngineService.Find(args[2]);
+        if (engine == null)
+        {
+            Console.Error.WriteLine($"Unknown local engine '{args[2]}'. Available: {string.Join(", ", Services.LocalEngineService.Catalog.Select(e => e.EngineId))}");
+            return 1;
+        }
+        Console.WriteLine($"Downloading {engine.EngineId} ({engine.FileNames.Length} GGUFs)...");
+        var progress = new Progress<(int percent, string status)>(p => Console.WriteLine($"  {p.percent,3}%  {p.status}"));
+        Services.LocalEngineService.DownloadAsync(engine, progress).GetAwaiter().GetResult();
+        Console.WriteLine("Done");
+        return 0;
+    }
+
+    private static int RunLocalEnginesPromoteAll()
+    {
+        var (promoted, failed) = Services.LocalEngineService.PromoteAll();
+        Console.WriteLine($"Promoted {promoted} local-engine voice(s), failed {failed}");
+        return failed > 0 ? 1 : 0;
+    }
+
+    private static int RunLocalEnginesPromote(string[] args)
+    {
+        if (args.Length < 3)
+        {
+            Console.Error.WriteLine("Usage: localengines promote <engine> [voice-id]");
+            return 1;
+        }
+        var engine = Services.LocalEngineService.Find(args[2]);
+        if (engine == null)
+        {
+            Console.Error.WriteLine($"Unknown local engine '{args[2]}'");
+            return 1;
+        }
+        var voice = args.Length >= 4
+            ? engine.Voices.FirstOrDefault(v => v.Id.Equals(args[3], StringComparison.OrdinalIgnoreCase))
+            : engine.Voices.FirstOrDefault();
+        if (voice == null)
+        {
+            Console.Error.WriteLine($"Voice '{args[3]}' not found. Available: {string.Join(", ", engine.Voices.Select(v => v.Id))}");
+            return 1;
+        }
+        if (!Services.LocalEngineService.Promote(engine, voice))
+        {
+            Console.Error.WriteLine("Promotion failed (engine installed? admin rights?)");
+            return 1;
+        }
+        Console.WriteLine($"Promoted Local-{engine.EngineId}-{voice.Id}");
+        return 0;
     }
 
     private static int RunModelsList()
