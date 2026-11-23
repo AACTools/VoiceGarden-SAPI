@@ -297,6 +297,10 @@ public static class CliDispatcher
 
     private static int RunLocalEngines(string[] args)
     {
+#if !VOICEGARDEN_EXPERIMENTAL_LOCAL_ENGINES
+        Console.Error.WriteLine("Experimental local engines are disabled in this build.");
+        return 1;
+#else
         if (args.Length < 2)
         {
             Console.WriteLine("Usage: localengines <list|download|promote-all|promote <engine> [voice]>");
@@ -312,11 +316,12 @@ public static class CliDispatcher
             "promote" => RunLocalEnginesPromote(args),
             _ => UnknownCommand($"localengines {sub}")
         };
+#endif
     }
 
     private static int RunLocalEnginesList()
     {
-        foreach (var engine in Services.LocalEngineService.Catalog)
+        foreach (var engine in Models.EngineDefinition.AvailableLocalEngines())
         {
             var installed = Services.LocalEngineService.IsInstalled(engine);
             Console.WriteLine($"{engine.EngineId,-16} {(installed ? "INSTALLED" : (engine.Downloadable ? "not installed" : "no download source"))}");
@@ -337,10 +342,10 @@ public static class CliDispatcher
             Console.Error.WriteLine("Error: engine ID required. Usage: localengines download <qwen3-local|omnivoice-local>");
             return 1;
         }
-        var engine = Services.LocalEngineService.Find(args[2]);
+        var engine = Models.EngineDefinition.AvailableLocalEngines().FirstOrDefault(engine => engine.EngineId.Equals(args[2], StringComparison.OrdinalIgnoreCase));
         if (engine == null)
         {
-            Console.Error.WriteLine($"Unknown local engine '{args[2]}'. Available: {string.Join(", ", Services.LocalEngineService.Catalog.Select(e => e.EngineId))}");
+            Console.Error.WriteLine($"Unknown local engine '{args[2]}'. Available: {string.Join(", ", Models.EngineDefinition.AvailableLocalEngines().Select(e => e.EngineId))}");
             return 1;
         }
         Console.WriteLine($"Downloading {engine.EngineId} ({engine.FileNames.Length} GGUFs)...");
@@ -352,7 +357,7 @@ public static class CliDispatcher
 
     private static int RunLocalEnginesPromoteAll()
     {
-        var (promoted, failed) = Services.LocalEngineService.PromoteAll();
+        var (promoted, failed) = Services.LocalEngineService.PromoteAll(Models.EngineDefinition.AvailableLocalEngines());
         Console.WriteLine($"Promoted {promoted} local-engine voice(s), failed {failed}");
         return failed > 0 ? 1 : 0;
     }
@@ -364,7 +369,7 @@ public static class CliDispatcher
             Console.Error.WriteLine("Usage: localengines promote <engine> [voice-id]");
             return 1;
         }
-        var engine = Services.LocalEngineService.Find(args[2]);
+        var engine = Models.EngineDefinition.AvailableLocalEngines().FirstOrDefault(engine => engine.EngineId.Equals(args[2], StringComparison.OrdinalIgnoreCase));
         if (engine == null)
         {
             Console.Error.WriteLine($"Unknown local engine '{args[2]}'");
@@ -390,7 +395,7 @@ public static class CliDispatcher
     private static int RunModelsList()
     {
         var installed = Services.SherpaModelService.ScanInstalledModels();
-        Console.WriteLine($"Installed models: {installed.Count}");
+        Console.WriteLine($"Installed models: {installed.Count(model => model.ModelPath != null)}");
         foreach (var m in installed)
         {
             Console.WriteLine($"  {m.Id,-30} Model: {(m.ModelPath != null ? "OK" : "MISSING")}  Promoted: {m.IsPromoted}");
@@ -435,7 +440,7 @@ public static class CliDispatcher
 
     private static int RunModelsRescan()
     {
-        var installed = Services.SherpaModelService.ScanInstalledModels();
+        var installed = Services.SherpaModelService.ScanInstalledModels().Where(model => model.ModelPath != null).ToList();
         Console.WriteLine($"Found {installed.Count} installed models:");
         foreach (var m in installed)
         {

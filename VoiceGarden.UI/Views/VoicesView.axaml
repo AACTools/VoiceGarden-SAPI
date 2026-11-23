@@ -132,7 +132,8 @@
                                                AutomationProperties.LiveSetting="Polite"/>
                                     <ProgressBar Value="{Binding DownloadProgress}" IsVisible="{Binding IsDownloading}"
                                                  Width="110" Height="14" MinWidth="110" VerticalAlignment="Center"
-                                                 AutomationProperties.Name="Download progress"/>
+                                                 AutomationProperties.Name="{Binding DownloadStatus}"
+                                                 ToolTip.Tip="{Binding DownloadStatus}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                                     <Button Classes="Compact Secondary" Content="{lang:Localize PreviewVoice}"

@@ -86,7 +86,6 @@ $required = @(
     'tts_set_on_start', 'tts_set_on_end', 'tts_set_on_error', 'tts_get_last_error'
 )
 $canary = 'tts_set_on_mark'
-$floravox = 'tts_get_engines'  # enumeration API needed for engine discovery
 
 It 'exports every symbol the C++ loader resolves' {
     $exports = Get-Exports $DllPath
@@ -100,9 +99,11 @@ It 'ABI canary: tts_set_on_mark present (consolidated boundary callback)' {
     Assert-True ($exports.ContainsKey($canary)) "$canary missing - DLL predates the 7-arg boundary ABI; the loader would read garbage offsets"
 }
 
-It 'exports tts_get_engines (engine enumeration)' {
+It 'exports engine discovery and Sherpa-ONNX catalog APIs' {
     $exports = Get-Exports $DllPath
-    Assert-True ($exports.ContainsKey($floravox)) "$floravox missing"
+    foreach ($symbol in 'tts_get_engines', 'tts_get_sherpa_models_json', 'tts_free_string', 'tts_provision_sherpa_g2p_bundle') {
+        Assert-True ($exports.ContainsKey($symbol)) "missing export: $symbol"
+    }
 }
 
 # Negative control: the oldest cached package must fail the canary.

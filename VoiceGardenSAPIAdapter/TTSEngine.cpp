@@ -888,6 +888,16 @@ bool CTTSEngine::InitRustTtsVoice(ISpDataKey* pConfigKey)
         return false;
     }
 
+#if !defined(VOICEGARDEN_EXPERIMENTAL_LOCAL_ENGINES)
+    // The Windows GGUF runtimes can raise an illegal-instruction exception
+    // during initialization. Reject existing experimental tokens before FFI.
+    if (lowerType == "qwen3-local" || lowerType == "omnivoice-local")
+    {
+        LogWarn("RustTts: '{}' is disabled in this build", lowerType);
+        return false;
+    }
+#endif
+
     // All engine types are handled by rust-tts-wrapper.
     // Read credentials for the engine.
 

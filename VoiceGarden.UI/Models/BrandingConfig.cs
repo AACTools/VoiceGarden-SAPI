@@ -25,6 +25,24 @@ public class EngineDefinition
     public string[] CredentialKeys { get; set; } = Array.Empty<string>();
 
     private static List<EngineDefinition>? _cachedEngines;
+    private static readonly Lazy<IReadOnlyList<RustTtsWrapper.TtsEngineInfo>> RuntimeEngines = new(() =>
+    {
+        try
+        {
+            return RustTtsWrapper.TtsClient.ListEngines();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Engine discovery failed: {ex.Message}");
+            return Array.Empty<RustTtsWrapper.TtsEngineInfo>();
+        }
+    });
+
+    public static IEnumerable<Services.LocalEngineService.LocalEngine> AvailableLocalEngines()
+    {
+        var ids = RuntimeEngines.Value.Select(engine => engine.Id ?? "").ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return Services.LocalEngineService.Catalog.Where(engine => ids.Contains(engine.EngineId));
+    }
 
     /// <summary>
     /// Discover all available cloud engines from the Rust wrapper.
@@ -35,27 +53,26 @@ public class EngineDefinition
         if (_cachedEngines != null) return _cachedEngines;
 
         var result = new List<EngineDefinition>();
-        try
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var engine in RuntimeEngines.Value)
         {
-            var engines = RustTtsWrapper.TtsClient.ListEngines();
-            foreach (var e in engines)
-            {
-                if (!e.NeedsCredentials) continue;
+            if (!engine.NeedsCredentials || string.IsNullOrEmpty(engine.Id)
+                || !seen.Add(engine.Id)
+                || NonCloudEngineIds.Contains(engine.Id)
+                || Services.LocalEngineService.Find(engine.Id) != null)
+                continue;
 
-                var keys = ParseCredentialKeys(e.CredentialKeysJson);
-                result.Add(new EngineDefinition
-                {
-                    Id = e.Id ?? "",
-                    DisplayName = e.Name ?? e.Id ?? "",
-                    NeedsRegion = keys.Contains("region") || keys.Contains("userId"),
-                    NeedsSecretKey = keys.Contains("secretAccessKey"),
-                    CredentialKeys = keys,
-                });
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Engine discovery failed: {ex.Message}");
+            var keys = ParseCredentialKeys(engine.CredentialKeysJson);
+            result.Add(new EngineDefinition
+            {
+                Id = engine.Id,
+                DisplayName = engine.Id.Equals("qwen", StringComparison.OrdinalIgnoreCase)
+                    ? Localization.Loc.GetString("QwenCloudEngineName")
+                    : engine.Name ?? engine.Id,
+                NeedsRegion = keys.Contains("region") || keys.Contains("userId"),
+                NeedsSecretKey = keys.Contains("secretAccessKey"),
+                CredentialKeys = keys,
+            });
         }
 
         // If discovery returned nothing, use fallback
@@ -67,6 +84,12 @@ public class EngineDefinition
         _cachedEngines = result;
         return result;
     }
+
+    // The wrapper also marks local model setup parameters as credentials.
+    private static readonly HashSet<string> NonCloudEngineIds = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "edge", "sapi", "sherpaonnx", "floravox", "pocket",
+    };
 
     private static List<EngineDefinition> FallbackEngines() => new()
     {
