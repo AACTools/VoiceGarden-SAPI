@@ -429,6 +429,10 @@ if (Test-Path $rustDllDir) {
         $dll = & "$PSScriptRoot\Get-RustTtsWrapperDll.ps1" -Rid $rid
         if ($dll) {
             & "$PSScriptRoot\Get-RustTtsWrapperDll.ps1" -Rid $rid -CopyAllNativeTo $targetDir
+            if (-not $SkipVerify) {
+                & pwsh -NoProfile -File (Join-Path $PSScriptRoot "test-rust-abi.ps1") -DllPath (Join-Path $targetDir "rust_tts_wrapper.dll")
+                if ($LASTEXITCODE -ne 0) { throw "Rust TTS ABI check failed for $rid" }
+            }
             $dllVersion = $dll.Substring($rustDllDir.Length + 1).Split('\')[0]
             Write-Host "  rust_tts_wrapper.dll $dllVersion (+ engine DLLs) ($rid, csproj-pinned) -> payload\$arch\" -ForegroundColor DarkGray
         } else {

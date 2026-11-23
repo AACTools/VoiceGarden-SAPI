@@ -31,6 +31,7 @@ public partial class EngineCatalogItem : ObservableObject
     public EngineKind Kind { get; init; }
 
     public bool IsOffline => Kind is EngineKind.OfflineModel or EngineKind.LocalGguf;
+    public bool IsExperimental => Kind == EngineKind.LocalGguf;
     public bool NeedsCredentials => Kind == EngineKind.CloudCreds;
 
     /// <summary>Underlying persistent setting for credentialed engines; null for Sherpa/Edge.</summary>

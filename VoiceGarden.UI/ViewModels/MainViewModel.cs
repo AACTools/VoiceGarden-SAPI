@@ -57,8 +57,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         // Load settings from registry
         sherpaEnabled = !RegistryService.GetFlag("NoSherpaVoices", !BrandingConfig.DefaultSherpaEnabled);
         edgeEnabled = !RegistryService.GetFlag("NoEdgeVoices");
-        qwen3LocalEnabled = !RegistryService.GetFlag("NoQwen3LocalVoices", false);
-        omnivoiceLocalEnabled = !RegistryService.GetFlag("NoOmniVoiceLocalVoices", false);
+        qwen3LocalEnabled = !RegistryService.GetFlag("NoQwen3LocalVoices", true);
+        omnivoiceLocalEnabled = !RegistryService.GetFlag("NoOmniVoiceLocalVoices", true);
         AnalyticsEnabled = Services.AnalyticsService.IsEnabled;
         // spdlog levels: 0=trace … 4=error, 6=off; adapter defaults to info(2)
         LogLevelIndex = RegistryService.GetDword("LogLevel", 2);

@@ -237,6 +237,8 @@ jobs:
           $arch = $rid -replace 'win-', ''
           & .\scripts\Get-RustTtsWrapperDll.ps1 -Rid $rid -CopyAllNativeTo "payload\$arch"
           if (-not $?) { throw "failed to copy native DLLs for $rid" }
+          pwsh -NoProfile -File .\scripts\test-rust-abi.ps1 -DllPath "payload\$arch\rust_tts_wrapper.dll"
+          if ($LASTEXITCODE -ne 0) { throw "Rust TTS ABI check failed for $rid" }
           Write-Host "Copied native DLLs ($rid, csproj-pinned) to payload\$arch\"
         }
 

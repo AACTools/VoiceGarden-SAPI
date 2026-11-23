@@ -38,7 +38,10 @@
                 <TextBox Text="{Binding SearchText}" PlaceholderText="{lang:Localize SearchEngines}"
                          MinWidth="200"
                          AutomationProperties.Name="{lang:Localize SearchEngines}"/>
+                <CheckBox Content="{lang:Localize ShowExperimentalEngines}" IsChecked="{Binding ShowExperimentalEngines}"
+                          IsVisible="{Binding HasExperimentalEngines}" VerticalAlignment="Center"/>
                 <Button Content="{lang:Localize SelectVisible}" Classes="Secondary" Command="{Binding SelectVisibleCommand}"
+                        ToolTip.Tip="{lang:Localize SelectVisibleEngineHint}"
                         AutomationProperties.Name="{lang:Localize SelectVisible}"/>
                 <Button Content="{lang:Localize ClearVisible}" Classes="Secondary" Command="{Binding ClearVisibleCommand}"
                         AutomationProperties.Name="{lang:Localize ClearVisible}"/>
@@ -64,7 +67,7 @@
                                       AutomationProperties.Name="{Binding DisplayName, StringFormat='Enable {0}'}"
                                       AutomationProperties.HelpText="{Binding Description}">
                                 <StackPanel Spacing="6" VerticalAlignment="Center" Margin="0,2">
-                                    <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <WrapPanel ItemSpacing="10" LineSpacing="4">
                                         <TextBlock Text="{Binding DisplayName}" FontSize="16" FontWeight="SemiBold"
                                                    Foreground="{StaticResource VGForegroundBrush}"/>
                                         <Border Classes="Badge" Background="#22C55E" IsVisible="{Binding IsOffline}"
@@ -87,7 +90,10 @@
                                                 ToolTip.Tip="{lang:Localize BadgeKeyStored}">
                                             <TextBlock Text="{lang:Localize BadgeKeyStored}"/>
                                         </Border>
-                                    </StackPanel>
+                                        <Border Classes="Badge" Background="#64748B" IsVisible="{Binding IsExperimental}">
+                                            <TextBlock Text="{lang:Localize ExperimentalEngine}"/>
+                                        </Border>
+                                    </WrapPanel>
                                     <TextBlock Text="{Binding Description}" Classes="Hint" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </CheckBox>

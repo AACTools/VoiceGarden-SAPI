@@ -23,6 +23,7 @@ public partial class EnginesViewModel : ObservableObject
     public EnginesViewModel(MainViewModel owner)
     {
         _owner = owner;
+        showExperimentalEngines = owner.Qwen3LocalEnabled || owner.OmnivoiceLocalEnabled;
         BuildCatalog();
     }
 
@@ -39,6 +40,18 @@ public partial class EnginesViewModel : ObservableObject
     [ObservableProperty] private int selectedCount;
     [ObservableProperty] private int hiddenUnknownLanguageCount;
     [ObservableProperty] private bool credentialsNeeded;
+    [ObservableProperty] private bool showExperimentalEngines;
+
+    public bool HasExperimentalEngines => AllEngines.Any(engine => engine.IsExperimental);
+
+    partial void OnShowExperimentalEnginesChanged(bool value)
+    {
+        RefreshLanguageOptions();
+        ApplyFilter();
+    }
+
+    private bool IsEngineVisible(EngineCatalogItem engine) =>
+        !engine.IsExperimental || ShowExperimentalEngines;
 
     public IReadOnlyList<string> TypeFilterOptions { get; } = new[]
     {
@@ -82,10 +95,11 @@ public partial class EnginesViewModel : ObservableObject
             };
             AddItem(sherpa);
 
+#if VOICEGARDEN_EXPERIMENTAL_LOCAL_ENGINES
             // Offline — GGUF engines (Qwen3-TTS local, OmniVoice local).
             // Selected = the engines' voices appear in the Voices tab; the
             // GGUFs themselves are downloaded per voice row there.
-            foreach (var local in Services.LocalEngineService.Catalog)
+            foreach (var local in EngineDefinition.AvailableLocalEngines())
             {
                 var item = new EngineCatalogItem
                 {
@@ -107,6 +121,8 @@ public partial class EnginesViewModel : ObservableObject
                     EngineCatalogItem.AddLanguageTokens(item.Languages, v.Bcp47);
                 if (item.Languages.Count > 0) item.NotifyLanguagesChanged();
             }
+
+#endif
 
             // Online, free — Edge Read-Aloud voices
             var edge = new EngineCatalogItem
@@ -238,7 +254,7 @@ public partial class EnginesViewModel : ObservableObject
     [RelayCommand]
     private void SelectVisible()
     {
-        foreach (var item in FilteredEngines) item.IsSelected = true;
+        foreach (var item in FilteredEngines.Where(item => !item.IsExperimental)) item.IsSelected = true;
     }
 
     [RelayCommand]
@@ -293,7 +309,7 @@ public partial class EnginesViewModel : ObservableObject
         {
             var langs = await Task.Run(async () =>
             {
-                var catalog = await SherpaModelService.LoadCatalogAsync();
+                var catalog = (await SherpaModelService.LoadCatalogAsync()).Where(model => model.CanDownload);
                 var names = catalog
                     .SelectMany(c => c.Language ?? Enumerable.Empty<SherpaModelService.CatalogLanguage>())
                     .Select(l => l.LanguageName)
@@ -346,7 +362,7 @@ public partial class EnginesViewModel : ObservableObject
         var selected = LanguageFilter;
         LanguageOptions.Clear();
         LanguageOptions.Add(all);
-        foreach (var lang in AllEngines.SelectMany(e => e.Languages).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(l => l, StringComparer.CurrentCulture))
+        foreach (var lang in AllEngines.Where(IsEngineVisible).SelectMany(e => e.Languages).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(l => l, StringComparer.CurrentCulture))
             LanguageOptions.Add(lang);
 
         if (selected != null && LanguageOptions.Contains(selected))
@@ -366,6 +382,7 @@ public partial class EnginesViewModel : ObservableObject
 
         foreach (var e in AllEngines)
         {
+            if (!IsEngineVisible(e)) continue;
             if (TypeFilterIndex == 1 && !e.IsOffline) continue;
             if (TypeFilterIndex == 2 && e.IsOffline) continue;
             if (CredsFilterIndex == 1 && e.NeedsCredentials) continue;

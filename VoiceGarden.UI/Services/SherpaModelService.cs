@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -42,6 +43,11 @@ public class SherpaModelService
         [JsonPropertyName("license")] public string? License { get; set; }
         [JsonPropertyName("license_url")] public string? LicenseUrl { get; set; }
         [JsonPropertyName("min_sherpa_onnx_version")] public string? MinSherpaOnnxVersion { get; set; }
+        [JsonPropertyName("readiness")] public string? Readiness { get; set; }
+        public bool CanDownload => !string.IsNullOrEmpty(Url)
+            && !Url.Contains("fp16", StringComparison.OrdinalIgnoreCase)
+            && (Readiness is "ready" or "needs_bundle"
+                || Readiness == "needs_assets:vocoder" && ModelType.Equals("zipvoice", StringComparison.OrdinalIgnoreCase));
         [JsonPropertyName("deprecated")] public bool? Deprecated { get; set; }
         [JsonPropertyName("quality")] public string? Quality { get; set; }
         [JsonPropertyName("quantization")] public string? Quantization { get; set; }
@@ -81,42 +87,47 @@ public class SherpaModelService
         public string Language { get; set; } = "";
     }
 
-    /// <summary>
-    /// Load the model catalog from models.json (embedded or sidecar).
-    /// Falls back to the pre-0.3.17 merged_models.json sidecar if present.
-    /// </summary>
-    public static async Task<List<CatalogModel>> LoadCatalogAsync()
+    private static readonly object CatalogLock = new();
+    private static List<CatalogModel>? catalog;
+
+    public static Task<List<CatalogModel>> LoadCatalogAsync() => Task.Run(() =>
     {
-        var candidates = new[]
+        lock (CatalogLock)
+            return catalog ??= ReadRuntimeCatalog();
+    });
+
+    private static List<CatalogModel> ReadRuntimeCatalog()
+    {
+        var json = Native.tts_get_sherpa_models_json();
+        if (json == IntPtr.Zero)
+            throw new InvalidOperationException("The installed speech runtime did not provide a Sherpa-ONNX catalog.");
+
+        try
         {
-            Path.Combine(AppContext.BaseDirectory, "models.json"),
-            Path.Combine(AppContext.BaseDirectory, "..", "models.json"),
-            Path.Combine(AppContext.BaseDirectory, "x64", "models.json"),
-            Path.Combine(AppContext.BaseDirectory, "x86", "models.json"),
-            Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "SherpaOnnxConfig", "models.json"),
-            // Legacy sidecar from wrapper <= 0.3.16 installs
-            Path.Combine(AppContext.BaseDirectory, "merged_models.json"),
-            Path.Combine(AppContext.BaseDirectory, "..", "merged_models.json"),
-        };
-
-        foreach (var path in candidates)
-        {
-            if (File.Exists(path))
-            {
-                var json = await File.ReadAllTextAsync(path);
-
-                // The catalog is a dict keyed by model ID: { "id": { ... }, ... }
-                var dict = JsonSerializer.Deserialize<Dictionary<string, CatalogModel>>(json);
-                if (dict != null && dict.Count > 0)
-                    return dict.Values.ToList();
-
-                // Fallback: try as array
-                var list = JsonSerializer.Deserialize<List<CatalogModel>>(json);
-                return list ?? new();
-            }
+            using var document = JsonDocument.Parse(Marshal.PtrToStringUTF8(json)!);
+            return document.RootElement.EnumerateObject()
+                .Where(entry => entry.Value.ValueKind == JsonValueKind.Object)
+                .Select(entry => entry.Value.Deserialize<CatalogModel>()!)
+                .Where(model => !string.IsNullOrWhiteSpace(model.Id))
+                .ToList();
         }
+        finally
+        {
+            Native.tts_free_string(json);
+        }
+    }
 
-        return new();
+    private static class Native
+    {
+        [DllImport("rust_tts_wrapper", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr tts_get_sherpa_models_json();
+
+        [DllImport("rust_tts_wrapper", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void tts_free_string(IntPtr text);
+
+        [DllImport("rust_tts_wrapper", CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool tts_provision_sherpa_g2p_bundle([MarshalAs(UnmanagedType.LPUTF8Str)] string modelId);
     }
 
     /// <summary>
@@ -511,7 +522,7 @@ public class SherpaModelService
             var legacyName = LegacyModelIds.FirstOrDefault(kv => kv.Value == modelId).Key;
 
             // Auto-extract any orphaned .tar.bz2 left from a failed/aborted extraction
-            TryExtractArchives(dir);
+            if (!TryExtractArchives(dir)) continue;
 
             var installed = new InstalledModel
             {
@@ -522,7 +533,16 @@ public class SherpaModelService
             };
 
             // Find model.onnx (could be in nested dir for Piper)
-            var onnxFiles = System.IO.Directory.GetFiles(dir, "*.onnx", SearchOption.AllDirectories);
+            string[] onnxFiles;
+            try
+            {
+                onnxFiles = Directory.GetFiles(dir, "*.onnx", SearchOption.AllDirectories);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                System.Diagnostics.Debug.WriteLine($"Could not scan model {modelId}: {ex.Message}");
+                continue;
+            }
             if (onnxFiles.Length > 0)
             {
                 // Prefer model.onnx over other names
@@ -571,45 +591,26 @@ public class SherpaModelService
     /// extract it. Self-heals downloads that completed but never extracted.
     /// Uses built-in SharpCompress — no 7-Zip dependency.
     /// </summary>
-    private static void TryExtractArchives(string dir)
+    private static bool TryExtractArchives(string dir)
     {
-        // Downloads stage as *.part until complete — never touch those.
-        if (Directory.GetFiles(dir, "*.onnx", SearchOption.AllDirectories).Length > 0)
-        {
-            // Clean up any leftover archives from a partial extraction
-            foreach (var f in Directory.GetFiles(dir, "*.tar.bz2", SearchOption.TopDirectoryOnly))
-                TryDelete(f);
-            foreach (var f in Directory.GetFiles(dir, "*.tar", SearchOption.TopDirectoryOnly))
-                TryDelete(f);
-            return;
-        }
-
         ArchiveLock.Wait();
         try
         {
-            var bz2 = Directory.GetFiles(dir, "*.tar.bz2", SearchOption.TopDirectoryOnly).FirstOrDefault();
-            if (bz2 != null)
+            try
             {
-                var tarFile = bz2.Replace(".tar.bz2", ".tar");
-                // Stage 1: bz2 → tar using SharpCompress
-                try { ExtractBz2(bz2, tarFile); } catch { return; }
-                // Stage 2: tar → contents
-                if (File.Exists(tarFile))
-                {
-                    try { ExtractTar(tarFile, dir); } catch { }
-                    TryDelete(tarFile);
-                }
-                TryDelete(bz2);
+                var archive = Directory.GetFiles(dir, "*.tar.bz2", SearchOption.TopDirectoryOnly).FirstOrDefault()
+                    ?? Directory.GetFiles(dir, "*.tar", SearchOption.TopDirectoryOnly).FirstOrDefault();
+                if (archive == null) return true;
+
+                ExtractModelArchive(archive, dir);
+                TryDelete(archive);
+                return true;
             }
-            else
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException
+                or InvalidDataException or ArgumentException or SharpCompress.Common.ArchiveException)
             {
-                // Lone .tar
-                var tar = Directory.GetFiles(dir, "*.tar", SearchOption.TopDirectoryOnly).FirstOrDefault();
-                if (tar != null)
-                {
-                    try { ExtractTar(tar, dir); } catch { }
-                    TryDelete(tar);
-                }
+                System.Diagnostics.Debug.WriteLine($"Could not recover model archive: {ex.Message}");
+                return false;
             }
         }
         finally
@@ -628,21 +629,74 @@ public class SherpaModelService
         decompressor.CopyTo(output);
     }
 
-    /// <summary>Extract a .tar archive to a directory using SharpCompress.</summary>
-    private static void ExtractTar(string tarPath, string destDir)
+    private static void ExtractModelArchive(string archivePath, string destDir)
     {
-        using var archive = SharpCompress.Archives.Tar.TarArchive.OpenArchive(tarPath);
-        foreach (var entry in archive.Entries)
+        var root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(destDir));
+        var checkedArchive = GetArchiveOutputPath(root, Path.GetFileName(archivePath));
+        var staging = Directory.CreateTempSubdirectory("voicegarden-model-").FullName;
+        try
         {
-            if (!entry.IsDirectory)
+            var tarPath = checkedArchive;
+            if (checkedArchive.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase))
+            {
+                tarPath = Path.Combine(staging, "model.tar");
+                ExtractBz2(checkedArchive, tarPath);
+            }
+
+            var extracted = Directory.CreateDirectory(Path.Combine(staging, "files")).FullName;
+            using var archive = SharpCompress.Archives.Tar.TarArchive.OpenArchive(tarPath);
+            var entries = archive.Entries.Where(entry => !entry.IsDirectory)
+                .Select(entry => (Entry: entry,
+                    StagedPath: GetArchiveOutputPath(extracted, entry.Key),
+                    Destination: GetArchiveOutputPath(root, entry.Key)))
+                .ToList();
+
+            foreach (var (entry, path, _) in entries)
             {
                 using var entryStream = entry.OpenEntryStream();
-                var fullPath = Path.Combine(destDir, entry.Key);
-                Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
-                using var fileStream = File.Create(fullPath);
+                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                using var fileStream = new FileStream(path, FileMode.CreateNew);
                 entryStream.CopyTo(fileStream);
             }
+
+            // Keep incomplete archives out of model scans. Publish ONNX files last.
+            foreach (var (entry, path, _) in entries.OrderBy(item =>
+                string.Equals(Path.GetExtension(item.Destination), ".onnx", StringComparison.OrdinalIgnoreCase)))
+            {
+                var destination = GetArchiveOutputPath(root, entry.Key);
+                Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+                File.Move(path, destination, overwrite: true);
+            }
         }
+        finally
+        {
+            try { Directory.Delete(staging, recursive: true); }
+            catch (IOException) { }
+            catch (UnauthorizedAccessException) { }
+        }
+    }
+
+    private static string GetArchiveOutputPath(string root, string? key)
+    {
+        if (string.IsNullOrEmpty(key) || Path.IsPathRooted(key) || key.Contains(':'))
+            throw new InvalidDataException("The archive contains an invalid file path.");
+
+        var path = Path.GetFullPath(Path.Combine(root, key));
+        if (!path.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException("An archive entry resolves outside the model directory.");
+
+        for (string? current = path; current != null; current = Path.GetDirectoryName(current))
+        {
+            try
+            {
+                if ((File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0)
+                    throw new InvalidDataException("An archive entry resolves through a filesystem link.");
+            }
+            catch (FileNotFoundException) { }
+            catch (DirectoryNotFoundException) { }
+        }
+
+        return path;
     }
 
     private static void TryDelete(string path)
@@ -669,10 +723,19 @@ public class SherpaModelService
     /// </summary>
     public static async Task DownloadModelAsync(CatalogModel model, IProgress<(int percent, string status)>? progress = null)
     {
-        if (string.IsNullOrEmpty(model.Url))
-            throw new InvalidOperationException($"Model {model.Id} has no download URL");
+        if (!model.CanDownload)
+            throw new InvalidOperationException($"Model {model.Id} is unavailable for this Sherpa-ONNX runtime.");
 
-        var destDir = Path.Combine(ModelsDir, model.Id);
+        if (model.Readiness == "needs_bundle")
+        {
+            progress?.Report((0, Localization.Loc.GetString("PreparingPronunciationData")));
+            if (!await Task.Run(() => Native.tts_provision_sherpa_g2p_bundle(model.Id)))
+                throw new InvalidOperationException(Localization.Loc.GetString("PronunciationDataFailed"));
+        }
+
+        await EnsureZipvoiceVocoderAsync(model, progress);
+
+        var destDir = GetArchiveOutputPath(ModelsDir, model.Id);
         var lastSegment = model.Url.Split('/').Last();
 
         // Route 1: HuggingFace directory (MMS models) — no archive extension
@@ -688,15 +751,14 @@ public class SherpaModelService
         // partial archive, then extract under the archive lock (scans and
         // double-clicks used to race the same files and fail with
         // "being used by another process").
-        var destFile = Path.Combine(destDir, lastSegment);
-        var partFile = destFile + ".part";
+        var destFile = GetArchiveOutputPath(destDir, lastSegment);
+        var partFile = GetArchiveOutputPath(destDir, lastSegment + ".part");
         progress?.Report((0, $"Connecting to {lastSegment}..."));
 
         using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(30) };
         using var response = await http.GetAsync(model.Url, HttpCompletionOption.ResponseHeadersRead);
         if (!response.IsSuccessStatusCode)
         {
-            SafeDeleteDir(destDir);
             throw new HttpRequestException(
                 $"HTTP {(int)response.StatusCode} {response.StatusCode} for {lastSegment}");
         }
@@ -752,18 +814,7 @@ public class SherpaModelService
 
             // Extract the archive using built-in SharpCompress (no 7-Zip needed)
             progress?.Report((100, "Extracting..."));
-            if (lastSegment.EndsWith(".tar.bz2"))
-            {
-                var tarFile = destFile.Replace(".tar.bz2", ".tar");
-                ExtractBz2(destFile, tarFile);
-                if (File.Exists(tarFile))
-                    ExtractTar(tarFile, destDir);
-                TryDelete(tarFile);
-            }
-            else if (lastSegment.EndsWith(".tar"))
-            {
-                ExtractTar(destFile, destDir);
-            }
+            ExtractModelArchive(destFile, destDir);
             TryDelete(destFile);
         }
         catch (IOException ex) when (ex.Message.Contains("being used by another process"))
@@ -776,10 +827,6 @@ public class SherpaModelService
         {
             ArchiveLock.Release();
         }
-
-        // Zipvoice archives do not bundle the vocoder — fetch it into the
-        // shared models dir so synthesis works out of the box.
-        await EnsureZipvoiceVocoderAsync(model, progress);
 
         // Generate the piper sidecar while the catalog entry (with the
         // sample rate) is at hand, so consumers can pick the voice
@@ -818,26 +865,32 @@ public class SherpaModelService
         if (!string.Equals(model.ModelType, "zipvoice", StringComparison.OrdinalIgnoreCase))
             return;
 
-        var vocoderPath = Path.Combine(ModelsDir, "vocos_24khz.onnx");
+        var vocoderPath = GetArchiveOutputPath(ModelsDir, "vocos_24khz.onnx");
         if (File.Exists(vocoderPath) && new FileInfo(vocoderPath).Length > 0)
             return;
 
         const string vocoderUrl =
             "https://github.com/k2-fsa/sherpa-onnx/releases/download/vocoder-models/vocos_24khz.onnx";
-        progress?.Report((100, "Fetching vocos vocoder (needed by zipvoice)..."));
+        progress?.Report((0, "Fetching the ZipVoice vocoder..."));
+        Directory.CreateDirectory(ModelsDir);
+        var partialPath = vocoderPath + "." + Guid.NewGuid().ToString("N") + ".part";
         try
         {
             using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(10) };
             using var response = await http.GetAsync(vocoderUrl, HttpCompletionOption.ResponseHeadersRead);
             response.EnsureSuccessStatusCode();
             await using var src = await response.Content.ReadAsStreamAsync();
-            await using var dst = File.Create(vocoderPath);
-            await src.CopyToAsync(dst);
+            await using (var dst = File.Create(partialPath))
+            {
+                await src.CopyToAsync(dst);
+                if (dst.Length == 0)
+                    throw new InvalidDataException("The downloaded ZipVoice vocoder is empty.");
+            }
+            File.Move(partialPath, vocoderPath, overwrite: true);
         }
-        catch
+        finally
         {
-            // Leave it missing — the wrapper errors with the download URL.
-            try { if (File.Exists(vocoderPath)) File.Delete(vocoderPath); } catch { }
+            TryDelete(partialPath);
         }
     }
 

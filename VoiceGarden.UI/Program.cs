@@ -28,6 +28,9 @@ internal partial class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        var skipElevation = args.Contains("--no-elevate", StringComparer.OrdinalIgnoreCase);
+        args = Array.FindAll(args, arg => !string.Equals(arg, "--no-elevate", StringComparison.OrdinalIgnoreCase));
+
         // CLI mode if any arguments provided (never force elevation for CLI —
         // scripts/tests call it; promotion paths self-elevate per action)
         if (args.Length > 0)
@@ -42,7 +45,7 @@ internal partial class Program
         // the installer-spawned copy runs elevated) otherwise hits a UAC
         // round-trip per action, which silently failed removals when the
         // prompt was missed. One prompt at launch instead.
-        if (!args.Contains("--no-elevate", StringComparer.OrdinalIgnoreCase) && !IsElevated())
+        if (!skipElevation && !IsElevated())
         {
             try
             {

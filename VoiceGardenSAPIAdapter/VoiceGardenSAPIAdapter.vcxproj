@@ -522,6 +522,11 @@
   <ItemGroup>
     <Midl Include="VoiceGardenSAPIAdapter.idl" />
   </ItemGroup>
+  <ItemDefinitionGroup Condition="'$(EnableExperimentalLocalEngines)' == 'true'">
+    <ClCompile>
+      <PreprocessorDefinitions>VOICEGARDEN_EXPERIMENTAL_LOCAL_ENGINES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\YY-Thunks.1.1.9\build\native\YY-Thunks.targets" Condition="Exists('..\packages\YY-Thunks.1.1.9\build\native\YY-Thunks.targets')" />

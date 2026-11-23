@@ -610,4 +610,22 @@
   <data name="FilterInstalledOnly" xml:space="preserve">
     <value>Show installed voices only</value>
   </data>
+  <data name="QwenCloudEngineName" xml:space="preserve">
+    <value>Qwen Cloud</value>
+  </data>
+  <data name="ShowExperimentalEngines" xml:space="preserve">
+    <value>Show experimental engines</value>
+  </data>
+  <data name="SelectVisibleEngineHint" xml:space="preserve">
+    <value>Select visible standard engines. Enable experimental engines individually.</value>
+  </data>
+  <data name="ExperimentalEngine" xml:space="preserve">
+    <value>Experimental</value>
+  </data>
+  <data name="PreparingPronunciationData" xml:space="preserve">
+    <value>Preparing pronunciation data…</value>
+  </data>
+  <data name="PronunciationDataFailed" xml:space="preserve">
+    <value>Could not prepare pronunciation data. Check your connection and try again.</value>
+  </data>
 </root>

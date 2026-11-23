@@ -486,10 +486,10 @@ public static class LocalEngineService
         value.Replace("\\", "\\\\").Replace("\"", "\\\"");
 
     /// <summary>Promote every voice of every installed engine. (promote-all)</summary>
-    public static (int promoted, int failed) PromoteAll()
+    public static (int promoted, int failed) PromoteAll(IEnumerable<LocalEngine> engines)
     {
         int promoted = 0, failed = 0;
-        foreach (var engine in Catalog.Where(IsInstalled))
+        foreach (var engine in engines.Where(IsInstalled))
         {
             foreach (var voice in engine.Voices)
             {

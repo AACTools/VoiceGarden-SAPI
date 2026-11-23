@@ -69,7 +69,7 @@ public partial class VoiceEntry : ObservableObject
 
     public bool CanPromote => !IsInstalled && ((IsSherpa || IsLocalGguf) ? IsDownloaded : true);
 
-    public bool ShowDownload => (IsSherpa || IsLocalGguf) && !IsDownloaded;
+    public bool ShowDownload => !IsDownloaded && (IsLocalGguf || CatalogModel?.CanDownload == true);
 
     public string QualityBadge => string.IsNullOrEmpty(Quality) || Quality == "unknown" ? "" : Quality;
 
@@ -80,7 +80,7 @@ public partial class VoiceEntry : ObservableObject
         !string.IsNullOrEmpty(Quantization) && Quantization != "fp32" ? Quantization : "";
 
     /// <summary>Disambiguates rows that share a display name (e.g. the three Urdu script variants).</summary>
-    public string AutomationLabel => Id == Name ? Name : $"{Name} ({Id})";
+    public string AutomationLabel => IsLocalGguf ? $"{EngineName}, {Name}" : Id == Name ? Name : $"{Name} ({Id})";
 
     public string GenderLabel => Gender is "Male" or "Female" ? Gender : "";
 
@@ -339,7 +339,7 @@ public partial class VoicesViewModel : ObservableObject
                 EngineName = Loc.GetString(engine.EngineId == "qwen3-local"
                     ? "Qwen3LocalEngineName" : "OmniVoiceLocalEngineName"),
                 Id = voice.Id,
-                Name = $"{engine.DisplayName} ({voice.Display})",
+                Name = voice.Display,
                 Language = voice.Bcp47,
                 LocalEngine = engine,
                 LocalVoice = voice,
@@ -356,17 +356,26 @@ public partial class VoicesViewModel : ObservableObject
             // Catalog load + item mapping off the UI thread (1300+ models).
             var entries = await Task.Run(async () =>
             {
-                var catalog = (await SherpaModelService.LoadCatalogAsync())
-                    // fp16 builds SIGABRT the wrapper's CPU-only ONNX runtime —
-                    // hide them from the downloadable list.
-                    .Where(c => !c.Url.Contains("fp16", StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-                var installed = SherpaModelService.ScanInstalledModels();
+                List<SherpaModelService.CatalogModel> catalog;
+                try
+                {
+                    catalog = await SherpaModelService.LoadCatalogAsync();
+                }
+                catch (Exception ex)
+                {
+                    notes.Add(Loc.GetString("VoicesFetchFailed", Loc.GetString("SherpaOnnxEngineName"), ex.Message));
+                    catalog = new();
+                }
+
+                var installed = SherpaModelService.ScanInstalledModels()
+                    .Where(model => model.ModelPath != null)
+                    .ToDictionary(model => model.Id, StringComparer.OrdinalIgnoreCase);
 
                 var list = new List<VoiceEntry>(catalog.Count);
                 foreach (var cat in catalog)
                 {
-                    var inst = installed.FirstOrDefault(i => i.Id == cat.Id);
+                    var isDownloaded = installed.Remove(cat.Id);
+                    if (!cat.CanDownload && !isDownloaded) continue;
                     list.Add(new VoiceEntry
                     {
                         Kind = AggregatedVoiceKind.SherpaModel,
@@ -380,14 +389,13 @@ public partial class VoicesViewModel : ObservableObject
                         Gender = SherpaModelService.DeriveSherpaGender(cat.Id, cat.Name, cat.NumSpeakers ?? 1),
                         SampleRate = cat.SampleRate ?? 24000,
                         CatalogModel = cat,
-                        IsDownloaded = inst != null,
+                        IsDownloaded = isDownloaded,
                     });
                 }
 
                 // Installed models not present in the catalog
-                foreach (var inst2 in installed)
+                foreach (var inst2 in installed.Values)
                 {
-                    if (list.Any(v => v.Id == inst2.Id)) continue;
                     list.Add(new VoiceEntry
                     {
                         Kind = AggregatedVoiceKind.SherpaModel,
@@ -622,7 +630,7 @@ public partial class VoicesViewModel : ObservableObject
     private async Task Download(VoiceEntry? voice)
     {
         if (voice == null || voice.IsDownloading) return;
-        if (voice.IsSherpa && voice.CatalogModel == null) return;
+        if (!voice.ShowDownload) return;
         if (voice.IsLocalGguf && voice.LocalEngine == null) return;
         ClearError();
 
@@ -643,7 +651,7 @@ public partial class VoicesViewModel : ObservableObject
             var progress = new Progress<(int pct, string msg)>(p =>
             {
                 voice.DownloadProgress = p.pct;
-                voice.DownloadStatus = $"{p.pct}% - {voice.Id}";
+                voice.DownloadStatus = p.msg;
             });
 
             await SherpaModelService.DownloadModelAsync(voice.CatalogModel, (IProgress<(int, string)>)progress);
